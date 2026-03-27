@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "check:lint": "eslint",
+    "check:format": "prettier --check .",
+    "format": "prettier --write ."
   },
   "dependencies": {
     "next": "16.2.1",
@@ -21,6 +23,10 @@
     "babel-plugin-react-compiler": "1.0.0",
     "eslint": "^9",
     "eslint-config-next": "16.2.1",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.8.1",
+    "prettier-config-standard": "^7.0.0",
+    "prettier-plugin-tailwindcss": "^0.7.2",
     "tailwindcss": "^4",
     "typescript": "^5"
   },
