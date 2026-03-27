@@ -46,3 +46,8 @@ src/lib/shadcn/
 
 # generated migrations file
 src/db/__migrations/
+
+# agents
+.agents
+.claude
+.gemini

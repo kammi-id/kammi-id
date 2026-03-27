@@ -1,6 +1,15 @@
 import type { ReactNode } from 'react'
 import type { Metadata } from 'next'
 import './globals.css'
+import { Public_Sans, Merriweather } from 'next/font/google'
+import { cn } from '~/lib/shadcn/utils'
+
+const merriweatherHeading = Merriweather({
+  subsets: ['latin'],
+  variable: '--font-heading'
+})
+
+const publicSans = Public_Sans({ subsets: ['latin'], variable: '--font-sans' })
 
 export const metadata: Metadata = {
   title: 'Create Next App',
@@ -13,7 +22,15 @@ const RootLayout = ({
   children: ReactNode
 }>) => {
   return (
-    <html lang='en' className='antialiased'>
+    <html
+      lang='en'
+      className={cn(
+        'antialiased',
+        'font-sans',
+        publicSans.variable,
+        merriweatherHeading.variable
+      )}
+    >
       <body className='min-h-dvh'>{children}</body>
     </html>
   )
