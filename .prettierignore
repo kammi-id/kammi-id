@@ -49,5 +49,6 @@ src/db/__migrations/
 
 # agents
 .agents
+.blackbox
 .claude
 .gemini
