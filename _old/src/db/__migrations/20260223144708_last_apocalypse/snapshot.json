@@ -1,0 +1,2331 @@
+{
+  "version": "8",
+  "dialect": "postgres",
+  "id": "5e14ff41-8a5c-4e43-9f0e-6888db16a048",
+  "prevIds": [
+    "c3a42e19-045e-4c1b-a67b-3c541ed105e1"
+  ],
+  "ddl": [
+    {
+      "isRlsEnabled": false,
+      "name": "manager",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "managerial_period",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "member",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "member_career",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "member_education",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "organization",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "session",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "training",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "training_attendants",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "training_instructors",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "user",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "managerial_period_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "manager"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "manager_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "manager"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "role",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "manager"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "role_title",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "manager"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "department",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "manager"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "sub_department",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "manager"
+    },
+    {
+      "type": "boolean",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "isDailyManager",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "manager"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "managerial_period"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "organization_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "managerial_period"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "year_start",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "managerial_period"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "year_end",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "managerial_period"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "member"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "id_number",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "member"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "name",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "member"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "birth_place",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "member"
+    },
+    {
+      "type": "date",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "birth_date",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "member"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "phone",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "member"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "photo",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "member"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "gender",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "member"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "address_province",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "member"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "address_province_code",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "member"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "address_city",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "member"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "address_city_code",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "member"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "address_district",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "member"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "address_district_code",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "member"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "address_subdistrict",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "member"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "address_subdistrict_code",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "member"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "address_line",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "member"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": {
+        "as": "\n        coalesce(\"member\".\"address_line\" || ', ', '') ||\n        coalesce('Desa/Kel. ' || \"member\".\"address_subdistrict\" || ', ', '') ||\n        coalesce('Kec. ' || \"member\".\"address_district\" || ', ', '') ||\n        coalesce(\"member\".\"address_city\" || ', ', '') ||\n        \"member\".\"address_province\"\n      ",
+        "type": "stored"
+      },
+      "identity": null,
+      "name": "address_full",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "member"
+    },
+    {
+      "type": "boolean",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": "false",
+      "generated": null,
+      "identity": null,
+      "name": "is_an_alumn",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "member"
+    },
+    {
+      "type": "boolean",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": "false",
+      "generated": null,
+      "identity": null,
+      "name": "is_suspended",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "member"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "registered_at_organization_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "member"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "member_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "member_career"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "type",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "member_career"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "employer_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "member_career"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "employer_name",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "member_career"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "position",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "member_career"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "year_start",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "member_career"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "year_end",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "member_career"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "member_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "member_education"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "type",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "member_education"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "institution_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "member_education"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "institution_name",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "member_education"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "major",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "member_education"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "year_start",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "member_education"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "year_end",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "member_education"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "organization"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "name",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "organization"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "slug",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "organization"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "code",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "organization"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": {
+        "as": "lower(replace(\"organization\".\"code\", '.', '-'))",
+        "type": "stored"
+      },
+      "identity": null,
+      "name": "code_slug",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "organization"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "type",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "organization"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": {
+        "as": "\n        case \"organization\".\"type\"\n          when 'pp' then 1\n          when 'pw' then 2\n          when 'pd' then 3\n          when 'pdln' then 3\n          when 'pk' then 4\n        end\n      ",
+        "type": "stored"
+      },
+      "identity": null,
+      "name": "level",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "organization"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "logo",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "organization"
+    },
+    {
+      "type": "boolean",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": "true",
+      "generated": null,
+      "identity": null,
+      "name": "is_active",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "organization"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "parent_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "organization"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "session"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "secret_hash",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "session"
+    },
+    {
+      "type": "bigint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "created_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "session"
+    },
+    {
+      "type": "bigint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "last_verified_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "session"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "user_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "session"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "training"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "name",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "training"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "type",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "training"
+    },
+    {
+      "type": "date",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "date_start",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "training"
+    },
+    {
+      "type": "date",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "date_end",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "training"
+    },
+    {
+      "type": "date",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "registration_until",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "training"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "organizer_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "training"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "training_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "training_attendants"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "attendant_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "training_attendants"
+    },
+    {
+      "type": "boolean",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": "false",
+      "generated": null,
+      "identity": null,
+      "name": "is_passing",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "training_attendants"
+    },
+    {
+      "type": "boolean",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": "false",
+      "generated": null,
+      "identity": null,
+      "name": "is_admitted",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "training_attendants"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "training_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "training_instructors"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "instructor_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "training_instructors"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "role",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "training_instructors"
+    },
+    {
+      "type": "boolean",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": "false",
+      "generated": null,
+      "identity": null,
+      "name": "is_intern",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "training_instructors"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "user"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "name",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "user"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "display_name",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "user"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "password_hash",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "user"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "role",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "user"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "connected_organization_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "user"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "connected_member_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "user"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "managerial_period_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "manager_managerial_period_id_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "manager"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "manager_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "manager_manager_id_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "manager"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "organization_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "managerial_period_organization_id_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "managerial_period"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "registered_at_organization_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "member_registered_at_organization_id_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "member"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "gender",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "member_gender_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "member"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "\"name\" gin_trgm_ops",
+          "isExpression": true,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "gin",
+      "concurrently": false,
+      "name": "member_name_gin_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "member"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "\"id_number\" gin_trgm_ops",
+          "isExpression": true,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "gin",
+      "concurrently": false,
+      "name": "member_id_number_gin_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "member"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "type",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "member_career_type_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "member_career"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "employer_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "member_career_employer_id_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "member_career"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "\"employer_name\" gin_trgm_ops",
+          "isExpression": true,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "gin",
+      "concurrently": false,
+      "name": "member_career_employer_name_gin_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "member_career"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "\"position\" gin_trgm_ops",
+          "isExpression": true,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "gin",
+      "concurrently": false,
+      "name": "member_career_position_gin_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "member_career"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "type",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "member_education_type_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "member_education"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "institution_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "member_education_institution_id_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "member_education"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "\"institution_name\" gin_trgm_ops",
+          "isExpression": true,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "gin",
+      "concurrently": false,
+      "name": "member_education_institution_name_gin_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "member_education"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "\"major\" gin_trgm_ops",
+          "isExpression": true,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "gin",
+      "concurrently": false,
+      "name": "member_education_major_gin_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "member_education"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "parent_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "organization_parent_id_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "organization"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "code",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": true,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "organization_code_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "organization"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "code_slug",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": true,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "organization_code_slug_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "organization"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "\"name\" gin_trgm_ops",
+          "isExpression": true,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "gin",
+      "concurrently": false,
+      "name": "organization_name_gin_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "organization"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "user_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "session_user_id_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "session"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "last_verified_at",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "session_last_verified_at_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "session"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "organizer_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "training_organizer_id_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "training"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "date_start",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "training_date_start_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "training"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "date_end",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "training_date_end_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "training"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "type",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "training_type_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "training"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "\"name\" gin_trgm_ops",
+          "isExpression": true,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "gin",
+      "concurrently": false,
+      "name": "training_name_gin_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "training"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "training_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "training_attendants_training_id_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "training_attendants"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "attendant_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "training_attendants_attendant_id_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "training_attendants"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "training_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "training_instructors_training_id_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "training_instructors"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "instructor_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "training_instructors_instructor_id_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "training_instructors"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "connected_organization_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "user_connected_organization_id_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "user"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "connected_member_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "user_connected_member_id_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "user"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "managerial_period_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "managerial_period",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "NO ACTION",
+      "name": "manager_managerial_period_id_managerial_period_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "manager"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "manager_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "member",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "NO ACTION",
+      "name": "manager_manager_id_member_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "manager"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "organization_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "organization",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "NO ACTION",
+      "name": "managerial_period_organization_id_organization_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "managerial_period"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "registered_at_organization_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "organization",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "NO ACTION",
+      "name": "member_registered_at_organization_id_organization_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "member"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "member_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "member",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "NO ACTION",
+      "name": "member_career_member_id_member_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "member_career"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "member_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "member",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "NO ACTION",
+      "name": "member_education_member_id_member_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "member_education"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "parent_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "organization",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "NO ACTION",
+      "name": "organization_parent_id_organization_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "organization"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "user_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "user",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "NO ACTION",
+      "name": "session_user_id_user_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "session"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "organizer_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "organization",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "NO ACTION",
+      "name": "training_organizer_id_organization_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "training"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "training_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "training",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "NO ACTION",
+      "name": "training_attendants_training_id_training_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "training_attendants"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "attendant_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "member",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "NO ACTION",
+      "name": "training_attendants_attendant_id_member_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "training_attendants"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "training_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "training",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "NO ACTION",
+      "name": "training_instructors_training_id_training_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "training_instructors"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "instructor_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "member",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "NO ACTION",
+      "name": "training_instructors_instructor_id_member_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "training_instructors"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "connected_organization_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "organization",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "user_connected_organization_id_organization_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "user"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "connected_member_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "member",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "user_connected_member_id_member_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "user"
+    },
+    {
+      "columns": [
+        "managerial_period_id",
+        "manager_id"
+      ],
+      "nameExplicit": false,
+      "name": "manager_pkey",
+      "entityType": "pks",
+      "schema": "public",
+      "table": "manager"
+    },
+    {
+      "columns": [
+        "member_id",
+        "employer_id",
+        "position"
+      ],
+      "nameExplicit": false,
+      "name": "member_career_pkey",
+      "entityType": "pks",
+      "schema": "public",
+      "table": "member_career"
+    },
+    {
+      "columns": [
+        "member_id",
+        "type",
+        "institution_id",
+        "major"
+      ],
+      "nameExplicit": false,
+      "name": "member_education_pkey",
+      "entityType": "pks",
+      "schema": "public",
+      "table": "member_education"
+    },
+    {
+      "columns": [
+        "training_id",
+        "attendant_id"
+      ],
+      "nameExplicit": false,
+      "name": "training_attendants_pkey",
+      "entityType": "pks",
+      "schema": "public",
+      "table": "training_attendants"
+    },
+    {
+      "columns": [
+        "training_id",
+        "instructor_id"
+      ],
+      "nameExplicit": false,
+      "name": "training_instructors_pkey",
+      "entityType": "pks",
+      "schema": "public",
+      "table": "training_instructors"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "managerial_period_pkey",
+      "schema": "public",
+      "table": "managerial_period",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "member_pkey",
+      "schema": "public",
+      "table": "member",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "organization_pkey",
+      "schema": "public",
+      "table": "organization",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "session_pkey",
+      "schema": "public",
+      "table": "session",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "training_pkey",
+      "schema": "public",
+      "table": "training",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "user_pkey",
+      "schema": "public",
+      "table": "user",
+      "entityType": "pks"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "id_number"
+      ],
+      "nullsNotDistinct": false,
+      "name": "member_id_number_key",
+      "schema": "public",
+      "table": "member",
+      "entityType": "uniques"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "slug"
+      ],
+      "nullsNotDistinct": false,
+      "name": "organization_slug_key",
+      "schema": "public",
+      "table": "organization",
+      "entityType": "uniques"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "code"
+      ],
+      "nullsNotDistinct": false,
+      "name": "organization_code_key",
+      "schema": "public",
+      "table": "organization",
+      "entityType": "uniques"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "code_slug"
+      ],
+      "nullsNotDistinct": false,
+      "name": "organization_code_slug_key",
+      "schema": "public",
+      "table": "organization",
+      "entityType": "uniques"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "name"
+      ],
+      "nullsNotDistinct": false,
+      "name": "user_name_key",
+      "schema": "public",
+      "table": "user",
+      "entityType": "uniques"
+    },
+    {
+      "definition": "with \"session_cte\" as (with \"user_cte\" as (with \"member_cte\" as (with \"member_status_cte\" as (with \"training_serial_cte\" as (select \"id\", \n        (extract(year from \"date_start\")::text ||\n        lpad(row_number() over (\n          partition by \"organizer_id\", extract(year from \"date_start\")\n          order by \"date_start\" asc, \"id\" asc\n        )::text, 3, '0'))\n       as \"serial\" from \"training\") select \"member\".\"id\", \n        coalesce(\n          json_agg(\n            json_build_object(\n              'id', \"training\".\"id\",\n              'name', \"training\".\"name\",\n              'type', \"training\".\"type\",\n              'dateStart', \"training\".\"date_start\",\n              'dateEnd', \"training\".\"date_end\",\n              'serial', \"training_serial_cte\".\"serial\",\n              'isPassing', \"training_attendants\".\"is_passing\"\n            )\n          ) filter (where \"training\".\"id\" is not null),\n          '[]'::json\n        )\n       as \"trainings\", \n        case\n          max(\n            case\n              when \"training\".\"type\" = 'dm3' and \"training_attendants\".\"is_passing\" = true then 3\n              when \"training\".\"type\" = 'dm2' and \"training_attendants\".\"is_passing\" = true then 2\n              when \"training\".\"type\" = 'dm1' and \"training_attendants\".\"is_passing\" = true then 1\n              else 0\n            end\n          )\n            when 3 then 'ab3'\n            when 2 then 'ab2'\n            when 1 then 'ab1'\n            else null\n        end\n       as \"status\", \n        case\n          max(\n            case\n              when \"training\".\"type\" = 'dpmk' and \"training_attendants\".\"is_passing\" = true then 1\n              else 0\n            end\n          )\n            when 1 then true\n            else false\n        end\n       as \"is_certified_mentor\", \n        case\n          max(\n            case\n              when \"training\".\"type\" = 'tfi' and \"training_attendants\".\"is_passing\" = true then 1\n              else 0\n            end\n          )\n            when 1 then true\n            else false\n        end\n       as \"is_certified_instructor\" from \"member\" left join \"training_attendants\" on \"member\".\"id\" = \"training_attendants\".\"attendant_id\" left join \"training\" on \"training_attendants\".\"training_id\" = \"training\".\"id\" left join \"training_serial_cte\" on \"training\".\"id\" = \"training_serial_cte\".\"id\" group by \"member\".\"id\"), \"member_education_cte\" as (select \"member_id\", \n        coalesce(\n          json_agg(\n            json_build_object(\n              'type', \"type\",\n              'institutionId', \"institution_id\",\n              'institutionName', \"institution_name\",\n              'major', \"major\",\n              'yearStart', \"year_start\",\n              'yearEnd', \"year_end\"\n            )\n          ) filter (where \"member_id\" is not null),\n          '[]'::json\n        )\n       as \"educations\" from \"member_education\" group by \"member_education\".\"member_id\"), \"member_career_cte\" as (select \"member_id\", \n        coalesce(\n          json_agg(\n            json_build_object(\n              'type', \"type\",\n              'employerId', \"employer_id\",\n              'employerName', \"employer_name\",\n              'position', \"position\",\n              'yearStart', \"year_start\",\n              'yearEnd', \"year_end\"\n            )\n          ) filter (where \"member_id\" is not null),\n          '[]'::json\n        )\n       as \"careers\" from \"member_career\" group by \"member_career\".\"member_id\"), \"organization_with_hierarchy_cte\" as (with \"organization_children_cte\" as (select \"parent_id\", \n        coalesce(\n          json_agg(\n            json_build_object(\n              'id', \"id\",\n              'name', \"name\",\n              'slug', \"slug\",\n              'code', \"code\",\n              'codeSlug', \"code_slug\",\n              'type', \"type\",\n              'level', \"level\",\n              'logo', \"logo\",\n              'isActive', \"is_active\"\n            )\n          ) filter (where \"id\" is not null),\n          '[]'::json\n        )\n       as \"children\", count(\"id\") as \"child_count\" from \"organization\" group by \"organization\".\"parent_id\") select \"organization\".\"id\", \"organization\".\"name\", \"organization\".\"slug\", \"organization\".\"code\", \"organization\".\"code_slug\", \"organization\".\"type\", \"organization\".\"level\", \"organization\".\"logo\", \"organization\".\"is_active\", \n          coalesce(\"organization_children_cte\".\"children\", '[]'::json)\n         as \"children\", \n          coalesce(\"organization_children_cte\".\"child_count\", 0)\n         as \"child_count\", \n          case\n            when \"parent\".\"type\" = 'pd' then\n              json_build_object(\n                'id', \"parent\".\"id\",\n                'name', \"parent\".\"name\",\n                'slug', \"parent\".\"slug\",\n                'code', \"parent\".\"code\",\n                'codeSlug', \"parent\".\"code_slug\",\n                'type', \"parent\".\"type\",\n                'level', \"parent\".\"level\",\n                'logo', \"parent\".\"logo\",\n                'isActive', \"parent\".\"is_active\"\n              )\n            else null\n          end\n         as \"pd\", \n          case\n            when \"parent\".\"type\" = 'pdln' then\n              json_build_object(\n                'id', \"parent\".\"id\",\n                'name', \"parent\".\"name\",\n                'slug', \"parent\".\"slug\",\n                'code', \"parent\".\"code\",\n                'codeSlug', \"parent\".\"code_slug\",\n                'type', \"parent\".\"type\",\n                'level', \"parent\".\"level\",\n                'logo', \"parent\".\"logo\",\n                'isActive', \"parent\".\"is_active\"\n              )\n            else null\n          end\n         as \"pdln\", \n          case\n            when \"parent\".\"type\" = 'pw' then\n              json_build_object(\n                'id', \"parent\".\"id\",\n                'name', \"parent\".\"name\",\n                'slug', \"parent\".\"slug\",\n                'code', \"parent\".\"code\",\n                'codeSlug', \"parent\".\"code_slug\",\n                'type', \"parent\".\"type\",\n                'level', \"parent\".\"level\",\n                'logo', \"parent\".\"logo\",\n                'isActive', \"parent\".\"is_active\"\n              )\n            when \"grandparent\".\"type\" = 'pw' then\n              json_build_object(\n                'id', \"grandparent\".\"id\",\n                'name', \"grandparent\".\"name\",\n                'slug', \"grandparent\".\"slug\",\n                'code', \"grandparent\".\"code\",\n                'codeSlug', \"grandparent\".\"code_slug\",\n                'type', \"grandparent\".\"type\",\n                'level', \"grandparent\".\"level\",\n                'logo', \"grandparent\".\"logo\",\n                'isActive', \"grandparent\".\"is_active\"\n              )\n            else null\n          end\n         as \"pw\", \n          array_remove(\n            array[\n              \"organization\".\"id\",\n              \"parent\".\"id\",\n              \"grandparent\".\"id\"\n            ],\n            null\n          )\n         as \"scope_id\" from \"organization\" left join \"organization_children_cte\" on \"organization\".\"id\" = \"organization_children_cte\".\"parent_id\" left join \"organization\" \"parent\" on \"organization\".\"parent_id\" = \"parent\".\"id\" left join \"organization\" \"grandparent\" on \"parent\".\"parent_id\" = \"grandparent\".\"id\") select \"member\".\"id\", \"member\".\"id_number\", \"member\".\"name\", \"member\".\"birth_place\", \"member\".\"birth_date\", \"member\".\"phone\", \"member\".\"photo\", \"member\".\"gender\", \"member\".\"address_province\", \"member\".\"address_province_code\", \"member\".\"address_city\", \"member\".\"address_city_code\", \"member\".\"address_district\", \"member\".\"address_district_code\", \"member\".\"address_subdistrict\", \"member\".\"address_subdistrict_code\", \"member\".\"address_line\", \"member\".\"address_full\", \"member\".\"is_an_alumn\", \"member\".\"is_suspended\", \"member_status_cte\".\"trainings\", \"member_status_cte\".\"status\", \"member_education_cte\".\"educations\", \"member_career_cte\".\"careers\", \"member_status_cte\".\"is_certified_mentor\", \"member_status_cte\".\"is_certified_instructor\", \n          json_build_object(\n            'id', \"organization_with_hierarchy_cte\".\"id\",\n            'name', \"organization_with_hierarchy_cte\".\"name\",\n            'slug', \"organization_with_hierarchy_cte\".\"slug\",\n            'code', \"organization_with_hierarchy_cte\".\"code\",\n            'codeSlug', \"organization_with_hierarchy_cte\".\"code_slug\",\n            'type', \"organization_with_hierarchy_cte\".\"type\",\n            'level', \"organization_with_hierarchy_cte\".\"level\",\n            'logo', \"organization_with_hierarchy_cte\".\"logo\",\n            'isActive', \"organization_with_hierarchy_cte\".\"is_active\",\n            'pd', \"organization_with_hierarchy_cte\".\"pd\",\n            'pdln', \"organization_with_hierarchy_cte\".\"pdln\",\n            'pw', \"organization_with_hierarchy_cte\".\"pw\"\n          )\n         as \"registered_at\", \"organization_with_hierarchy_cte\".\"scope_id\" from \"member\" left join \"member_status_cte\" on \"member\".\"id\" = \"member_status_cte\".\"id\" left join \"member_education_cte\" on \"member\".\"id\" = \"member_education_cte\".\"member_id\" left join \"member_career_cte\" on \"member\".\"id\" = \"member_career_cte\".\"member_id\" left join \"organization_with_hierarchy_cte\" on \"member\".\"registered_at_organization_id\" = \"organization_with_hierarchy_cte\".\"id\"), \"organization_with_hierarchy_cte\" as (with \"organization_children_cte\" as (select \"parent_id\", \n        coalesce(\n          json_agg(\n            json_build_object(\n              'id', \"id\",\n              'name', \"name\",\n              'slug', \"slug\",\n              'code', \"code\",\n              'codeSlug', \"code_slug\",\n              'type', \"type\",\n              'level', \"level\",\n              'logo', \"logo\",\n              'isActive', \"is_active\"\n            )\n          ) filter (where \"id\" is not null),\n          '[]'::json\n        )\n       as \"children\", count(\"id\") as \"child_count\" from \"organization\" group by \"organization\".\"parent_id\") select \"organization\".\"id\", \"organization\".\"name\", \"organization\".\"slug\", \"organization\".\"code\", \"organization\".\"code_slug\", \"organization\".\"type\", \"organization\".\"level\", \"organization\".\"logo\", \"organization\".\"is_active\", \n          coalesce(\"organization_children_cte\".\"children\", '[]'::json)\n         as \"children\", \n          coalesce(\"organization_children_cte\".\"child_count\", 0)\n         as \"child_count\", \n          case\n            when \"parent\".\"type\" = 'pd' then\n              json_build_object(\n                'id', \"parent\".\"id\",\n                'name', \"parent\".\"name\",\n                'slug', \"parent\".\"slug\",\n                'code', \"parent\".\"code\",\n                'codeSlug', \"parent\".\"code_slug\",\n                'type', \"parent\".\"type\",\n                'level', \"parent\".\"level\",\n                'logo', \"parent\".\"logo\",\n                'isActive', \"parent\".\"is_active\"\n              )\n            else null\n          end\n         as \"pd\", \n          case\n            when \"parent\".\"type\" = 'pdln' then\n              json_build_object(\n                'id', \"parent\".\"id\",\n                'name', \"parent\".\"name\",\n                'slug', \"parent\".\"slug\",\n                'code', \"parent\".\"code\",\n                'codeSlug', \"parent\".\"code_slug\",\n                'type', \"parent\".\"type\",\n                'level', \"parent\".\"level\",\n                'logo', \"parent\".\"logo\",\n                'isActive', \"parent\".\"is_active\"\n              )\n            else null\n          end\n         as \"pdln\", \n          case\n            when \"parent\".\"type\" = 'pw' then\n              json_build_object(\n                'id', \"parent\".\"id\",\n                'name', \"parent\".\"name\",\n                'slug', \"parent\".\"slug\",\n                'code', \"parent\".\"code\",\n                'codeSlug', \"parent\".\"code_slug\",\n                'type', \"parent\".\"type\",\n                'level', \"parent\".\"level\",\n                'logo', \"parent\".\"logo\",\n                'isActive', \"parent\".\"is_active\"\n              )\n            when \"grandparent\".\"type\" = 'pw' then\n              json_build_object(\n                'id', \"grandparent\".\"id\",\n                'name', \"grandparent\".\"name\",\n                'slug', \"grandparent\".\"slug\",\n                'code', \"grandparent\".\"code\",\n                'codeSlug', \"grandparent\".\"code_slug\",\n                'type', \"grandparent\".\"type\",\n                'level', \"grandparent\".\"level\",\n                'logo', \"grandparent\".\"logo\",\n                'isActive', \"grandparent\".\"is_active\"\n              )\n            else null\n          end\n         as \"pw\", \n          array_remove(\n            array[\n              \"organization\".\"id\",\n              \"parent\".\"id\",\n              \"grandparent\".\"id\"\n            ],\n            null\n          )\n         as \"scope_id\" from \"organization\" left join \"organization_children_cte\" on \"organization\".\"id\" = \"organization_children_cte\".\"parent_id\" left join \"organization\" \"parent\" on \"organization\".\"parent_id\" = \"parent\".\"id\" left join \"organization\" \"grandparent\" on \"parent\".\"parent_id\" = \"grandparent\".\"id\") select \"user\".\"id\", \"user\".\"name\", \"user\".\"display_name\", \"user\".\"role\", \n        case\n          when \"member_cte\".\"id\" is not null then\n            json_build_object(\n              'id', \"member_cte\".\"id\",\n              'idNo', \"member_cte\".\"id_number\",\n              'name', \"member_cte\".\"name\",\n              'photo', \"member_cte\".\"photo\",\n              'gender', \"member_cte\".\"gender\",\n              'status', \"member_cte\".\"status\",\n              'educations', \"member_cte\".\"educations\",\n              'careers', \"member_cte\".\"careers\",\n              'isCertifiedMentor', \"member_cte\".\"is_certified_mentor\",\n              'isCertifiedInstructor', \"member_cte\".\"is_certified_instructor\",\n              'registeredAt', \"member_cte\".\"registered_at\"\n            )\n          else null\n        end\n       as \"connected_member\", \n        case\n          when \"organization_with_hierarchy_cte\".\"id\" is not null then\n            json_build_object(\n              'id', \"organization_with_hierarchy_cte\".\"id\",\n              'name', \"organization_with_hierarchy_cte\".\"name\",\n              'slug', \"organization_with_hierarchy_cte\".\"slug\",\n              'code', \"organization_with_hierarchy_cte\".\"code\",\n              'codeSlug', \"organization_with_hierarchy_cte\".\"code_slug\",\n              'type', \"organization_with_hierarchy_cte\".\"type\",\n              'level', \"organization_with_hierarchy_cte\".\"level\",\n              'logo', \"organization_with_hierarchy_cte\".\"logo\",\n              'isActive', \"organization_with_hierarchy_cte\".\"is_active\",\n              'pd', \"organization_with_hierarchy_cte\".\"pd\",\n              'pdln', \"organization_with_hierarchy_cte\".\"pdln\",\n              'pw', \"organization_with_hierarchy_cte\".\"pw\"\n            )\n          else null\n        end\n       as \"connected_organization\" from \"user\" left join \"member_cte\" on \"user\".\"connected_member_id\" = \"member_cte\".\"id\" left join \"organization_with_hierarchy_cte\" on \"user\".\"connected_organization_id\" = \"organization_with_hierarchy_cte\".\"id\") select \"session\".\"id\", \"session\".\"secret_hash\", \"session\".\"created_at\", \"session\".\"last_verified_at\", \"session\".\"user_id\", \n        json_build_object(\n          'id', \"user_cte\".\"id\",\n          'name', \"user_cte\".\"name\",\n          'displayName', \"user_cte\".\"display_name\",\n          'role', \"user_cte\".\"role\",\n          'connectedMember', \"user_cte\".\"connected_member\",\n          'connectedOrganization', \"user_cte\".\"connected_organization\"\n        )\n       as \"user\" from \"session\" left join \"user_cte\" on \"session\".\"user_id\" = \"user_cte\".\"id\") select \"id\", \"secret_hash\", \"created_at\", \"last_verified_at\", \"user_id\", \"user\" from \"session_cte\"",
+      "with": null,
+      "withNoData": null,
+      "using": null,
+      "tablespace": null,
+      "materialized": false,
+      "name": "session_view",
+      "entityType": "views",
+      "schema": "public"
+    },
+    {
+      "definition": "with \"user_cte\" as (with \"member_cte\" as (with \"member_status_cte\" as (with \"training_serial_cte\" as (select \"id\", \n        (extract(year from \"date_start\")::text ||\n        lpad(row_number() over (\n          partition by \"organizer_id\", extract(year from \"date_start\")\n          order by \"date_start\" asc, \"id\" asc\n        )::text, 3, '0'))\n       as \"serial\" from \"training\") select \"member\".\"id\", \n        coalesce(\n          json_agg(\n            json_build_object(\n              'id', \"training\".\"id\",\n              'name', \"training\".\"name\",\n              'type', \"training\".\"type\",\n              'dateStart', \"training\".\"date_start\",\n              'dateEnd', \"training\".\"date_end\",\n              'serial', \"training_serial_cte\".\"serial\",\n              'isPassing', \"training_attendants\".\"is_passing\"\n            )\n          ) filter (where \"training\".\"id\" is not null),\n          '[]'::json\n        )\n       as \"trainings\", \n        case\n          max(\n            case\n              when \"training\".\"type\" = 'dm3' and \"training_attendants\".\"is_passing\" = true then 3\n              when \"training\".\"type\" = 'dm2' and \"training_attendants\".\"is_passing\" = true then 2\n              when \"training\".\"type\" = 'dm1' and \"training_attendants\".\"is_passing\" = true then 1\n              else 0\n            end\n          )\n            when 3 then 'ab3'\n            when 2 then 'ab2'\n            when 1 then 'ab1'\n            else null\n        end\n       as \"status\", \n        case\n          max(\n            case\n              when \"training\".\"type\" = 'dpmk' and \"training_attendants\".\"is_passing\" = true then 1\n              else 0\n            end\n          )\n            when 1 then true\n            else false\n        end\n       as \"is_certified_mentor\", \n        case\n          max(\n            case\n              when \"training\".\"type\" = 'tfi' and \"training_attendants\".\"is_passing\" = true then 1\n              else 0\n            end\n          )\n            when 1 then true\n            else false\n        end\n       as \"is_certified_instructor\" from \"member\" left join \"training_attendants\" on \"member\".\"id\" = \"training_attendants\".\"attendant_id\" left join \"training\" on \"training_attendants\".\"training_id\" = \"training\".\"id\" left join \"training_serial_cte\" on \"training\".\"id\" = \"training_serial_cte\".\"id\" group by \"member\".\"id\"), \"member_education_cte\" as (select \"member_id\", \n        coalesce(\n          json_agg(\n            json_build_object(\n              'type', \"type\",\n              'institutionId', \"institution_id\",\n              'institutionName', \"institution_name\",\n              'major', \"major\",\n              'yearStart', \"year_start\",\n              'yearEnd', \"year_end\"\n            )\n          ) filter (where \"member_id\" is not null),\n          '[]'::json\n        )\n       as \"educations\" from \"member_education\" group by \"member_education\".\"member_id\"), \"member_career_cte\" as (select \"member_id\", \n        coalesce(\n          json_agg(\n            json_build_object(\n              'type', \"type\",\n              'employerId', \"employer_id\",\n              'employerName', \"employer_name\",\n              'position', \"position\",\n              'yearStart', \"year_start\",\n              'yearEnd', \"year_end\"\n            )\n          ) filter (where \"member_id\" is not null),\n          '[]'::json\n        )\n       as \"careers\" from \"member_career\" group by \"member_career\".\"member_id\"), \"organization_with_hierarchy_cte\" as (with \"organization_children_cte\" as (select \"parent_id\", \n        coalesce(\n          json_agg(\n            json_build_object(\n              'id', \"id\",\n              'name', \"name\",\n              'slug', \"slug\",\n              'code', \"code\",\n              'codeSlug', \"code_slug\",\n              'type', \"type\",\n              'level', \"level\",\n              'logo', \"logo\",\n              'isActive', \"is_active\"\n            )\n          ) filter (where \"id\" is not null),\n          '[]'::json\n        )\n       as \"children\", count(\"id\") as \"child_count\" from \"organization\" group by \"organization\".\"parent_id\") select \"organization\".\"id\", \"organization\".\"name\", \"organization\".\"slug\", \"organization\".\"code\", \"organization\".\"code_slug\", \"organization\".\"type\", \"organization\".\"level\", \"organization\".\"logo\", \"organization\".\"is_active\", \n          coalesce(\"organization_children_cte\".\"children\", '[]'::json)\n         as \"children\", \n          coalesce(\"organization_children_cte\".\"child_count\", 0)\n         as \"child_count\", \n          case\n            when \"parent\".\"type\" = 'pd' then\n              json_build_object(\n                'id', \"parent\".\"id\",\n                'name', \"parent\".\"name\",\n                'slug', \"parent\".\"slug\",\n                'code', \"parent\".\"code\",\n                'codeSlug', \"parent\".\"code_slug\",\n                'type', \"parent\".\"type\",\n                'level', \"parent\".\"level\",\n                'logo', \"parent\".\"logo\",\n                'isActive', \"parent\".\"is_active\"\n              )\n            else null\n          end\n         as \"pd\", \n          case\n            when \"parent\".\"type\" = 'pdln' then\n              json_build_object(\n                'id', \"parent\".\"id\",\n                'name', \"parent\".\"name\",\n                'slug', \"parent\".\"slug\",\n                'code', \"parent\".\"code\",\n                'codeSlug', \"parent\".\"code_slug\",\n                'type', \"parent\".\"type\",\n                'level', \"parent\".\"level\",\n                'logo', \"parent\".\"logo\",\n                'isActive', \"parent\".\"is_active\"\n              )\n            else null\n          end\n         as \"pdln\", \n          case\n            when \"parent\".\"type\" = 'pw' then\n              json_build_object(\n                'id', \"parent\".\"id\",\n                'name', \"parent\".\"name\",\n                'slug', \"parent\".\"slug\",\n                'code', \"parent\".\"code\",\n                'codeSlug', \"parent\".\"code_slug\",\n                'type', \"parent\".\"type\",\n                'level', \"parent\".\"level\",\n                'logo', \"parent\".\"logo\",\n                'isActive', \"parent\".\"is_active\"\n              )\n            when \"grandparent\".\"type\" = 'pw' then\n              json_build_object(\n                'id', \"grandparent\".\"id\",\n                'name', \"grandparent\".\"name\",\n                'slug', \"grandparent\".\"slug\",\n                'code', \"grandparent\".\"code\",\n                'codeSlug', \"grandparent\".\"code_slug\",\n                'type', \"grandparent\".\"type\",\n                'level', \"grandparent\".\"level\",\n                'logo', \"grandparent\".\"logo\",\n                'isActive', \"grandparent\".\"is_active\"\n              )\n            else null\n          end\n         as \"pw\", \n          array_remove(\n            array[\n              \"organization\".\"id\",\n              \"parent\".\"id\",\n              \"grandparent\".\"id\"\n            ],\n            null\n          )\n         as \"scope_id\" from \"organization\" left join \"organization_children_cte\" on \"organization\".\"id\" = \"organization_children_cte\".\"parent_id\" left join \"organization\" \"parent\" on \"organization\".\"parent_id\" = \"parent\".\"id\" left join \"organization\" \"grandparent\" on \"parent\".\"parent_id\" = \"grandparent\".\"id\") select \"member\".\"id\", \"member\".\"id_number\", \"member\".\"name\", \"member\".\"birth_place\", \"member\".\"birth_date\", \"member\".\"phone\", \"member\".\"photo\", \"member\".\"gender\", \"member\".\"address_province\", \"member\".\"address_province_code\", \"member\".\"address_city\", \"member\".\"address_city_code\", \"member\".\"address_district\", \"member\".\"address_district_code\", \"member\".\"address_subdistrict\", \"member\".\"address_subdistrict_code\", \"member\".\"address_line\", \"member\".\"address_full\", \"member\".\"is_an_alumn\", \"member\".\"is_suspended\", \"member_status_cte\".\"trainings\", \"member_status_cte\".\"status\", \"member_education_cte\".\"educations\", \"member_career_cte\".\"careers\", \"member_status_cte\".\"is_certified_mentor\", \"member_status_cte\".\"is_certified_instructor\", \n          json_build_object(\n            'id', \"organization_with_hierarchy_cte\".\"id\",\n            'name', \"organization_with_hierarchy_cte\".\"name\",\n            'slug', \"organization_with_hierarchy_cte\".\"slug\",\n            'code', \"organization_with_hierarchy_cte\".\"code\",\n            'codeSlug', \"organization_with_hierarchy_cte\".\"code_slug\",\n            'type', \"organization_with_hierarchy_cte\".\"type\",\n            'level', \"organization_with_hierarchy_cte\".\"level\",\n            'logo', \"organization_with_hierarchy_cte\".\"logo\",\n            'isActive', \"organization_with_hierarchy_cte\".\"is_active\",\n            'pd', \"organization_with_hierarchy_cte\".\"pd\",\n            'pdln', \"organization_with_hierarchy_cte\".\"pdln\",\n            'pw', \"organization_with_hierarchy_cte\".\"pw\"\n          )\n         as \"registered_at\", \"organization_with_hierarchy_cte\".\"scope_id\" from \"member\" left join \"member_status_cte\" on \"member\".\"id\" = \"member_status_cte\".\"id\" left join \"member_education_cte\" on \"member\".\"id\" = \"member_education_cte\".\"member_id\" left join \"member_career_cte\" on \"member\".\"id\" = \"member_career_cte\".\"member_id\" left join \"organization_with_hierarchy_cte\" on \"member\".\"registered_at_organization_id\" = \"organization_with_hierarchy_cte\".\"id\"), \"organization_with_hierarchy_cte\" as (with \"organization_children_cte\" as (select \"parent_id\", \n        coalesce(\n          json_agg(\n            json_build_object(\n              'id', \"id\",\n              'name', \"name\",\n              'slug', \"slug\",\n              'code', \"code\",\n              'codeSlug', \"code_slug\",\n              'type', \"type\",\n              'level', \"level\",\n              'logo', \"logo\",\n              'isActive', \"is_active\"\n            )\n          ) filter (where \"id\" is not null),\n          '[]'::json\n        )\n       as \"children\", count(\"id\") as \"child_count\" from \"organization\" group by \"organization\".\"parent_id\") select \"organization\".\"id\", \"organization\".\"name\", \"organization\".\"slug\", \"organization\".\"code\", \"organization\".\"code_slug\", \"organization\".\"type\", \"organization\".\"level\", \"organization\".\"logo\", \"organization\".\"is_active\", \n          coalesce(\"organization_children_cte\".\"children\", '[]'::json)\n         as \"children\", \n          coalesce(\"organization_children_cte\".\"child_count\", 0)\n         as \"child_count\", \n          case\n            when \"parent\".\"type\" = 'pd' then\n              json_build_object(\n                'id', \"parent\".\"id\",\n                'name', \"parent\".\"name\",\n                'slug', \"parent\".\"slug\",\n                'code', \"parent\".\"code\",\n                'codeSlug', \"parent\".\"code_slug\",\n                'type', \"parent\".\"type\",\n                'level', \"parent\".\"level\",\n                'logo', \"parent\".\"logo\",\n                'isActive', \"parent\".\"is_active\"\n              )\n            else null\n          end\n         as \"pd\", \n          case\n            when \"parent\".\"type\" = 'pdln' then\n              json_build_object(\n                'id', \"parent\".\"id\",\n                'name', \"parent\".\"name\",\n                'slug', \"parent\".\"slug\",\n                'code', \"parent\".\"code\",\n                'codeSlug', \"parent\".\"code_slug\",\n                'type', \"parent\".\"type\",\n                'level', \"parent\".\"level\",\n                'logo', \"parent\".\"logo\",\n                'isActive', \"parent\".\"is_active\"\n              )\n            else null\n          end\n         as \"pdln\", \n          case\n            when \"parent\".\"type\" = 'pw' then\n              json_build_object(\n                'id', \"parent\".\"id\",\n                'name', \"parent\".\"name\",\n                'slug', \"parent\".\"slug\",\n                'code', \"parent\".\"code\",\n                'codeSlug', \"parent\".\"code_slug\",\n                'type', \"parent\".\"type\",\n                'level', \"parent\".\"level\",\n                'logo', \"parent\".\"logo\",\n                'isActive', \"parent\".\"is_active\"\n              )\n            when \"grandparent\".\"type\" = 'pw' then\n              json_build_object(\n                'id', \"grandparent\".\"id\",\n                'name', \"grandparent\".\"name\",\n                'slug', \"grandparent\".\"slug\",\n                'code', \"grandparent\".\"code\",\n                'codeSlug', \"grandparent\".\"code_slug\",\n                'type', \"grandparent\".\"type\",\n                'level', \"grandparent\".\"level\",\n                'logo', \"grandparent\".\"logo\",\n                'isActive', \"grandparent\".\"is_active\"\n              )\n            else null\n          end\n         as \"pw\", \n          array_remove(\n            array[\n              \"organization\".\"id\",\n              \"parent\".\"id\",\n              \"grandparent\".\"id\"\n            ],\n            null\n          )\n         as \"scope_id\" from \"organization\" left join \"organization_children_cte\" on \"organization\".\"id\" = \"organization_children_cte\".\"parent_id\" left join \"organization\" \"parent\" on \"organization\".\"parent_id\" = \"parent\".\"id\" left join \"organization\" \"grandparent\" on \"parent\".\"parent_id\" = \"grandparent\".\"id\") select \"user\".\"id\", \"user\".\"name\", \"user\".\"display_name\", \"user\".\"role\", \n        case\n          when \"member_cte\".\"id\" is not null then\n            json_build_object(\n              'id', \"member_cte\".\"id\",\n              'idNo', \"member_cte\".\"id_number\",\n              'name', \"member_cte\".\"name\",\n              'photo', \"member_cte\".\"photo\",\n              'gender', \"member_cte\".\"gender\",\n              'status', \"member_cte\".\"status\",\n              'educations', \"member_cte\".\"educations\",\n              'careers', \"member_cte\".\"careers\",\n              'isCertifiedMentor', \"member_cte\".\"is_certified_mentor\",\n              'isCertifiedInstructor', \"member_cte\".\"is_certified_instructor\",\n              'registeredAt', \"member_cte\".\"registered_at\"\n            )\n          else null\n        end\n       as \"connected_member\", \n        case\n          when \"organization_with_hierarchy_cte\".\"id\" is not null then\n            json_build_object(\n              'id', \"organization_with_hierarchy_cte\".\"id\",\n              'name', \"organization_with_hierarchy_cte\".\"name\",\n              'slug', \"organization_with_hierarchy_cte\".\"slug\",\n              'code', \"organization_with_hierarchy_cte\".\"code\",\n              'codeSlug', \"organization_with_hierarchy_cte\".\"code_slug\",\n              'type', \"organization_with_hierarchy_cte\".\"type\",\n              'level', \"organization_with_hierarchy_cte\".\"level\",\n              'logo', \"organization_with_hierarchy_cte\".\"logo\",\n              'isActive', \"organization_with_hierarchy_cte\".\"is_active\",\n              'pd', \"organization_with_hierarchy_cte\".\"pd\",\n              'pdln', \"organization_with_hierarchy_cte\".\"pdln\",\n              'pw', \"organization_with_hierarchy_cte\".\"pw\"\n            )\n          else null\n        end\n       as \"connected_organization\" from \"user\" left join \"member_cte\" on \"user\".\"connected_member_id\" = \"member_cte\".\"id\" left join \"organization_with_hierarchy_cte\" on \"user\".\"connected_organization_id\" = \"organization_with_hierarchy_cte\".\"id\") select \"id\", \"name\", \"display_name\", \"role\", \"connected_member\", \"connected_organization\" from \"user_cte\"",
+      "with": null,
+      "withNoData": null,
+      "using": null,
+      "tablespace": null,
+      "materialized": false,
+      "name": "user_view",
+      "entityType": "views",
+      "schema": "public"
+    },
+    {
+      "definition": "with \"organization_with_hierarchy_cte\" as (with \"organization_children_cte\" as (select \"parent_id\", \n        coalesce(\n          json_agg(\n            json_build_object(\n              'id', \"id\",\n              'name', \"name\",\n              'slug', \"slug\",\n              'code', \"code\",\n              'codeSlug', \"code_slug\",\n              'type', \"type\",\n              'level', \"level\",\n              'logo', \"logo\",\n              'isActive', \"is_active\"\n            )\n          ) filter (where \"id\" is not null),\n          '[]'::json\n        )\n       as \"children\", count(\"id\") as \"child_count\" from \"organization\" group by \"organization\".\"parent_id\") select \"organization\".\"id\", \"organization\".\"name\", \"organization\".\"slug\", \"organization\".\"code\", \"organization\".\"code_slug\", \"organization\".\"type\", \"organization\".\"level\", \"organization\".\"logo\", \"organization\".\"is_active\", \n          coalesce(\"organization_children_cte\".\"children\", '[]'::json)\n         as \"children\", \n          coalesce(\"organization_children_cte\".\"child_count\", 0)\n         as \"child_count\", \n          case\n            when \"parent\".\"type\" = 'pd' then\n              json_build_object(\n                'id', \"parent\".\"id\",\n                'name', \"parent\".\"name\",\n                'slug', \"parent\".\"slug\",\n                'code', \"parent\".\"code\",\n                'codeSlug', \"parent\".\"code_slug\",\n                'type', \"parent\".\"type\",\n                'level', \"parent\".\"level\",\n                'logo', \"parent\".\"logo\",\n                'isActive', \"parent\".\"is_active\"\n              )\n            else null\n          end\n         as \"pd\", \n          case\n            when \"parent\".\"type\" = 'pdln' then\n              json_build_object(\n                'id', \"parent\".\"id\",\n                'name', \"parent\".\"name\",\n                'slug', \"parent\".\"slug\",\n                'code', \"parent\".\"code\",\n                'codeSlug', \"parent\".\"code_slug\",\n                'type', \"parent\".\"type\",\n                'level', \"parent\".\"level\",\n                'logo', \"parent\".\"logo\",\n                'isActive', \"parent\".\"is_active\"\n              )\n            else null\n          end\n         as \"pdln\", \n          case\n            when \"parent\".\"type\" = 'pw' then\n              json_build_object(\n                'id', \"parent\".\"id\",\n                'name', \"parent\".\"name\",\n                'slug', \"parent\".\"slug\",\n                'code', \"parent\".\"code\",\n                'codeSlug', \"parent\".\"code_slug\",\n                'type', \"parent\".\"type\",\n                'level', \"parent\".\"level\",\n                'logo', \"parent\".\"logo\",\n                'isActive', \"parent\".\"is_active\"\n              )\n            when \"grandparent\".\"type\" = 'pw' then\n              json_build_object(\n                'id', \"grandparent\".\"id\",\n                'name', \"grandparent\".\"name\",\n                'slug', \"grandparent\".\"slug\",\n                'code', \"grandparent\".\"code\",\n                'codeSlug', \"grandparent\".\"code_slug\",\n                'type', \"grandparent\".\"type\",\n                'level', \"grandparent\".\"level\",\n                'logo', \"grandparent\".\"logo\",\n                'isActive', \"grandparent\".\"is_active\"\n              )\n            else null\n          end\n         as \"pw\", \n          array_remove(\n            array[\n              \"organization\".\"id\",\n              \"parent\".\"id\",\n              \"grandparent\".\"id\"\n            ],\n            null\n          )\n         as \"scope_id\" from \"organization\" left join \"organization_children_cte\" on \"organization\".\"id\" = \"organization_children_cte\".\"parent_id\" left join \"organization\" \"parent\" on \"organization\".\"parent_id\" = \"parent\".\"id\" left join \"organization\" \"grandparent\" on \"parent\".\"parent_id\" = \"grandparent\".\"id\"), \"organization_managerial_summary_cte\" as (with \"managerial_period_cte\" as (with \"member_cte\" as (with \"member_status_cte\" as (with \"training_serial_cte\" as (select \"id\", \n        (extract(year from \"date_start\")::text ||\n        lpad(row_number() over (\n          partition by \"organizer_id\", extract(year from \"date_start\")\n          order by \"date_start\" asc, \"id\" asc\n        )::text, 3, '0'))\n       as \"serial\" from \"training\") select \"member\".\"id\", \n        coalesce(\n          json_agg(\n            json_build_object(\n              'id', \"training\".\"id\",\n              'name', \"training\".\"name\",\n              'type', \"training\".\"type\",\n              'dateStart', \"training\".\"date_start\",\n              'dateEnd', \"training\".\"date_end\",\n              'serial', \"training_serial_cte\".\"serial\",\n              'isPassing', \"training_attendants\".\"is_passing\"\n            )\n          ) filter (where \"training\".\"id\" is not null),\n          '[]'::json\n        )\n       as \"trainings\", \n        case\n          max(\n            case\n              when \"training\".\"type\" = 'dm3' and \"training_attendants\".\"is_passing\" = true then 3\n              when \"training\".\"type\" = 'dm2' and \"training_attendants\".\"is_passing\" = true then 2\n              when \"training\".\"type\" = 'dm1' and \"training_attendants\".\"is_passing\" = true then 1\n              else 0\n            end\n          )\n            when 3 then 'ab3'\n            when 2 then 'ab2'\n            when 1 then 'ab1'\n            else null\n        end\n       as \"status\", \n        case\n          max(\n            case\n              when \"training\".\"type\" = 'dpmk' and \"training_attendants\".\"is_passing\" = true then 1\n              else 0\n            end\n          )\n            when 1 then true\n            else false\n        end\n       as \"is_certified_mentor\", \n        case\n          max(\n            case\n              when \"training\".\"type\" = 'tfi' and \"training_attendants\".\"is_passing\" = true then 1\n              else 0\n            end\n          )\n            when 1 then true\n            else false\n        end\n       as \"is_certified_instructor\" from \"member\" left join \"training_attendants\" on \"member\".\"id\" = \"training_attendants\".\"attendant_id\" left join \"training\" on \"training_attendants\".\"training_id\" = \"training\".\"id\" left join \"training_serial_cte\" on \"training\".\"id\" = \"training_serial_cte\".\"id\" group by \"member\".\"id\"), \"member_education_cte\" as (select \"member_id\", \n        coalesce(\n          json_agg(\n            json_build_object(\n              'type', \"type\",\n              'institutionId', \"institution_id\",\n              'institutionName', \"institution_name\",\n              'major', \"major\",\n              'yearStart', \"year_start\",\n              'yearEnd', \"year_end\"\n            )\n          ) filter (where \"member_id\" is not null),\n          '[]'::json\n        )\n       as \"educations\" from \"member_education\" group by \"member_education\".\"member_id\"), \"member_career_cte\" as (select \"member_id\", \n        coalesce(\n          json_agg(\n            json_build_object(\n              'type', \"type\",\n              'employerId', \"employer_id\",\n              'employerName', \"employer_name\",\n              'position', \"position\",\n              'yearStart', \"year_start\",\n              'yearEnd', \"year_end\"\n            )\n          ) filter (where \"member_id\" is not null),\n          '[]'::json\n        )\n       as \"careers\" from \"member_career\" group by \"member_career\".\"member_id\"), \"organization_with_hierarchy_cte\" as (with \"organization_children_cte\" as (select \"parent_id\", \n        coalesce(\n          json_agg(\n            json_build_object(\n              'id', \"id\",\n              'name', \"name\",\n              'slug', \"slug\",\n              'code', \"code\",\n              'codeSlug', \"code_slug\",\n              'type', \"type\",\n              'level', \"level\",\n              'logo', \"logo\",\n              'isActive', \"is_active\"\n            )\n          ) filter (where \"id\" is not null),\n          '[]'::json\n        )\n       as \"children\", count(\"id\") as \"child_count\" from \"organization\" group by \"organization\".\"parent_id\") select \"organization\".\"id\", \"organization\".\"name\", \"organization\".\"slug\", \"organization\".\"code\", \"organization\".\"code_slug\", \"organization\".\"type\", \"organization\".\"level\", \"organization\".\"logo\", \"organization\".\"is_active\", \n          coalesce(\"organization_children_cte\".\"children\", '[]'::json)\n         as \"children\", \n          coalesce(\"organization_children_cte\".\"child_count\", 0)\n         as \"child_count\", \n          case\n            when \"parent\".\"type\" = 'pd' then\n              json_build_object(\n                'id', \"parent\".\"id\",\n                'name', \"parent\".\"name\",\n                'slug', \"parent\".\"slug\",\n                'code', \"parent\".\"code\",\n                'codeSlug', \"parent\".\"code_slug\",\n                'type', \"parent\".\"type\",\n                'level', \"parent\".\"level\",\n                'logo', \"parent\".\"logo\",\n                'isActive', \"parent\".\"is_active\"\n              )\n            else null\n          end\n         as \"pd\", \n          case\n            when \"parent\".\"type\" = 'pdln' then\n              json_build_object(\n                'id', \"parent\".\"id\",\n                'name', \"parent\".\"name\",\n                'slug', \"parent\".\"slug\",\n                'code', \"parent\".\"code\",\n                'codeSlug', \"parent\".\"code_slug\",\n                'type', \"parent\".\"type\",\n                'level', \"parent\".\"level\",\n                'logo', \"parent\".\"logo\",\n                'isActive', \"parent\".\"is_active\"\n              )\n            else null\n          end\n         as \"pdln\", \n          case\n            when \"parent\".\"type\" = 'pw' then\n              json_build_object(\n                'id', \"parent\".\"id\",\n                'name', \"parent\".\"name\",\n                'slug', \"parent\".\"slug\",\n                'code', \"parent\".\"code\",\n                'codeSlug', \"parent\".\"code_slug\",\n                'type', \"parent\".\"type\",\n                'level', \"parent\".\"level\",\n                'logo', \"parent\".\"logo\",\n                'isActive', \"parent\".\"is_active\"\n              )\n            when \"grandparent\".\"type\" = 'pw' then\n              json_build_object(\n                'id', \"grandparent\".\"id\",\n                'name', \"grandparent\".\"name\",\n                'slug', \"grandparent\".\"slug\",\n                'code', \"grandparent\".\"code\",\n                'codeSlug', \"grandparent\".\"code_slug\",\n                'type', \"grandparent\".\"type\",\n                'level', \"grandparent\".\"level\",\n                'logo', \"grandparent\".\"logo\",\n                'isActive', \"grandparent\".\"is_active\"\n              )\n            else null\n          end\n         as \"pw\", \n          array_remove(\n            array[\n              \"organization\".\"id\",\n              \"parent\".\"id\",\n              \"grandparent\".\"id\"\n            ],\n            null\n          )\n         as \"scope_id\" from \"organization\" left join \"organization_children_cte\" on \"organization\".\"id\" = \"organization_children_cte\".\"parent_id\" left join \"organization\" \"parent\" on \"organization\".\"parent_id\" = \"parent\".\"id\" left join \"organization\" \"grandparent\" on \"parent\".\"parent_id\" = \"grandparent\".\"id\") select \"member\".\"id\", \"member\".\"id_number\", \"member\".\"name\", \"member\".\"birth_place\", \"member\".\"birth_date\", \"member\".\"phone\", \"member\".\"photo\", \"member\".\"gender\", \"member\".\"address_province\", \"member\".\"address_province_code\", \"member\".\"address_city\", \"member\".\"address_city_code\", \"member\".\"address_district\", \"member\".\"address_district_code\", \"member\".\"address_subdistrict\", \"member\".\"address_subdistrict_code\", \"member\".\"address_line\", \"member\".\"address_full\", \"member\".\"is_an_alumn\", \"member\".\"is_suspended\", \"member_status_cte\".\"trainings\", \"member_status_cte\".\"status\", \"member_education_cte\".\"educations\", \"member_career_cte\".\"careers\", \"member_status_cte\".\"is_certified_mentor\", \"member_status_cte\".\"is_certified_instructor\", \n          json_build_object(\n            'id', \"organization_with_hierarchy_cte\".\"id\",\n            'name', \"organization_with_hierarchy_cte\".\"name\",\n            'slug', \"organization_with_hierarchy_cte\".\"slug\",\n            'code', \"organization_with_hierarchy_cte\".\"code\",\n            'codeSlug', \"organization_with_hierarchy_cte\".\"code_slug\",\n            'type', \"organization_with_hierarchy_cte\".\"type\",\n            'level', \"organization_with_hierarchy_cte\".\"level\",\n            'logo', \"organization_with_hierarchy_cte\".\"logo\",\n            'isActive', \"organization_with_hierarchy_cte\".\"is_active\",\n            'pd', \"organization_with_hierarchy_cte\".\"pd\",\n            'pdln', \"organization_with_hierarchy_cte\".\"pdln\",\n            'pw', \"organization_with_hierarchy_cte\".\"pw\"\n          )\n         as \"registered_at\", \"organization_with_hierarchy_cte\".\"scope_id\" from \"member\" left join \"member_status_cte\" on \"member\".\"id\" = \"member_status_cte\".\"id\" left join \"member_education_cte\" on \"member\".\"id\" = \"member_education_cte\".\"member_id\" left join \"member_career_cte\" on \"member\".\"id\" = \"member_career_cte\".\"member_id\" left join \"organization_with_hierarchy_cte\" on \"member\".\"registered_at_organization_id\" = \"organization_with_hierarchy_cte\".\"id\") select \"managerial_period\".\"id\", \"managerial_period\".\"organization_id\", \"managerial_period\".\"year_start\", \"managerial_period\".\"year_end\", \n        coalesce(\n          json_agg(\n            json_build_object(\n              'id', \"member_cte\".\"id\",\n              'idNo', \"member_cte\".\"id_number\",\n              'name', \"member_cte\".\"name\",\n              'phone', \"member_cte\".\"phone\",\n              'photo', \"member_cte\".\"photo\",\n              'gender', \"member_cte\".\"gender\",\n              'status', \"member_cte\".\"status\",\n              'role', \"manager\".\"role\",\n              'roleTitle', \"manager\".\"role_title\",\n              'department', \"manager\".\"department\",\n              'subDepartment', \"manager\".\"sub_department\",\n              'isDailyManager', \"manager\".\"isDailyManager\"\n            )\n          ) filter (where \"member_cte\".\"id\" is not null),\n          '[]'::json\n        )\n       as \"managers\" from \"managerial_period\" left join \"manager\" on \"managerial_period\".\"id\" = \"manager\".\"managerial_period_id\" left join \"member_cte\" on \"manager\".\"manager_id\" = \"member_cte\".\"id\" group by \"managerial_period\".\"id\") select \"organization_id\", \n          coalesce(\n            json_agg(\n              json_build_object(\n                'id', \"id\",\n                'yearStart', \"year_start\",\n                'yearEnd', \"year_end\",\n                'managers', \"managerial_period_cte\".\"managers\"\n              )\n              order by \"year_start\" desc\n            ),\n            '[]'::json\n          )\n         as \"periods\" from \"managerial_period_cte\" group by \"managerial_period_cte\".\"organization_id\") select \"organization_with_hierarchy_cte\".\"id\", \"organization_with_hierarchy_cte\".\"name\", \"organization_with_hierarchy_cte\".\"slug\", \"organization_with_hierarchy_cte\".\"code\", \"organization_with_hierarchy_cte\".\"code_slug\", \"organization_with_hierarchy_cte\".\"type\", \"organization_with_hierarchy_cte\".\"logo\", \n          coalesce(\n            \"organization_managerial_summary_cte\".\"periods\",\n            '[]'::json\n          )\n         as \"managerial_periods\" from \"organization_with_hierarchy_cte\" inner join \"organization_managerial_summary_cte\" on \"organization_with_hierarchy_cte\".\"id\" = \"organization_managerial_summary_cte\".\"organization_id\"",
+      "with": null,
+      "withNoData": true,
+      "using": null,
+      "tablespace": null,
+      "materialized": true,
+      "name": "managers_history_view",
+      "entityType": "views",
+      "schema": "public"
+    },
+    {
+      "definition": "with \"member_cte\" as (with \"member_status_cte\" as (with \"training_serial_cte\" as (select \"id\", \n        (extract(year from \"date_start\")::text ||\n        lpad(row_number() over (\n          partition by \"organizer_id\", extract(year from \"date_start\")\n          order by \"date_start\" asc, \"id\" asc\n        )::text, 3, '0'))\n       as \"serial\" from \"training\") select \"member\".\"id\", \n        coalesce(\n          json_agg(\n            json_build_object(\n              'id', \"training\".\"id\",\n              'name', \"training\".\"name\",\n              'type', \"training\".\"type\",\n              'dateStart', \"training\".\"date_start\",\n              'dateEnd', \"training\".\"date_end\",\n              'serial', \"training_serial_cte\".\"serial\",\n              'isPassing', \"training_attendants\".\"is_passing\"\n            )\n          ) filter (where \"training\".\"id\" is not null),\n          '[]'::json\n        )\n       as \"trainings\", \n        case\n          max(\n            case\n              when \"training\".\"type\" = 'dm3' and \"training_attendants\".\"is_passing\" = true then 3\n              when \"training\".\"type\" = 'dm2' and \"training_attendants\".\"is_passing\" = true then 2\n              when \"training\".\"type\" = 'dm1' and \"training_attendants\".\"is_passing\" = true then 1\n              else 0\n            end\n          )\n            when 3 then 'ab3'\n            when 2 then 'ab2'\n            when 1 then 'ab1'\n            else null\n        end\n       as \"status\", \n        case\n          max(\n            case\n              when \"training\".\"type\" = 'dpmk' and \"training_attendants\".\"is_passing\" = true then 1\n              else 0\n            end\n          )\n            when 1 then true\n            else false\n        end\n       as \"is_certified_mentor\", \n        case\n          max(\n            case\n              when \"training\".\"type\" = 'tfi' and \"training_attendants\".\"is_passing\" = true then 1\n              else 0\n            end\n          )\n            when 1 then true\n            else false\n        end\n       as \"is_certified_instructor\" from \"member\" left join \"training_attendants\" on \"member\".\"id\" = \"training_attendants\".\"attendant_id\" left join \"training\" on \"training_attendants\".\"training_id\" = \"training\".\"id\" left join \"training_serial_cte\" on \"training\".\"id\" = \"training_serial_cte\".\"id\" group by \"member\".\"id\"), \"member_education_cte\" as (select \"member_id\", \n        coalesce(\n          json_agg(\n            json_build_object(\n              'type', \"type\",\n              'institutionId', \"institution_id\",\n              'institutionName', \"institution_name\",\n              'major', \"major\",\n              'yearStart', \"year_start\",\n              'yearEnd', \"year_end\"\n            )\n          ) filter (where \"member_id\" is not null),\n          '[]'::json\n        )\n       as \"educations\" from \"member_education\" group by \"member_education\".\"member_id\"), \"member_career_cte\" as (select \"member_id\", \n        coalesce(\n          json_agg(\n            json_build_object(\n              'type', \"type\",\n              'employerId', \"employer_id\",\n              'employerName', \"employer_name\",\n              'position', \"position\",\n              'yearStart', \"year_start\",\n              'yearEnd', \"year_end\"\n            )\n          ) filter (where \"member_id\" is not null),\n          '[]'::json\n        )\n       as \"careers\" from \"member_career\" group by \"member_career\".\"member_id\"), \"organization_with_hierarchy_cte\" as (with \"organization_children_cte\" as (select \"parent_id\", \n        coalesce(\n          json_agg(\n            json_build_object(\n              'id', \"id\",\n              'name', \"name\",\n              'slug', \"slug\",\n              'code', \"code\",\n              'codeSlug', \"code_slug\",\n              'type', \"type\",\n              'level', \"level\",\n              'logo', \"logo\",\n              'isActive', \"is_active\"\n            )\n          ) filter (where \"id\" is not null),\n          '[]'::json\n        )\n       as \"children\", count(\"id\") as \"child_count\" from \"organization\" group by \"organization\".\"parent_id\") select \"organization\".\"id\", \"organization\".\"name\", \"organization\".\"slug\", \"organization\".\"code\", \"organization\".\"code_slug\", \"organization\".\"type\", \"organization\".\"level\", \"organization\".\"logo\", \"organization\".\"is_active\", \n          coalesce(\"organization_children_cte\".\"children\", '[]'::json)\n         as \"children\", \n          coalesce(\"organization_children_cte\".\"child_count\", 0)\n         as \"child_count\", \n          case\n            when \"parent\".\"type\" = 'pd' then\n              json_build_object(\n                'id', \"parent\".\"id\",\n                'name', \"parent\".\"name\",\n                'slug', \"parent\".\"slug\",\n                'code', \"parent\".\"code\",\n                'codeSlug', \"parent\".\"code_slug\",\n                'type', \"parent\".\"type\",\n                'level', \"parent\".\"level\",\n                'logo', \"parent\".\"logo\",\n                'isActive', \"parent\".\"is_active\"\n              )\n            else null\n          end\n         as \"pd\", \n          case\n            when \"parent\".\"type\" = 'pdln' then\n              json_build_object(\n                'id', \"parent\".\"id\",\n                'name', \"parent\".\"name\",\n                'slug', \"parent\".\"slug\",\n                'code', \"parent\".\"code\",\n                'codeSlug', \"parent\".\"code_slug\",\n                'type', \"parent\".\"type\",\n                'level', \"parent\".\"level\",\n                'logo', \"parent\".\"logo\",\n                'isActive', \"parent\".\"is_active\"\n              )\n            else null\n          end\n         as \"pdln\", \n          case\n            when \"parent\".\"type\" = 'pw' then\n              json_build_object(\n                'id', \"parent\".\"id\",\n                'name', \"parent\".\"name\",\n                'slug', \"parent\".\"slug\",\n                'code', \"parent\".\"code\",\n                'codeSlug', \"parent\".\"code_slug\",\n                'type', \"parent\".\"type\",\n                'level', \"parent\".\"level\",\n                'logo', \"parent\".\"logo\",\n                'isActive', \"parent\".\"is_active\"\n              )\n            when \"grandparent\".\"type\" = 'pw' then\n              json_build_object(\n                'id', \"grandparent\".\"id\",\n                'name', \"grandparent\".\"name\",\n                'slug', \"grandparent\".\"slug\",\n                'code', \"grandparent\".\"code\",\n                'codeSlug', \"grandparent\".\"code_slug\",\n                'type', \"grandparent\".\"type\",\n                'level', \"grandparent\".\"level\",\n                'logo', \"grandparent\".\"logo\",\n                'isActive', \"grandparent\".\"is_active\"\n              )\n            else null\n          end\n         as \"pw\", \n          array_remove(\n            array[\n              \"organization\".\"id\",\n              \"parent\".\"id\",\n              \"grandparent\".\"id\"\n            ],\n            null\n          )\n         as \"scope_id\" from \"organization\" left join \"organization_children_cte\" on \"organization\".\"id\" = \"organization_children_cte\".\"parent_id\" left join \"organization\" \"parent\" on \"organization\".\"parent_id\" = \"parent\".\"id\" left join \"organization\" \"grandparent\" on \"parent\".\"parent_id\" = \"grandparent\".\"id\") select \"member\".\"id\", \"member\".\"id_number\", \"member\".\"name\", \"member\".\"birth_place\", \"member\".\"birth_date\", \"member\".\"phone\", \"member\".\"photo\", \"member\".\"gender\", \"member\".\"address_province\", \"member\".\"address_province_code\", \"member\".\"address_city\", \"member\".\"address_city_code\", \"member\".\"address_district\", \"member\".\"address_district_code\", \"member\".\"address_subdistrict\", \"member\".\"address_subdistrict_code\", \"member\".\"address_line\", \"member\".\"address_full\", \"member\".\"is_an_alumn\", \"member\".\"is_suspended\", \"member_status_cte\".\"trainings\", \"member_status_cte\".\"status\", \"member_education_cte\".\"educations\", \"member_career_cte\".\"careers\", \"member_status_cte\".\"is_certified_mentor\", \"member_status_cte\".\"is_certified_instructor\", \n          json_build_object(\n            'id', \"organization_with_hierarchy_cte\".\"id\",\n            'name', \"organization_with_hierarchy_cte\".\"name\",\n            'slug', \"organization_with_hierarchy_cte\".\"slug\",\n            'code', \"organization_with_hierarchy_cte\".\"code\",\n            'codeSlug', \"organization_with_hierarchy_cte\".\"code_slug\",\n            'type', \"organization_with_hierarchy_cte\".\"type\",\n            'level', \"organization_with_hierarchy_cte\".\"level\",\n            'logo', \"organization_with_hierarchy_cte\".\"logo\",\n            'isActive', \"organization_with_hierarchy_cte\".\"is_active\",\n            'pd', \"organization_with_hierarchy_cte\".\"pd\",\n            'pdln', \"organization_with_hierarchy_cte\".\"pdln\",\n            'pw', \"organization_with_hierarchy_cte\".\"pw\"\n          )\n         as \"registered_at\", \"organization_with_hierarchy_cte\".\"scope_id\" from \"member\" left join \"member_status_cte\" on \"member\".\"id\" = \"member_status_cte\".\"id\" left join \"member_education_cte\" on \"member\".\"id\" = \"member_education_cte\".\"member_id\" left join \"member_career_cte\" on \"member\".\"id\" = \"member_career_cte\".\"member_id\" left join \"organization_with_hierarchy_cte\" on \"member\".\"registered_at_organization_id\" = \"organization_with_hierarchy_cte\".\"id\") select \"id\", \"id_number\", \"name\", \"birth_place\", \"birth_date\", \"phone\", \"photo\", \"gender\", \"address_province\", \"address_province_code\", \"address_city\", \"address_city_code\", \"address_district\", \"address_district_code\", \"address_subdistrict\", \"address_subdistrict_code\", \"address_line\", \"address_full\", \"is_an_alumn\", \"is_suspended\", \"trainings\", \"status\", \"educations\", \"careers\", \"is_certified_mentor\", \"is_certified_instructor\", \"registered_at\", \"scope_id\" from \"member_cte\"",
+      "with": null,
+      "withNoData": true,
+      "using": null,
+      "tablespace": null,
+      "materialized": true,
+      "name": "member_view",
+      "entityType": "views",
+      "schema": "public"
+    },
+    {
+      "definition": "with \"organization_with_hierarchy_cte\" as (with \"organization_children_cte\" as (select \"parent_id\", \n        coalesce(\n          json_agg(\n            json_build_object(\n              'id', \"id\",\n              'name', \"name\",\n              'slug', \"slug\",\n              'code', \"code\",\n              'codeSlug', \"code_slug\",\n              'type', \"type\",\n              'level', \"level\",\n              'logo', \"logo\",\n              'isActive', \"is_active\"\n            )\n          ) filter (where \"id\" is not null),\n          '[]'::json\n        )\n       as \"children\", count(\"id\") as \"child_count\" from \"organization\" group by \"organization\".\"parent_id\") select \"organization\".\"id\", \"organization\".\"name\", \"organization\".\"slug\", \"organization\".\"code\", \"organization\".\"code_slug\", \"organization\".\"type\", \"organization\".\"level\", \"organization\".\"logo\", \"organization\".\"is_active\", \n          coalesce(\"organization_children_cte\".\"children\", '[]'::json)\n         as \"children\", \n          coalesce(\"organization_children_cte\".\"child_count\", 0)\n         as \"child_count\", \n          case\n            when \"parent\".\"type\" = 'pd' then\n              json_build_object(\n                'id', \"parent\".\"id\",\n                'name', \"parent\".\"name\",\n                'slug', \"parent\".\"slug\",\n                'code', \"parent\".\"code\",\n                'codeSlug', \"parent\".\"code_slug\",\n                'type', \"parent\".\"type\",\n                'level', \"parent\".\"level\",\n                'logo', \"parent\".\"logo\",\n                'isActive', \"parent\".\"is_active\"\n              )\n            else null\n          end\n         as \"pd\", \n          case\n            when \"parent\".\"type\" = 'pdln' then\n              json_build_object(\n                'id', \"parent\".\"id\",\n                'name', \"parent\".\"name\",\n                'slug', \"parent\".\"slug\",\n                'code', \"parent\".\"code\",\n                'codeSlug', \"parent\".\"code_slug\",\n                'type', \"parent\".\"type\",\n                'level', \"parent\".\"level\",\n                'logo', \"parent\".\"logo\",\n                'isActive', \"parent\".\"is_active\"\n              )\n            else null\n          end\n         as \"pdln\", \n          case\n            when \"parent\".\"type\" = 'pw' then\n              json_build_object(\n                'id', \"parent\".\"id\",\n                'name', \"parent\".\"name\",\n                'slug', \"parent\".\"slug\",\n                'code', \"parent\".\"code\",\n                'codeSlug', \"parent\".\"code_slug\",\n                'type', \"parent\".\"type\",\n                'level', \"parent\".\"level\",\n                'logo', \"parent\".\"logo\",\n                'isActive', \"parent\".\"is_active\"\n              )\n            when \"grandparent\".\"type\" = 'pw' then\n              json_build_object(\n                'id', \"grandparent\".\"id\",\n                'name', \"grandparent\".\"name\",\n                'slug', \"grandparent\".\"slug\",\n                'code', \"grandparent\".\"code\",\n                'codeSlug', \"grandparent\".\"code_slug\",\n                'type', \"grandparent\".\"type\",\n                'level', \"grandparent\".\"level\",\n                'logo', \"grandparent\".\"logo\",\n                'isActive', \"grandparent\".\"is_active\"\n              )\n            else null\n          end\n         as \"pw\", \n          array_remove(\n            array[\n              \"organization\".\"id\",\n              \"parent\".\"id\",\n              \"grandparent\".\"id\"\n            ],\n            null\n          )\n         as \"scope_id\" from \"organization\" left join \"organization_children_cte\" on \"organization\".\"id\" = \"organization_children_cte\".\"parent_id\" left join \"organization\" \"parent\" on \"organization\".\"parent_id\" = \"parent\".\"id\" left join \"organization\" \"grandparent\" on \"parent\".\"parent_id\" = \"grandparent\".\"id\"), \"organization_managerial_summary_cte\" as (with \"managerial_period_cte\" as (with \"member_cte\" as (with \"member_status_cte\" as (with \"training_serial_cte\" as (select \"id\", \n        (extract(year from \"date_start\")::text ||\n        lpad(row_number() over (\n          partition by \"organizer_id\", extract(year from \"date_start\")\n          order by \"date_start\" asc, \"id\" asc\n        )::text, 3, '0'))\n       as \"serial\" from \"training\") select \"member\".\"id\", \n        coalesce(\n          json_agg(\n            json_build_object(\n              'id', \"training\".\"id\",\n              'name', \"training\".\"name\",\n              'type', \"training\".\"type\",\n              'dateStart', \"training\".\"date_start\",\n              'dateEnd', \"training\".\"date_end\",\n              'serial', \"training_serial_cte\".\"serial\",\n              'isPassing', \"training_attendants\".\"is_passing\"\n            )\n          ) filter (where \"training\".\"id\" is not null),\n          '[]'::json\n        )\n       as \"trainings\", \n        case\n          max(\n            case\n              when \"training\".\"type\" = 'dm3' and \"training_attendants\".\"is_passing\" = true then 3\n              when \"training\".\"type\" = 'dm2' and \"training_attendants\".\"is_passing\" = true then 2\n              when \"training\".\"type\" = 'dm1' and \"training_attendants\".\"is_passing\" = true then 1\n              else 0\n            end\n          )\n            when 3 then 'ab3'\n            when 2 then 'ab2'\n            when 1 then 'ab1'\n            else null\n        end\n       as \"status\", \n        case\n          max(\n            case\n              when \"training\".\"type\" = 'dpmk' and \"training_attendants\".\"is_passing\" = true then 1\n              else 0\n            end\n          )\n            when 1 then true\n            else false\n        end\n       as \"is_certified_mentor\", \n        case\n          max(\n            case\n              when \"training\".\"type\" = 'tfi' and \"training_attendants\".\"is_passing\" = true then 1\n              else 0\n            end\n          )\n            when 1 then true\n            else false\n        end\n       as \"is_certified_instructor\" from \"member\" left join \"training_attendants\" on \"member\".\"id\" = \"training_attendants\".\"attendant_id\" left join \"training\" on \"training_attendants\".\"training_id\" = \"training\".\"id\" left join \"training_serial_cte\" on \"training\".\"id\" = \"training_serial_cte\".\"id\" group by \"member\".\"id\"), \"member_education_cte\" as (select \"member_id\", \n        coalesce(\n          json_agg(\n            json_build_object(\n              'type', \"type\",\n              'institutionId', \"institution_id\",\n              'institutionName', \"institution_name\",\n              'major', \"major\",\n              'yearStart', \"year_start\",\n              'yearEnd', \"year_end\"\n            )\n          ) filter (where \"member_id\" is not null),\n          '[]'::json\n        )\n       as \"educations\" from \"member_education\" group by \"member_education\".\"member_id\"), \"member_career_cte\" as (select \"member_id\", \n        coalesce(\n          json_agg(\n            json_build_object(\n              'type', \"type\",\n              'employerId', \"employer_id\",\n              'employerName', \"employer_name\",\n              'position', \"position\",\n              'yearStart', \"year_start\",\n              'yearEnd', \"year_end\"\n            )\n          ) filter (where \"member_id\" is not null),\n          '[]'::json\n        )\n       as \"careers\" from \"member_career\" group by \"member_career\".\"member_id\"), \"organization_with_hierarchy_cte\" as (with \"organization_children_cte\" as (select \"parent_id\", \n        coalesce(\n          json_agg(\n            json_build_object(\n              'id', \"id\",\n              'name', \"name\",\n              'slug', \"slug\",\n              'code', \"code\",\n              'codeSlug', \"code_slug\",\n              'type', \"type\",\n              'level', \"level\",\n              'logo', \"logo\",\n              'isActive', \"is_active\"\n            )\n          ) filter (where \"id\" is not null),\n          '[]'::json\n        )\n       as \"children\", count(\"id\") as \"child_count\" from \"organization\" group by \"organization\".\"parent_id\") select \"organization\".\"id\", \"organization\".\"name\", \"organization\".\"slug\", \"organization\".\"code\", \"organization\".\"code_slug\", \"organization\".\"type\", \"organization\".\"level\", \"organization\".\"logo\", \"organization\".\"is_active\", \n          coalesce(\"organization_children_cte\".\"children\", '[]'::json)\n         as \"children\", \n          coalesce(\"organization_children_cte\".\"child_count\", 0)\n         as \"child_count\", \n          case\n            when \"parent\".\"type\" = 'pd' then\n              json_build_object(\n                'id', \"parent\".\"id\",\n                'name', \"parent\".\"name\",\n                'slug', \"parent\".\"slug\",\n                'code', \"parent\".\"code\",\n                'codeSlug', \"parent\".\"code_slug\",\n                'type', \"parent\".\"type\",\n                'level', \"parent\".\"level\",\n                'logo', \"parent\".\"logo\",\n                'isActive', \"parent\".\"is_active\"\n              )\n            else null\n          end\n         as \"pd\", \n          case\n            when \"parent\".\"type\" = 'pdln' then\n              json_build_object(\n                'id', \"parent\".\"id\",\n                'name', \"parent\".\"name\",\n                'slug', \"parent\".\"slug\",\n                'code', \"parent\".\"code\",\n                'codeSlug', \"parent\".\"code_slug\",\n                'type', \"parent\".\"type\",\n                'level', \"parent\".\"level\",\n                'logo', \"parent\".\"logo\",\n                'isActive', \"parent\".\"is_active\"\n              )\n            else null\n          end\n         as \"pdln\", \n          case\n            when \"parent\".\"type\" = 'pw' then\n              json_build_object(\n                'id', \"parent\".\"id\",\n                'name', \"parent\".\"name\",\n                'slug', \"parent\".\"slug\",\n                'code', \"parent\".\"code\",\n                'codeSlug', \"parent\".\"code_slug\",\n                'type', \"parent\".\"type\",\n                'level', \"parent\".\"level\",\n                'logo', \"parent\".\"logo\",\n                'isActive', \"parent\".\"is_active\"\n              )\n            when \"grandparent\".\"type\" = 'pw' then\n              json_build_object(\n                'id', \"grandparent\".\"id\",\n                'name', \"grandparent\".\"name\",\n                'slug', \"grandparent\".\"slug\",\n                'code', \"grandparent\".\"code\",\n                'codeSlug', \"grandparent\".\"code_slug\",\n                'type', \"grandparent\".\"type\",\n                'level', \"grandparent\".\"level\",\n                'logo', \"grandparent\".\"logo\",\n                'isActive', \"grandparent\".\"is_active\"\n              )\n            else null\n          end\n         as \"pw\", \n          array_remove(\n            array[\n              \"organization\".\"id\",\n              \"parent\".\"id\",\n              \"grandparent\".\"id\"\n            ],\n            null\n          )\n         as \"scope_id\" from \"organization\" left join \"organization_children_cte\" on \"organization\".\"id\" = \"organization_children_cte\".\"parent_id\" left join \"organization\" \"parent\" on \"organization\".\"parent_id\" = \"parent\".\"id\" left join \"organization\" \"grandparent\" on \"parent\".\"parent_id\" = \"grandparent\".\"id\") select \"member\".\"id\", \"member\".\"id_number\", \"member\".\"name\", \"member\".\"birth_place\", \"member\".\"birth_date\", \"member\".\"phone\", \"member\".\"photo\", \"member\".\"gender\", \"member\".\"address_province\", \"member\".\"address_province_code\", \"member\".\"address_city\", \"member\".\"address_city_code\", \"member\".\"address_district\", \"member\".\"address_district_code\", \"member\".\"address_subdistrict\", \"member\".\"address_subdistrict_code\", \"member\".\"address_line\", \"member\".\"address_full\", \"member\".\"is_an_alumn\", \"member\".\"is_suspended\", \"member_status_cte\".\"trainings\", \"member_status_cte\".\"status\", \"member_education_cte\".\"educations\", \"member_career_cte\".\"careers\", \"member_status_cte\".\"is_certified_mentor\", \"member_status_cte\".\"is_certified_instructor\", \n          json_build_object(\n            'id', \"organization_with_hierarchy_cte\".\"id\",\n            'name', \"organization_with_hierarchy_cte\".\"name\",\n            'slug', \"organization_with_hierarchy_cte\".\"slug\",\n            'code', \"organization_with_hierarchy_cte\".\"code\",\n            'codeSlug', \"organization_with_hierarchy_cte\".\"code_slug\",\n            'type', \"organization_with_hierarchy_cte\".\"type\",\n            'level', \"organization_with_hierarchy_cte\".\"level\",\n            'logo', \"organization_with_hierarchy_cte\".\"logo\",\n            'isActive', \"organization_with_hierarchy_cte\".\"is_active\",\n            'pd', \"organization_with_hierarchy_cte\".\"pd\",\n            'pdln', \"organization_with_hierarchy_cte\".\"pdln\",\n            'pw', \"organization_with_hierarchy_cte\".\"pw\"\n          )\n         as \"registered_at\", \"organization_with_hierarchy_cte\".\"scope_id\" from \"member\" left join \"member_status_cte\" on \"member\".\"id\" = \"member_status_cte\".\"id\" left join \"member_education_cte\" on \"member\".\"id\" = \"member_education_cte\".\"member_id\" left join \"member_career_cte\" on \"member\".\"id\" = \"member_career_cte\".\"member_id\" left join \"organization_with_hierarchy_cte\" on \"member\".\"registered_at_organization_id\" = \"organization_with_hierarchy_cte\".\"id\") select \"managerial_period\".\"id\", \"managerial_period\".\"organization_id\", \"managerial_period\".\"year_start\", \"managerial_period\".\"year_end\", \n        coalesce(\n          json_agg(\n            json_build_object(\n              'id', \"member_cte\".\"id\",\n              'idNo', \"member_cte\".\"id_number\",\n              'name', \"member_cte\".\"name\",\n              'phone', \"member_cte\".\"phone\",\n              'photo', \"member_cte\".\"photo\",\n              'gender', \"member_cte\".\"gender\",\n              'status', \"member_cte\".\"status\",\n              'role', \"manager\".\"role\",\n              'roleTitle', \"manager\".\"role_title\",\n              'department', \"manager\".\"department\",\n              'subDepartment', \"manager\".\"sub_department\",\n              'isDailyManager', \"manager\".\"isDailyManager\"\n            )\n          ) filter (where \"member_cte\".\"id\" is not null),\n          '[]'::json\n        )\n       as \"managers\" from \"managerial_period\" left join \"manager\" on \"managerial_period\".\"id\" = \"manager\".\"managerial_period_id\" left join \"member_cte\" on \"manager\".\"manager_id\" = \"member_cte\".\"id\" group by \"managerial_period\".\"id\") select \"organization_id\", \n          coalesce(\n            json_agg(\n              json_build_object(\n                'id', \"id\",\n                'yearStart', \"year_start\",\n                'yearEnd', \"year_end\",\n                'managers', \"managerial_period_cte\".\"managers\"\n              )\n              order by \"year_start\" desc\n            ),\n            '[]'::json\n          )\n         as \"periods\" from \"managerial_period_cte\" group by \"managerial_period_cte\".\"organization_id\") select \"organization_with_hierarchy_cte\".\"id\", \"organization_with_hierarchy_cte\".\"name\", \"organization_with_hierarchy_cte\".\"slug\", \"organization_with_hierarchy_cte\".\"code\", \"organization_with_hierarchy_cte\".\"code_slug\", \"organization_with_hierarchy_cte\".\"type\", \"organization_with_hierarchy_cte\".\"level\", \"organization_with_hierarchy_cte\".\"logo\", \"organization_with_hierarchy_cte\".\"is_active\", \"organization_with_hierarchy_cte\".\"children\", \"organization_with_hierarchy_cte\".\"child_count\", \"organization_with_hierarchy_cte\".\"pd\", \"organization_with_hierarchy_cte\".\"pdln\", \"organization_with_hierarchy_cte\".\"pw\", \"organization_with_hierarchy_cte\".\"scope_id\", \n          coalesce(\n            \"organization_managerial_summary_cte\".\"periods\"->0->'managers',\n            '[]'::json\n          )\n         as \"managers\" from \"organization_with_hierarchy_cte\" left join \"organization_managerial_summary_cte\" on \"organization_with_hierarchy_cte\".\"id\" = \"organization_managerial_summary_cte\".\"organization_id\"",
+      "with": null,
+      "withNoData": true,
+      "using": null,
+      "tablespace": null,
+      "materialized": true,
+      "name": "organization_view",
+      "entityType": "views",
+      "schema": "public"
+    },
+    {
+      "definition": "with \"training_cte\" as (with \"training_serial_cte\" as (select \"id\", \n        (extract(year from \"date_start\")::text ||\n        lpad(row_number() over (\n          partition by \"organizer_id\", extract(year from \"date_start\")\n          order by \"date_start\" asc, \"id\" asc\n        )::text, 3, '0'))\n       as \"serial\" from \"training\"), \"organization_with_hierarchy_cte\" as (with \"organization_children_cte\" as (select \"parent_id\", \n        coalesce(\n          json_agg(\n            json_build_object(\n              'id', \"id\",\n              'name', \"name\",\n              'slug', \"slug\",\n              'code', \"code\",\n              'codeSlug', \"code_slug\",\n              'type', \"type\",\n              'level', \"level\",\n              'logo', \"logo\",\n              'isActive', \"is_active\"\n            )\n          ) filter (where \"id\" is not null),\n          '[]'::json\n        )\n       as \"children\", count(\"id\") as \"child_count\" from \"organization\" group by \"organization\".\"parent_id\") select \"organization\".\"id\", \"organization\".\"name\", \"organization\".\"slug\", \"organization\".\"code\", \"organization\".\"code_slug\", \"organization\".\"type\", \"organization\".\"level\", \"organization\".\"logo\", \"organization\".\"is_active\", \n          coalesce(\"organization_children_cte\".\"children\", '[]'::json)\n         as \"children\", \n          coalesce(\"organization_children_cte\".\"child_count\", 0)\n         as \"child_count\", \n          case\n            when \"parent\".\"type\" = 'pd' then\n              json_build_object(\n                'id', \"parent\".\"id\",\n                'name', \"parent\".\"name\",\n                'slug', \"parent\".\"slug\",\n                'code', \"parent\".\"code\",\n                'codeSlug', \"parent\".\"code_slug\",\n                'type', \"parent\".\"type\",\n                'level', \"parent\".\"level\",\n                'logo', \"parent\".\"logo\",\n                'isActive', \"parent\".\"is_active\"\n              )\n            else null\n          end\n         as \"pd\", \n          case\n            when \"parent\".\"type\" = 'pdln' then\n              json_build_object(\n                'id', \"parent\".\"id\",\n                'name', \"parent\".\"name\",\n                'slug', \"parent\".\"slug\",\n                'code', \"parent\".\"code\",\n                'codeSlug', \"parent\".\"code_slug\",\n                'type', \"parent\".\"type\",\n                'level', \"parent\".\"level\",\n                'logo', \"parent\".\"logo\",\n                'isActive', \"parent\".\"is_active\"\n              )\n            else null\n          end\n         as \"pdln\", \n          case\n            when \"parent\".\"type\" = 'pw' then\n              json_build_object(\n                'id', \"parent\".\"id\",\n                'name', \"parent\".\"name\",\n                'slug', \"parent\".\"slug\",\n                'code', \"parent\".\"code\",\n                'codeSlug', \"parent\".\"code_slug\",\n                'type', \"parent\".\"type\",\n                'level', \"parent\".\"level\",\n                'logo', \"parent\".\"logo\",\n                'isActive', \"parent\".\"is_active\"\n              )\n            when \"grandparent\".\"type\" = 'pw' then\n              json_build_object(\n                'id', \"grandparent\".\"id\",\n                'name', \"grandparent\".\"name\",\n                'slug', \"grandparent\".\"slug\",\n                'code', \"grandparent\".\"code\",\n                'codeSlug', \"grandparent\".\"code_slug\",\n                'type', \"grandparent\".\"type\",\n                'level', \"grandparent\".\"level\",\n                'logo', \"grandparent\".\"logo\",\n                'isActive', \"grandparent\".\"is_active\"\n              )\n            else null\n          end\n         as \"pw\", \n          array_remove(\n            array[\n              \"organization\".\"id\",\n              \"parent\".\"id\",\n              \"grandparent\".\"id\"\n            ],\n            null\n          )\n         as \"scope_id\" from \"organization\" left join \"organization_children_cte\" on \"organization\".\"id\" = \"organization_children_cte\".\"parent_id\" left join \"organization\" \"parent\" on \"organization\".\"parent_id\" = \"parent\".\"id\" left join \"organization\" \"grandparent\" on \"parent\".\"parent_id\" = \"grandparent\".\"id\"), \"training_attendants_cte\" as (with \"member_cte\" as (with \"member_status_cte\" as (with \"training_serial_cte\" as (select \"id\", \n        (extract(year from \"date_start\")::text ||\n        lpad(row_number() over (\n          partition by \"organizer_id\", extract(year from \"date_start\")\n          order by \"date_start\" asc, \"id\" asc\n        )::text, 3, '0'))\n       as \"serial\" from \"training\") select \"member\".\"id\", \n        coalesce(\n          json_agg(\n            json_build_object(\n              'id', \"training\".\"id\",\n              'name', \"training\".\"name\",\n              'type', \"training\".\"type\",\n              'dateStart', \"training\".\"date_start\",\n              'dateEnd', \"training\".\"date_end\",\n              'serial', \"training_serial_cte\".\"serial\",\n              'isPassing', \"training_attendants\".\"is_passing\"\n            )\n          ) filter (where \"training\".\"id\" is not null),\n          '[]'::json\n        )\n       as \"trainings\", \n        case\n          max(\n            case\n              when \"training\".\"type\" = 'dm3' and \"training_attendants\".\"is_passing\" = true then 3\n              when \"training\".\"type\" = 'dm2' and \"training_attendants\".\"is_passing\" = true then 2\n              when \"training\".\"type\" = 'dm1' and \"training_attendants\".\"is_passing\" = true then 1\n              else 0\n            end\n          )\n            when 3 then 'ab3'\n            when 2 then 'ab2'\n            when 1 then 'ab1'\n            else null\n        end\n       as \"status\", \n        case\n          max(\n            case\n              when \"training\".\"type\" = 'dpmk' and \"training_attendants\".\"is_passing\" = true then 1\n              else 0\n            end\n          )\n            when 1 then true\n            else false\n        end\n       as \"is_certified_mentor\", \n        case\n          max(\n            case\n              when \"training\".\"type\" = 'tfi' and \"training_attendants\".\"is_passing\" = true then 1\n              else 0\n            end\n          )\n            when 1 then true\n            else false\n        end\n       as \"is_certified_instructor\" from \"member\" left join \"training_attendants\" on \"member\".\"id\" = \"training_attendants\".\"attendant_id\" left join \"training\" on \"training_attendants\".\"training_id\" = \"training\".\"id\" left join \"training_serial_cte\" on \"training\".\"id\" = \"training_serial_cte\".\"id\" group by \"member\".\"id\"), \"member_education_cte\" as (select \"member_id\", \n        coalesce(\n          json_agg(\n            json_build_object(\n              'type', \"type\",\n              'institutionId', \"institution_id\",\n              'institutionName', \"institution_name\",\n              'major', \"major\",\n              'yearStart', \"year_start\",\n              'yearEnd', \"year_end\"\n            )\n          ) filter (where \"member_id\" is not null),\n          '[]'::json\n        )\n       as \"educations\" from \"member_education\" group by \"member_education\".\"member_id\"), \"member_career_cte\" as (select \"member_id\", \n        coalesce(\n          json_agg(\n            json_build_object(\n              'type', \"type\",\n              'employerId', \"employer_id\",\n              'employerName', \"employer_name\",\n              'position', \"position\",\n              'yearStart', \"year_start\",\n              'yearEnd', \"year_end\"\n            )\n          ) filter (where \"member_id\" is not null),\n          '[]'::json\n        )\n       as \"careers\" from \"member_career\" group by \"member_career\".\"member_id\"), \"organization_with_hierarchy_cte\" as (with \"organization_children_cte\" as (select \"parent_id\", \n        coalesce(\n          json_agg(\n            json_build_object(\n              'id', \"id\",\n              'name', \"name\",\n              'slug', \"slug\",\n              'code', \"code\",\n              'codeSlug', \"code_slug\",\n              'type', \"type\",\n              'level', \"level\",\n              'logo', \"logo\",\n              'isActive', \"is_active\"\n            )\n          ) filter (where \"id\" is not null),\n          '[]'::json\n        )\n       as \"children\", count(\"id\") as \"child_count\" from \"organization\" group by \"organization\".\"parent_id\") select \"organization\".\"id\", \"organization\".\"name\", \"organization\".\"slug\", \"organization\".\"code\", \"organization\".\"code_slug\", \"organization\".\"type\", \"organization\".\"level\", \"organization\".\"logo\", \"organization\".\"is_active\", \n          coalesce(\"organization_children_cte\".\"children\", '[]'::json)\n         as \"children\", \n          coalesce(\"organization_children_cte\".\"child_count\", 0)\n         as \"child_count\", \n          case\n            when \"parent\".\"type\" = 'pd' then\n              json_build_object(\n                'id', \"parent\".\"id\",\n                'name', \"parent\".\"name\",\n                'slug', \"parent\".\"slug\",\n                'code', \"parent\".\"code\",\n                'codeSlug', \"parent\".\"code_slug\",\n                'type', \"parent\".\"type\",\n                'level', \"parent\".\"level\",\n                'logo', \"parent\".\"logo\",\n                'isActive', \"parent\".\"is_active\"\n              )\n            else null\n          end\n         as \"pd\", \n          case\n            when \"parent\".\"type\" = 'pdln' then\n              json_build_object(\n                'id', \"parent\".\"id\",\n                'name', \"parent\".\"name\",\n                'slug', \"parent\".\"slug\",\n                'code', \"parent\".\"code\",\n                'codeSlug', \"parent\".\"code_slug\",\n                'type', \"parent\".\"type\",\n                'level', \"parent\".\"level\",\n                'logo', \"parent\".\"logo\",\n                'isActive', \"parent\".\"is_active\"\n              )\n            else null\n          end\n         as \"pdln\", \n          case\n            when \"parent\".\"type\" = 'pw' then\n              json_build_object(\n                'id', \"parent\".\"id\",\n                'name', \"parent\".\"name\",\n                'slug', \"parent\".\"slug\",\n                'code', \"parent\".\"code\",\n                'codeSlug', \"parent\".\"code_slug\",\n                'type', \"parent\".\"type\",\n                'level', \"parent\".\"level\",\n                'logo', \"parent\".\"logo\",\n                'isActive', \"parent\".\"is_active\"\n              )\n            when \"grandparent\".\"type\" = 'pw' then\n              json_build_object(\n                'id', \"grandparent\".\"id\",\n                'name', \"grandparent\".\"name\",\n                'slug', \"grandparent\".\"slug\",\n                'code', \"grandparent\".\"code\",\n                'codeSlug', \"grandparent\".\"code_slug\",\n                'type', \"grandparent\".\"type\",\n                'level', \"grandparent\".\"level\",\n                'logo', \"grandparent\".\"logo\",\n                'isActive', \"grandparent\".\"is_active\"\n              )\n            else null\n          end\n         as \"pw\", \n          array_remove(\n            array[\n              \"organization\".\"id\",\n              \"parent\".\"id\",\n              \"grandparent\".\"id\"\n            ],\n            null\n          )\n         as \"scope_id\" from \"organization\" left join \"organization_children_cte\" on \"organization\".\"id\" = \"organization_children_cte\".\"parent_id\" left join \"organization\" \"parent\" on \"organization\".\"parent_id\" = \"parent\".\"id\" left join \"organization\" \"grandparent\" on \"parent\".\"parent_id\" = \"grandparent\".\"id\") select \"member\".\"id\", \"member\".\"id_number\", \"member\".\"name\", \"member\".\"birth_place\", \"member\".\"birth_date\", \"member\".\"phone\", \"member\".\"photo\", \"member\".\"gender\", \"member\".\"address_province\", \"member\".\"address_province_code\", \"member\".\"address_city\", \"member\".\"address_city_code\", \"member\".\"address_district\", \"member\".\"address_district_code\", \"member\".\"address_subdistrict\", \"member\".\"address_subdistrict_code\", \"member\".\"address_line\", \"member\".\"address_full\", \"member\".\"is_an_alumn\", \"member\".\"is_suspended\", \"member_status_cte\".\"trainings\", \"member_status_cte\".\"status\", \"member_education_cte\".\"educations\", \"member_career_cte\".\"careers\", \"member_status_cte\".\"is_certified_mentor\", \"member_status_cte\".\"is_certified_instructor\", \n          json_build_object(\n            'id', \"organization_with_hierarchy_cte\".\"id\",\n            'name', \"organization_with_hierarchy_cte\".\"name\",\n            'slug', \"organization_with_hierarchy_cte\".\"slug\",\n            'code', \"organization_with_hierarchy_cte\".\"code\",\n            'codeSlug', \"organization_with_hierarchy_cte\".\"code_slug\",\n            'type', \"organization_with_hierarchy_cte\".\"type\",\n            'level', \"organization_with_hierarchy_cte\".\"level\",\n            'logo', \"organization_with_hierarchy_cte\".\"logo\",\n            'isActive', \"organization_with_hierarchy_cte\".\"is_active\",\n            'pd', \"organization_with_hierarchy_cte\".\"pd\",\n            'pdln', \"organization_with_hierarchy_cte\".\"pdln\",\n            'pw', \"organization_with_hierarchy_cte\".\"pw\"\n          )\n         as \"registered_at\", \"organization_with_hierarchy_cte\".\"scope_id\" from \"member\" left join \"member_status_cte\" on \"member\".\"id\" = \"member_status_cte\".\"id\" left join \"member_education_cte\" on \"member\".\"id\" = \"member_education_cte\".\"member_id\" left join \"member_career_cte\" on \"member\".\"id\" = \"member_career_cte\".\"member_id\" left join \"organization_with_hierarchy_cte\" on \"member\".\"registered_at_organization_id\" = \"organization_with_hierarchy_cte\".\"id\") select \"training_attendants\".\"training_id\", \n        coalesce(\n          json_agg(\n            json_build_object(\n              'id', \"member_cte\".\"id\",\n              'idNo', \"member_cte\".\"id_number\",\n              'name', \"member_cte\".\"name\",\n              'phone', \"member_cte\".\"phone\",\n              'photo', \"member_cte\".\"photo\",\n              'gender', \"member_cte\".\"gender\",\n              'status', \"member_cte\".\"status\",\n              'registeredAt', \"member_cte\".\"registered_at\",\n              'isAdmitted', \"training_attendants\".\"is_admitted\",\n              'isPassing', \"training_attendants\".\"is_passing\"\n            )  \n          ) filter (where \"member_cte\".\"id\" is not null),\n          '[]'::json\n        )\n       as \"attendants\", count(\"member_cte\".\"id\") as \"attendants_count\" from \"training_attendants\" left join \"member_cte\" on \"training_attendants\".\"attendant_id\" = \"member_cte\".\"id\" group by \"training_attendants\".\"training_id\"), \"training_instructors_cte\" as (with \"member_cte\" as (with \"member_status_cte\" as (with \"training_serial_cte\" as (select \"id\", \n        (extract(year from \"date_start\")::text ||\n        lpad(row_number() over (\n          partition by \"organizer_id\", extract(year from \"date_start\")\n          order by \"date_start\" asc, \"id\" asc\n        )::text, 3, '0'))\n       as \"serial\" from \"training\") select \"member\".\"id\", \n        coalesce(\n          json_agg(\n            json_build_object(\n              'id', \"training\".\"id\",\n              'name', \"training\".\"name\",\n              'type', \"training\".\"type\",\n              'dateStart', \"training\".\"date_start\",\n              'dateEnd', \"training\".\"date_end\",\n              'serial', \"training_serial_cte\".\"serial\",\n              'isPassing', \"training_attendants\".\"is_passing\"\n            )\n          ) filter (where \"training\".\"id\" is not null),\n          '[]'::json\n        )\n       as \"trainings\", \n        case\n          max(\n            case\n              when \"training\".\"type\" = 'dm3' and \"training_attendants\".\"is_passing\" = true then 3\n              when \"training\".\"type\" = 'dm2' and \"training_attendants\".\"is_passing\" = true then 2\n              when \"training\".\"type\" = 'dm1' and \"training_attendants\".\"is_passing\" = true then 1\n              else 0\n            end\n          )\n            when 3 then 'ab3'\n            when 2 then 'ab2'\n            when 1 then 'ab1'\n            else null\n        end\n       as \"status\", \n        case\n          max(\n            case\n              when \"training\".\"type\" = 'dpmk' and \"training_attendants\".\"is_passing\" = true then 1\n              else 0\n            end\n          )\n            when 1 then true\n            else false\n        end\n       as \"is_certified_mentor\", \n        case\n          max(\n            case\n              when \"training\".\"type\" = 'tfi' and \"training_attendants\".\"is_passing\" = true then 1\n              else 0\n            end\n          )\n            when 1 then true\n            else false\n        end\n       as \"is_certified_instructor\" from \"member\" left join \"training_attendants\" on \"member\".\"id\" = \"training_attendants\".\"attendant_id\" left join \"training\" on \"training_attendants\".\"training_id\" = \"training\".\"id\" left join \"training_serial_cte\" on \"training\".\"id\" = \"training_serial_cte\".\"id\" group by \"member\".\"id\"), \"member_education_cte\" as (select \"member_id\", \n        coalesce(\n          json_agg(\n            json_build_object(\n              'type', \"type\",\n              'institutionId', \"institution_id\",\n              'institutionName', \"institution_name\",\n              'major', \"major\",\n              'yearStart', \"year_start\",\n              'yearEnd', \"year_end\"\n            )\n          ) filter (where \"member_id\" is not null),\n          '[]'::json\n        )\n       as \"educations\" from \"member_education\" group by \"member_education\".\"member_id\"), \"member_career_cte\" as (select \"member_id\", \n        coalesce(\n          json_agg(\n            json_build_object(\n              'type', \"type\",\n              'employerId', \"employer_id\",\n              'employerName', \"employer_name\",\n              'position', \"position\",\n              'yearStart', \"year_start\",\n              'yearEnd', \"year_end\"\n            )\n          ) filter (where \"member_id\" is not null),\n          '[]'::json\n        )\n       as \"careers\" from \"member_career\" group by \"member_career\".\"member_id\"), \"organization_with_hierarchy_cte\" as (with \"organization_children_cte\" as (select \"parent_id\", \n        coalesce(\n          json_agg(\n            json_build_object(\n              'id', \"id\",\n              'name', \"name\",\n              'slug', \"slug\",\n              'code', \"code\",\n              'codeSlug', \"code_slug\",\n              'type', \"type\",\n              'level', \"level\",\n              'logo', \"logo\",\n              'isActive', \"is_active\"\n            )\n          ) filter (where \"id\" is not null),\n          '[]'::json\n        )\n       as \"children\", count(\"id\") as \"child_count\" from \"organization\" group by \"organization\".\"parent_id\") select \"organization\".\"id\", \"organization\".\"name\", \"organization\".\"slug\", \"organization\".\"code\", \"organization\".\"code_slug\", \"organization\".\"type\", \"organization\".\"level\", \"organization\".\"logo\", \"organization\".\"is_active\", \n          coalesce(\"organization_children_cte\".\"children\", '[]'::json)\n         as \"children\", \n          coalesce(\"organization_children_cte\".\"child_count\", 0)\n         as \"child_count\", \n          case\n            when \"parent\".\"type\" = 'pd' then\n              json_build_object(\n                'id', \"parent\".\"id\",\n                'name', \"parent\".\"name\",\n                'slug', \"parent\".\"slug\",\n                'code', \"parent\".\"code\",\n                'codeSlug', \"parent\".\"code_slug\",\n                'type', \"parent\".\"type\",\n                'level', \"parent\".\"level\",\n                'logo', \"parent\".\"logo\",\n                'isActive', \"parent\".\"is_active\"\n              )\n            else null\n          end\n         as \"pd\", \n          case\n            when \"parent\".\"type\" = 'pdln' then\n              json_build_object(\n                'id', \"parent\".\"id\",\n                'name', \"parent\".\"name\",\n                'slug', \"parent\".\"slug\",\n                'code', \"parent\".\"code\",\n                'codeSlug', \"parent\".\"code_slug\",\n                'type', \"parent\".\"type\",\n                'level', \"parent\".\"level\",\n                'logo', \"parent\".\"logo\",\n                'isActive', \"parent\".\"is_active\"\n              )\n            else null\n          end\n         as \"pdln\", \n          case\n            when \"parent\".\"type\" = 'pw' then\n              json_build_object(\n                'id', \"parent\".\"id\",\n                'name', \"parent\".\"name\",\n                'slug', \"parent\".\"slug\",\n                'code', \"parent\".\"code\",\n                'codeSlug', \"parent\".\"code_slug\",\n                'type', \"parent\".\"type\",\n                'level', \"parent\".\"level\",\n                'logo', \"parent\".\"logo\",\n                'isActive', \"parent\".\"is_active\"\n              )\n            when \"grandparent\".\"type\" = 'pw' then\n              json_build_object(\n                'id', \"grandparent\".\"id\",\n                'name', \"grandparent\".\"name\",\n                'slug', \"grandparent\".\"slug\",\n                'code', \"grandparent\".\"code\",\n                'codeSlug', \"grandparent\".\"code_slug\",\n                'type', \"grandparent\".\"type\",\n                'level', \"grandparent\".\"level\",\n                'logo', \"grandparent\".\"logo\",\n                'isActive', \"grandparent\".\"is_active\"\n              )\n            else null\n          end\n         as \"pw\", \n          array_remove(\n            array[\n              \"organization\".\"id\",\n              \"parent\".\"id\",\n              \"grandparent\".\"id\"\n            ],\n            null\n          )\n         as \"scope_id\" from \"organization\" left join \"organization_children_cte\" on \"organization\".\"id\" = \"organization_children_cte\".\"parent_id\" left join \"organization\" \"parent\" on \"organization\".\"parent_id\" = \"parent\".\"id\" left join \"organization\" \"grandparent\" on \"parent\".\"parent_id\" = \"grandparent\".\"id\") select \"member\".\"id\", \"member\".\"id_number\", \"member\".\"name\", \"member\".\"birth_place\", \"member\".\"birth_date\", \"member\".\"phone\", \"member\".\"photo\", \"member\".\"gender\", \"member\".\"address_province\", \"member\".\"address_province_code\", \"member\".\"address_city\", \"member\".\"address_city_code\", \"member\".\"address_district\", \"member\".\"address_district_code\", \"member\".\"address_subdistrict\", \"member\".\"address_subdistrict_code\", \"member\".\"address_line\", \"member\".\"address_full\", \"member\".\"is_an_alumn\", \"member\".\"is_suspended\", \"member_status_cte\".\"trainings\", \"member_status_cte\".\"status\", \"member_education_cte\".\"educations\", \"member_career_cte\".\"careers\", \"member_status_cte\".\"is_certified_mentor\", \"member_status_cte\".\"is_certified_instructor\", \n          json_build_object(\n            'id', \"organization_with_hierarchy_cte\".\"id\",\n            'name', \"organization_with_hierarchy_cte\".\"name\",\n            'slug', \"organization_with_hierarchy_cte\".\"slug\",\n            'code', \"organization_with_hierarchy_cte\".\"code\",\n            'codeSlug', \"organization_with_hierarchy_cte\".\"code_slug\",\n            'type', \"organization_with_hierarchy_cte\".\"type\",\n            'level', \"organization_with_hierarchy_cte\".\"level\",\n            'logo', \"organization_with_hierarchy_cte\".\"logo\",\n            'isActive', \"organization_with_hierarchy_cte\".\"is_active\",\n            'pd', \"organization_with_hierarchy_cte\".\"pd\",\n            'pdln', \"organization_with_hierarchy_cte\".\"pdln\",\n            'pw', \"organization_with_hierarchy_cte\".\"pw\"\n          )\n         as \"registered_at\", \"organization_with_hierarchy_cte\".\"scope_id\" from \"member\" left join \"member_status_cte\" on \"member\".\"id\" = \"member_status_cte\".\"id\" left join \"member_education_cte\" on \"member\".\"id\" = \"member_education_cte\".\"member_id\" left join \"member_career_cte\" on \"member\".\"id\" = \"member_career_cte\".\"member_id\" left join \"organization_with_hierarchy_cte\" on \"member\".\"registered_at_organization_id\" = \"organization_with_hierarchy_cte\".\"id\") select \"training_instructors\".\"training_id\", \n        coalesce(\n          json_agg(\n            json_build_object(\n              'id', \"member_cte\".\"id\",\n              'idNo', \"member_cte\".\"id_number\",\n              'name', \"member_cte\".\"name\",\n              'phone', \"member_cte\".\"phone\",\n              'photo', \"member_cte\".\"photo\",\n              'gender', \"member_cte\".\"gender\",\n              'status', \"member_cte\".\"status\",\n              'registeredAt', \"member_cte\".\"registered_at\",\n              'role', \"training_instructors\".\"role\",\n              'isIntern', \"training_instructors\".\"is_intern\"\n            )  \n          ) filter (where \"member_cte\".\"id\" is not null),\n          '[]'::json\n        )\n       as \"instructors\", count(\"member_cte\".\"id\") as \"instructors_count\" from \"training_instructors\" left join \"member_cte\" on \"training_instructors\".\"instructor_id\" = \"member_cte\".\"id\" group by \"training_instructors\".\"training_id\") select \"training\".\"id\", \"training\".\"name\", \"training\".\"type\", \"training\".\"date_start\", \"training\".\"date_end\", \"training\".\"registration_until\", \"training\".\"organizer_id\", \"training_serial_cte\".\"serial\", \n        coalesce(\"training_attendants_cte\".\"attendants\", '[]'::json)\n       as \"attendants\", \n        coalesce(\"training_attendants_cte\".\"attendants_count\", 0)\n       as \"attendants_count\", \n        coalesce(\"training_instructors_cte\".\"instructors\", '[]'::json)\n       as \"instructors\", \n        coalesce(\"training_instructors_cte\".\"instructors_count\", 0)\n       as \"instructors_count\", \n          json_build_object(\n            'id', \"organization_with_hierarchy_cte\".\"id\",\n            'name', \"organization_with_hierarchy_cte\".\"name\",\n            'slug', \"organization_with_hierarchy_cte\".\"slug\",\n            'code', \"organization_with_hierarchy_cte\".\"code\",\n            'codeSlug', \"organization_with_hierarchy_cte\".\"code_slug\",\n            'type', \"organization_with_hierarchy_cte\".\"type\",\n            'level', \"organization_with_hierarchy_cte\".\"level\",\n            'isActive', \"organization_with_hierarchy_cte\".\"is_active\",\n            'logo', \"organization_with_hierarchy_cte\".\"logo\",\n            'pd', \"organization_with_hierarchy_cte\".\"pd\",\n            'pdln', \"organization_with_hierarchy_cte\".\"pdln\",\n            'pw', \"organization_with_hierarchy_cte\".\"pw\"\n          )\n         as \"organizer\" from \"training\" left join \"training_serial_cte\" on \"training\".\"id\" = \"training_serial_cte\".\"id\" left join \"organization_with_hierarchy_cte\" on \"training\".\"organizer_id\" = \"organization_with_hierarchy_cte\".\"id\" left join \"training_attendants_cte\" on \"training\".\"id\" = \"training_attendants_cte\".\"training_id\" left join \"training_instructors_cte\" on \"training\".\"id\" = \"training_instructors_cte\".\"training_id\") select \"id\", \"name\", \"type\", \"date_start\", \"date_end\", \"registration_until\", \"organizer_id\", \"serial\", \"attendants\", \"attendants_count\", \"instructors\", \"instructors_count\", \"organizer\" from \"training_cte\"",
+      "with": null,
+      "withNoData": true,
+      "using": null,
+      "tablespace": null,
+      "materialized": true,
+      "name": "training_view",
+      "entityType": "views",
+      "schema": "public"
+    }
+  ],
+  "renames": []
+}

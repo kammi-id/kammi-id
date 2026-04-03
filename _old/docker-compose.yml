@@ -1,0 +1,42 @@
+services:
+  db:
+    container_name: db
+    image: postgres:18.1-bookworm
+    restart: unless-stopped
+    command: ['postgres', '-c', 'log_statement=all']
+    environment:
+      - POSTGRES_PASSWORD=kammi_id
+      - POSTGRES_USER=kammi_id
+      - POSTGRES_DB=kammi_id
+    volumes:
+      - db_data:/var/lib/postgresql
+    ports:
+      - 5432:5432
+
+  storage:
+    container_name: storage
+    image: cgr.dev/chainguard/minio:latest
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      - MINIO_ROOT_USER=kammi-id
+      - MINIO_ROOT_PASSWORD=kammi-id
+      - MINIO_DATA_DIR=/data
+    volumes:
+      - storage_data:/data
+    ports:
+      - 9000:9000
+      - 9001:9001
+
+  adminer:
+    container_name: adminer
+    image: adminer:5.4.1
+    restart: unless-stopped
+    depends_on:
+      - db
+    ports:
+      - 5433:8080
+
+volumes:
+  db_data:
+  storage_data:

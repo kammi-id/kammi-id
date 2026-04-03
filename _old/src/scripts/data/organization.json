@@ -1,0 +1,1201 @@
+[
+  {
+    "code": "KAMMI",
+    "name": "PP KAMMI",
+    "type": "pp",
+    "slug": "pp"
+  },
+  {
+    "code": "PW1",
+    "name": "PW KAMMI NAD (Aceh)",
+    "type": "pw",
+    "slug": "aceh"
+  },
+  {
+    "code": "PW2",
+    "name": "PW KAMMI Sumatera Utara",
+    "type": "pw",
+    "slug": "sumut"
+  },
+  {
+    "code": "PW3",
+    "name": "PW KAMMI Sumatera Barat",
+    "type": "pw",
+    "slug": "sumbar"
+  },
+  {
+    "code": "PW4",
+    "name": "PW KAMMI Riau",
+    "type": "pw",
+    "slug": "riau"
+  },
+  {
+    "code": "PW5",
+    "name": "PW KAMMI Kepulauan Riau",
+    "type": "pw",
+    "slug": "kepri"
+  },
+  {
+    "code": "PW6",
+    "name": "PW KAMMI Sumatera Selatan",
+    "type": "pw",
+    "slug": "sumsel"
+  },
+  {
+    "code": "PW7",
+    "name": "PW KAMMI Bengkulu",
+    "type": "pw",
+    "slug": "bengkulu"
+  },
+  {
+    "code": "PW8",
+    "name": "PW KAMMI Lampung",
+    "type": "pw",
+    "slug": "lampung"
+  },
+  {
+    "code": "PW9",
+    "name": "PW KAMMI Banten",
+    "type": "pw",
+    "slug": "banten"
+  },
+  {
+    "code": "PW10",
+    "name": "PW KAMMI DKI Jakarta",
+    "type": "pw",
+    "slug": "jakarta"
+  },
+  {
+    "code": "PW11",
+    "name": "PW KAMMI Jawa Barat",
+    "type": "pw",
+    "slug": "jabar"
+  },
+  {
+    "code": "PW12",
+    "name": "PW KAMMI Jawa Tengah",
+    "type": "pw",
+    "slug": "jateng"
+  },
+  {
+    "code": "PW13",
+    "name": "PW KAMMI D.I. Yogyakarta",
+    "type": "pw",
+    "slug": "jogja"
+  },
+  {
+    "code": "PW14",
+    "name": "PW KAMMI Jawa Timur",
+    "type": "pw",
+    "slug": "jatim"
+  },
+  {
+    "code": "PW15",
+    "name": "PW KAMMI Bali",
+    "type": "pw",
+    "slug": "bali"
+  },
+  {
+    "code": "PW16",
+    "name": "PW KAMMI Nusa Tenggara Barat",
+    "type": "pw",
+    "slug": "ntb"
+  },
+  {
+    "code": "PW17",
+    "name": "PW KAMMI Nusa Tenggara Timur",
+    "type": "pw",
+    "slug": "ntt"
+  },
+  {
+    "code": "PW18",
+    "name": "PW KAMMI Kalimantan Barat",
+    "type": "pw",
+    "slug": "kalbar"
+  },
+  {
+    "code": "PW19",
+    "name": "PW KAMMI Kalimantan Tengah",
+    "type": "pw",
+    "slug": "kalteng"
+  },
+  {
+    "code": "PW20",
+    "name": "PW KAMMI Kalimantan Selatan",
+    "type": "pw",
+    "slug": "kalsel"
+  },
+  {
+    "code": "PW21",
+    "name": "PW KAMMI Kalimantan Timur-Utara",
+    "type": "pw",
+    "slug": "kaltim"
+  },
+  {
+    "code": "PW22",
+    "name": "PW KAMMI Sulawesi Selatan",
+    "type": "pw",
+    "slug": "sulsel"
+  },
+  {
+    "code": "PW23",
+    "name": "PW KAMMI Sulawesi Tengah",
+    "type": "pw",
+    "slug": "sulteng"
+  },
+  {
+    "code": "PW24",
+    "name": "PW KAMMI Sulawesi Utara",
+    "type": "pw",
+    "slug": "sulut"
+  },
+  {
+    "code": "PW25",
+    "name": "PW KAMMI Maluku",
+    "type": "pw",
+    "slug": "maluku"
+  },
+  {
+    "code": "PW26",
+    "name": "PW KAMMI Maluku Utara",
+    "type": "pw",
+    "slug": "malut"
+  },
+  {
+    "code": "PW27",
+    "name": "PW KAMMI Papua",
+    "type": "pw",
+    "slug": "papua"
+  },
+  {
+    "code": "PW28",
+    "name": "PW KAMMI Jambi",
+    "type": "pw",
+    "slug": "jambi"
+  },
+  {
+    "code": "PW29",
+    "name": "PW KAMMI Sulawesi Tenggara",
+    "type": "pw",
+    "slug": "sultra"
+  },
+  {
+    "code": "PW30",
+    "name": "PW KAMMI Sulawesi Barat",
+    "type": "pw",
+    "slug": "sulbar"
+  },
+  {
+    "code": "PW31",
+    "name": "PW KAMMI Bangka Belitung",
+    "type": "pw",
+    "slug": "babel"
+  },
+  {
+    "code": "PW32",
+    "name": "PW KAMMI Gorontalo",
+    "type": "pw",
+    "slug": "gorontalo"
+  },
+  {
+    "code": "1.PD-1",
+    "name": "PD KAMMI Banda Aceh",
+    "parentCode": "PW1",
+    "type": "pd",
+    "slug": "banda-aceh"
+  },
+  {
+    "code": "1.PD-2",
+    "name": "PD KAMMI Aceh Besar",
+    "parentCode": "PW1",
+    "type": "pd",
+    "slug": "aceh-besar"
+  },
+  {
+    "code": "1.PD-3",
+    "name": "PD KAMMI Aceh Utara (Pasai)",
+    "parentCode": "PW1",
+    "type": "pd",
+    "slug": "aceh-utara"
+  },
+  {
+    "code": "1.PD-4",
+    "name": "PD KAMMI Aceh Tenggara",
+    "parentCode": "PW1",
+    "type": "pd",
+    "slug": "aceh-tenggara"
+  },
+  {
+    "code": "1.PD-5",
+    "name": "PD KAMMI Aceh Selatan",
+    "parentCode": "PW1",
+    "type": "pd",
+    "slug": "aceh-selatan"
+  },
+  {
+    "code": "1.PD-6",
+    "name": "PD KAMMI Aceh Barat",
+    "parentCode": "PW1",
+    "type": "pd",
+    "slug": "aceh-barat"
+  },
+  {
+    "code": "1.PD-7",
+    "name": "PD KAMMI Gayo",
+    "parentCode": "PW1",
+    "type": "pd",
+    "slug": "gayo"
+  },
+  {
+    "code": "1.PD-8",
+    "name": "PD KAMMI Langsa",
+    "parentCode": "PW1",
+    "type": "pd",
+    "slug": "langsa"
+  },
+  {
+    "code": "2.PD-1",
+    "name": "PD KAMMI Medan",
+    "parentCode": "PW2",
+    "type": "pd",
+    "slug": "medan"
+  },
+  {
+    "code": "2.PD-2",
+    "name": "PD KAMMI Labuan Batu",
+    "parentCode": "PW2",
+    "type": "pd",
+    "slug": "labuan-batu"
+  },
+  {
+    "code": "2.PD-3",
+    "name": "PD KAMMI Tabagsel",
+    "parentCode": "PW2",
+    "type": "pd",
+    "slug": "tabagsel"
+  },
+  {
+    "code": "2.PD-4",
+    "name": "PD KAMMI Langkat",
+    "parentCode": "PW2",
+    "type": "pd",
+    "slug": "langkat"
+  },
+  {
+    "code": "2.PD-5",
+    "name": "PD KAMMI Deli Serdang",
+    "parentCode": "PW2",
+    "type": "pd",
+    "slug": "deli-serdang"
+  },
+  {
+    "code": "2.PD-6",
+    "name": "PD KAMMI Asahan",
+    "parentCode": "PW2",
+    "type": "pd",
+    "slug": "asahan"
+  },
+  {
+    "code": "2.PD-7",
+    "name": "PD KAMMI Tanjung Balai",
+    "parentCode": "PW2",
+    "type": "pd",
+    "slug": "tanjung-balai"
+  },
+  {
+    "code": "2.PD-8",
+    "name": "PD KAMMI Padang Lawas",
+    "parentCode": "PW2",
+    "type": "pd",
+    "slug": "padang-lawas"
+  },
+  {
+    "code": "2.PD-9",
+    "name": "PD KAMMI Padangsidimpuan",
+    "parentCode": "PW2",
+    "type": "pd",
+    "slug": "padangsidimpuan"
+  },
+  {
+    "code": "2.PD-10",
+    "name": "PD KAMMI Tapanuli Tengah",
+    "parentCode": "PW2",
+    "type": "pd",
+    "slug": "tapanuli-tengah"
+  },
+  {
+    "code": "2.PD-11",
+    "name": "PD KAMMI Dairi",
+    "parentCode": "PW2",
+    "type": "pd",
+    "slug": "dairi"
+  },
+  {
+    "code": "2.PD-12",
+    "name": "PD KAMMI Serbing",
+    "parentCode": "PW2",
+    "type": "pd",
+    "slug": "serbing"
+  },
+  {
+    "code": "3.PD-1",
+    "name": "PD KAMMI Padang",
+    "parentCode": "PW3",
+    "type": "pd",
+    "slug": "padang"
+  },
+  {
+    "code": "3.PD-2",
+    "name": "PD KAMMI Luhak Nan Bungsu",
+    "parentCode": "PW3",
+    "type": "pd",
+    "slug": "luhak-nan-bungsu"
+  },
+  {
+    "code": "3.PD-3",
+    "name": "PD KAMMI Bukittinggi",
+    "parentCode": "PW3",
+    "type": "pd",
+    "slug": "bukittinggi"
+  },
+  {
+    "code": "4.PD-1",
+    "name": "PD KAMMI Pekanbaru",
+    "parentCode": "PW4",
+    "type": "pd",
+    "slug": "pekanbaru"
+  },
+  {
+    "code": "4.PD-2",
+    "name": "PD KAMMI Lancang Kuning",
+    "parentCode": "PW4",
+    "type": "pd",
+    "slug": "lancang-kuning"
+  },
+  {
+    "code": "4.PD-3",
+    "name": "PD KAMMI Indragiri",
+    "parentCode": "PW4",
+    "type": "pd",
+    "slug": "indragiri"
+  },
+  {
+    "code": "4.PD-4",
+    "name": "PD KAMMI Rokan",
+    "parentCode": "PW4",
+    "type": "pd",
+    "slug": "rokan"
+  },
+  {
+    "code": "4.PD-5",
+    "name": "PD KAMMI Sriindrapura",
+    "parentCode": "PW4",
+    "type": "pd",
+    "slug": "sriindrapura"
+  },
+  {
+    "code": "5.PD-1",
+    "name": "PD KAMMI Tanjung Pinang",
+    "parentCode": "PW5",
+    "type": "pd",
+    "slug": "tanjung-pinang"
+  },
+  {
+    "code": "5.PD-2",
+    "name": "PD KAMMI Batam",
+    "parentCode": "PW5",
+    "type": "pd",
+    "slug": "batam"
+  },
+  {
+    "code": "6.PD-1",
+    "name": "PD KAMMI Palembang",
+    "parentCode": "PW6",
+    "type": "pd",
+    "slug": "palembang"
+  },
+  {
+    "code": "6.PD-2",
+    "name": "PD KAMMI Silampari",
+    "parentCode": "PW6",
+    "type": "pd",
+    "slug": "silampari"
+  },
+  {
+    "code": "6.PD-3",
+    "name": "PD KAMMI Ogan",
+    "parentCode": "PW6",
+    "type": "pd",
+    "slug": "ogan"
+  },
+  {
+    "code": "6.PD-4",
+    "name": "PD KAMMI Oku Raya",
+    "parentCode": "PW6",
+    "type": "pd",
+    "slug": "oku-raya"
+  },
+  {
+    "code": "6.PD-5",
+    "name": "PD KAMMI Muba",
+    "parentCode": "PW6",
+    "type": "pd",
+    "slug": "muba"
+  },
+  {
+    "code": "7.PD-1",
+    "name": "PD KAMMI Bengkulu",
+    "parentCode": "PW7",
+    "type": "pd",
+    "slug": "kota-bengkulu"
+  },
+  {
+    "code": "7.PD-2",
+    "name": "PD KAMMI Rejang Lebong",
+    "parentCode": "PW7",
+    "type": "pd",
+    "slug": "rejang-lebong"
+  },
+  {
+    "code": "8.PD-1",
+    "name": "PD KAMMI Metro Lampung",
+    "parentCode": "PW8",
+    "type": "pd",
+    "slug": "metro-lampung"
+  },
+  {
+    "code": "8.PD-2",
+    "name": "PD KAMMI Bandar Lampung",
+    "parentCode": "PW8",
+    "type": "pd",
+    "slug": "bandar-lampung"
+  },
+  {
+    "code": "8.PD-3",
+    "name": "PD KAMMI Pring Sewu",
+    "parentCode": "PW8",
+    "type": "pd",
+    "slug": "pring-sewu"
+  },
+  {
+    "code": "9.PD-1",
+    "name": "PD KAMMI Serang",
+    "parentCode": "PW9",
+    "type": "pd",
+    "slug": "serang"
+  },
+  {
+    "code": "9.PD-2",
+    "name": "PD KAMMI Cilegon",
+    "parentCode": "PW9",
+    "type": "pd",
+    "slug": "cilegon"
+  },
+  {
+    "code": "9.PD-3",
+    "name": "PD KAMMI Lebak",
+    "parentCode": "PW9",
+    "type": "pd",
+    "slug": "lebak"
+  },
+  {
+    "code": "9.PD-4",
+    "name": "PD KAMMI Tangerang Selatan",
+    "parentCode": "PW9",
+    "type": "pd",
+    "slug": "tangerang-selatan"
+  },
+  {
+    "code": "9.PD-5",
+    "name": "PD KAMMI Tangerang",
+    "parentCode": "PW9",
+    "type": "pd",
+    "slug": "tangerang"
+  },
+  {
+    "code": "10.PD-1",
+    "name": "PD KAMMI Jakarta Timur",
+    "parentCode": "PW10",
+    "type": "pd",
+    "slug": "jakarta-timur"
+  },
+  {
+    "code": "10.PD-2",
+    "name": "PD KAMMI Jakarta Selatan",
+    "parentCode": "PW10",
+    "type": "pd",
+    "slug": "jakarta-selatan"
+  },
+  {
+    "code": "10.PD-3",
+    "name": "PD KAMMI Jakarta Pusat",
+    "parentCode": "PW10",
+    "type": "pd",
+    "slug": "jakarta-pusat"
+  },
+  {
+    "code": "11.PD-1",
+    "name": "PD KAMMI Bandung",
+    "parentCode": "PW11",
+    "type": "pd",
+    "slug": "bandung"
+  },
+  {
+    "code": "11.PD-2",
+    "name": "PD KAMMI Kabupaten Bandung",
+    "parentCode": "PW11",
+    "type": "pd",
+    "slug": "kabupaten-bandung"
+  },
+  {
+    "code": "11.PD-3",
+    "name": "PD KAMMI Sumedang",
+    "parentCode": "PW11",
+    "type": "pd",
+    "slug": "sumedang"
+  },
+  {
+    "code": "11.PD-4",
+    "name": "PD KAMMI Subang",
+    "parentCode": "PW11",
+    "type": "pd",
+    "slug": "subang"
+  },
+  {
+    "code": "11.PD-5",
+    "name": "PD KAMMI Karawang",
+    "parentCode": "PW11",
+    "type": "pd",
+    "slug": "karawang"
+  },
+  {
+    "code": "11.PD-6",
+    "name": "PD KAMMI Sukabumi",
+    "parentCode": "PW11",
+    "type": "pd",
+    "slug": "sukabumi"
+  },
+  {
+    "code": "11.PD-7",
+    "name": "PD KAMMI Majalengka",
+    "parentCode": "PW11",
+    "type": "pd",
+    "slug": "majalengka"
+  },
+  {
+    "code": "11.PD-8",
+    "name": "PD KAMMI Kuningan",
+    "parentCode": "PW11",
+    "type": "pd",
+    "slug": "kuningan"
+  },
+  {
+    "code": "11.PD-9",
+    "name": "PD KAMMI Cirebon",
+    "parentCode": "PW11",
+    "type": "pd",
+    "slug": "cirebon"
+  },
+  {
+    "code": "11.PD-10",
+    "name": "PD KAMMI Indramayu",
+    "parentCode": "PW11",
+    "type": "pd",
+    "slug": "indramayu"
+  },
+  {
+    "code": "11.PD-11",
+    "name": "PD KAMMI Ciamis",
+    "parentCode": "PW11",
+    "type": "pd",
+    "slug": "ciamis"
+  },
+  {
+    "code": "11.PD-12",
+    "name": "PD KAMMI Garut",
+    "parentCode": "PW11",
+    "type": "pd",
+    "slug": "garut"
+  },
+  {
+    "code": "11.PD-13",
+    "name": "PD KAMMI Purwakarta",
+    "parentCode": "PW11",
+    "type": "pd",
+    "slug": "purwakarta"
+  },
+  {
+    "code": "11.PD-14",
+    "name": "PD KAMMI Tasikmalaya",
+    "parentCode": "PW11",
+    "type": "pd",
+    "slug": "tasikmalaya"
+  },
+  {
+    "code": "11.PD-15",
+    "name": "PD KAMMI Bogor",
+    "parentCode": "PW11",
+    "type": "pd",
+    "slug": "bogor"
+  },
+  {
+    "code": "11.PD-16",
+    "name": "PD KAMMI Bekasi",
+    "parentCode": "PW11",
+    "type": "pd",
+    "slug": "bekasi"
+  },
+  {
+    "code": "11.PD-17",
+    "name": "PD KAMMI Depok",
+    "parentCode": "PW11",
+    "type": "pd",
+    "slug": "depok"
+  },
+  {
+    "code": "11.PD-18",
+    "name": "PD KAMMI Kabupaten Bekasi",
+    "parentCode": "PW11",
+    "type": "pd",
+    "slug": "kabupaten-bekasi"
+  },
+  {
+    "code": "11.PD-19",
+    "name": "PD KAMMI Kabupaten Cianjur",
+    "parentCode": "PW11",
+    "type": "pd",
+    "slug": "kabupaten-cianjur"
+  },
+  {
+    "code": "12.PD-1",
+    "name": "PD KAMMI Semarang",
+    "parentCode": "PW12",
+    "type": "pd",
+    "slug": "semarang"
+  },
+  {
+    "code": "12.PD-2",
+    "name": "PD KAMMI Solo",
+    "parentCode": "PW12",
+    "type": "pd",
+    "slug": "solo"
+  },
+  {
+    "code": "12.PD-3",
+    "name": "PD KAMMI Purwokerto",
+    "parentCode": "PW12",
+    "type": "pd",
+    "slug": "purwokerto"
+  },
+  {
+    "code": "12.PD-4",
+    "name": "PD KAMMI Magelang",
+    "parentCode": "PW12",
+    "type": "pd",
+    "slug": "magelang"
+  },
+  {
+    "code": "12.PD-5",
+    "name": "PD KAMMI Pekalongan",
+    "parentCode": "PW12",
+    "type": "pd",
+    "slug": "pekalongan"
+  },
+  {
+    "code": "12.PD-6",
+    "name": "PD KAMMI Tegal",
+    "parentCode": "PW12",
+    "type": "pd",
+    "slug": "tegal"
+  },
+  {
+    "code": "12.PD-7",
+    "name": "PD KAMMI Salatiga",
+    "parentCode": "PW12",
+    "type": "pd",
+    "slug": "salatiga"
+  },
+  {
+    "code": "13.PD-1",
+    "name": "PD KAMMI Bantul",
+    "parentCode": "PW13",
+    "type": "pd",
+    "slug": "bantul"
+  },
+  {
+    "code": "13.PD-2",
+    "name": "PD KAMMI Sleman",
+    "parentCode": "PW13",
+    "type": "pd",
+    "slug": "sleman"
+  },
+  {
+    "code": "13.PD-3",
+    "name": "PD KAMMI Kota Jogja",
+    "parentCode": "PW13",
+    "type": "pd",
+    "slug": "kota-yogyakarta"
+  },
+  {
+    "code": "14.PD-1",
+    "name": "PD KAMMI Surabaya",
+    "parentCode": "PW14",
+    "type": "pd",
+    "slug": "surabaya"
+  },
+  {
+    "code": "14.PD-2",
+    "name": "PD KAMMI Malang",
+    "parentCode": "PW14",
+    "type": "pd",
+    "slug": "malang"
+  },
+  {
+    "code": "14.PD-3",
+    "name": "PD KAMMI Jember",
+    "parentCode": "PW14",
+    "type": "pd",
+    "slug": "jember"
+  },
+  {
+    "code": "14.PD-4",
+    "name": "PD KAMMI Madiun",
+    "parentCode": "PW14",
+    "type": "pd",
+    "slug": "madiun"
+  },
+  {
+    "code": "14.PD-5",
+    "name": "PD KAMMI Ponorogo",
+    "parentCode": "PW14",
+    "type": "pd",
+    "slug": "ponorogo"
+  },
+  {
+    "code": "14.PD-6",
+    "name": "PD KAMMI Jombang",
+    "parentCode": "PW14",
+    "type": "pd",
+    "slug": "jombang"
+  },
+  {
+    "code": "14.PD-7",
+    "name": "PD KAMMI Pamekasan",
+    "parentCode": "PW14",
+    "type": "pd",
+    "slug": "pamekasan"
+  },
+  {
+    "code": "14.PD-8",
+    "name": "PD KAMMI Kediri",
+    "parentCode": "PW14",
+    "type": "pd",
+    "slug": "kediri"
+  },
+  {
+    "code": "15.PD-1",
+    "name": "PD KAMMI Denpasar",
+    "parentCode": "PW15",
+    "type": "pd",
+    "slug": "denpasar"
+  },
+  {
+    "code": "15.PD-2",
+    "name": "PD KAMMI Badung",
+    "parentCode": "PW15",
+    "type": "pd",
+    "slug": "badung"
+  },
+  {
+    "code": "15.PD-3",
+    "name": "PD KAMMI Buleleng",
+    "parentCode": "PW15",
+    "type": "pd",
+    "slug": "buleleng"
+  },
+  {
+    "code": "16.PD-1",
+    "name": "PD KAMMI Mataram",
+    "parentCode": "PW16",
+    "type": "pd",
+    "slug": "mataram"
+  },
+  {
+    "code": "16.PD-2",
+    "name": "PD KAMMI Sumbawa",
+    "parentCode": "PW16",
+    "type": "pd",
+    "slug": "sumbawa"
+  },
+  {
+    "code": "16.PD-3",
+    "name": "PD KAMMI Bima",
+    "parentCode": "PW16",
+    "type": "pd",
+    "slug": "bima"
+  },
+  {
+    "code": "16.PD-4",
+    "name": "PD KAMMI Lombok Timur",
+    "parentCode": "PW16",
+    "type": "pd",
+    "slug": "lombok-timur"
+  },
+  {
+    "code": "16.PD-5",
+    "name": "PD KAMMI Dompu",
+    "parentCode": "PW16",
+    "type": "pd",
+    "slug": "dompu"
+  },
+  {
+    "code": "17.PD-1",
+    "name": "PD KAMMI Kupang",
+    "parentCode": "PW17",
+    "type": "pd",
+    "slug": "kupang"
+  },
+  {
+    "code": "17.PD-2",
+    "name": "PD KAMMI Flores Raya",
+    "parentCode": "PW17",
+    "type": "pd",
+    "slug": "flores-raya"
+  },
+  {
+    "code": "18.PD-1",
+    "name": "PD KAMMI Pontianak",
+    "parentCode": "PW18",
+    "type": "pd",
+    "slug": "pontianak"
+  },
+  {
+    "code": "19.PD-1",
+    "name": "PD KAMMI Palangkaraya",
+    "parentCode": "PW19",
+    "type": "pd",
+    "slug": "palangkaraya"
+  },
+  {
+    "code": "19.PD-2",
+    "name": "PD KAMMI Kotawaringin Barat",
+    "parentCode": "PW19",
+    "type": "pd",
+    "slug": "kotawaringin-barat"
+  },
+  {
+    "code": "20.PD-1",
+    "name": "PD KAMMI Banjarmasin",
+    "parentCode": "PW20",
+    "type": "pd",
+    "slug": "banjarmasin"
+  },
+  {
+    "code": "20.PD-2",
+    "name": "PD KAMMI Banjarbaru",
+    "parentCode": "PW20",
+    "type": "pd",
+    "slug": "banjarbaru"
+  },
+  {
+    "code": "21.PD-1",
+    "name": "PD KAMMI Samarinda",
+    "parentCode": "PW21",
+    "type": "pd",
+    "slug": "samarinda"
+  },
+  {
+    "code": "21.PD-2",
+    "name": "PD KAMMI Balikpapan",
+    "parentCode": "PW21",
+    "type": "pd",
+    "slug": "balikpapan"
+  },
+  {
+    "code": "21.PD-3",
+    "name": "PD KAMMI Berau",
+    "parentCode": "PW21",
+    "type": "pd",
+    "slug": "berau"
+  },
+  {
+    "code": "22.PD-1",
+    "name": "PD KAMMI Makassar",
+    "parentCode": "PW22",
+    "type": "pd",
+    "slug": "makassar"
+  },
+  {
+    "code": "22.PD-2",
+    "name": "PD KAMMI Gowa",
+    "parentCode": "PW22",
+    "type": "pd",
+    "slug": "gowa"
+  },
+  {
+    "code": "22.PD-3",
+    "name": "PD KAMMI Luwu Raya",
+    "parentCode": "PW22",
+    "type": "pd",
+    "slug": "luwu-raya"
+  },
+  {
+    "code": "22.PD-4",
+    "name": "PD KAMMI Maros",
+    "parentCode": "PW22",
+    "type": "pd",
+    "slug": "maros"
+  },
+  {
+    "code": "22.PD-5",
+    "name": "PD KAMMI Wajo",
+    "parentCode": "PW22",
+    "type": "pd",
+    "slug": "wajo"
+  },
+  {
+    "code": "22.PD-6",
+    "name": "PD KAMMI Parepare",
+    "parentCode": "PW22",
+    "type": "pd",
+    "slug": "parepare"
+  },
+  {
+    "code": "23.PD-1",
+    "name": "PD KAMMI Palu",
+    "parentCode": "PW23",
+    "type": "pd",
+    "slug": "palu"
+  },
+  {
+    "code": "23.PD-2",
+    "name": "PD KAMMI Poso",
+    "parentCode": "PW23",
+    "type": "pd",
+    "slug": "poso"
+  },
+  {
+    "code": "24.PD-1",
+    "name": "PD KAMMI Manado",
+    "parentCode": "PW24",
+    "type": "pd",
+    "slug": "manado"
+  },
+  {
+    "code": "24.PD-2",
+    "name": "PD KAMMI Minahasa",
+    "parentCode": "PW24",
+    "type": "pd",
+    "slug": "minahasa"
+  },
+  {
+    "code": "24.PD-3",
+    "name": "PD KAMMI Bitung",
+    "parentCode": "PW24",
+    "type": "pd",
+    "slug": "bitung"
+  },
+  {
+    "code": "25.PD-1",
+    "name": "PD KAMMI Kota Tual",
+    "parentCode": "PW25",
+    "type": "pd",
+    "slug": "kota-tual"
+  },
+  {
+    "code": "25.PD-2",
+    "name": "PD KAMMI Maluku Tengah",
+    "parentCode": "PW25",
+    "type": "pd",
+    "slug": "maluku-tengah"
+  },
+  {
+    "code": "25.PD-3",
+    "name": "PD KAMMI Kota Ambon",
+    "parentCode": "PW25",
+    "type": "pd",
+    "slug": "kota-ambon"
+  },
+  {
+    "code": "25.PD-4",
+    "name": "PD KAMMI Buru",
+    "parentCode": "PW25",
+    "type": "pd",
+    "slug": "buru"
+  },
+  {
+    "code": "25.PD-5",
+    "name": "PD KAMMI Seram Bagian Timur",
+    "parentCode": "PW25",
+    "type": "pd",
+    "slug": "seram-bagian-timur"
+  },
+  {
+    "code": "26.PD-1",
+    "name": "PD KAMMI Kepulauan Sula",
+    "parentCode": "PW26",
+    "type": "pd",
+    "slug": "kepulauan-sula"
+  },
+  {
+    "code": "26.PD-2",
+    "name": "PD KAMMI Halmahera Selatan",
+    "parentCode": "PW26",
+    "type": "pd",
+    "slug": "halmahera-selatan"
+  },
+  {
+    "code": "26.PD-3",
+    "name": "PD KAMMI Ternate",
+    "parentCode": "PW26",
+    "type": "pd",
+    "slug": "ternate"
+  },
+  {
+    "code": "27.PD-1",
+    "name": "PD KAMMI Papua",
+    "parentCode": "PW27",
+    "type": "pd",
+    "slug": "pd-papua"
+  },
+  {
+    "code": "27.PD-2",
+    "name": "PD KAMMI Papua Barat",
+    "parentCode": "PW27",
+    "type": "pd",
+    "slug": "papua-barat"
+  },
+  {
+    "code": "27.PD-3",
+    "name": "PD KAMMI Papua Selatan",
+    "parentCode": "PW27",
+    "type": "pd",
+    "slug": "papua-selatan"
+  },
+  {
+    "code": "28.PD-1",
+    "name": "PD KAMMI Jambi",
+    "parentCode": "PW28",
+    "type": "pd",
+    "slug": "kota-jambi"
+  },
+  {
+    "code": "28.PD-2",
+    "name": "PD KAMMI Kerinci",
+    "parentCode": "PW28",
+    "type": "pd",
+    "slug": "kerinci"
+  },
+  {
+    "code": "29.PD-1",
+    "name": "PD KAMMI Kendari",
+    "parentCode": "PW29",
+    "type": "pd",
+    "slug": "kendari"
+  },
+  {
+    "code": "29.PD-2",
+    "name": "PD KAMMI Kepulauan Buton",
+    "parentCode": "PW29",
+    "type": "pd",
+    "slug": "kepulauan-buton"
+  },
+  {
+    "code": "29.PD-3",
+    "name": "PD KAMMI Kolaka",
+    "parentCode": "PW29",
+    "type": "pd",
+    "slug": "kolaka"
+  },
+  {
+    "code": "30.PD-1",
+    "name": "PD KAMMI Mamuju Raya",
+    "parentCode": "PW30",
+    "type": "pd",
+    "slug": "mamuju-raya"
+  },
+  {
+    "code": "30.PD-2",
+    "name": "PD KAMMI Mandar Raya",
+    "parentCode": "PW30",
+    "type": "pd",
+    "slug": "mandar-raya"
+  },
+  {
+    "code": "31.PD-1",
+    "name": "PD KAMMI Bangka Belitung",
+    "parentCode": "PW31",
+    "type": "pd",
+    "slug": "bangka-belitung"
+  },
+  {
+    "code": "32.PD-1",
+    "name": "PD KAMMI Kota Gorontalo",
+    "parentCode": "PW32",
+    "type": "pd",
+    "slug": "kota-gorontalo"
+  },
+  {
+    "code": "32.PD-2",
+    "name": "PD KAMMI Kabupaten Gorontalo",
+    "parentCode": "PW32",
+    "type": "pd",
+    "slug": "kabupaten-gorontalo"
+  },
+  {
+    "code": "PD.LN-1",
+    "name": "PD KAMMI Turki",
+    "parentCode": "PP",
+    "type": "pdln",
+    "slug": "turki"
+  },
+  {
+    "code": "PD.LN-2",
+    "name": "PD KAMMI Malaysia",
+    "parentCode": "PP",
+    "type": "pdln",
+    "slug": "malaysia"
+  },
+  {
+    "code": "PD.LN-3",
+    "name": "PD KAMMI Rusia",
+    "parentCode": "PP",
+    "type": "pdln",
+    "slug": "rusia"
+  },
+  {
+    "code": "PD.LN-4",
+    "name": "PD KAMMI Arab Saudi",
+    "parentCode": "PP",
+    "type": "pdln",
+    "slug": "arab-saudi"
+  },
+  {
+    "code": "PD.LN-5",
+    "name": "PD KAMMI Libya",
+    "parentCode": "PP",
+    "type": "pdln",
+    "slug": "libya"
+  },
+  {
+    "code": "PD.LN-6",
+    "name": "PD KAMMI Sudan",
+    "parentCode": "PP",
+    "type": "pdln",
+    "slug": "sudan"
+  },
+  {
+    "code": "PD.LN-7",
+    "name": "PD KAMMI Taiwan",
+    "parentCode": "PP",
+    "type": "pdln",
+    "slug": "taiwan"
+  },
+  {
+    "code": "PD.LN-8",
+    "name": "PD KAMMI Jepang",
+    "parentCode": "PP",
+    "type": "pdln",
+    "slug": "jepang"
+  }
+]
