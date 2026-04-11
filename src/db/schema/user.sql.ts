@@ -1,0 +1,21 @@
+import { pgTable } from 'drizzle-orm/pg-core'
+import { sql } from 'drizzle-orm'
+import { organization } from './organization.sql'
+import { member } from './member.sql'
+
+export const user = pgTable('user', (t) => ({
+  id: t
+    .uuid()
+    .primaryKey()
+    .default(sql`uuidv7()`),
+  passwordHash: t.text('password_hash').notNull(),
+  role: t
+    .text({ enum: ['root', 'bph', 'bpk', 'bpw', 'pr', 'member'] })
+    .notNull(),
+  connectedOrganization: t
+    .uuid('connected_organization')
+    .references(() => organization.id, { onDelete: 'set null' }),
+  connectedMember: t
+    .uuid('connected_member')
+    .references(() => member.id, { onDelete: 'set null' })
+}))

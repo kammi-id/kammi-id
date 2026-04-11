@@ -3,7 +3,7 @@ import './globals.css'
 import type { ReactNode } from 'react'
 import type { Metadata } from 'next'
 import { Public_Sans, Lora } from 'next/font/google'
-import { cn } from '~/lib/utils'
+import { cn } from '~/lib/shadcn/utils'
 
 const loraHeading = Lora({ subsets: ['latin'], variable: '--font-heading' })
 const publicSans = Public_Sans({ subsets: ['latin'], variable: '--font-sans' })

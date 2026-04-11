@@ -1,0 +1,19 @@
+services:
+  db:
+    container_name: db
+    image: postgres:18.3-bookworm
+    environment:
+      POSTGRES_PASSWORD: db
+    ports:
+      - '5432:5432'
+    volumes:
+      - db_data:/var/lib/postgresql
+
+  adminer:
+    container_name: adminer
+    image: adminer:latest
+    ports:
+      - '5433:8080'
+
+volumes:
+  db_data:

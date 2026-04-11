@@ -40,6 +40,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# db migrations
+src/db/__migrations
+
 # shadcn generated files
 src/components/shadcn/*
 src/lib/shadcn/*
