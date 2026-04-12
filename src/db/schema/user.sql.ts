@@ -8,14 +8,16 @@ export const user = pgTable('user', (t) => ({
     .uuid()
     .primaryKey()
     .default(sql`uuidv7()`),
+  name: t.text('name').notNull().unique(),
+  displayName: t.text('display_name').notNull(),
   passwordHash: t.text('password_hash').notNull(),
   role: t
     .text({ enum: ['root', 'bph', 'bpk', 'bpw', 'pr', 'member'] })
     .notNull(),
-  connectedOrganization: t
-    .uuid('connected_organization')
+  connectedOrganizationId: t
+    .uuid('connected_organization_id')
     .references(() => organization.id, { onDelete: 'set null' }),
-  connectedMember: t
-    .uuid('connected_member')
+  connectedMemberId: t
+    .uuid('connected_member_id')
     .references(() => member.id, { onDelete: 'set null' })
 }))

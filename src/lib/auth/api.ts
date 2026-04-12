@@ -4,6 +4,7 @@ import {
   updateSession as updateSessionFromTable,
   deleteSession as deleteSessionFromTable
 } from '~/db/query/session'
+import z from 'zod'
 
 const inactivityTimeoutMS = 1000 * 60 * 60 * 24 * 3
 const activityCheckIntervalMS = 1000 * 60 * 60 * 6
@@ -51,14 +52,23 @@ export const readSession = async (id: string) => {
 export const validateSession = async (token: string) => {
   const [id, secret] = token.split('.')
 
-  // TODO: token validity check, id must satisfy UUIDv7, secret must satisfy UUIDv4
+  const validatedToken = z
+    .object({
+      id: z.uuidv7(),
+      secret: z.uuidv4()
+    })
+    .safeParse({ id, secret })
 
-  const session = await readSession(id)
+  if (!validatedToken.success) {
+    return undefined
+  }
+
+  const session = await readSession(validatedToken.data.id)
   if (!session) {
     return undefined
   }
 
-  const secretHash = hashSecret(secret)
+  const secretHash = hashSecret(validatedToken.data.secret)
   const isSecretValid = constantTimeEqual(secretHash, session.secretHash)
   if (!isSecretValid) {
     return undefined

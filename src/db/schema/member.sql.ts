@@ -20,8 +20,11 @@ export const member = pgTable('member', (t) => ({
   addressLine: t.text('address_line'),
   photo: t.text('photo'),
   registerNumber: t.text('register_number').notNull(),
-  registeredAt: t
-    .uuid('registered_at')
+  organizationId: t
+    .uuid('organization_id')
     .notNull()
-    .references(() => organization.id)
+    .references(() => organization.id),
+  isAlumn: t.boolean('is_alumn').default(false).notNull(),
+  isSuspended: t.boolean('is_suspended').default(false).notNull(),
+  isNonActive: t.boolean('is_non_active').default(false).notNull()
 }))

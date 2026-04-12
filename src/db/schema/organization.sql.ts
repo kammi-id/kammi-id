@@ -28,5 +28,6 @@ export const organization = pgTable('organization', (t) => ({
     )
     .notNull(),
   logo: t.text(),
-  parentId: t.uuid('parent_id').references((): AnyPgColumn => organization.id)
+  parentId: t.uuid('parent_id').references((): AnyPgColumn => organization.id),
+  isNonActive: t.boolean('is_non_active').default(false).notNull()
 }))
