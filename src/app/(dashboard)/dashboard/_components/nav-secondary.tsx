@@ -1,14 +1,14 @@
-"use client"
+'use client'
 
-import * as React from "react"
+import * as React from 'react'
 
 import {
   SidebarGroup,
   SidebarGroupContent,
   SidebarMenu,
   SidebarMenuButton,
-  SidebarMenuItem,
-} from "~/components/shadcn/ui/sidebar"
+  SidebarMenuItem
+} from '~/components/shadcn/ui/sidebar'
 
 export function NavSecondary({
   items,

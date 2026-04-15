@@ -12,7 +12,7 @@ export const user = pgTable('user', (t) => ({
   displayName: t.text('display_name').notNull(),
   passwordHash: t.text('password_hash').notNull(),
   role: t
-    .text({ enum: ['root', 'bph', 'bpk', 'bpw', 'pr', 'member'] })
+    .text({ enum: ['root', 'bph', 'bpk', 'bpw', 'humas', 'member'] })
     .notNull(),
   connectedOrganizationId: t
     .uuid('connected_organization_id')

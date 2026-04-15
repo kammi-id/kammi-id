@@ -1,7 +1,8 @@
 import { type CSSProperties, type ReactNode } from 'react'
 
-import { AppSidebar } from '~/components/shadcn/app-sidebar'
-import { SiteHeader } from '~/components/shadcn/site-header'
+import { AppSidebar } from './_components/app-sidebar'
+import { SiteHeader } from './_components/site-header'
+import { LogoutDialog } from './_components/logout/logout'
 import { SidebarInset, SidebarProvider } from '~/components/shadcn/ui/sidebar'
 import { readActiveSession } from '~/lib/auth/cookies'
 import { redirect } from 'next/navigation'
@@ -26,7 +27,7 @@ const DashboardLayout = async ({
         } as CSSProperties
       }
     >
-      <AppSidebar variant='inset' />
+      <AppSidebar variant='inset' user={session.user} />
       <SidebarInset>
         <SiteHeader />
         <div className='flex flex-1 flex-col'>
@@ -35,6 +36,7 @@ const DashboardLayout = async ({
           </div>
         </div>
       </SidebarInset>
+      <LogoutDialog />
     </SidebarProvider>
   )
 }

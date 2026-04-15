@@ -3,6 +3,9 @@ import { organization } from '../schema/organization.sql'
 import { withOrganizationCTE, type Organization } from './cte/organization'
 import { inArray, eq, and, ilike, isNull, type SQL } from 'drizzle-orm'
 
+import { createUser } from './user'
+import { generatePassword, hashPassword } from '~/lib/utils/user'
+
 type OrganizationInsertValues = typeof organization.$inferInsert
 export type OrganizationFilters = {
   id?: string[]
@@ -15,18 +18,87 @@ export type OrganizationFilters = {
 
 export const createOrganization = async (
   values: OrganizationInsertValues
-): Promise<Array<Organization>> => {
+): Promise<
+  Array<
+    Organization & {
+      credentials: { displayName: string; name: string; password: string }[]
+    }
+  >
+> => {
   return await db.transaction(async (tx) => {
-    const [newOrg] = await tx
-      .insert(organization)
-      .values(values)
-      .returning({ id: organization.id })
+    const [newOrg] = await tx.insert(organization).values(values).returning({
+      id: organization.id,
+      slug: organization.slug,
+      name: organization.name,
+      type: organization.type
+    })
 
-    return await tx
+    const roles: Array<'bph' | 'bpk' | 'bpw' | 'humas' | 'root'> = [
+      'bph',
+      'bpk',
+      'bpw',
+      'humas'
+    ]
+    if (newOrg.type === 'pp') roles.push('root')
+
+    const credentials: {
+      displayName: string
+      name: string
+      password: string
+    }[] = []
+
+    for (const role of roles) {
+      // Logic penamaan khusus untuk role BPW berdasarkan tipe organisasi
+      let roleDisplay = role.toUpperCase()
+      let usernamePrefix: string = role
+
+      if (role === 'bpw') {
+        if (newOrg.type === 'pp') {
+          roleDisplay = 'BPW'
+          usernamePrefix = 'bpw'
+        } else if (newOrg.type === 'pw') {
+          roleDisplay = 'BPD'
+          usernamePrefix = 'bpd'
+        } else if (newOrg.type === 'pd' || newOrg.type === 'pdln') {
+          roleDisplay = 'BPKOM'
+          usernamePrefix = 'bpkom'
+        } else {
+          // Jangan buat user BPW untuk tipe organisasi lainnya (seperti PK)
+          continue
+        }
+      }
+
+      const username =
+        role === 'root' ? 'root' : `${usernamePrefix}-${newOrg.slug}`
+      const password = generatePassword()
+      const passwordHash = await hashPassword(password)
+
+      const displayName = `${roleDisplay} ${newOrg.name}`
+      credentials.push({
+        displayName,
+        name: username,
+        password
+      })
+
+      await createUser(
+        {
+          name: username,
+          displayName,
+          passwordHash,
+          role,
+          connectedOrganizationId: newOrg.id
+        },
+        tx
+      )
+    }
+
+    const [org] = await tx
       .with(withOrganizationCTE)
       .select()
       .from(withOrganizationCTE)
       .where(eq(withOrganizationCTE.id, newOrg.id))
+
+    return [{ ...org, credentials }]
   })
 }
 

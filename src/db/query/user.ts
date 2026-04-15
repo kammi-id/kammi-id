@@ -14,21 +14,27 @@ export type UserFilters = {
 }
 
 export const createUser = async (
-  values: UserInsertValues
+  values: UserInsertValues,
+  tx?: any
 ): Promise<Array<User>> => {
-  return await db.transaction(async (tx) => {
-    const [newUser] = await tx
+  const execute = async (t: any) => {
+    const [newUser] = await t
       .insert(user)
       .values(values)
       .returning({ id: user.id })
 
-    return await readUser({ id: [newUser.id] })
-  })
+    return await readUser({ id: [newUser.id] }, t)
+  }
+
+  if (tx) return await execute(tx)
+  return await db.transaction(async (t) => await execute(t))
 }
 
 export const readUser = async (
-  filters: UserFilters = {}
+  filters: UserFilters = {},
+  tx?: any
 ): Promise<Array<User>> => {
+  const executor = tx || db
   const where: SQL[] = []
 
   if (filters.id) where.push(inArray(withUserCTE.id, filters.id))
@@ -48,7 +54,7 @@ export const readUser = async (
       inArray(withUserCTE.connectedMemberId, filters.connectedMemberId)
     )
 
-  return await db
+  return await executor
     .with(withUserCTE)
     .select()
     .from(withUserCTE)

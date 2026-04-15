@@ -3,6 +3,9 @@ import { member } from '../schema/member.sql'
 import { withMemberCTE, type Member } from './cte/member'
 import { inArray, eq, and, ilike, type SQL } from 'drizzle-orm'
 
+import { createUser } from './user'
+import { generatePassword, hashPassword } from '~/lib/utils/user'
+
 type MemberInsertValues = typeof member.$inferInsert
 export type MemberFilters = {
   id?: string[]
@@ -20,10 +23,25 @@ export const createMember = async (
   values: MemberInsertValues
 ): Promise<Array<Member>> => {
   return await db.transaction(async (tx) => {
-    const [newMember] = await tx
-      .insert(member)
-      .values(values)
-      .returning({ id: member.id })
+    const [newMember] = await tx.insert(member).values(values).returning({
+      id: member.id,
+      name: member.name,
+      registerNumber: member.registerNumber
+    })
+
+    const password = generatePassword()
+    const passwordHash = await hashPassword(password)
+
+    await createUser(
+      {
+        name: newMember.registerNumber,
+        displayName: newMember.name,
+        passwordHash,
+        role: 'member',
+        connectedMemberId: newMember.id
+      },
+      tx
+    )
 
     return await tx
       .with(withMemberCTE)
