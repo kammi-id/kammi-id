@@ -1,7 +1,17 @@
 import { db } from '../db'
 import { organization } from '../schema/organization.sql'
 import { withOrganizationCTE, type Organization } from './cte/organization'
-import { inArray, eq, and, ilike, isNull, type SQL } from 'drizzle-orm'
+import {
+  inArray,
+  eq,
+  and,
+  ilike,
+  isNull,
+  type SQL,
+  asc,
+  desc,
+  count
+} from 'drizzle-orm'
 
 import { createUser } from './user'
 import { generatePassword, hashPassword } from '~/lib/utils/user'
@@ -9,11 +19,19 @@ import { generatePassword, hashPassword } from '~/lib/utils/user'
 type OrganizationInsertValues = typeof organization.$inferInsert
 export type OrganizationFilters = {
   id?: string[]
+  slug?: string
   name?: string
   type?: Organization['type'][]
   level?: number[]
   parentId?: string[] | null
   isNonActive?: boolean
+  // Pagination & Sorting
+  limit?: number
+  offset?: number
+  orderBy?: {
+    column: keyof Organization
+    direction: 'asc' | 'desc'
+  }
 }
 
 export const createOrganization = async (
@@ -48,7 +66,6 @@ export const createOrganization = async (
     }[] = []
 
     for (const role of roles) {
-      // Logic penamaan khusus untuk role BPW berdasarkan tipe organisasi
       let roleDisplay = role.toUpperCase()
       let usernamePrefix: string = role
 
@@ -63,7 +80,6 @@ export const createOrganization = async (
           roleDisplay = 'BPKOM'
           usernamePrefix = 'bpkom'
         } else {
-          // Jangan buat user BPW untuk tipe organisasi lainnya (seperti PK)
           continue
         }
       }
@@ -102,12 +118,13 @@ export const createOrganization = async (
   })
 }
 
-export const readOrganization = async (
+export const countOrganization = async (
   filters: OrganizationFilters = {}
-): Promise<Array<Organization>> => {
+): Promise<number> => {
   const where: SQL[] = []
 
   if (filters.id) where.push(inArray(withOrganizationCTE.id, filters.id))
+  if (filters.slug) where.push(eq(withOrganizationCTE.slug, filters.slug))
   if (filters.name)
     where.push(ilike(withOrganizationCTE.name, `%${filters.name}%`))
   if (filters.type) where.push(inArray(withOrganizationCTE.type, filters.type))
@@ -123,11 +140,58 @@ export const readOrganization = async (
   if (filters.isNonActive !== undefined)
     where.push(eq(withOrganizationCTE.isNonActive, filters.isNonActive))
 
-  return await db
+  const [result] = await db
+    .with(withOrganizationCTE)
+    .select({ count: count() })
+    .from(withOrganizationCTE)
+    .where(and(...where))
+
+  return Number(result?.count ?? 0)
+}
+
+export const readOrganization = async (
+  filters: OrganizationFilters = {}
+): Promise<Array<Organization>> => {
+  const where: SQL[] = []
+
+  if (filters.id) where.push(inArray(withOrganizationCTE.id, filters.id))
+  if (filters.slug) where.push(eq(withOrganizationCTE.slug, filters.slug))
+  if (filters.name)
+    where.push(ilike(withOrganizationCTE.name, `%${filters.name}%`))
+  if (filters.type) where.push(inArray(withOrganizationCTE.type, filters.type))
+  if (filters.level)
+    where.push(inArray(withOrganizationCTE.level, filters.level))
+  if (filters.parentId !== undefined) {
+    where.push(
+      filters.parentId === null
+        ? isNull(withOrganizationCTE.parentId)
+        : inArray(withOrganizationCTE.parentId, filters.parentId)
+    )
+  }
+  if (filters.isNonActive !== undefined)
+    where.push(eq(withOrganizationCTE.isNonActive, filters.isNonActive))
+
+  const query = db
     .with(withOrganizationCTE)
     .select()
     .from(withOrganizationCTE)
     .where(and(...where))
+
+  if (filters.orderBy) {
+    const { column, direction } = filters.orderBy
+    const orderFn = direction === 'asc' ? asc : desc
+    query.orderBy(orderFn(withOrganizationCTE[column]))
+  }
+
+  if (filters.limit !== undefined) {
+    query.limit(filters.limit)
+  }
+
+  if (filters.offset !== undefined) {
+    query.offset(filters.offset)
+  }
+
+  return await query
 }
 
 export const updateOrganization = async (

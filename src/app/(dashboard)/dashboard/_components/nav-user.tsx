@@ -14,6 +14,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '~/components/shadcn/ui/dropdown-menu'
+import Link from 'next/link'
 import {
   SidebarMenu,
   SidebarMenuButton,
@@ -29,7 +30,7 @@ import {
 } from '@hugeicons/core-free-icons'
 import { openLogoutDialog } from './logout/store'
 
-export function NavUser({
+export const NavUser = ({
   user
 }: {
   user: {
@@ -37,7 +38,7 @@ export function NavUser({
     email: string
     avatar: string
   }
-}) {
+}) => {
   const { isMobile } = useSidebar()
 
   return (
@@ -45,17 +46,21 @@ export function NavUser({
       <SidebarMenuItem>
         <DropdownMenu>
           <DropdownMenuTrigger
-            render={
-              <SidebarMenuButton size='lg' className='aria-expanded:bg-muted' />
-            }
-          >
-            <UserInfo user={user} />
-            <HugeiconsIcon
-              icon={MoreVerticalCircle01Icon}
-              strokeWidth={2}
-              className='ml-auto size-4'
-            />
-          </DropdownMenuTrigger>
+            render={(props) => (
+              <SidebarMenuButton
+                size='lg'
+                className='aria-expanded:bg-muted'
+                {...props}
+              >
+                <UserInfo user={user} />
+                <HugeiconsIcon
+                  icon={MoreVerticalCircle01Icon}
+                  strokeWidth={2}
+                  className='ml-auto size-4'
+                />
+              </SidebarMenuButton>
+            )}
+          ></DropdownMenuTrigger>
           <DropdownMenuContent
             className='min-w-56'
             side={isMobile ? 'bottom' : 'right'}
@@ -71,14 +76,22 @@ export function NavUser({
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <HugeiconsIcon icon={UserCircle02Icon} strokeWidth={2} />
-                Account
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <HugeiconsIcon icon={Notification03Icon} strokeWidth={2} />
-                Notifications
-              </DropdownMenuItem>
+              <DropdownMenuItem
+                render={(props) => (
+                  <Link href='/dashboard/user/account' {...props}>
+                    <HugeiconsIcon icon={UserCircle02Icon} strokeWidth={2} />
+                    Account
+                  </Link>
+                )}
+              />
+              <DropdownMenuItem
+                render={(props) => (
+                  <Link href='/dashboard/user/notifications' {...props}>
+                    <HugeiconsIcon icon={Notification03Icon} strokeWidth={2} />
+                    Notifications
+                  </Link>
+                )}
+              />
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => openLogoutDialog()}>
@@ -92,13 +105,13 @@ export function NavUser({
   )
 }
 
-function UserInfo({
+const UserInfo = ({
   user,
   className = 'size-8'
 }: {
   user: { name: string; email: string; avatar: string }
   className?: string
-}) {
+}) => {
   return (
     <>
       <Avatar className={`${className} rounded-lg grayscale`}>

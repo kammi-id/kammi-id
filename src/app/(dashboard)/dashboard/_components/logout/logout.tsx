@@ -16,7 +16,7 @@ import { useActionState, useEffect } from 'react'
 import logoutFormAction, { type LogoutFormState } from './action'
 import { toast } from 'sonner'
 
-export function LogoutDialog() {
+export const LogoutDialog = () => {
   const isOpen = useStore(isLogoutDialogOpen)
   const [state, formAction, isPending] = useActionState<
     LogoutFormState,

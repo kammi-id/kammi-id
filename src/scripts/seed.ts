@@ -2,7 +2,7 @@ import { createOrganization } from '../db/query/organization'
 import organizationData from './data/organization.json5'
 import { writeFileSync } from 'node:fs'
 
-async function main() {
+const main = async () => {
   console.log('🌱 Seeding database (JSON5 mode)...')
 
   console.log('🏢 Seeding organizations and users via query functions...')

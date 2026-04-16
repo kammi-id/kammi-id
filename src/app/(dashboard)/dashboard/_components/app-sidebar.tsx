@@ -2,9 +2,7 @@
 
 import * as React from 'react'
 
-import { NavDocuments } from './nav-documents'
 import { NavMain } from './nav-main'
-import { NavSecondary } from './nav-secondary'
 import { NavUser } from './nav-user'
 import {
   Sidebar,
@@ -19,140 +17,92 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import {
   DashboardSquare01Icon,
   Menu01Icon,
-  ChartHistogramIcon,
-  Folder01Icon,
   UserGroupIcon,
-  Camera01Icon,
-  File01Icon,
-  Settings05Icon,
-  HelpCircleIcon,
-  SearchIcon,
   Database01Icon,
-  Analytics01Icon,
-  CommandIcon
+  CommandIcon,
+  Add01Icon,
+  Note01Icon
 } from '@hugeicons/core-free-icons'
+import Image from 'next/image'
+import logo from '~/assets/logo.png'
+import Link from 'next/link'
 
-const data = {
-  navMain: [
-    {
-      title: 'Dashboard',
-      url: '#',
-      icon: <HugeiconsIcon icon={DashboardSquare01Icon} strokeWidth={2} />
-    },
-    {
-      title: 'Lifecycle',
-      url: '#',
-      icon: <HugeiconsIcon icon={Menu01Icon} strokeWidth={2} />
-    },
-    {
-      title: 'Analytics',
-      url: '#',
-      icon: <HugeiconsIcon icon={ChartHistogramIcon} strokeWidth={2} />
-    },
-    {
-      title: 'Projects',
-      url: '#',
-      icon: <HugeiconsIcon icon={Folder01Icon} strokeWidth={2} />
-    },
-    {
-      title: 'Team',
-      url: '#',
-      icon: <HugeiconsIcon icon={UserGroupIcon} strokeWidth={2} />
-    }
-  ],
-  navClouds: [
-    {
-      title: 'Capture',
-      icon: <HugeiconsIcon icon={Camera01Icon} strokeWidth={2} />,
-      isActive: true,
-      url: '#',
-      items: [
-        {
-          title: 'Active Proposals',
-          url: '#'
-        },
-        {
-          title: 'Archived',
-          url: '#'
-        }
-      ]
-    },
-    {
-      title: 'Proposal',
-      icon: <HugeiconsIcon icon={File01Icon} strokeWidth={2} />,
-      url: '#',
-      items: [
-        {
-          title: 'Active Proposals',
-          url: '#'
-        },
-        {
-          title: 'Archived',
-          url: '#'
-        }
-      ]
-    },
-    {
-      title: 'Prompts',
-      icon: <HugeiconsIcon icon={File01Icon} strokeWidth={2} />,
-      url: '#',
-      items: [
-        {
-          title: 'Active Proposals',
-          url: '#'
-        },
-        {
-          title: 'Archived',
-          url: '#'
-        }
-      ]
-    }
-  ],
-  navSecondary: [
-    {
-      title: 'Settings',
-      url: '#',
-      icon: <HugeiconsIcon icon={Settings05Icon} strokeWidth={2} />
-    },
-    {
-      title: 'Get Help',
-      url: '#',
-      icon: <HugeiconsIcon icon={HelpCircleIcon} strokeWidth={2} />
-    },
-    {
-      title: 'Search',
-      url: '#',
-      icon: <HugeiconsIcon icon={SearchIcon} strokeWidth={2} />
-    }
-  ],
-  documents: [
-    {
-      name: 'Data Library',
-      url: '#',
-      icon: <HugeiconsIcon icon={Database01Icon} strokeWidth={2} />
-    },
-    {
-      name: 'Reports',
-      url: '#',
-      icon: <HugeiconsIcon icon={Analytics01Icon} strokeWidth={2} />
-    },
-    {
-      name: 'Word Assistant',
-      url: '#',
-      icon: <HugeiconsIcon icon={File01Icon} strokeWidth={2} />
-    }
-  ]
-}
-export function AppSidebar({
+export const AppSidebar = ({
   user,
   ...props
 }: {
   user: {
     displayName: string | null
-    connectedOrganization: { name: string } | null
+    connectedOrganization: {
+      name: string
+      type: string
+    } | null
     connectedMember: { photo: string | null } | null
   }
-} & React.ComponentProps<typeof Sidebar>) {
+} & React.ComponentProps<typeof Sidebar>) => {
+  const orgType = user.connectedOrganization?.type ?? 'pd'
+  const mapping = {
+    pp: 'Daftar Wilayah',
+    pw: 'Daftar Daerah',
+    pd: 'Daftar Komisariat',
+    pdln: 'Daftar Komisariat',
+    pk: 'Daftar Komisariat'
+  } as const
+  const orgLabel =
+    mapping[orgType as keyof typeof mapping] ?? 'Daftar Komisariat'
+
+  const menuUtama = [
+    {
+      title: 'Dashboard',
+      url: '/dashboard',
+      icon: <HugeiconsIcon icon={DashboardSquare01Icon} strokeWidth={2} />
+    }
+  ]
+
+  const menuPembinaan = [
+    {
+      title: 'Data Kader',
+      url: '#',
+      icon: <HugeiconsIcon icon={UserGroupIcon} strokeWidth={2} />
+    },
+    {
+      title: 'Dauroh',
+      url: '#',
+      icon: <HugeiconsIcon icon={Menu01Icon} strokeWidth={2} />
+    },
+    {
+      title: 'Data Pemandu',
+      url: '#',
+      icon: <HugeiconsIcon icon={UserGroupIcon} strokeWidth={2} />
+    },
+    {
+      title: 'Data Instruktur',
+      url: '#',
+      icon: <HugeiconsIcon icon={UserGroupIcon} strokeWidth={2} />
+    }
+  ]
+
+  const menuOrganisasi = [
+    {
+      title: orgLabel,
+      url: '/dashboard/regions',
+      icon: <HugeiconsIcon icon={Database01Icon} strokeWidth={2} />
+    }
+  ]
+
+  const menuBerita = [
+    {
+      title: 'Tambah Artikel Baru',
+      url: '#',
+      icon: <HugeiconsIcon icon={Add01Icon} strokeWidth={2} />
+    },
+    {
+      title: 'Daftar Artikel',
+      url: '#',
+      icon: <HugeiconsIcon icon={Note01Icon} strokeWidth={2} />
+    }
+  ]
+
   const userData = {
     name: user.displayName ?? 'User',
     email: user.connectedOrganization?.name ?? 'No Organization',
@@ -166,22 +116,25 @@ export function AppSidebar({
           <SidebarMenuItem>
             <SidebarMenuButton
               className='data-[slot=sidebar-menu-button]:p-1.5!'
-              render={<a href='#' />}
+              render={<Link href='/dashboard' />}
             >
-              <HugeiconsIcon
-                icon={CommandIcon}
-                strokeWidth={2}
-                className='size-5!'
+              <Image
+                src={logo}
+                alt='KAMMI.id'
+                width={20}
+                height={20}
+                className='size-5 object-contain'
               />
-              <span className='text-base font-semibold'>Acme Inc.</span>
+              <span className='text-base font-bold'>KAMMI.id</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
-        <NavDocuments items={data.documents} />
-        <NavSecondary items={data.navSecondary} className='mt-auto' />
+        <NavMain items={menuUtama} />
+        <NavMain title='Pembinaan Kader' items={menuPembinaan} />
+        <NavMain title='Pengelolaan Organisasi' items={menuOrganisasi} />
+        <NavMain title='Berita & Publikasi' items={menuBerita} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={userData} />

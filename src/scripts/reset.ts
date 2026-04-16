@@ -1,7 +1,7 @@
 import { db } from '../db/db'
 import { sql } from 'drizzle-orm'
 
-async function main() {
+const main = async () => {
   console.log('🚮 Resetting database...')
 
   // Get all tables in public schema

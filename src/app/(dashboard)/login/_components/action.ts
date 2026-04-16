@@ -51,7 +51,7 @@ const loginFormAction = async (
     return { error: 'Username atau password salah.' }
   }
 
-  const [dbUser] = await db
+  const [dbUser] = await db!
     .select({ id: userTable.id })
     .from(userTable)
     .where(eq(userTable.name, username))

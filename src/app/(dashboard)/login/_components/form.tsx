@@ -27,6 +27,9 @@ import {
 import loginFormAction from './action'
 import { toast } from 'sonner'
 
+import Image from 'next/image'
+import logo from '~/assets/logo.png'
+
 const LoginForm = ({
   className,
   message,
@@ -56,11 +59,13 @@ const LoginForm = ({
               href='#'
               className='flex flex-col items-center gap-2 font-medium'
             >
-              <div className='flex size-8 items-center justify-center rounded-md'>
-                <HugeiconsIcon
-                  icon={LayoutBottomIcon}
-                  strokeWidth={2}
-                  className='size-6'
+              <div className='flex items-center justify-center rounded-md'>
+                <Image
+                  src={logo}
+                  alt='KAMMI.id'
+                  width={64}
+                  height={64}
+                  className='size-16 object-contain'
                 />
               </div>
               <span className='sr-only'>KAMMI.id</span>
