@@ -3,9 +3,9 @@ import { member } from '~/db/schema/member.sql'
 import { organization } from '~/db/schema/organization.sql'
 import { eq, and, sql, desc, ilike } from 'drizzle-orm'
 
-export async function generateRegisterNumber(organizationId: string, year: number) {
+export const generateRegisterNumber = async (organizationId: string, year: number) => {
   // 1. Get organization details including parent
-  const [org] = await db!.select().from(organization).where(eq(organization.id, organizationId)).limit(1)
+  const [org] = await db.select().from(organization).where(eq(organization.id, organizationId)).limit(1)
   
   if (!org) throw new Error('Organization not found')
   if (org.type === 'pp') throw new Error('Cannot register members under PP')
@@ -34,7 +34,7 @@ export async function generateRegisterNumber(organizationId: string, year: numbe
     } else {
       // Fallback: try to find parent PD if this is a PK
       if (org.parentId) {
-         const [parent] = await db!.select().from(organization).where(eq(organization.id, org.parentId)).limit(1)
+         const [parent] = await db.select().from(organization).where(eq(organization.id, org.parentId)).limit(1)
          if (parent && parent.type === 'pd') {
             const pMatch = parent.code.match(/(\d+)\.PD-(\d+)/)
             if (pMatch) {
@@ -51,7 +51,7 @@ export async function generateRegisterNumber(organizationId: string, year: numbe
   const prefix = `${pwCode}${pdCode}${year}`
   
   // 2. Find max sequential number for this prefix
-  const [lastMember] = await db!
+  const [lastMember] = await db
     .select({ registerNumber: member.registerNumber })
     .from(member)
     .where(ilike(member.registerNumber, `${prefix}%`))
