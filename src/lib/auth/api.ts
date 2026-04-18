@@ -63,7 +63,7 @@ export const validateSession = async (token: string) => {
     return undefined
   }
 
-  const session = await readSession(validatedToken.data.id)
+  const [session] = await readSessionFromTable([validatedToken.data.id])
   if (!session) {
     return undefined
   }

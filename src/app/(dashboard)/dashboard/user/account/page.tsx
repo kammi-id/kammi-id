@@ -2,7 +2,7 @@ import { AccountForm } from './_components/account-form'
 import { PasswordForm } from './_components/password-form'
 import { redirect } from 'next/navigation'
 import { readActiveSession } from '~/lib/auth/cookies'
-import { readUser } from '~/db/query/user'
+import { getCachedUser } from '../../_data/user'
 import { UserCircle02Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 
@@ -12,7 +12,7 @@ const AccountPage = async () => {
     redirect('/login')
   }
 
-  const [user] = await readUser({ id: [session.userId] })
+  const [user] = await getCachedUser([session.userId])
 
   if (!user) {
     return (

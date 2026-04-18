@@ -33,6 +33,7 @@ export const AppSidebar = ({
 }: {
   user: {
     displayName: string | null
+    role: string
     connectedOrganization: {
       name: string
       type: string
@@ -41,6 +42,15 @@ export const AppSidebar = ({
   }
 } & React.ComponentProps<typeof Sidebar>) => {
   const orgType = user.connectedOrganization?.type ?? 'pd'
+  const allowedRolesOrg = ['bph', 'bpk', 'bpw', 'root']
+  const canAccessOrg = allowedRolesOrg.includes(user.role)
+
+  const allowedRolesPembinaan = ['bph', 'bpk', 'root']
+  const canAccessPembinaan = allowedRolesPembinaan.includes(user.role)
+
+  const allowedRolesPublikasi = ['humas', 'root']
+  const canAccessPublikasi = allowedRolesPublikasi.includes(user.role)
+
   const mapping = {
     pp: 'Daftar Wilayah',
     pw: 'Daftar Daerah',
@@ -85,7 +95,7 @@ export const AppSidebar = ({
   const menuOrganisasi = [
     {
       title: orgLabel,
-      url: '/dashboard/regions',
+      url: '/dashboard/branches',
       icon: <HugeiconsIcon icon={Database01Icon} strokeWidth={2} />
     }
   ]
@@ -104,9 +114,9 @@ export const AppSidebar = ({
   ]
 
   const userData = {
-    name: user.displayName ?? 'User',
-    email: user.connectedOrganization?.name ?? 'No Organization',
-    avatar: user.connectedMember?.photo ?? ''
+    name: user?.displayName ?? 'User',
+    email: user?.connectedOrganization?.name ?? 'No Organization',
+    avatar: user?.connectedMember?.photo ?? ''
   }
 
   return (
@@ -132,9 +142,15 @@ export const AppSidebar = ({
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={menuUtama} />
-        <NavMain title='Pembinaan Kader' items={menuPembinaan} />
-        <NavMain title='Pengelolaan Organisasi' items={menuOrganisasi} />
-        <NavMain title='Berita & Publikasi' items={menuBerita} />
+        {canAccessPembinaan && (
+          <NavMain title='Pembinaan Kader' items={menuPembinaan} />
+        )}
+        {canAccessOrg && (
+          <NavMain title='Pengelolaan Organisasi' items={menuOrganisasi} />
+        )}
+        {canAccessPublikasi && (
+          <NavMain title='Berita & Publikasi' items={menuBerita} />
+        )}
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={userData} />

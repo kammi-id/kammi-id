@@ -162,8 +162,8 @@ export const DataTable = <TData, TValue>({
   }, [searchValue, updateURL, searchParams])
 
   const isRegionsSubPage =
-    pathname.startsWith('/dashboard/regions/') &&
-    pathname !== '/dashboard/regions'
+    pathname.startsWith('/dashboard/branches/') &&
+    pathname !== '/dashboard/branches'
   const parentPath = pathname.split('/').slice(0, -1).join('/')
 
   return (
@@ -281,7 +281,7 @@ export const DataTable = <TData, TValue>({
             className={cn(
               buttonVariants({ variant: 'outline', size: 'sm' }),
               'h-8 px-2',
-              !table.getCanPreviousPage() && 'pointer-events-none opacity-50'
+              !table.getCanNextPage() && 'pointer-events-none opacity-50'
             )}
             aria-disabled={!table.getCanNextPage()}
             tabIndex={!table.getCanNextPage() ? -1 : undefined}

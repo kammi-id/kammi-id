@@ -31,7 +31,7 @@ export type OrganizationFilters = {
   orderBy?: {
     column: keyof Organization
     direction: 'asc' | 'desc'
-  }
+  }[]
 }
 
 export const createOrganization = async (
@@ -177,10 +177,12 @@ export const readOrganization = async (
     .from(withOrganizationCTE)
     .where(and(...where))
 
-  if (filters.orderBy) {
-    const { column, direction } = filters.orderBy
-    const orderFn = direction === 'asc' ? asc : desc
-    query.orderBy(orderFn(withOrganizationCTE[column]))
+  if (filters.orderBy && filters.orderBy.length > 0) {
+    const orderClauses = filters.orderBy.map(({ column, direction }) => {
+      const orderFn = direction === 'asc' ? asc : desc
+      return orderFn(withOrganizationCTE[column])
+    })
+    query.orderBy(...orderClauses)
   }
 
   if (filters.limit !== undefined) {

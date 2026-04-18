@@ -1,7 +1,7 @@
 'use server'
 
 import { cookies } from 'next/headers'
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, updateTag } from 'next/cache'
 import { validateSession } from '~/lib/auth/api'
 import { updateUser, readUser, readUserCredential } from '~/db/query/user'
 import { z } from 'zod'
@@ -61,6 +61,7 @@ export const updateProfileAction = async (
 
   try {
     await updateUser({ name, displayName }, session.userId)
+    updateTag('user')
     revalidatePath('/dashboard/user/account')
     return { success: true }
   } catch (e: any) {
