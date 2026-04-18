@@ -32,17 +32,42 @@ export const MembersTable = ({
   nameHeader,
   pageCount,
   totalCount,
-  basePath
+  basePath,
+  userRole,
+  parentOrgId
 }: MembersTableProps) => {
   const columns = getColumns(nameHeader, basePath)
+  const isOpen = useStore(memberSheetStore)
+  const canAdd = userRole === 'bpw' || userRole === 'root' || userRole === 'bph' || userRole === 'bpk'
 
   return (
-    <DataTable
-      columns={columns}
-      data={data}
-      searchKey='name'
-      pageCount={pageCount}
-      totalCount={totalCount}
-    />
+    <>
+      <DataTable
+        columns={columns}
+        data={data}
+        searchKey='name'
+        pageCount={pageCount}
+        totalCount={totalCount}
+        actionElement={
+          canAdd && (
+            <Button size='sm' className='h-8 gap-2' onClick={() => memberSheetStore.set(true)}>
+              <HugeiconsIcon icon={Add01Icon} strokeWidth={2} className='size-4' />
+              Tambah Kader
+            </Button>
+          )
+        }
+      />
+      <Sheet open={isOpen} onOpenChange={memberSheetStore.set}>
+        <SheetContent className='sm:max-w-[450px]'>
+          <SheetHeader>
+            <SheetTitle>Tambah Data Kader</SheetTitle>
+            <SheetDescription>Masukkan informasi dasar kader baru untuk pendaftaran.</SheetDescription>
+          </SheetHeader>
+          <div className='py-6'>
+            <AddMemberForm organizationId={parentOrgId} />
+          </div>
+        </SheetContent>
+      </Sheet>
+    </>
   )
 }
