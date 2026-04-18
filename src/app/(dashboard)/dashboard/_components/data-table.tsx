@@ -33,6 +33,7 @@ interface DataTableProps<TData, TValue> {
   pageCount?: number
   totalCount?: number
   actionElement?: React.ReactNode
+  queryPrefix?: string
 }
 
 export const DataTable = <TData, TValue>({
@@ -41,37 +42,43 @@ export const DataTable = <TData, TValue>({
   searchKey,
   pageCount = -1,
   totalCount = 0,
-  actionElement
+  actionElement,
+  queryPrefix = ''
 }: DataTableProps<TData, TValue>) => {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
+  const qKey = `${queryPrefix}q`
+  const pageKey = `${queryPrefix}page`
+  const sizeKey = `${queryPrefix}size`
+  const sortKey = `${queryPrefix}sort`
+
   // Derived state from URL (Single Source of Truth)
   const sorting = React.useMemo(() => {
-    const sort = searchParams.get('sort')
+    const sort = searchParams.get(sortKey)
     if (!sort) return []
     const [id, desc] = sort.split('.')
     return [{ id, desc: desc === 'desc' }]
-  }, [searchParams])
+  }, [searchParams, sortKey])
 
   const columnFilters = React.useMemo(() => {
     const filters: ColumnFiltersState = []
     if (searchKey) {
-      const q = searchParams.get('q')
+      const q = searchParams.get(qKey)
       if (q) filters.push({ id: searchKey, value: q })
     }
     return filters
-  }, [searchParams, searchKey])
+  }, [searchParams, searchKey, qKey])
 
   const pagination = React.useMemo(() => {
-    const page = searchParams.get('page')
-    const size = searchParams.get('size')
+    const page = searchParams.get(pageKey)
+    const size = searchParams.get(sizeKey)
     return {
       pageIndex: page ? Math.max(0, parseInt(page) - 1) : 0,
       pageSize: size ? parseInt(size) : 10
     }
-  }, [searchParams])
+  }, [searchParams, pageKey, sizeKey])
 
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({})
@@ -97,13 +104,13 @@ export const DataTable = <TData, TValue>({
   const getPageURL = React.useCallback(
     (pageIndex: number) => {
       const params = new URLSearchParams(searchParams.toString())
-      if (pageIndex > 0) params.set('page', (pageIndex + 1).toString())
-      else params.delete('page')
+      if (pageIndex > 0) params.set(pageKey, (pageIndex + 1).toString())
+      else params.delete(pageKey)
 
       const query = params.toString()
       return `${pathname}${query ? `?${query}` : ''}`
     },
-    [pathname, searchParams]
+    [pathname, searchParams, pageKey]
   )
 
   const table = useReactTable({
@@ -127,9 +134,9 @@ export const DataTable = <TData, TValue>({
           : updaterOrValue
       if (newSorting.length > 0) {
         const { id, desc } = newSorting[0]
-        updateURL({ sort: `${id}.${desc ? 'desc' : 'asc'}` })
+        updateURL({ [sortKey]: `${id}.${desc ? 'desc' : 'asc'}` })
       } else {
-        updateURL({ sort: null })
+        updateURL({ [sortKey]: null })
       }
     },
     onPaginationChange: (updaterOrValue) => {
@@ -138,8 +145,8 @@ export const DataTable = <TData, TValue>({
           ? updaterOrValue(pagination)
           : updaterOrValue
       updateURL({
-        page: (newPagination.pageIndex + 1).toString(),
-        size: newPagination.pageSize.toString()
+        [pageKey]: (newPagination.pageIndex + 1).toString(),
+        [sizeKey]: newPagination.pageSize.toString()
       })
     },
     getCoreRowModel: getCoreRowModel(),
@@ -150,41 +157,24 @@ export const DataTable = <TData, TValue>({
 
   // Debounced search
   const [searchValue, setSearchValue] = React.useState(
-    searchParams.get('q') || ''
+    searchParams.get(qKey) || ''
   )
   React.useEffect(() => {
     const timeout = setTimeout(() => {
-      if (searchValue !== (searchParams.get('q') || '')) {
-        updateURL({ q: searchValue || null, page: '1' }) // Reset to page 1 on search
+      if (searchValue !== (searchParams.get(qKey) || '')) {
+        updateURL({ [qKey]: searchValue || null, [pageKey]: '1' }) // Reset to page 1 on search
       }
     }, 300)
     return () => clearTimeout(timeout)
-  }, [searchValue, updateURL, searchParams])
+  }, [searchValue, updateURL, searchParams, qKey, pageKey])
 
-  const isRegionsSubPage =
-    pathname.startsWith('/dashboard/branches/') &&
-    pathname !== '/dashboard/branches'
+  const isSubPage = pathname.split('/').filter(Boolean).length > 2
   const parentPath = pathname.split('/').slice(0, -1).join('/')
 
   return (
     <div className='space-y-4'>
       <div className='flex items-center justify-between gap-2'>
         <div className='flex flex-1 items-center gap-2'>
-          {isRegionsSubPage && (
-            <Link
-              href={parentPath}
-              className={cn(
-                buttonVariants({ variant: 'outline', size: 'icon-sm' }),
-                'size-8 shrink-0'
-              )}
-            >
-              <HugeiconsIcon
-                icon={ArrowLeft02Icon}
-                strokeWidth={2}
-                className='size-4'
-              />
-            </Link>
-          )}
           {searchKey && (
             <Input
               placeholder={`Cari ${searchKey}...`}
