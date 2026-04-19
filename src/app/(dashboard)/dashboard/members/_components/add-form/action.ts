@@ -5,6 +5,7 @@ import { revalidatePath, updateTag } from 'next/cache'
 import { createMember, updateMember } from '~/db/query/member'
 import { generateRegisterNumber } from '~/lib/utils/member'
 import { readActiveSession } from '~/lib/auth/cookies'
+import { regionApi } from '~/lib/api/region'
 
 const memberSchema = z.object({
   id: z.string().uuid().optional(),
@@ -96,5 +97,41 @@ export const updateMemberAction = async (prevState: MemberFormState, formData: F
   } catch (error: any) {
     console.error(error)
     return { success: false, message: error.message || 'Gagal memperbarui data kader.' }
+  }
+}
+
+export const fetchProvincesAction = async () => {
+  try {
+    const data = await regionApi.getProvinces()
+    return { data, success: true }
+  } catch (error: any) {
+    return { error: error.message || 'Gagal mengambil data provinsi', success: false }
+  }
+}
+
+export const fetchCitiesAction = async (provinceCode: string) => {
+  try {
+    const data = await regionApi.getCities(provinceCode)
+    return { data, success: true }
+  } catch (error: any) {
+    return { error: error.message || 'Gagal mengambil data kota', success: false }
+  }
+}
+
+export const fetchDistrictsAction = async (cityCode: string) => {
+  try {
+    const data = await regionApi.getDistricts(cityCode)
+    return { data, success: true }
+  } catch (error: any) {
+    return { error: error.message || 'Gagal mengambil data kecamatan', success: false }
+  }
+}
+
+export const fetchVillagesAction = async (districtCode: string) => {
+  try {
+    const data = await regionApi.getVillages(districtCode)
+    return { data, success: true }
+  } catch (error: any) {
+    return { error: error.message || 'Gagal mengambil data desa', success: false }
   }
 }
