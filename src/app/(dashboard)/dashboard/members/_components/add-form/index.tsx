@@ -267,9 +267,10 @@ export const AddMemberForm = ({ organizationId }: { organizationId: string }) =>
           <div className='text-sm font-medium mb-4'>Status & Sertifikasi</div>
           <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
             <Field className='flex items-center justify-between gap-4'>
-              <FieldLabel>Alumni</FieldLabel>
+              <FieldLabel htmlFor='isAlumn'>Alumni</FieldLabel>
               <div className='flex items-center gap-2'>
                 <Switch
+                  id='isAlumn'
                   checked={isAlumn}
                   onCheckedChange={setIsAlumn}
                 />
@@ -277,9 +278,10 @@ export const AddMemberForm = ({ organizationId }: { organizationId: string }) =>
               </div>
             </Field>
             <Field className='flex items-center justify-between gap-4'>
-              <FieldLabel>Ditangguhkan</FieldLabel>
+              <FieldLabel htmlFor='isSuspended'>Ditangguhkan</FieldLabel>
               <div className='flex items-center gap-2'>
                 <Switch
+                  id='isSuspended'
                   checked={isSuspended}
                   onCheckedChange={setIsSuspended}
                 />
@@ -287,9 +289,10 @@ export const AddMemberForm = ({ organizationId }: { organizationId: string }) =>
               </div>
             </Field>
             <Field className='flex items-center justify-between gap-4'>
-              <FieldLabel>Non-Aktif</FieldLabel>
+              <FieldLabel htmlFor='isNonActive'>Non-Aktif</FieldLabel>
               <div className='flex items-center gap-2'>
                 <Switch
+                  id='isNonActive'
                   checked={isNonActive}
                   onCheckedChange={setIsNonActive}
                 />
@@ -297,9 +300,10 @@ export const AddMemberForm = ({ organizationId }: { organizationId: string }) =>
               </div>
             </Field>
             <Field className='flex items-center justify-between gap-4'>
-              <FieldLabel>Sertifikasi Mentor</FieldLabel>
+              <FieldLabel htmlFor='isCertifiedMentor'>Sertifikasi Mentor</FieldLabel>
               <div className='flex items-center gap-2'>
                 <Switch
+                  id='isCertifiedMentor'
                   checked={isCertifiedMentor}
                   onCheckedChange={setIsCertifiedMentor}
                 />
@@ -307,9 +311,10 @@ export const AddMemberForm = ({ organizationId }: { organizationId: string }) =>
               </div>
             </Field>
             <Field className='flex items-center justify-between gap-4'>
-              <FieldLabel>Sertifikasi Instruktur</FieldLabel>
+              <FieldLabel htmlFor='isCertifiedInstructor'>Sertifikasi Instruktur</FieldLabel>
               <div className='flex items-center gap-2'>
                 <Switch
+                  id='isCertifiedInstructor'
                   checked={isCertifiedInstructor}
                   onCheckedChange={setIsCertifiedInstructor}
                 />
