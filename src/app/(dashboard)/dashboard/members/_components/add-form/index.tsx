@@ -25,6 +25,7 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { Loading03Icon } from '@hugeicons/core-free-icons'
 
 export const AddMemberForm = ({ organizationId }: { organizationId: string }) => {
+  const currentYear = new Date().getFullYear();
   const editData = useStore(memberEditData)
 
   const [state, action, isPending] = useActionState(
@@ -111,8 +112,8 @@ export const AddMemberForm = ({ organizationId }: { organizationId: string }) =>
               name='yearOfEntry'
               type='number'
               min='1998'
-              max={new Date().getFullYear()}
-              defaultValue={editData?.yearOfEntry ?? new Date().getFullYear()}
+              max={currentYear}
+              defaultValue={editData?.yearOfEntry ?? currentYear}
               required
             />
             <FieldError errors={state.errors?.yearOfEntry?.map(m => ({ message: m }))} />
