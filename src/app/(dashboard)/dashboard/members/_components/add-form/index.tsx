@@ -39,15 +39,19 @@ export const AddMemberForm = ({ organizationId }: { organizationId: string }) =>
   const currentYear = new Date().getFullYear();
   const editData = useStore(memberEditData)
 
-  const [provinces, setProvinces] = React.useState<RegionItem[]>([])
-  const [cities, setCities] = React.useState<RegionItem[]>([])
-  const [districts, setDistricts] = React.useState<RegionItem[]>([])
-  const [subdistricts, setSubdistricts] = React.useState<RegionItem[]>([])
+  const [regionData, setRegionData] = React.useState({
+    provinces: [] as RegionItem[],
+    cities: [] as RegionItem[],
+    districts: [] as RegionItem[],
+    subdistricts: [] as RegionItem[],
+  })
 
-  const [isLoadingProvince, setIsLoadingProvince] = React.useState(false)
-  const [isLoadingCity, setIsLoadingCity] = React.useState(false)
-  const [isLoadingDistrict, setIsLoadingDistrict] = React.useState(false)
-  const [isLoadingSubdistrict, setIsLoadingSubdistrict] = React.useState(false)
+  const [isLoading, setIsLoading] = React.useState({
+    province: false,
+    city: false,
+    district: false,
+    subdistrict: false,
+  })
 
   const [province, setProvince] = React.useState(editData?.addressProvinceCode || '')
   const [city, setCity] = React.useState(editData?.addressCityCode || '')
@@ -75,62 +79,74 @@ export const AddMemberForm = ({ organizationId }: { organizationId: string }) =>
   }, [editData])
 
   useEffect(() => {
+    let isCurrent = true
     const loadProvinces = async () => {
-      setIsLoadingProvince(true)
+      setIsLoading(prev => ({ ...prev, province: true }))
       const res = await fetchProvincesAction()
-      setIsLoadingProvince(false)
+      if (!isCurrent) return
+      setIsLoading(prev => ({ ...prev, province: false }))
       if (res.success) {
-        setProvinces(res.data || [])
+        setRegionData(prev => ({ ...prev, provinces: res.data || [] }))
       } else {
         toast.error(res.error)
       }
     }
     loadProvinces()
+    return () => { isCurrent = false }
   }, [])
 
   useEffect(() => {
     if (!province) return
+    let isCurrent = true
     const loadCities = async () => {
-      setIsLoadingCity(true)
+      setIsLoading(prev => ({ ...prev, city: true }))
       const res = await fetchCitiesAction(province)
-      setIsLoadingCity(false)
+      if (!isCurrent) return
+      setIsLoading(prev => ({ ...prev, city: false }))
       if (res.success) {
-        setCities(res.data || [])
+        setRegionData(prev => ({ ...prev, cities: res.data || [] }))
       } else {
         toast.error(res.error)
       }
     }
     loadCities()
+    return () => { isCurrent = false }
   }, [province])
 
   useEffect(() => {
     if (!city) return
+    let isCurrent = true
     const loadDistricts = async () => {
-      setIsLoadingDistrict(true)
+      setIsLoading(prev => ({ ...prev, district: true }))
       const res = await fetchDistrictsAction(city)
-      setIsLoadingDistrict(false)
+      if (!isCurrent) return
+      setIsLoading(prev => ({ ...prev, district: false }))
       if (res.success) {
-        setDistricts(res.data || [])
+        setRegionData(prev => ({ ...prev, districts: res.data || []) })
       } else {
         toast.error(res.error)
       }
     }
     loadDistricts()
+    return () => { isCurrent = false }
   }, [city])
 
   useEffect(() => {
     if (!district) return
+    let isCurrent = true
     const loadSubdistricts = async () => {
-      setIsLoadingSubdistrict(true)
+      setIsLoading(prev => ({ ...prev, subdistrict: true }))
       const res = await fetchVillagesAction(district)
-      setIsLoadingSubdistrict(false)
+      if (!isCurrent) return
+      setIsLoading(prev => ({ ...prev, subdistrict: false }))
       if (res.success) {
-        setSubdistricts(res.data || [])
+        setRegionData(prev => ({ ...prev, subdistricts: res.data || [] }))
       } else {
         toast.error(res.error)
       }
     }
     loadSubdistricts()
+    return () => { isCurrent = false }
   }, [district])
 
   const [state, action, isPending] = useActionState(
@@ -244,10 +260,10 @@ export const AddMemberForm = ({ organizationId }: { organizationId: string }) =>
                   <SelectValue placeholder='Pilih Provinsi' />
                 </SelectTrigger>
                 <SelectContent>
-                  {isLoadingProvince ? (
+                  {isLoading.province ? (
                     <div className='p-2 text-center text-sm text-muted-foreground'>Memuat...</div>
-                  ) : provinces.length > 0 ? (
-                    provinces.map((p) => (
+                  ) : regionData.provinces.length > 0 ? (
+                    regionData.provinces.map((p) => (
                       <SelectItem key={p.code} value={p.code}>
                         {p.name}
                       </SelectItem>
@@ -276,10 +292,10 @@ export const AddMemberForm = ({ organizationId }: { organizationId: string }) =>
                   <SelectValue placeholder='Pilih Kota/Kabupaten' />
                 </SelectTrigger>
                 <SelectContent>
-                  {isLoadingCity ? (
+                  {isLoading.city ? (
                     <div className='p-2 text-center text-sm text-muted-foreground'>Memuat...</div>
-                  ) : cities.length > 0 ? (
-                    cities.map((c) => (
+                  ) : regionData.cities.length > 0 ? (
+                    regionData.cities.map((c) => (
                       <SelectItem key={c.code} value={c.code}>
                         {c.name}
                       </SelectItem>
@@ -307,10 +323,10 @@ export const AddMemberForm = ({ organizationId }: { organizationId: string }) =>
                   <SelectValue placeholder='Pilih Kecamatan' />
                 </SelectTrigger>
                 <SelectContent>
-                  {isLoadingDistrict ? (
+                  {isLoading.district ? (
                     <div className='p-2 text-center text-sm text-muted-foreground'>Memuat...</div>
-                  ) : districts.length > 0 ? (
-                    districts.map((d) => (
+                  ) : regionData.districts.length > 0 ? (
+                    regionData.districts.map((d) => (
                       <SelectItem key={d.code} value={d.code}>
                         {d.name}
                       </SelectItem>
@@ -337,10 +353,10 @@ export const AddMemberForm = ({ organizationId }: { organizationId: string }) =>
                   <SelectValue placeholder='Pilih Kelurahan/Desa' />
                 </SelectTrigger>
                 <SelectContent>
-                  {isLoadingSubdistrict ? (
+                  {isLoading.subdistrict ? (
                     <div className='p-2 text-center text-sm text-muted-foreground'>Memuat...</div>
-                  ) : subdistricts.length > 0 ? (
-                    subdistricts.map((s) => (
+                  ) : regionData.subdistricts.length > 0 ? (
+                    regionData.subdistricts.map((s) => (
                       <SelectItem key={s.code} value={s.code}>
                         {s.name}
                       </SelectItem>
