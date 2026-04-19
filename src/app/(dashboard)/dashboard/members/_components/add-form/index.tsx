@@ -6,6 +6,7 @@ import { useStore } from '@nanostores/react'
 import { toast } from 'sonner'
 import { Button } from '~/components/shadcn/ui/button'
 import { Input } from '~/components/shadcn/ui/input'
+import { Switch } from '~/components/shadcn/ui/switch'
 import {
   Field,
   FieldError,
@@ -34,12 +35,23 @@ export const AddMemberForm = ({ organizationId }: { organizationId: string }) =>
   const [district, setDistrict] = React.useState(editData?.addressDistrictCode || '')
   const [subdistrict, setSubdistrict] = React.useState(editData?.addressSubdistrictCode || '')
 
+  const [isAlumn, setIsAlumn] = React.useState(editData?.isAlumn ?? false)
+  const [isSuspended, setIsSuspended] = React.useState(editData?.isSuspended ?? false)
+  const [isNonActive, setIsNonActive] = React.useState(editData?.isNonActive ?? false)
+  const [isCertifiedMentor, setIsCertifiedMentor] = React.useState(editData?.isCertifiedMentor ?? false)
+  const [isCertifiedInstructor, setIsCertifiedInstructor] = React.useState(editData?.isCertifiedInstructor ?? false)
+
   useEffect(() => {
     if (editData) {
       setProvince(editData.addressProvinceCode || '')
       setCity(editData.addressCityCode || '')
       setDistrict(editData.addressDistrictCode || '')
       setSubdistrict(editData.addressSubdistrictCode || '')
+      setIsAlumn(editData.isAlumn ?? false)
+      setIsSuspended(editData.isSuspended ?? false)
+      setIsNonActive(editData.isNonActive ?? false)
+      setIsCertifiedMentor(editData.isCertifiedMentor ?? false)
+      setIsCertifiedInstructor(editData.isCertifiedInstructor ?? false)
     }
   }, [editData])
 
@@ -253,7 +265,58 @@ export const AddMemberForm = ({ organizationId }: { organizationId: string }) =>
 
         <FieldGroup>
           <div className='text-sm font-medium mb-4'>Status & Sertifikasi</div>
-          {/* Boolean switches will be added here */}
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+            <Field className='flex items-center justify-between gap-4'>
+              <FieldLabel>Alumni</FieldLabel>
+              <div className='flex items-center gap-2'>
+                <Switch
+                  checked={isAlumn}
+                  onCheckedChange={setIsAlumn}
+                />
+                <input type='hidden' name='isAlumn' value={isAlumn ? 'true' : 'false'} />
+              </div>
+            </Field>
+            <Field className='flex items-center justify-between gap-4'>
+              <FieldLabel>Ditangguhkan</FieldLabel>
+              <div className='flex items-center gap-2'>
+                <Switch
+                  checked={isSuspended}
+                  onCheckedChange={setIsSuspended}
+                />
+                <input type='hidden' name='isSuspended' value={isSuspended ? 'true' : 'false'} />
+              </div>
+            </Field>
+            <Field className='flex items-center justify-between gap-4'>
+              <FieldLabel>Non-Aktif</FieldLabel>
+              <div className='flex items-center gap-2'>
+                <Switch
+                  checked={isNonActive}
+                  onCheckedChange={setIsNonActive}
+                />
+                <input type='hidden' name='isNonActive' value={isNonActive ? 'true' : 'false'} />
+              </div>
+            </Field>
+            <Field className='flex items-center justify-between gap-4'>
+              <FieldLabel>Sertifikasi Mentor</FieldLabel>
+              <div className='flex items-center gap-2'>
+                <Switch
+                  checked={isCertifiedMentor}
+                  onCheckedChange={setIsCertifiedMentor}
+                />
+                <input type='hidden' name='isCertifiedMentor' value={isCertifiedMentor ? 'true' : 'false'} />
+              </div>
+            </Field>
+            <Field className='flex items-center justify-between gap-4'>
+              <FieldLabel>Sertifikasi Instruktur</FieldLabel>
+              <div className='flex items-center gap-2'>
+                <Switch
+                  checked={isCertifiedInstructor}
+                  onCheckedChange={setIsCertifiedInstructor}
+                />
+                <input type='hidden' name='isCertifiedInstructor' value={isCertifiedInstructor ? 'true' : 'false'} />
+              </div>
+            </Field>
+          </div>
         </FieldGroup>
 
         <div className='flex justify-end gap-3 pt-4'>
