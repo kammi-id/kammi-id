@@ -5,7 +5,7 @@ interface RegionItem {
 
 const BASE_URL = 'https://api.co.id';
 
-async function fetchRegionData<T>(endpoint: string): Promise<T> {
+const fetchRegionData = async <T>(endpoint: string): Promise<T> => {
   const token = process.env.API_CO_ID_TOKEN;
 
   if (!token) {
@@ -23,8 +23,12 @@ async function fetchRegionData<T>(endpoint: string): Promise<T> {
     throw new Error(`Region API error: ${response.status} ${response.statusText}`);
   }
 
-  return response.json();
-}
+  try {
+    return await response.json();
+  } catch (error) {
+    throw new Error(`Failed to parse JSON response from Region API: ${error instanceof Error ? error.message : String(error)}`);
+  }
+};
 
 export const regionApi = {
   async getProvinces(): Promise<RegionItem[]> {
