@@ -19,6 +19,7 @@ import {
   SelectTrigger,
   SelectValue
 } from '~/components/shadcn/ui/select'
+import MOCK_ADDRESS_DATA from './_mock-address'
 import { createMemberAction, updateMemberAction, type MemberFormState } from './action'
 import { memberSheetStore, memberEditData, closeMemberSheet } from './store'
 import { HugeiconsIcon } from '@hugeicons/react'
@@ -27,6 +28,20 @@ import { Loading03Icon } from '@hugeicons/core-free-icons'
 export const AddMemberForm = ({ organizationId }: { organizationId: string }) => {
   const currentYear = new Date().getFullYear();
   const editData = useStore(memberEditData)
+
+  const [province, setProvince] = React.useState(editData?.addressProvinceCode || '')
+  const [city, setCity] = React.useState(editData?.addressCityCode || '')
+  const [district, setDistrict] = React.useState(editData?.addressDistrictCode || '')
+  const [subdistrict, setSubdistrict] = React.useState(editData?.addressSubdistrictCode || '')
+
+  useEffect(() => {
+    if (editData) {
+      setProvince(editData.addressProvinceCode || '')
+      setCity(editData.addressCityCode || '')
+      setDistrict(editData.addressDistrictCode || '')
+      setSubdistrict(editData.addressSubdistrictCode || '')
+    }
+  }, [editData])
 
   const [state, action, isPending] = useActionState(
     async (prevState: MemberFormState, formData: FormData) => {
@@ -122,7 +137,118 @@ export const AddMemberForm = ({ organizationId }: { organizationId: string }) =>
 
         <FieldGroup>
           <div className='text-sm font-medium mb-4'>Alamat</div>
-          {/* Alamat fields will be added here */}
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+            <Field>
+              <FieldLabel htmlFor='addressProvince'>Provinsi</FieldLabel>
+              <Select
+                name='addressProvince'
+                value={province}
+                onValueChange={(val) => {
+                  setProvince(val)
+                  setCity('')
+                  setDistrict('')
+                  setSubdistrict('')
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder='Pilih Provinsi' />
+                </SelectTrigger>
+                <SelectContent>
+                  {MOCK_ADDRESS_DATA.provinces.map((p) => (
+                    <SelectItem key={p.code} value={p.code}>
+                      {p.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <input type='hidden' name='addressProvinceCode' value={province} />
+            </Field>
+
+            <Field>
+              <FieldLabel htmlFor='addressCity'>Kota/Kabupaten</FieldLabel>
+              <Select
+                name='addressCity'
+                value={city}
+                disabled={!province}
+                onValueChange={(val) => {
+                  setCity(val)
+                  setDistrict('')
+                  setSubdistrict('')
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder='Pilih Kota/Kabupaten' />
+                </SelectTrigger>
+                <SelectContent>
+                  {(MOCK_ADDRESS_DATA.cities[province as keyof typeof MOCK_ADDRESS_DATA.cities] || []).map((c) => (
+                    <SelectItem key={c.code} value={c.code}>
+                      {c.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <input type='hidden' name='addressCityCode' value={city} />
+            </Field>
+
+            <Field>
+              <FieldLabel htmlFor='addressDistrict'>Kecamatan</FieldLabel>
+              <Select
+                name='addressDistrict'
+                value={district}
+                disabled={!city}
+                onValueChange={(val) => {
+                  setDistrict(val)
+                  setSubdistrict('')
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder='Pilih Kecamatan' />
+                </SelectTrigger>
+                <SelectContent>
+                  {(MOCK_ADDRESS_DATA.districts[city as keyof typeof MOCK_ADDRESS_DATA.districts] || []).map((d) => (
+                    <SelectItem key={d.code} value={d.code}>
+                      {d.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <input type='hidden' name='addressDistrictCode' value={district} />
+            </Field>
+
+            <Field>
+              <FieldLabel htmlFor='addressSubdistrict'>Kelurahan/Desa</FieldLabel>
+              <Select
+                name='addressSubdistrict'
+                value={subdistrict}
+                disabled={!district}
+                onValueChange={(val) => {
+                  setSubdistrict(val)
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder='Pilih Kelurahan/Desa' />
+                </SelectTrigger>
+                <SelectContent>
+                  {(MOCK_ADDRESS_DATA.subdistricts[district as keyof typeof MOCK_ADDRESS_DATA.subdistricts] || []).map((s) => (
+                    <SelectItem key={s.code} value={s.code}>
+                      {s.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <input type='hidden' name='addressSubdistrictCode' value={subdistrict} />
+            </Field>
+          </div>
+          <Field className='mt-4'>
+            <FieldLabel htmlFor='addressLine'>Alamat Lengkap</FieldLabel>
+            <Input
+              id='addressLine'
+              name='addressLine'
+              placeholder='Nama jalan, No. Rumah, RT/RW, dll'
+              defaultValue={editData?.addressLine}
+            />
+            <FieldError errors={state.errors?.addressLine?.map(m => ({ message: m }))} />
+          </Field>
         </FieldGroup>
 
         <FieldGroup>
