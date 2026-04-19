@@ -20,15 +20,34 @@ import {
   SelectTrigger,
   SelectValue
 } from '~/components/shadcn/ui/select'
-import MOCK_ADDRESS_DATA from './_mock-address'
-import { createMemberAction, updateMemberAction, type MemberFormState } from './action'
+import {
+  createMemberAction,
+  updateMemberAction,
+  fetchProvincesAction,
+  fetchCitiesAction,
+  fetchDistrictsAction,
+  fetchVillagesAction,
+  type MemberFormState
+} from './action'
 import { memberSheetStore, memberEditData, closeMemberSheet } from './store'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Loading03Icon } from '@hugeicons/core-free-icons'
+import type { RegionItem } from '~/lib/api/region'
+
 
 export const AddMemberForm = ({ organizationId }: { organizationId: string }) => {
   const currentYear = new Date().getFullYear();
   const editData = useStore(memberEditData)
+
+  const [provinces, setProvinces] = React.useState<RegionItem[]>([])
+  const [cities, setCities] = React.useState<RegionItem[]>([])
+  const [districts, setDistricts] = React.useState<RegionItem[]>([])
+  const [subdistricts, setSubdistricts] = React.useState<RegionItem[]>([])
+
+  const [isLoadingProvince, setIsLoadingProvince] = React.useState(false)
+  const [isLoadingCity, setIsLoadingCity] = React.useState(false)
+  const [isLoadingDistrict, setIsLoadingDistrict] = React.useState(false)
+  const [isLoadingSubdistrict, setIsLoadingSubdistrict] = React.useState(false)
 
   const [province, setProvince] = React.useState(editData?.addressProvinceCode || '')
   const [city, setCity] = React.useState(editData?.addressCityCode || '')
@@ -54,6 +73,65 @@ export const AddMemberForm = ({ organizationId }: { organizationId: string }) =>
       setIsCertifiedInstructor(editData.isCertifiedInstructor ?? false)
     }
   }, [editData])
+
+  useEffect(() => {
+    const loadProvinces = async () => {
+      setIsLoadingProvince(true)
+      const res = await fetchProvincesAction()
+      setIsLoadingProvince(false)
+      if (res.success) {
+        setProvinces(res.data || [])
+      } else {
+        toast.error(res.error)
+      }
+    }
+    loadProvinces()
+  }, [])
+
+  useEffect(() => {
+    if (!province) return
+    const loadCities = async () => {
+      setIsLoadingCity(true)
+      const res = await fetchCitiesAction(province)
+      setIsLoadingCity(false)
+      if (res.success) {
+        setCities(res.data || [])
+      } else {
+        toast.error(res.error)
+      }
+    }
+    loadCities()
+  }, [province])
+
+  useEffect(() => {
+    if (!city) return
+    const loadDistricts = async () => {
+      setIsLoadingDistrict(true)
+      const res = await fetchDistrictsAction(city)
+      setIsLoadingDistrict(false)
+      if (res.success) {
+        setDistricts(res.data || [])
+      } else {
+        toast.error(res.error)
+      }
+    }
+    loadDistricts()
+  }, [city])
+
+  useEffect(() => {
+    if (!district) return
+    const loadSubdistricts = async () => {
+      setIsLoadingSubdistrict(true)
+      const res = await fetchVillagesAction(district)
+      setIsLoadingSubdistrict(false)
+      if (res.success) {
+        setSubdistricts(res.data || [])
+      } else {
+        toast.error(res.error)
+      }
+    }
+    loadSubdistricts()
+  }, [district])
 
   const [state, action, isPending] = useActionState(
     async (prevState: MemberFormState, formData: FormData) => {
@@ -166,11 +244,17 @@ export const AddMemberForm = ({ organizationId }: { organizationId: string }) =>
                   <SelectValue placeholder='Pilih Provinsi' />
                 </SelectTrigger>
                 <SelectContent>
-                  {MOCK_ADDRESS_DATA.provinces.map((p) => (
-                    <SelectItem key={p.code} value={p.code}>
-                      {p.name}
-                    </SelectItem>
-                  ))}
+                  {isLoadingProvince ? (
+                    <div className='p-2 text-center text-sm text-muted-foreground'>Memuat...</div>
+                  ) : provinces.length > 0 ? (
+                    provinces.map((p) => (
+                      <SelectItem key={p.code} value={p.code}>
+                        {p.name}
+                      </SelectItem>
+                    ))
+                  ) : (
+                    <div className='p-2 text-center text-sm text-muted-foreground'>Data tidak ditemukan</div>
+                  )}
                 </SelectContent>
               </Select>
               <input type='hidden' name='addressProvinceCode' value={province} />
@@ -192,11 +276,17 @@ export const AddMemberForm = ({ organizationId }: { organizationId: string }) =>
                   <SelectValue placeholder='Pilih Kota/Kabupaten' />
                 </SelectTrigger>
                 <SelectContent>
-                  {(MOCK_ADDRESS_DATA.cities[province as keyof typeof MOCK_ADDRESS_DATA.cities] || []).map((c) => (
-                    <SelectItem key={c.code} value={c.code}>
-                      {c.name}
-                    </SelectItem>
-                  ))}
+                  {isLoadingCity ? (
+                    <div className='p-2 text-center text-sm text-muted-foreground'>Memuat...</div>
+                  ) : cities.length > 0 ? (
+                    cities.map((c) => (
+                      <SelectItem key={c.code} value={c.code}>
+                        {c.name}
+                      </SelectItem>
+                    ))
+                  ) : (
+                    <div className='p-2 text-center text-sm text-muted-foreground'>Data tidak ditemukan</div>
+                  )}
                 </SelectContent>
               </Select>
               <input type='hidden' name='addressCityCode' value={city} />
@@ -217,11 +307,17 @@ export const AddMemberForm = ({ organizationId }: { organizationId: string }) =>
                   <SelectValue placeholder='Pilih Kecamatan' />
                 </SelectTrigger>
                 <SelectContent>
-                  {(MOCK_ADDRESS_DATA.districts[city as keyof typeof MOCK_ADDRESS_DATA.districts] || []).map((d) => (
-                    <SelectItem key={d.code} value={d.code}>
-                      {d.name}
-                    </SelectItem>
-                  ))}
+                  {isLoadingDistrict ? (
+                    <div className='p-2 text-center text-sm text-muted-foreground'>Memuat...</div>
+                  ) : districts.length > 0 ? (
+                    districts.map((d) => (
+                      <SelectItem key={d.code} value={d.code}>
+                        {d.name}
+                      </SelectItem>
+                    ))
+                  ) : (
+                    <div className='p-2 text-center text-sm text-muted-foreground'>Data tidak ditemukan</div>
+                  )}
                 </SelectContent>
               </Select>
               <input type='hidden' name='addressDistrictCode' value={district} />
@@ -241,11 +337,17 @@ export const AddMemberForm = ({ organizationId }: { organizationId: string }) =>
                   <SelectValue placeholder='Pilih Kelurahan/Desa' />
                 </SelectTrigger>
                 <SelectContent>
-                  {(MOCK_ADDRESS_DATA.subdistricts[district as keyof typeof MOCK_ADDRESS_DATA.subdistricts] || []).map((s) => (
-                    <SelectItem key={s.code} value={s.code}>
-                      {s.name}
-                    </SelectItem>
-                  ))}
+                  {isLoadingSubdistrict ? (
+                    <div className='p-2 text-center text-sm text-muted-foreground'>Memuat...</div>
+                  ) : subdistricts.length > 0 ? (
+                    subdistricts.map((s) => (
+                      <SelectItem key={s.code} value={s.code}>
+                        {s.name}
+                      </SelectItem>
+                    ))
+                  ) : (
+                    <div className='p-2 text-center text-sm text-muted-foreground'>Data tidak ditemukan</div>
+                  )}
                 </SelectContent>
               </Select>
               <input type='hidden' name='addressSubdistrictCode' value={subdistrict} />
