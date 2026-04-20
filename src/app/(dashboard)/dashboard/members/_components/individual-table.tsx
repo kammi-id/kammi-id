@@ -3,7 +3,11 @@
 import * as React from 'react'
 import { DataTable } from '../../_components/data-table'
 import { columns, type IndividualMember } from './individual-columns'
-import { openMemberSheet, memberSheetStore, closeMemberSheet } from './add-form/store'
+import {
+  openMemberSheet,
+  memberSheetStore,
+  closeMemberSheet
+} from './add-form/store'
 import { useStore } from '@nanostores/react'
 import { Add01Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
@@ -15,7 +19,6 @@ import {
   SheetHeader,
   SheetTitle
 } from '~/components/shadcn/ui/sheet'
-import { ScrollArea } from '~/components/shadcn/ui/scroll-area'
 import { AddMemberForm } from './add-form'
 
 interface IndividualMemberTableProps {
@@ -48,8 +51,16 @@ export const IndividualMemberTable = ({
         onRowClick={canManage ? (member) => openMemberSheet(member) : undefined}
         actionElement={
           canManage && (
-            <Button size='sm' className='h-8 gap-2' onClick={() => openMemberSheet(null)}>
-              <HugeiconsIcon icon={Add01Icon} strokeWidth={2} className='size-4' />
+            <Button
+              size='sm'
+              className='h-8 gap-2'
+              onClick={() => openMemberSheet(null)}
+            >
+              <HugeiconsIcon
+                icon={Add01Icon}
+                strokeWidth={2}
+                className='size-4'
+              />
               Tambah Kader
             </Button>
           )
@@ -59,7 +70,9 @@ export const IndividualMemberTable = ({
         <SheetContent className='sm:max-w-[450px]'>
           <SheetHeader>
             <SheetTitle>Tambah Data Kader</SheetTitle>
-            <SheetDescription>Masukkan informasi dasar kader baru untuk pendaftaran.</SheetDescription>
+            <SheetDescription>
+              Masukkan informasi dasar kader baru untuk pendaftaran.
+            </SheetDescription>
           </SheetHeader>
           <div className='h-full overflow-hidden'>
             <AddMemberForm organizationId={parentOrgId} />

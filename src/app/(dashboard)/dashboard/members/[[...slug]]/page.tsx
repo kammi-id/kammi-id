@@ -5,14 +5,24 @@ import {
   getCachedOrganizations,
   getCachedOrganizationCount
 } from '../../_data/organizations'
-import { getCachedMemberAggregates } from '../../_data/members'
+import {
+  getCachedMemberAggregates,
+  getCachedDescendantMembers
+} from '../../_data/members'
 import { Database01Icon, ArrowLeft02Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { MembersTable } from '../_components/members-table'
+import { IndividualMemberTable } from '../_components/individual-table'
 import { type Organization } from '../../_data/organizations'
 import Link from 'next/link'
 import { cn } from '~/lib/shadcn/utils'
 import { buttonVariants } from '~/components/shadcn/ui/button'
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger
+} from '~/components/shadcn/ui/tabs'
 
 interface PageProps {
   params: Promise<{ slug?: string[] }>
@@ -74,7 +84,8 @@ const MembersPage = async ({ params, searchParams }: PageProps) => {
 
   if (currentOrg.type === 'pp') {
     pageTitle = 'Data Kader se-Indonesia'
-    subTitle = 'Menampilkan statistik anggota dari seluruh wilayah dan daerah luar negeri.'
+    subTitle =
+      'Menampilkan statistik anggota dari seluruh wilayah dan daerah luar negeri.'
     nameHeader = 'PW/PDLN'
   } else if (currentOrg.type === 'pw') {
     subTitle = `Statistik anggota di wilayah ${currentOrg.name}.`
@@ -84,7 +95,7 @@ const MembersPage = async ({ params, searchParams }: PageProps) => {
     nameHeader = 'PK'
   }
 
-  // Parse searchParams for server-side fetching
+  // Parse searchParams for "Ringkasan Struktur" (prefix: none)
   const query = typeof sParams.q === 'string' ? sParams.q : undefined
   const page =
     typeof sParams.page === 'string' ? Math.max(1, parseInt(sParams.page)) : 1
@@ -101,7 +112,18 @@ const MembersPage = async ({ params, searchParams }: PageProps) => {
     }
   }
 
-  // Fetch organizations that belong to this parent
+  // Parse searchParams for "Daftar Kader" (prefix: m)
+  const mQuery = typeof sParams.mq === 'string' ? sParams.mq : undefined
+  const mPage =
+    typeof sParams.mpage === 'string' ? Math.max(1, parseInt(sParams.mpage)) : 1
+  const mLimit =
+    typeof sParams.msize === 'string' ? parseInt(sParams.msize) : 10
+  const mOffset = (mPage - 1) * mLimit
+
+  // Fetch logic based on Org Type
+  const showSummary = ['pp', 'pw', 'pd', 'pdln'].includes(currentOrg.type)
+  const showIndividuals = ['pd', 'pdln', 'pk'].includes(currentOrg.type)
+
   const orgFilters = {
     parentId: [currentOrg.id],
     name: query,
@@ -109,22 +131,41 @@ const MembersPage = async ({ params, searchParams }: PageProps) => {
     offset,
     orderBy
   }
-  const [organizations, totalCount] = await Promise.all([
-    getCachedOrganizations(orgFilters),
-    getCachedOrganizationCount(orgFilters)
-  ])
+
+  const mFilters = {
+    name: mQuery,
+    limit: mLimit,
+    offset: mOffset
+  }
+
+  const summaryPromise = showSummary
+    ? Promise.all([
+        getCachedOrganizations(orgFilters),
+        getCachedOrganizationCount(orgFilters),
+        getCachedMemberAggregates(currentOrg.id)
+      ])
+    : Promise.resolve([[], 0, []])
+
+  const individualsPromise = showIndividuals
+    ? getCachedDescendantMembers(currentOrg.id, mFilters)
+    : Promise.resolve([[], 0])
+
+  const [
+    [organizations, totalCount, memberAggregates],
+    [mMembers, mTotalCount]
+  ] = await Promise.all([summaryPromise, individualsPromise])
+
   const pageCount = Math.ceil(totalCount / limit)
+  const mPageCount = Math.ceil(mTotalCount / mLimit)
 
-  // Fetch member aggregates for these organizations
-  const memberAggregates = await getCachedMemberAggregates(currentOrg.id)
+  const basePath =
+    slug && slug.length > 0
+      ? `/dashboard/members/${slug.join('/')}`
+      : '/dashboard/members'
 
-  const basePath = slug && slug.length > 0 
-    ? `/dashboard/members/${slug.join('/')}` 
-    : '/dashboard/members'
-
-  // Map aggregates to organizations
-  const memberData = organizations.map(org => {
-    const agg = memberAggregates.find(a => a.organizationId === org.id)
+  // Map aggregates to organizations (only if summary is shown)
+  const memberData = organizations.map((org) => {
+    const agg = memberAggregates.find((a: any) => a.organizationId === org.id)
     return {
       ...org,
       organizationId: org.id,
@@ -133,9 +174,40 @@ const MembersPage = async ({ params, searchParams }: PageProps) => {
       ab3: agg?.ab3 || 0,
       ikhwan: agg?.ikhwan || 0,
       akhwat: agg?.akhwat || 0,
-      total: agg?.total || 0,
+      total: agg?.total || 0
     }
   })
+
+  const activeTab =
+    typeof sParams.tab === 'string'
+      ? sParams.tab
+      : showIndividuals && !showSummary
+        ? 'individuals'
+        : 'members'
+
+  const renderSummary = () => (
+    <div className='bg-card rounded-[2.5rem] border p-8 md:p-10'>
+      <MembersTable
+        data={memberData}
+        nameHeader={nameHeader}
+        pageCount={pageCount}
+        totalCount={totalCount}
+        basePath={basePath}
+      />
+    </div>
+  )
+
+  const renderIndividuals = () => (
+    <div className='bg-card rounded-[2.5rem] border p-8 md:p-10'>
+      <IndividualMemberTable
+        data={mMembers}
+        pageCount={mPageCount}
+        totalCount={mTotalCount}
+        userRole={user.role}
+        parentOrgId={currentOrg.id}
+      />
+    </div>
+  )
 
   return (
     <div className='space-y-8 px-4 py-4 md:py-6 lg:px-6'>
@@ -174,23 +246,45 @@ const MembersPage = async ({ params, searchParams }: PageProps) => {
         </div>
       </div>
 
-      <div className='grid grid-cols-1 gap-8'>
-        <div className='bg-card rounded-[2.5rem] border p-8 md:p-10'>
-          <div className='space-y-8'>
-            <div className='space-y-6'>
-              <MembersTable
-                data={memberData}
-                nameHeader={nameHeader}
-                pageCount={pageCount}
-                totalCount={totalCount}
-                basePath={basePath}
-                userRole={user.role}
-                parentOrgId={currentOrg.id}
-              />
-            </div>
-          </div>
+      {showSummary && showIndividuals ? (
+        <Tabs defaultValue={activeTab} className='space-y-8'>
+          <TabsList className='bg-background w-full justify-start rounded-none border-b p-0'>
+            <TabsTrigger
+              value='members'
+              className='data-[state=active]:border-primary text-muted-foreground data-[state=active]:text-foreground relative h-12 rounded-none border-b-2 border-b-transparent bg-transparent px-4 pt-2 pb-3 font-semibold shadow-none transition-none data-[state=active]:bg-transparent data-[state=active]:shadow-none'
+              render={<Link href={`${basePath}?tab=members`} />}
+            >
+              Ringkasan Struktur
+            </TabsTrigger>
+            <TabsTrigger
+              value='individuals'
+              className='data-[state=active]:border-primary text-muted-foreground data-[state=active]:text-foreground relative h-12 rounded-none border-b-2 border-b-transparent bg-transparent px-4 pt-2 pb-3 font-semibold shadow-none transition-none data-[state=active]:bg-transparent data-[state=active]:shadow-none'
+              render={<Link href={`${basePath}?tab=individuals`} />}
+            >
+              Daftar Kader
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent
+            value='members'
+            className='m-0 border-none p-0 outline-none'
+          >
+            {renderSummary()}
+          </TabsContent>
+
+          <TabsContent
+            value='individuals'
+            className='m-0 border-none p-0 outline-none'
+          >
+            {renderIndividuals()}
+          </TabsContent>
+        </Tabs>
+      ) : (
+        <div className='space-y-8'>
+          {showSummary && renderSummary()}
+          {showIndividuals && renderIndividuals()}
         </div>
-      </div>
+      )}
     </div>
   )
 }

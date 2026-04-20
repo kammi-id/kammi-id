@@ -1,6 +1,7 @@
 import { db } from '../db'
 import { organization } from '../schema/organization.sql'
 import { withOrganizationCTE, type Organization } from './cte/organization'
+export type { Organization }
 import {
   inArray,
   eq,
@@ -183,6 +184,9 @@ export const readOrganization = async (
       return orderFn(withOrganizationCTE[column])
     })
     query.orderBy(...orderClauses)
+  } else {
+    // Default sorting if no orderBy is provided
+    query.orderBy(asc(withOrganizationCTE.level), asc(withOrganizationCTE.code))
   }
 
   if (filters.limit !== undefined) {

@@ -25,6 +25,7 @@ interface BranchesTableProps {
   totalCount: number
   parentOrg: Organization
   userRole: string
+  basePath: string
 }
 
 export const BranchesTable = ({
@@ -34,12 +35,13 @@ export const BranchesTable = ({
   pageCount,
   totalCount,
   parentOrg,
-  userRole
+  userRole,
+  basePath
 }: BranchesTableProps) => {
   const isOpen = useStore(orgSheetStore)
   const [editData, setEditData] = React.useState<Organization | null>(null)
   const canManage = userRole === 'bpw' || userRole === 'root'
-  const columns = getColumns(nameHeader, (org) => {
+  const columns = getColumns(nameHeader, basePath, (org) => {
     if (!canManage) return
     setEditData(org)
     orgSheetStore.set(true)
@@ -96,6 +98,7 @@ export const BranchesTable = ({
               key={editData?.id || 'new-org'}
               parentOrg={parentOrg}
               editData={editData}
+              onClose={() => orgSheetStore.set(false)}
             />
           </div>
         </SheetContent>

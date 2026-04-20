@@ -28,7 +28,7 @@ const memberSchema = z.object({
   isSuspended: z.coerce.boolean().default(false),
   isNonActive: z.coerce.boolean().default(false),
   isCertifiedMentor: z.coerce.boolean().default(false),
-  isCertifiedInstructor: z.coerce.boolean().default(false),
+  isCertifiedInstructor: z.coerce.boolean().default(false)
 })
 
 export type MemberFormState = {
@@ -37,11 +37,16 @@ export type MemberFormState = {
   errors?: Record<string, string[]>
 }
 
-export const createMemberAction = async (prevState: MemberFormState, formData: FormData): Promise<MemberFormState> => {
+export const createMemberAction = async (
+  prevState: MemberFormState,
+  formData: FormData
+): Promise<MemberFormState> => {
   const session = await readActiveSession()
   if (!session) return { success: false, message: 'Tidak terautentikasi' }
 
-  const validated = memberSchema.safeParse(Object.fromEntries(formData.entries()))
+  const validated = memberSchema.safeParse(
+    Object.fromEntries(formData.entries())
+  )
   if (!validated.success) {
     return {
       success: false,
@@ -58,7 +63,7 @@ export const createMemberAction = async (prevState: MemberFormState, formData: F
 
     await createMember({
       ...validated.data,
-      registerNumber,
+      registerNumber
     })
 
     updateTag('members')
@@ -67,15 +72,23 @@ export const createMemberAction = async (prevState: MemberFormState, formData: F
     return { success: true, message: 'Kader berhasil ditambahkan!' }
   } catch (error: any) {
     console.error(error)
-    return { success: false, message: error.message || 'Gagal menambahkan kader.' }
+    return {
+      success: false,
+      message: error.message || 'Gagal menambahkan kader.'
+    }
   }
 }
 
-export const updateMemberAction = async (prevState: MemberFormState, formData: FormData): Promise<MemberFormState> => {
+export const updateMemberAction = async (
+  prevState: MemberFormState,
+  formData: FormData
+): Promise<MemberFormState> => {
   const session = await readActiveSession()
   if (!session) return { success: false, message: 'Tidak terautentikasi' }
 
-  const validated = memberSchema.safeParse(Object.fromEntries(formData.entries()))
+  const validated = memberSchema.safeParse(
+    Object.fromEntries(formData.entries())
+  )
   if (!validated.success) {
     return {
       success: false,
@@ -96,7 +109,10 @@ export const updateMemberAction = async (prevState: MemberFormState, formData: F
     return { success: true, message: 'Data kader berhasil diperbarui!' }
   } catch (error: any) {
     console.error(error)
-    return { success: false, message: error.message || 'Gagal memperbarui data kader.' }
+    return {
+      success: false,
+      message: error.message || 'Gagal memperbarui data kader.'
+    }
   }
 }
 
@@ -105,7 +121,10 @@ export const fetchProvincesAction = async () => {
     const data = await regionApi.getProvinces()
     return { data, success: true }
   } catch (error: any) {
-    return { error: error.message || 'Gagal mengambil data provinsi', success: false }
+    return {
+      error: error.message || 'Gagal mengambil data provinsi',
+      success: false
+    }
   }
 }
 
@@ -114,7 +133,10 @@ export const fetchCitiesAction = async (provinceCode: string) => {
     const data = await regionApi.getCities(provinceCode)
     return { data, success: true }
   } catch (error: any) {
-    return { error: error.message || 'Gagal mengambil data kota', success: false }
+    return {
+      error: error.message || 'Gagal mengambil data kota',
+      success: false
+    }
   }
 }
 
@@ -123,7 +145,10 @@ export const fetchDistrictsAction = async (cityCode: string) => {
     const data = await regionApi.getDistricts(cityCode)
     return { data, success: true }
   } catch (error: any) {
-    return { error: error.message || 'Gagal mengambil data kecamatan', success: false }
+    return {
+      error: error.message || 'Gagal mengambil data kecamatan',
+      success: false
+    }
   }
 }
 
@@ -132,6 +157,9 @@ export const fetchVillagesAction = async (districtCode: string) => {
     const data = await regionApi.getVillages(districtCode)
     return { data, success: true }
   } catch (error: any) {
-    return { error: error.message || 'Gagal mengambil data desa', success: false }
+    return {
+      error: error.message || 'Gagal mengambil data desa',
+      success: false
+    }
   }
 }

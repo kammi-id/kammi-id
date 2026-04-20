@@ -34,6 +34,7 @@ interface DataTableProps<TData, TValue> {
   totalCount?: number
   actionElement?: React.ReactNode
   queryPrefix?: string
+  onRowClick?: (data: TData) => void
 }
 
 export const DataTable = <TData, TValue>({
@@ -43,7 +44,8 @@ export const DataTable = <TData, TValue>({
   pageCount = -1,
   totalCount = 0,
   actionElement,
-  queryPrefix = ''
+  queryPrefix = '',
+  onRowClick
 }: DataTableProps<TData, TValue>) => {
   const router = useRouter()
   const pathname = usePathname()
@@ -210,6 +212,11 @@ export const DataTable = <TData, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && 'selected'}
+                  onClick={() => onRowClick?.(row.original)}
+                  className={cn(
+                    onRowClick &&
+                      'hover:bg-muted/50 cursor-pointer transition-colors'
+                  )}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>

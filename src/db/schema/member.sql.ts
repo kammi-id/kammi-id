@@ -26,5 +26,13 @@ export const member = pgTable('member', (t) => ({
     .references(() => organization.id),
   isAlumn: t.boolean('is_alumn').default(false).notNull(),
   isSuspended: t.boolean('is_suspended').default(false).notNull(),
-  isNonActive: t.boolean('is_non_active').default(false).notNull()
+  isNonActive: t.boolean('is_non_active').default(false).notNull(),
+  status: t.text('status', { enum: ['ab1', 'ab2', 'ab3'] }).notNull(),
+  gender: t.text('gender', { enum: ['ikhwan', 'akhwat'] }).notNull(),
+  isCertifiedMentor: t.boolean('is_certified_mentor').default(false).notNull(),
+  isCertifiedInstructor: t
+    .boolean('is_certified_instructor')
+    .default(false)
+    .notNull(),
+  yearOfEntry: t.integer('year_of_entry').notNull()
 }))

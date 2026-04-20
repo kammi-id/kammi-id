@@ -72,7 +72,7 @@ export const AppSidebar = ({
   const menuPembinaan = [
     {
       title: 'Data Kader',
-      url: '#',
+      url: '/dashboard/members',
       icon: <HugeiconsIcon icon={UserGroupIcon} strokeWidth={2} />
     },
     {

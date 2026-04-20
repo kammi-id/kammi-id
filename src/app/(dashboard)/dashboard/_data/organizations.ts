@@ -1,5 +1,11 @@
 import { cacheLife, cacheTag } from 'next/cache'
-import { readOrganization, countOrganization } from '~/db/query/organization'
+import {
+  readOrganization,
+  countOrganization,
+  type Organization
+} from '~/db/query/organization'
+
+export type { Organization }
 
 export async function getCachedOrganization(slug: string) {
   'use cache'

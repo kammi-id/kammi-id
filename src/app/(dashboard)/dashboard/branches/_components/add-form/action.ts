@@ -9,7 +9,7 @@ const orgSchema = z.object({
   name: z.string().min(1, 'Nama organisasi wajib diisi.'),
   code: z.string().min(1, 'Kode organisasi wajib diisi.'),
   type: z.enum(['pp', 'pw', 'pd', 'pdln', 'pk'], {
-    errorMap: () => ({ message: 'Tipe organisasi tidak valid.' })
+    message: 'Tipe organisasi tidak valid.'
   }),
   parentId: z.string().min(1, 'Parent ID wajib diisi.'),
   slug: z.string().min(1, 'Slug organisasi wajib diisi.')

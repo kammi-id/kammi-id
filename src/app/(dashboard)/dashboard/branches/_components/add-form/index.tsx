@@ -43,7 +43,7 @@ export const AddOrganizationForm = ({
       }
       return createOrganizationAction(prevState, formData)
     },
-    {}
+    { success: false } as OrgFormState
   )
 
   React.useEffect(() => {

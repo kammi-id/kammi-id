@@ -41,7 +41,9 @@ export const readMemberAggregates = async (
 ): Promise<Array<MemberAggregatesResult>> => {
   const { organizationId } = filters
 
-  return await db.execute(sql`
+  return await db
+    .execute(
+      sql`
     WITH RECURSIVE org_tree AS (
       SELECT id FROM organization
       WHERE ${organizationId ? sql`id = ${organizationId}` : sql`true`}
@@ -60,8 +62,9 @@ export const readMemberAggregates = async (
     FROM member m
     JOIN org_tree ot ON m.organization_id = ot.id
     GROUP BY m.organization_id
-  `)
-  .then(res => res as MemberAggregatesResult[])
+  `
+    )
+    .then((res) => res as MemberAggregatesResult[])
 }
 
 export const createMember = async (
@@ -121,10 +124,10 @@ export const readMember = async (
     where.push(inArray(withMemberCTE.addressCityCode, memberFilters.cityCode))
   if (memberFilters.isAlumn !== undefined)
     where.push(eq(withMemberCTE.isAlumn, memberFilters.isAlumn))
-  if (memberFilters.isSuspended !== undefined)
-    where.push(eq(withMemberCTE.isSuspended, memberFilters.isSuspended))
-  if (memberFilters.isNonActive !== undefined)
-    where.push(eq(withMemberCTE.isNonActive, memberFilters.isNonActive))
+  if (filters.isSuspended !== undefined)
+    where.push(eq(withMemberCTE.isSuspended, filters.isSuspended))
+  if (filters.isNonActive !== undefined)
+    where.push(eq(withMemberCTE.isNonActive, filters.isNonActive))
   if (memberFilters.status)
     where.push(inArray(withMemberCTE.status, memberFilters.status as any))
   if (memberFilters.gender)
@@ -165,58 +168,57 @@ export const readDescendantMembers = async (
   parentId: string,
   filters: MemberFilters & { limit?: number; offset?: number } = {}
 ): Promise<[Array<Member>, number]> => {
-  const { limit = 10, offset = 0, ...memberFilters } = filters
-  const where: SQL[] = []
+  const { limit = 10, offset = 0, name, status, gender } = filters
 
-  if (memberFilters.id) where.push(inArray(withMemberCTE.id, memberFilters.id))
-  if (memberFilters.name)
-    where.push(ilike(withMemberCTE.name, `%${memberFilters.name}%`))
-  if (memberFilters.registerNumber)
-    where.push(
-      ilike(withMemberCTE.registerNumber, `%${memberFilters.registerNumber}%`)
-    )
-  if (memberFilters.provinceCode)
-    where.push(
-      inArray(withMemberCTE.addressProvinceCode, memberFilters.provinceCode)
-    )
-  if (memberFilters.cityCode)
-    where.push(inArray(withMemberCTE.addressCityCode, memberFilters.cityCode))
-  if (memberFilters.isAlumn !== undefined)
-    where.push(eq(withMemberCTE.isAlumn, memberFilters.isAlumn))
-  if (memberFilters.isSuspended !== undefined)
-    where.push(eq(withMemberCTE.isSuspended, memberFilters.isSuspended))
-  if (memberFilters.isNonActive !== undefined)
-    where.push(eq(withMemberCTE.isNonActive, memberFilters.isNonActive))
-  if (memberFilters.status)
-    where.push(inArray(withMemberCTE.status, memberFilters.status as any))
-  if (memberFilters.gender)
-    where.push(eq(withMemberCTE.gender, memberFilters.gender as any))
-
-  const orgTreeCTE = sql`
+  // 1. Fetch Data
+  const data = await db
+    .execute(
+      sql`
     WITH RECURSIVE org_tree AS (
       SELECT id FROM organization WHERE id = ${parentId}
       UNION ALL
       SELECT o.id FROM organization o JOIN org_tree ot ON o.parent_id = ot.id
     )
-    SELECT id FROM org_tree
+    SELECT 
+      m.id, m.name, m.phone, m.register_number as "registerNumber", 
+      m.organization_id as "organizationId", m.is_alumn as "isAlumn", 
+      m.is_suspended as "isSuspended", m.is_non_active as "isNonActive", 
+      m.status, m.gender, m.year_of_entry as "yearOfEntry",
+      json_build_object(
+        'id', o.id,
+        'name', o.name,
+        'slug', o.slug
+      ) as "organization"
+    FROM member m
+    JOIN organization o ON m.organization_id = o.id
+    WHERE m.organization_id IN (SELECT id FROM org_tree)
+    ${name ? sql`AND m.name ILIKE ${`%${name}%`}` : sql``}
+    ${status ? sql`AND m.status IN ${status}` : sql``}
+    ${gender ? sql`AND m.gender = ${gender}` : sql``}
+    ORDER BY m.name ASC
+    LIMIT ${limit} OFFSET ${offset}
   `
+    )
+    .then((res) => res as unknown as Member[])
 
-  const dataQuery = db
-    .with(withMemberCTE)
-    .select()
-    .from(withMemberCTE)
-    .where(and(inArray(withMemberCTE.organizationId, orgTreeCTE), ...where))
-    .limit(limit)
-    .offset(offset)
-    .orderBy(desc(withMemberCTE.name))
-
-  const countQuery = db
-    .with(withMemberCTE)
-    .select({ count: sql`count(*)`.mapWith(Number) })
-    .from(withMemberCTE)
-    .where(and(inArray(withMemberCTE.organizationId, orgTreeCTE), ...where))
-
-  const [data, [countResult]] = await Promise.all([dataQuery, countQuery])
+  // 2. Fetch Total Count
+  const countResult = await db
+    .execute(
+      sql`
+    WITH RECURSIVE org_tree AS (
+      SELECT id FROM organization WHERE id = ${parentId}
+      UNION ALL
+      SELECT o.id FROM organization o JOIN org_tree ot ON o.parent_id = ot.id
+    )
+    SELECT count(*)::int as count
+    FROM member m
+    WHERE m.organization_id IN (SELECT id FROM org_tree)
+    ${name ? sql`AND m.name ILIKE ${`%${name}%`}` : sql``}
+    ${status ? sql`AND m.status IN ${status}` : sql``}
+    ${gender ? sql`AND m.gender = ${gender}` : sql``}
+  `
+    )
+    .then((res) => res[0] as { count: number })
 
   return [data, countResult?.count ?? 0]
 }

@@ -5,10 +5,13 @@ import {
   getCachedOrganizations,
   getCachedOrganizationCount
 } from '../../_data/organizations'
-import { Database01Icon } from '@hugeicons/core-free-icons'
+import { Database01Icon, ArrowLeft02Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { BranchesTable } from '../_components/branches-table'
 import { type Organization } from '../_components/columns'
+import Link from 'next/link'
+import { cn } from '~/lib/shadcn/utils'
+import { buttonVariants } from '~/components/shadcn/ui/button'
 
 interface PageProps {
   params: Promise<{ slug?: string[] }>
@@ -111,12 +114,6 @@ const BranchesPage = async ({ params, searchParams }: PageProps) => {
     if (col && (dir === 'asc' || dir === 'desc')) {
       orderBy = [{ column: col as keyof Organization, direction: dir }]
     }
-  } else {
-    // Default sorting: level ASC, then code ASC
-    orderBy = [
-      { column: 'level', direction: 'asc' },
-      { column: 'code', direction: 'asc' }
-    ]
   }
 
   const filters = {
@@ -132,9 +129,33 @@ const BranchesPage = async ({ params, searchParams }: PageProps) => {
   ])
   const pageCount = Math.ceil(totalCount / limit)
 
+  const basePath =
+    slug && slug.length > 0
+      ? `/dashboard/branches/${slug.join('/')}`
+      : '/dashboard/branches'
+
   return (
     <div className='space-y-8 px-4 py-4 md:py-6 lg:px-6'>
       <div className='flex items-center gap-4'>
+        {slug && slug.length > 0 && (
+          <Link
+            href={
+              slug.length === 1
+                ? '/dashboard/branches'
+                : `/dashboard/branches/${slug.slice(0, -1).join('/')}`
+            }
+            className={cn(
+              buttonVariants({ variant: 'outline', size: 'icon' }),
+              'size-10 shrink-0 rounded-xl'
+            )}
+          >
+            <HugeiconsIcon
+              icon={ArrowLeft02Icon}
+              strokeWidth={2}
+              className='size-5'
+            />
+          </Link>
+        )}
         <div className='bg-primary/10 text-primary flex size-12 items-center justify-center rounded-2xl'>
           <HugeiconsIcon
             icon={Database01Icon}
@@ -162,6 +183,7 @@ const BranchesPage = async ({ params, searchParams }: PageProps) => {
                 totalCount={totalCount}
                 parentOrg={currentOrg}
                 userRole={user.role}
+                basePath={basePath}
               />
             </div>
           </div>

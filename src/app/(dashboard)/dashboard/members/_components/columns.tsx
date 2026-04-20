@@ -1,43 +1,35 @@
 'use client'
 
 import { ColumnDef } from '@tanstack/react-table'
-import { ChevronRight, Edit01Icon } from '@hugeicons/core-free-icons'
+import { Link01Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import Link from 'next/link'
 import { Badge } from '~/components/shadcn/ui/badge'
-import { Button } from '~/components/shadcn/ui/button'
 import { cn } from '~/lib/shadcn/utils'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger
-} from '~/components/shadcn/ui/tooltip'
 import { buttonVariants } from '~/components/shadcn/ui/button'
 
-export interface Organization {
-  id: string
+export interface MemberOrganization {
+  organizationId: string
   name: string
-  code: string
-  slug: string
   type: string
-  level: number
-  parentId: string | null
+  slug: string
+  ab1: number
+  ab2: number
+  ab3: number
+  ikhwan: number
+  akhwat: number
+  total: number
 }
 
 export const getColumns = (
   nameHeader: string,
-  basePath: string,
-  onEdit?: (org: Organization) => void
-): ColumnDef<Organization>[] => [
+  basePath: string
+): ColumnDef<MemberOrganization>[] => [
   {
     accessorKey: 'name',
     header: nameHeader,
     cell: ({ row }) => {
       const org = row.original
-      if (org.type === 'pk') {
-        return <div className='-ml-2 h-8 px-2 font-medium'>{org.name}</div>
-      }
       return (
         <Link
           href={`${basePath}/${org.slug}`}
@@ -84,34 +76,45 @@ export const getColumns = (
     }
   },
   {
-    id: 'actions',
-    header: () => <div className='text-right'>Aksi</div>,
+    accessorKey: 'ab1',
+    header: 'AB1',
     cell: ({ row }) => (
-      <div className='text-right'>
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger
-              render={
-                <Button
-                  variant='ghost'
-                  size='sm'
-                  className='h-8 w-8 p-0'
-                  onClick={() => onEdit?.(row.original)}
-                >
-                  <HugeiconsIcon
-                    icon={Edit01Icon}
-                    strokeWidth={2}
-                    className='size-4'
-                  />
-                </Button>
-              }
-            >
-              Edit {row.original.name}
-            </TooltipTrigger>
-            <TooltipContent>Edit {row.original.name}</TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      </div>
+      <div className='text-center font-medium'>{row.original.ab1}</div>
+    )
+  },
+  {
+    accessorKey: 'ab2',
+    header: 'AB2',
+    cell: ({ row }) => (
+      <div className='text-center font-medium'>{row.original.ab2}</div>
+    )
+  },
+  {
+    accessorKey: 'ab3',
+    header: 'AB3',
+    cell: ({ row }) => (
+      <div className='text-center font-medium'>{row.original.ab3}</div>
+    )
+  },
+  {
+    accessorKey: 'ikhwan',
+    header: 'Ikhwan',
+    cell: ({ row }) => (
+      <div className='text-center font-medium'>{row.original.ikhwan}</div>
+    )
+  },
+  {
+    accessorKey: 'akhwat',
+    header: 'Akhwat',
+    cell: ({ row }) => (
+      <div className='text-center font-medium'>{row.original.akhwat}</div>
+    )
+  },
+  {
+    accessorKey: 'total',
+    header: 'Total',
+    cell: ({ row }) => (
+      <div className='text-center font-bold'>{row.original.total}</div>
     )
   }
 ]

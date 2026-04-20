@@ -14,12 +14,9 @@ import {
   FieldLabel,
   FieldContent,
   FieldTitle,
-  FieldDescription,
+  FieldDescription
 } from '~/components/shadcn/ui/field'
-import {
-  RadioGroup,
-  RadioGroupItem,
-} from '~/components/shadcn/ui/radio-group'
+import { RadioGroup, RadioGroupItem } from '~/components/shadcn/ui/radio-group'
 import { RegionCombobox } from './region-combobox'
 import {
   createMemberAction,
@@ -32,38 +29,59 @@ import {
 } from './action'
 import { memberSheetStore, memberEditData, closeMemberSheet } from './store'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Loading03Icon, UserIcon, Award01Icon } from '@hugeicons/core-free-icons'
+import {
+  Loading03Icon,
+  UserIcon,
+  Award01Icon
+} from '@hugeicons/core-free-icons'
 import type { RegionItem } from '~/lib/api/region'
 
-
-export const AddMemberForm = ({ organizationId }: { organizationId: string }) => {
-  const currentYear = new Date().getFullYear();
+export const AddMemberForm = ({
+  organizationId
+}: {
+  organizationId: string
+}) => {
+  const currentYear = new Date().getFullYear()
   const editData = useStore(memberEditData)
 
   const [regionData, setRegionData] = React.useState({
     provinces: [] as RegionItem[],
     cities: [] as RegionItem[],
     districts: [] as RegionItem[],
-    subdistricts: [] as RegionItem[],
+    subdistricts: [] as RegionItem[]
   })
 
   const [isLoading, setIsLoading] = React.useState({
     province: false,
     city: false,
     district: false,
-    subdistrict: false,
+    subdistrict: false
   })
 
-  const [province, setProvince] = React.useState(() => editData?.addressProvinceCode ?? '')
+  const [province, setProvince] = React.useState(
+    () => editData?.addressProvinceCode ?? ''
+  )
   const [city, setCity] = React.useState(() => editData?.addressCityCode ?? '')
-  const [district, setDistrict] = React.useState(() => editData?.addressDistrictCode ?? '')
-  const [subdistrict, setSubdistrict] = React.useState(() => editData?.addressSubdistrictCode ?? '')
+  const [district, setDistrict] = React.useState(
+    () => editData?.addressDistrictCode ?? ''
+  )
+  const [subdistrict, setSubdistrict] = React.useState(
+    () => editData?.addressSubdistrictCode ?? ''
+  )
 
   const [isAlumn, setIsAlumn] = React.useState(editData?.isAlumn ?? false)
-  const [isSuspended, setIsSuspended] = React.useState(editData?.isSuspended ?? false)
-  const [isNonActive, setIsNonActive] = React.useState(editData?.isNonActive ?? false)
-  const [isCertifiedMentor, setIsCertifiedMentor] = React.useState(editData?.isCertifiedMentor ?? false)
-  const [isCertifiedInstructor, setIsCertifiedInstructor] = React.useState(editData?.isCertifiedInstructor ?? false)
+  const [isSuspended, setIsSuspended] = React.useState(
+    editData?.isSuspended ?? false
+  )
+  const [isNonActive, setIsNonActive] = React.useState(
+    editData?.isNonActive ?? false
+  )
+  const [isCertifiedMentor, setIsCertifiedMentor] = React.useState(
+    editData?.isCertifiedMentor ?? false
+  )
+  const [isCertifiedInstructor, setIsCertifiedInstructor] = React.useState(
+    editData?.isCertifiedInstructor ?? false
+  )
 
   useEffect(() => {
     if (editData) {
@@ -82,73 +100,81 @@ export const AddMemberForm = ({ organizationId }: { organizationId: string }) =>
   useEffect(() => {
     let isCurrent = true
     const loadProvinces = async () => {
-      setIsLoading(prev => ({ ...prev, province: true }))
+      setIsLoading((prev) => ({ ...prev, province: true }))
       const res = await fetchProvincesAction()
       if (!isCurrent) return
-      setIsLoading(prev => ({ ...prev, province: false }))
+      setIsLoading((prev) => ({ ...prev, province: false }))
       if (res.success) {
-        setRegionData(prev => ({ ...prev, provinces: res.data || [] }))
+        setRegionData((prev) => ({ ...prev, provinces: res.data || [] }))
       } else {
         toast.error(res.error)
       }
     }
     loadProvinces()
-    return () => { isCurrent = false }
+    return () => {
+      isCurrent = false
+    }
   }, [])
 
   useEffect(() => {
     if (!province) return
     let isCurrent = true
     const loadCities = async () => {
-      setIsLoading(prev => ({ ...prev, city: true }))
+      setIsLoading((prev) => ({ ...prev, city: true }))
       const res = await fetchCitiesAction(province)
       if (!isCurrent) return
-      setIsLoading(prev => ({ ...prev, city: false }))
+      setIsLoading((prev) => ({ ...prev, city: false }))
       if (res.success) {
-        setRegionData(prev => ({ ...prev, cities: res.data || [] }))
+        setRegionData((prev) => ({ ...prev, cities: res.data || [] }))
       } else {
         toast.error(res.error)
       }
     }
     loadCities()
-    return () => { isCurrent = false }
+    return () => {
+      isCurrent = false
+    }
   }, [province])
 
   useEffect(() => {
     if (!city) return
     let isCurrent = true
     const loadDistricts = async () => {
-      setIsLoading(prev => ({ ...prev, district: true }))
+      setIsLoading((prev) => ({ ...prev, district: true }))
       const res = await fetchDistrictsAction(city)
       if (!isCurrent) return
-      setIsLoading(prev => ({ ...prev, district: false }))
+      setIsLoading((prev) => ({ ...prev, district: false }))
       if (res.success) {
-        const updatedData = { ...regionData, districts: res.data || [] };
-        setRegionData(updatedData);
+        const updatedData = { ...regionData, districts: res.data || [] }
+        setRegionData(updatedData)
       } else {
         toast.error(res.error)
       }
     }
     loadDistricts()
-    return () => { isCurrent = false }
+    return () => {
+      isCurrent = false
+    }
   }, [city])
 
   useEffect(() => {
     if (!district) return
     let isCurrent = true
     const loadSubdistricts = async () => {
-      setIsLoading(prev => ({ ...prev, subdistrict: true }))
+      setIsLoading((prev) => ({ ...prev, subdistrict: true }))
       const res = await fetchVillagesAction(district)
       if (!isCurrent) return
-      setIsLoading(prev => ({ ...prev, subdistrict: false }))
+      setIsLoading((prev) => ({ ...prev, subdistrict: false }))
       if (res.success) {
-        setRegionData(prev => ({ ...prev, subdistricts: res.data || [] }))
+        setRegionData((prev) => ({ ...prev, subdistricts: res.data || [] }))
       } else {
         toast.error(res.error)
       }
     }
     loadSubdistricts()
-    return () => { isCurrent = false }
+    return () => {
+      isCurrent = false
+    }
   }, [district])
 
   const [state, action, isPending] = useActionState(
@@ -171,80 +197,106 @@ export const AddMemberForm = ({ organizationId }: { organizationId: string }) =>
   }, [state])
 
   return (
-    <form id='add-member-form' action={action} className='flex flex-col h-full max-h-[calc(100vh-120px)]'>
-      <div className='flex-1 overflow-y-auto p-6 space-y-6'>
+    <form
+      id='add-member-form'
+      action={action}
+      className='flex h-full max-h-[calc(100vh-120px)] flex-col'
+    >
+      <div className='flex-1 space-y-6 overflow-y-auto p-6'>
         <input type='hidden' name='organizationId' value={organizationId} />
         {editData && <input type='hidden' name='id' value={editData.id} />}
 
         <FieldGroup>
-        <div className='text-sm font-medium mb-4'>Data Diri</div>
-        <Field>
-          <FieldLabel htmlFor='name'>Nama Lengkap</FieldLabel>
-          <Input
-            id='name'
-            name='name'
-            placeholder='Masukkan nama lengkap'
-            defaultValue={editData?.name}
-            required
-          />
-          <FieldError errors={state.errors?.name?.map(m => ({ message: m }))} />
-        </Field>
-
-        <div className='flex flex-col gap-6'>
+          <h3 className='mb-4 text-lg font-semibold'>Data Diri</h3>
           <Field>
-            <FieldLabel>Gender</FieldLabel>
-            <RadioGroup
-              name='gender'
-              defaultValue={editData?.gender ?? 'ikhwan'}
-              className='flex flex-col gap-3'
-            >
-              {['ikhwan', 'akhwat'].map((val) => (
-                <FieldLabel key={val} htmlFor={`gender-${val}`} className='cursor-pointer'>
-                  <Field orientation='horizontal'>
-                    <FieldContent>
-                      <FieldTitle className='flex items-center gap-2 capitalize'>
-                        <HugeiconsIcon icon={UserIcon} strokeWidth={2} className='size-4' />
-                        {val}
-                      </FieldTitle>
-                      <FieldDescription>
-                        {val === 'ikhwan' ? 'Laki-laki' : 'Perempuan'}
-                      </FieldDescription>
-                    </FieldContent>
-                    <RadioGroupItem value={val} id={`gender-${val}`} />
-                  </Field>
-                </FieldLabel>
-              ))}
-            </RadioGroup>
+            <FieldLabel htmlFor='name'>Nama Lengkap</FieldLabel>
+            <Input
+              id='name'
+              name='name'
+              placeholder='Masukkan nama lengkap'
+              defaultValue={editData?.name}
+              required
+            />
+            <FieldError
+              errors={state.errors?.name?.map((m) => ({ message: m }))}
+            />
           </Field>
 
-          <Field>
-            <FieldLabel>Status</FieldLabel>
-            <RadioGroup
-              name='status'
-              defaultValue={editData?.status ?? 'ab1'}
-              className='flex flex-col gap-3'
-            >
-              {['ab1', 'ab2', 'ab3'].map((val) => (
-                <FieldLabel key={val} htmlFor={`status-${val}`} className='cursor-pointer'>
-                  <Field orientation='horizontal'>
-                    <FieldContent>
-                      <FieldTitle className='flex items-center gap-2 uppercase'>
-                        <HugeiconsIcon icon={Award01Icon} strokeWidth={2} className='size-4' />
-                        {val}
-                      </FieldTitle>
-                      <FieldDescription>
-                        {val === 'ab1' ? 'Anggota Biasa 1' : val === 'ab2' ? 'Anggota Biasa 2' : 'Anggota Biasa 3'}
-                      </FieldDescription>
-                    </FieldContent>
-                    <RadioGroupItem value={val} id={`status-${val}`} />
-                  </Field>
-                </FieldLabel>
-              ))}
-            </RadioGroup>
-          </Field>
-        </div>
+          <div className='mt-4 flex flex-col gap-6'>
+            <Field>
+              <FieldLabel>Gender</FieldLabel>
+              <RadioGroup
+                name='gender'
+                defaultValue={editData?.gender ?? 'ikhwan'}
+                className='flex flex-col gap-3'
+              >
+                {['ikhwan', 'akhwat'].map((val) => (
+                  <FieldLabel
+                    key={val}
+                    htmlFor={`gender-${val}`}
+                    className='cursor-pointer'
+                  >
+                    <Field orientation='horizontal'>
+                      <FieldContent>
+                        <FieldTitle className='flex items-center gap-2 capitalize'>
+                          <HugeiconsIcon
+                            icon={UserIcon}
+                            strokeWidth={2}
+                            className='size-4'
+                          />
+                          {val}
+                        </FieldTitle>
+                        <FieldDescription>
+                          {val === 'ikhwan' ? 'Laki-laki' : 'Perempuan'}
+                        </FieldDescription>
+                      </FieldContent>
+                      <RadioGroupItem value={val} id={`gender-${val}`} />
+                    </Field>
+                  </FieldLabel>
+                ))}
+              </RadioGroup>
+            </Field>
 
-          <Field>
+            <Field>
+              <FieldLabel>Status</FieldLabel>
+              <RadioGroup
+                name='status'
+                defaultValue={editData?.status ?? 'ab1'}
+                className='flex flex-col gap-3'
+              >
+                {['ab1', 'ab2', 'ab3'].map((val) => (
+                  <FieldLabel
+                    key={val}
+                    htmlFor={`status-${val}`}
+                    className='cursor-pointer'
+                  >
+                    <Field orientation='horizontal'>
+                      <FieldContent>
+                        <FieldTitle className='flex items-center gap-2 uppercase'>
+                          <HugeiconsIcon
+                            icon={Award01Icon}
+                            strokeWidth={2}
+                            className='size-4'
+                          />
+                          {val}
+                        </FieldTitle>
+                        <FieldDescription>
+                          {val === 'ab1'
+                            ? 'Anggota Biasa 1'
+                            : val === 'ab2'
+                              ? 'Anggota Biasa 2'
+                              : 'Anggota Biasa 3'}
+                        </FieldDescription>
+                      </FieldContent>
+                      <RadioGroupItem value={val} id={`status-${val}`} />
+                    </Field>
+                  </FieldLabel>
+                ))}
+              </RadioGroup>
+            </Field>
+          </div>
+
+          <Field className='mt-6'>
             <FieldLabel htmlFor='phone'>No. HP / WhatsApp</FieldLabel>
             <Input
               id='phone'
@@ -252,10 +304,12 @@ export const AddMemberForm = ({ organizationId }: { organizationId: string }) =>
               placeholder='Contoh: 08123456789'
               defaultValue={editData?.phone ?? ''}
             />
-            <FieldError errors={state.errors?.phone?.map(m => ({ message: m }))} />
+            <FieldError
+              errors={state.errors?.phone?.map((m) => ({ message: m }))}
+            />
           </Field>
 
-          <Field>
+          <Field className='mt-4'>
             <FieldLabel htmlFor='yearOfEntry'>Tahun Masuk</FieldLabel>
             <Input
               id='yearOfEntry'
@@ -266,12 +320,14 @@ export const AddMemberForm = ({ organizationId }: { organizationId: string }) =>
               defaultValue={editData?.yearOfEntry ?? currentYear}
               required
             />
-            <FieldError errors={state.errors?.yearOfEntry?.map(m => ({ message: m }))} />
+            <FieldError
+              errors={state.errors?.yearOfEntry?.map((m) => ({ message: m }))}
+            />
           </Field>
         </FieldGroup>
 
         <FieldGroup>
-          <div className='text-sm font-medium mb-4'>Alamat</div>
+          <h3 className='mb-4 text-lg font-semibold'>Alamat</h3>
           <div className='flex flex-col gap-4'>
             <Field>
               <FieldLabel htmlFor='addressProvince'>Provinsi</FieldLabel>
@@ -287,7 +343,11 @@ export const AddMemberForm = ({ organizationId }: { organizationId: string }) =>
                   setSubdistrict('')
                 }}
               />
-              <input type='hidden' name='addressProvinceCode' value={province ?? ''} />
+              <input
+                type='hidden'
+                name='addressProvinceCode'
+                value={province ?? ''}
+              />
             </Field>
 
             <Field>
@@ -320,11 +380,17 @@ export const AddMemberForm = ({ organizationId }: { organizationId: string }) =>
                 }}
                 disabled={!city}
               />
-              <input type='hidden' name='addressDistrictCode' value={district ?? ''} />
+              <input
+                type='hidden'
+                name='addressDistrictCode'
+                value={district ?? ''}
+              />
             </Field>
 
             <Field>
-              <FieldLabel htmlFor='addressSubdistrict'>Kelurahan/Desa</FieldLabel>
+              <FieldLabel htmlFor='addressSubdistrict'>
+                Kelurahan/Desa
+              </FieldLabel>
               <RegionCombobox
                 value={subdistrict}
                 options={regionData.subdistricts}
@@ -335,7 +401,11 @@ export const AddMemberForm = ({ organizationId }: { organizationId: string }) =>
                 }}
                 disabled={!district}
               />
-              <input type='hidden' name='addressSubdistrictCode' value={subdistrict ?? ''} />
+              <input
+                type='hidden'
+                name='addressSubdistrictCode'
+                value={subdistrict ?? ''}
+              />
             </Field>
           </div>
           <Field className='mt-4'>
@@ -346,14 +416,16 @@ export const AddMemberForm = ({ organizationId }: { organizationId: string }) =>
               placeholder='Nama jalan, No. Rumah, RT/RW, dll'
               defaultValue={editData?.addressLine}
             />
-            <FieldError errors={state.errors?.addressLine?.map(m => ({ message: m }))} />
+            <FieldError
+              errors={state.errors?.addressLine?.map((m) => ({ message: m }))}
+            />
           </Field>
         </FieldGroup>
 
         <FieldGroup>
-          <div className='text-sm font-medium mb-4'>Status & Sertifikasi</div>
+          <h3 className='mb-4 text-lg font-semibold'>Status & Sertifikasi</h3>
           <div className='flex flex-col gap-4'>
-            <Field className='flex items-center justify-between gap-4'>
+            <Field orientation='horizontal' className='justify-between gap-4'>
               <FieldLabel htmlFor='isCertifiedMentor'>Pemandu</FieldLabel>
               <div className='flex items-center gap-2'>
                 <Switch
@@ -361,24 +433,34 @@ export const AddMemberForm = ({ organizationId }: { organizationId: string }) =>
                   checked={isCertifiedMentor}
                   onCheckedChange={setIsCertifiedMentor}
                 />
-                <input type='hidden' name='isCertifiedMentor' value={isCertifiedMentor ? 'true' : 'false'} />
+                <input
+                  type='hidden'
+                  name='isCertifiedMentor'
+                  value={isCertifiedMentor ? 'true' : 'false'}
+                />
               </div>
             </Field>
-            <Field className='flex items-center justify-between gap-4'>
-              <FieldLabel htmlFor='isCertifiedInstructor'>Instruktur</FieldLabel>
+            <Field orientation='horizontal' className='justify-between gap-4'>
+              <FieldLabel htmlFor='isCertifiedInstructor'>
+                Instruktur
+              </FieldLabel>
               <div className='flex items-center gap-2'>
                 <Switch
                   id='isCertifiedInstructor'
                   checked={isCertifiedInstructor}
                   onCheckedChange={setIsCertifiedInstructor}
                 />
-                <input type='hidden' name='isCertifiedInstructor' value={isCertifiedInstructor ? 'true' : 'false'} />
+                <input
+                  type='hidden'
+                  name='isCertifiedInstructor'
+                  value={isCertifiedInstructor ? 'true' : 'false'}
+                />
               </div>
             </Field>
 
             <div className='my-2' />
 
-            <Field className='flex items-center justify-between gap-4'>
+            <Field orientation='horizontal' className='justify-between gap-4'>
               <FieldLabel htmlFor='isAlumn'>Alumni</FieldLabel>
               <div className='flex items-center gap-2'>
                 <Switch
@@ -386,10 +468,14 @@ export const AddMemberForm = ({ organizationId }: { organizationId: string }) =>
                   checked={isAlumn}
                   onCheckedChange={setIsAlumn}
                 />
-                <input type='hidden' name='isAlumn' value={isAlumn ? 'true' : 'false'} />
+                <input
+                  type='hidden'
+                  name='isAlumn'
+                  value={isAlumn ? 'true' : 'false'}
+                />
               </div>
             </Field>
-            <Field className='flex items-center justify-between gap-4'>
+            <Field orientation='horizontal' className='justify-between gap-4'>
               <FieldLabel htmlFor='isNonActive'>Non-Aktif</FieldLabel>
               <div className='flex items-center gap-2'>
                 <Switch
@@ -397,10 +483,14 @@ export const AddMemberForm = ({ organizationId }: { organizationId: string }) =>
                   checked={isNonActive}
                   onCheckedChange={setIsNonActive}
                 />
-                <input type='hidden' name='isNonActive' value={isNonActive ? 'true' : 'false'} />
+                <input
+                  type='hidden'
+                  name='isNonActive'
+                  value={isNonActive ? 'true' : 'false'}
+                />
               </div>
             </Field>
-            <Field className='flex items-center justify-between gap-4'>
+            <Field orientation='horizontal' className='justify-between gap-4'>
               <FieldLabel htmlFor='isSuspended'>Skorsing</FieldLabel>
               <div className='flex items-center gap-2'>
                 <Switch
@@ -408,22 +498,32 @@ export const AddMemberForm = ({ organizationId }: { organizationId: string }) =>
                   checked={isSuspended}
                   onCheckedChange={setIsSuspended}
                 />
-                <input type='hidden' name='isSuspended' value={isSuspended ? 'true' : 'false'} />
+                <input
+                  type='hidden'
+                  name='isSuspended'
+                  value={isSuspended ? 'true' : 'false'}
+                />
               </div>
             </Field>
           </div>
         </FieldGroup>
       </div>
 
-      <div className='flex justify-end gap-3 p-6 border-t bg-background sticky bottom-0'>
-        <Button type='button' variant='outline' onClick={() => closeMemberSheet()}>
+      <div className='bg-background sticky bottom-0 flex justify-end gap-3 border-t p-6'>
+        <Button
+          type='button'
+          variant='outline'
+          onClick={() => closeMemberSheet()}
+        >
           Batal
         </Button>
         <Button type='submit' disabled={isPending}>
-          {isPending && <HugeiconsIcon icon={Loading03Icon} className='animate-spin mr-2' />}
+          {isPending && (
+            <HugeiconsIcon icon={Loading03Icon} className='mr-2 animate-spin' />
+          )}
           {editData ? 'Simpan Perubahan' : 'Simpan Kader'}
         </Button>
       </div>
     </form>
-    )
+  )
 }
