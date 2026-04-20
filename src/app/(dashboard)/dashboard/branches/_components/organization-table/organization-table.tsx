@@ -25,6 +25,16 @@ interface OrganizationTableProps {
   data: Organization[]
 }
 
+/**
+ * OrganizationTable component displays a summary list of organization units.
+ *
+ * It provides a high-level overview of organization names, their types,
+ * and their hierarchical levels in a clean tabular format.
+ *
+ * @param props - The properties for the OrganizationTable component.
+ * @param props.data - Array of organization data to be displayed.
+ * @returns A React element rendering the organization summary table.
+ */
 export const OrganizationTable = ({ data }: OrganizationTableProps) => {
   return (
     <div className='rounded-md border'>

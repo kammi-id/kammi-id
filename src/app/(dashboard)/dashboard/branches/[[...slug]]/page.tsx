@@ -8,7 +8,7 @@ import {
 import { Database01Icon, ArrowLeft02Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { BranchesTable } from '../_components/branches-table'
-import { type Organization } from '../_components/columns'
+import { type Organization } from '../_components/branches-table/columns'
 import Link from 'next/link'
 import { cn } from '~/lib/shadcn/utils'
 import { buttonVariants } from '~/components/shadcn/ui/button'

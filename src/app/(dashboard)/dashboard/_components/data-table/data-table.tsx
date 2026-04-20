@@ -37,6 +37,27 @@ interface DataTableProps<TData, TValue> {
   onRowClick?: (data: TData) => void
 }
 
+/**
+ * DataTable component is a generic, high-performance table used for displaying
+ * and managing lists of data.
+ *
+ * It integrates with @tanstack/react-table for core logic and uses URL search
+ * parameters as the single source of truth for sorting, filtering, and pagination,
+ * ensuring that table state is shareable and persistent across refreshes.
+ *
+ * @template TData The type of data for each row.
+ * @template TValue The type of value in the columns.
+ * @param props - The properties for the DataTable component.
+ * @param props.columns - Column definitions for the table.
+ * @param props.data - The array of data to be displayed.
+ * @param props.searchKey - The key used for filtering/searching the data.
+ * @param props.pageCount - Total number of pages available.
+ * @param props.totalCount - Total number of items in the dataset.
+ * @param props.actionElement - Optional React element to render in the top-right action area.
+ * @param props.queryPrefix - Prefix for the URL search parameters to avoid conflicts.
+ * @param props.onRowClick - Optional callback triggered when a row is clicked.
+ * @returns A React element rendering the data table with pagination and search.
+ */
 export const DataTable = <TData, TValue>({
   columns,
   data,

@@ -12,6 +12,15 @@ import {
 import { HugeiconsIcon } from '@hugeicons/react'
 import { ChartUpIcon, ChartDownIcon } from '@hugeicons/core-free-icons'
 
+/**
+ * SectionCards component displays high-level summary metrics (KPIs)
+ * in a responsive grid of cards.
+ *
+ * It uses a flexible grid system that adapts based on the container size,
+ * showcasing key data like Revenue, Customers, and Growth Rate.
+ *
+ * @returns A React element rendering the section cards grid.
+ */
 export const SectionCards = () => {
   return (
     <div className='*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-linear-to-t *:data-[slot=card]:shadow-xs lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4'>
