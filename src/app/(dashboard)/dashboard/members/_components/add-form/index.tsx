@@ -11,15 +11,16 @@ import {
   Field,
   FieldError,
   FieldGroup,
-  FieldLabel
+  FieldLabel,
+  FieldContent,
+  FieldTitle,
+  FieldDescription,
 } from '~/components/shadcn/ui/field'
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '~/components/shadcn/ui/select'
+  RadioGroup,
+  RadioGroupItem,
+} from '~/components/shadcn/ui/radio-group'
+import { RegionCombobox } from './region-combobox'
 import {
   createMemberAction,
   updateMemberAction,
@@ -31,7 +32,7 @@ import {
 } from './action'
 import { memberSheetStore, memberEditData, closeMemberSheet } from './store'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Loading03Icon } from '@hugeicons/core-free-icons'
+import { Loading03Icon, UserIcon, Award01Icon } from '@hugeicons/core-free-icons'
 import type { RegionItem } from '~/lib/api/region'
 
 
@@ -53,10 +54,10 @@ export const AddMemberForm = ({ organizationId }: { organizationId: string }) =>
     subdistrict: false,
   })
 
-  const [province, setProvince] = React.useState(editData?.addressProvinceCode || '')
-  const [city, setCity] = React.useState(editData?.addressCityCode || '')
-  const [district, setDistrict] = React.useState(editData?.addressDistrictCode || '')
-  const [subdistrict, setSubdistrict] = React.useState(editData?.addressSubdistrictCode || '')
+  const [province, setProvince] = React.useState(() => editData?.addressProvinceCode ?? '')
+  const [city, setCity] = React.useState(() => editData?.addressCityCode ?? '')
+  const [district, setDistrict] = React.useState(() => editData?.addressDistrictCode ?? '')
+  const [subdistrict, setSubdistrict] = React.useState(() => editData?.addressSubdistrictCode ?? '')
 
   const [isAlumn, setIsAlumn] = React.useState(editData?.isAlumn ?? false)
   const [isSuspended, setIsSuspended] = React.useState(editData?.isSuspended ?? false)
@@ -122,7 +123,8 @@ export const AddMemberForm = ({ organizationId }: { organizationId: string }) =>
       if (!isCurrent) return
       setIsLoading(prev => ({ ...prev, district: false }))
       if (res.success) {
-        setRegionData(prev => ({ ...prev, districts: res.data || []) })
+        const updatedData = { ...regionData, districts: res.data || [] };
+        setRegionData(updatedData);
       } else {
         toast.error(res.error)
       }
@@ -169,11 +171,12 @@ export const AddMemberForm = ({ organizationId }: { organizationId: string }) =>
   }, [state])
 
   return (
-    <form action={action} className='space-y-6 p-6'>
-      <input type='hidden' name='organizationId' value={organizationId} />
-      {editData && <input type='hidden' name='id' value={editData.id} />}
+    <form id='add-member-form' action={action} className='flex flex-col h-full max-h-[calc(100vh-120px)]'>
+      <div className='flex-1 overflow-y-auto p-6 space-y-6'>
+        <input type='hidden' name='organizationId' value={organizationId} />
+        {editData && <input type='hidden' name='id' value={editData.id} />}
 
-      <FieldGroup>
+        <FieldGroup>
         <div className='text-sm font-medium mb-4'>Data Diri</div>
         <Field>
           <FieldLabel htmlFor='name'>Nama Lengkap</FieldLabel>
@@ -187,33 +190,59 @@ export const AddMemberForm = ({ organizationId }: { organizationId: string }) =>
           <FieldError errors={state.errors?.name?.map(m => ({ message: m }))} />
         </Field>
 
-        <div className='grid grid-cols-2 gap-4'>
+        <div className='flex flex-col gap-6'>
           <Field>
-            <FieldLabel htmlFor='gender'>Gender</FieldLabel>
-            <Select name='gender' defaultValue={editData?.gender ?? 'ikhwan'}>
-              <SelectTrigger>
-                <SelectValue placeholder='Pilih gender' />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value='ikhwan'>Ikhwan</SelectItem>
-                <SelectItem value='akhwat'>Akhwat</SelectItem>
-              </SelectContent>
-            </Select>
+            <FieldLabel>Gender</FieldLabel>
+            <RadioGroup
+              name='gender'
+              defaultValue={editData?.gender ?? 'ikhwan'}
+              className='flex flex-col gap-3'
+            >
+              {['ikhwan', 'akhwat'].map((val) => (
+                <FieldLabel key={val} htmlFor={`gender-${val}`} className='cursor-pointer'>
+                  <Field orientation='horizontal'>
+                    <FieldContent>
+                      <FieldTitle className='flex items-center gap-2 capitalize'>
+                        <HugeiconsIcon icon={UserIcon} strokeWidth={2} className='size-4' />
+                        {val}
+                      </FieldTitle>
+                      <FieldDescription>
+                        {val === 'ikhwan' ? 'Laki-laki' : 'Perempuan'}
+                      </FieldDescription>
+                    </FieldContent>
+                    <RadioGroupItem value={val} id={`gender-${val}`} />
+                  </Field>
+                </FieldLabel>
+              ))}
+            </RadioGroup>
           </Field>
+
           <Field>
-            <FieldLabel htmlFor='status'>Status</FieldLabel>
-            <Select name='status' defaultValue={editData?.status ?? 'ab1'}>
-              <SelectTrigger>
-                <SelectValue placeholder='Pilih status' />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value='ab1'>AB1</SelectItem>
-                <SelectItem value='ab2'>AB2</SelectItem>
-                <SelectItem value='ab3'>AB3</SelectItem>
-              </SelectContent>
-            </Select>
-            </Field>
-          </div>
+            <FieldLabel>Status</FieldLabel>
+            <RadioGroup
+              name='status'
+              defaultValue={editData?.status ?? 'ab1'}
+              className='flex flex-col gap-3'
+            >
+              {['ab1', 'ab2', 'ab3'].map((val) => (
+                <FieldLabel key={val} htmlFor={`status-${val}`} className='cursor-pointer'>
+                  <Field orientation='horizontal'>
+                    <FieldContent>
+                      <FieldTitle className='flex items-center gap-2 uppercase'>
+                        <HugeiconsIcon icon={Award01Icon} strokeWidth={2} className='size-4' />
+                        {val}
+                      </FieldTitle>
+                      <FieldDescription>
+                        {val === 'ab1' ? 'Anggota Biasa 1' : val === 'ab2' ? 'Anggota Biasa 2' : 'Anggota Biasa 3'}
+                      </FieldDescription>
+                    </FieldContent>
+                    <RadioGroupItem value={val} id={`status-${val}`} />
+                  </Field>
+                </FieldLabel>
+              ))}
+            </RadioGroup>
+          </Field>
+        </div>
 
           <Field>
             <FieldLabel htmlFor='phone'>No. HP / WhatsApp</FieldLabel>
@@ -243,130 +272,70 @@ export const AddMemberForm = ({ organizationId }: { organizationId: string }) =>
 
         <FieldGroup>
           <div className='text-sm font-medium mb-4'>Alamat</div>
-          <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+          <div className='flex flex-col gap-4'>
             <Field>
               <FieldLabel htmlFor='addressProvince'>Provinsi</FieldLabel>
-              <Select
-                name='addressProvince'
+              <RegionCombobox
                 value={province}
+                options={regionData.provinces}
+                placeholder='Pilih Provinsi'
+                isLoading={isLoading.province}
                 onValueChange={(val) => {
                   setProvince(val)
                   setCity('')
                   setDistrict('')
                   setSubdistrict('')
                 }}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder='Pilih Provinsi' />
-                </SelectTrigger>
-                <SelectContent>
-                  {isLoading.province ? (
-                    <div className='p-2 text-center text-sm text-muted-foreground'>Memuat...</div>
-                  ) : regionData.provinces.length > 0 ? (
-                    regionData.provinces.map((p) => (
-                      <SelectItem key={p.code} value={p.code}>
-                        {p.name}
-                      </SelectItem>
-                    ))
-                  ) : (
-                    <div className='p-2 text-center text-sm text-muted-foreground'>Data tidak ditemukan</div>
-                  )}
-                </SelectContent>
-              </Select>
-              <input type='hidden' name='addressProvinceCode' value={province} />
+              />
+              <input type='hidden' name='addressProvinceCode' value={province ?? ''} />
             </Field>
 
             <Field>
               <FieldLabel htmlFor='addressCity'>Kota/Kabupaten</FieldLabel>
-              <Select
-                name='addressCity'
+              <RegionCombobox
                 value={city}
-                disabled={!province}
+                options={regionData.cities}
+                placeholder='Pilih Kota/Kabupaten'
+                isLoading={isLoading.city}
                 onValueChange={(val) => {
                   setCity(val)
                   setDistrict('')
                   setSubdistrict('')
                 }}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder='Pilih Kota/Kabupaten' />
-                </SelectTrigger>
-                <SelectContent>
-                  {isLoading.city ? (
-                    <div className='p-2 text-center text-sm text-muted-foreground'>Memuat...</div>
-                  ) : regionData.cities.length > 0 ? (
-                    regionData.cities.map((c) => (
-                      <SelectItem key={c.code} value={c.code}>
-                        {c.name}
-                      </SelectItem>
-                    ))
-                  ) : (
-                    <div className='p-2 text-center text-sm text-muted-foreground'>Data tidak ditemukan</div>
-                  )}
-                </SelectContent>
-              </Select>
-              <input type='hidden' name='addressCityCode' value={city} />
+                disabled={!province}
+              />
+              <input type='hidden' name='addressCityCode' value={city ?? ''} />
             </Field>
 
             <Field>
               <FieldLabel htmlFor='addressDistrict'>Kecamatan</FieldLabel>
-              <Select
-                name='addressDistrict'
+              <RegionCombobox
                 value={district}
-                disabled={!city}
+                options={regionData.districts}
+                placeholder='Pilih Kecamatan'
+                isLoading={isLoading.district}
                 onValueChange={(val) => {
                   setDistrict(val)
                   setSubdistrict('')
                 }}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder='Pilih Kecamatan' />
-                </SelectTrigger>
-                <SelectContent>
-                  {isLoading.district ? (
-                    <div className='p-2 text-center text-sm text-muted-foreground'>Memuat...</div>
-                  ) : regionData.districts.length > 0 ? (
-                    regionData.districts.map((d) => (
-                      <SelectItem key={d.code} value={d.code}>
-                        {d.name}
-                      </SelectItem>
-                    ))
-                  ) : (
-                    <div className='p-2 text-center text-sm text-muted-foreground'>Data tidak ditemukan</div>
-                  )}
-                </SelectContent>
-              </Select>
-              <input type='hidden' name='addressDistrictCode' value={district} />
+                disabled={!city}
+              />
+              <input type='hidden' name='addressDistrictCode' value={district ?? ''} />
             </Field>
 
             <Field>
               <FieldLabel htmlFor='addressSubdistrict'>Kelurahan/Desa</FieldLabel>
-              <Select
-                name='addressSubdistrict'
+              <RegionCombobox
                 value={subdistrict}
-                disabled={!district}
+                options={regionData.subdistricts}
+                placeholder='Pilih Kelurahan/Desa'
+                isLoading={isLoading.subdistrict}
                 onValueChange={(val) => {
                   setSubdistrict(val)
                 }}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder='Pilih Kelurahan/Desa' />
-                </SelectTrigger>
-                <SelectContent>
-                  {isLoading.subdistrict ? (
-                    <div className='p-2 text-center text-sm text-muted-foreground'>Memuat...</div>
-                  ) : regionData.subdistricts.length > 0 ? (
-                    regionData.subdistricts.map((s) => (
-                      <SelectItem key={s.code} value={s.code}>
-                        {s.name}
-                      </SelectItem>
-                    ))
-                  ) : (
-                    <div className='p-2 text-center text-sm text-muted-foreground'>Data tidak ditemukan</div>
-                  )}
-                </SelectContent>
-              </Select>
-              <input type='hidden' name='addressSubdistrictCode' value={subdistrict} />
+                disabled={!district}
+              />
+              <input type='hidden' name='addressSubdistrictCode' value={subdistrict ?? ''} />
             </Field>
           </div>
           <Field className='mt-4'>
@@ -383,7 +352,32 @@ export const AddMemberForm = ({ organizationId }: { organizationId: string }) =>
 
         <FieldGroup>
           <div className='text-sm font-medium mb-4'>Status & Sertifikasi</div>
-          <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+          <div className='flex flex-col gap-4'>
+            <Field className='flex items-center justify-between gap-4'>
+              <FieldLabel htmlFor='isCertifiedMentor'>Pemandu</FieldLabel>
+              <div className='flex items-center gap-2'>
+                <Switch
+                  id='isCertifiedMentor'
+                  checked={isCertifiedMentor}
+                  onCheckedChange={setIsCertifiedMentor}
+                />
+                <input type='hidden' name='isCertifiedMentor' value={isCertifiedMentor ? 'true' : 'false'} />
+              </div>
+            </Field>
+            <Field className='flex items-center justify-between gap-4'>
+              <FieldLabel htmlFor='isCertifiedInstructor'>Instruktur</FieldLabel>
+              <div className='flex items-center gap-2'>
+                <Switch
+                  id='isCertifiedInstructor'
+                  checked={isCertifiedInstructor}
+                  onCheckedChange={setIsCertifiedInstructor}
+                />
+                <input type='hidden' name='isCertifiedInstructor' value={isCertifiedInstructor ? 'true' : 'false'} />
+              </div>
+            </Field>
+
+            <div className='my-2' />
+
             <Field className='flex items-center justify-between gap-4'>
               <FieldLabel htmlFor='isAlumn'>Alumni</FieldLabel>
               <div className='flex items-center gap-2'>
@@ -393,17 +387,6 @@ export const AddMemberForm = ({ organizationId }: { organizationId: string }) =>
                   onCheckedChange={setIsAlumn}
                 />
                 <input type='hidden' name='isAlumn' value={isAlumn ? 'true' : 'false'} />
-              </div>
-            </Field>
-            <Field className='flex items-center justify-between gap-4'>
-              <FieldLabel htmlFor='isSuspended'>Ditangguhkan</FieldLabel>
-              <div className='flex items-center gap-2'>
-                <Switch
-                  id='isSuspended'
-                  checked={isSuspended}
-                  onCheckedChange={setIsSuspended}
-                />
-                <input type='hidden' name='isSuspended' value={isSuspended ? 'true' : 'false'} />
               </div>
             </Field>
             <Field className='flex items-center justify-between gap-4'>
@@ -418,39 +401,29 @@ export const AddMemberForm = ({ organizationId }: { organizationId: string }) =>
               </div>
             </Field>
             <Field className='flex items-center justify-between gap-4'>
-              <FieldLabel htmlFor='isCertifiedMentor'>Sertifikasi Mentor</FieldLabel>
+              <FieldLabel htmlFor='isSuspended'>Skorsing</FieldLabel>
               <div className='flex items-center gap-2'>
                 <Switch
-                  id='isCertifiedMentor'
-                  checked={isCertifiedMentor}
-                  onCheckedChange={setIsCertifiedMentor}
+                  id='isSuspended'
+                  checked={isSuspended}
+                  onCheckedChange={setIsSuspended}
                 />
-                <input type='hidden' name='isCertifiedMentor' value={isCertifiedMentor ? 'true' : 'false'} />
-              </div>
-            </Field>
-            <Field className='flex items-center justify-between gap-4'>
-              <FieldLabel htmlFor='isCertifiedInstructor'>Sertifikasi Instruktur</FieldLabel>
-              <div className='flex items-center gap-2'>
-                <Switch
-                  id='isCertifiedInstructor'
-                  checked={isCertifiedInstructor}
-                  onCheckedChange={setIsCertifiedInstructor}
-                />
-                <input type='hidden' name='isCertifiedInstructor' value={isCertifiedInstructor ? 'true' : 'false'} />
+                <input type='hidden' name='isSuspended' value={isSuspended ? 'true' : 'false'} />
               </div>
             </Field>
           </div>
         </FieldGroup>
+      </div>
 
-        <div className='flex justify-end gap-3 pt-4'>
-          <Button type='button' variant='outline' onClick={() => closeMemberSheet()}>
-            Batal
-          </Button>
-          <Button type='submit' disabled={isPending}>
-            {isPending && <HugeiconsIcon icon={Loading03Icon} className='animate-spin mr-2' />}
-            {editData ? 'Simpan Perubahan' : 'Simpan Kader'}
-          </Button>
-        </div>
-      </form>
+      <div className='flex justify-end gap-3 p-6 border-t bg-background sticky bottom-0'>
+        <Button type='button' variant='outline' onClick={() => closeMemberSheet()}>
+          Batal
+        </Button>
+        <Button type='submit' disabled={isPending}>
+          {isPending && <HugeiconsIcon icon={Loading03Icon} className='animate-spin mr-2' />}
+          {editData ? 'Simpan Perubahan' : 'Simpan Kader'}
+        </Button>
+      </div>
+    </form>
     )
 }
