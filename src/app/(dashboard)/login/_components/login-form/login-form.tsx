@@ -30,6 +30,17 @@ import { toast } from 'sonner'
 import Image from 'next/image'
 import logo from '~/assets/logo.png'
 
+/**
+ * LoginForm component provides the user interface for authenticating into the KAMMI.id platform.
+ *
+ * It handles user input for username and password, manages password visibility toggling,
+ * and integrates with the `loginFormAction` for server-side authentication.
+ *
+ * @param props - The properties for the LoginForm component.
+ * @param props.className - Optional CSS classes to style the outer wrapper.
+ * @param props.message - Optional status message to display (e.g., 'logout_success').
+ * @returns A React element rendering the login form.
+ */
 const LoginForm = ({
   className,
   message,

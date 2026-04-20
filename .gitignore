@@ -42,5 +42,5 @@ next-env.d.ts
 dictionary.txt
 users.csv
 
-# superpowers
-docs/superpowers
+# generated docs
+docs

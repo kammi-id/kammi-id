@@ -1,4 +1,4 @@
-import LoginForm from './_components/form'
+import { LoginForm } from './_components/login-form'
 import { readActiveSession } from '~/lib/auth/cookies'
 import { redirect } from 'next/navigation'
 
