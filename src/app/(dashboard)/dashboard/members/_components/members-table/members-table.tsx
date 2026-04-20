@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from 'react'
-import { DataTable } from '../../_components/data-table'
+import { DataTable } from '../../../_components/data-table'
 import { getColumns, type MemberOrganization } from './columns'
 
 interface MembersTableProps {
@@ -12,6 +12,13 @@ interface MembersTableProps {
   basePath: string
 }
 
+/**
+ * MembersTable component displays a summarized table of member counts
+ * across different organizational levels.
+ *
+ * @param props - Component properties including data, headers, and pagination info.
+ * @returns A DataTable configured for member summary data.
+ */
 export const MembersTable = ({
   data,
   nameHeader,

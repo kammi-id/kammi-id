@@ -1,13 +1,13 @@
 'use client'
 
 import * as React from 'react'
-import { DataTable } from '../../_components/data-table'
+import { DataTable } from '../../../_components/data-table'
 import { columns, type IndividualMember } from './individual-columns'
 import {
   openMemberSheet,
   memberSheetStore,
   closeMemberSheet
-} from './add-form/store'
+} from '../add-form/store'
 import { useStore } from '@nanostores/react'
 import { Add01Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
@@ -19,7 +19,7 @@ import {
   SheetHeader,
   SheetTitle
 } from '~/components/shadcn/ui/sheet'
-import { AddMemberForm } from './add-form'
+import { AddMemberForm } from '../add-form'
 
 interface IndividualMemberTableProps {
   data: IndividualMember[]
@@ -29,6 +29,13 @@ interface IndividualMemberTableProps {
   parentOrgId: string
 }
 
+/**
+ * IndividualMemberTable component displays a detailed table of individual members.
+ * It provides functionality to view member details and add new members via a sheet.
+ *
+ * @param props - Component properties including data, pagination info, and access controls.
+ * @returns A DataTable with individual member data and an accompanying member addition sheet.
+ */
 export const IndividualMemberTable = ({
   data,
   pageCount,
