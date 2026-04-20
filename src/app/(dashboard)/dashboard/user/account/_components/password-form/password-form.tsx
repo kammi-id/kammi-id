@@ -10,10 +10,22 @@ import {
   FieldGroup,
   FieldLabel
 } from '~/components/shadcn/ui/field'
-import { updatePasswordAction, type PasswordFormState } from './action'
+import { updatePasswordAction, type PasswordFormState } from '~/app/(dashboard)/dashboard/user/account/_components/action'
 import { toast } from 'sonner'
+import { PasswordFormProps } from './types'
 
-export const PasswordForm = () => {
+/**
+ * PasswordForm component provides the user interface for updating the user's password.
+ *
+ * It implements a secure password change flow requiring the current password,
+ * a new password, and a confirmation. It integrates with the `updatePasswordAction`
+ * server action and provides real-time feedback via Sonner toasts.
+ *
+ * @param props - The properties for the PasswordForm component.
+ * @param props.children - Optional children to be rendered at the bottom of the form.
+ * @returns A React element rendering the password update form.
+ */
+export const PasswordForm = ({ children }: PasswordFormProps) => {
   const [state, formAction, isPending] = useActionState(updatePasswordAction, {
     success: false
   })
@@ -104,6 +116,7 @@ export const PasswordForm = () => {
           {isPending ? 'Memperbarui...' : 'Perbarui Kata Sandi'}
         </Button>
       </div>
+      {children}
     </form>
   )
 }

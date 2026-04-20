@@ -10,19 +10,23 @@ import {
   FieldGroup,
   FieldLabel
 } from '~/components/shadcn/ui/field'
-import { UserCircle02Icon } from '@hugeicons/core-free-icons'
-import { HugeiconsIcon } from '@hugeicons/react'
-import { updateProfileAction, type ProfileFormState } from './action'
+import { updateProfileAction, type ProfileFormState } from '~/app/(dashboard)/dashboard/user/account/_components/action'
 import { toast } from 'sonner'
+import { AccountFormProps } from './types'
 
-interface AccountFormProps {
-  initialData: {
-    name: string
-    displayName: string
-  }
-}
-
-export const AccountForm = ({ initialData }: AccountFormProps) => {
+/**
+ * AccountForm component provides the user interface for updating user profile information.
+ *
+ * It allows users to modify their display name and handles the form submission
+ * via the `updateProfileAction` server action. It integrates with Sonner for
+ * success/error notifications.
+ *
+ * @param props - The properties for the AccountForm component.
+ * @param props.initialData - The current user data (name and displayName) to populate the form.
+ * @param props.children - Optional children to be rendered at the bottom of the form.
+ * @returns A React element rendering the account update form.
+ */
+export const AccountForm = ({ initialData, children }: AccountFormProps) => {
   const [state, formAction, isPending] = useActionState(updateProfileAction, {
     success: false
   })
@@ -101,6 +105,7 @@ export const AccountForm = ({ initialData }: AccountFormProps) => {
           {isPending ? 'Menyimpan...' : 'Simpan Perubahan'}
         </Button>
       </div>
+      {children}
     </form>
   )
 }
