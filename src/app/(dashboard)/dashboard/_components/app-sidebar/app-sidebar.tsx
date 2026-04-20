@@ -1,9 +1,7 @@
 'use client'
 
 import * as React from 'react'
-
-import { NavMain } from './nav-main'
-import { NavUser } from './nav-user'
+import Link from 'next/link'
 import {
   Sidebar,
   SidebarContent,
@@ -25,8 +23,20 @@ import {
 } from '@hugeicons/core-free-icons'
 import Image from 'next/image'
 import logo from '~/assets/logo.png'
-import Link from 'next/link'
+import { NavMain } from '../nav-main'
+import { NavUser } from '../nav-user'
 
+/**
+ * AppSidebar component provides the main navigation shell for the dashboard.
+ * It manages the sidebar structure, including the header (logo),
+ * content (dynamic navigation menus), and footer (user profile).
+ *
+ * @param props - The properties for the AppSidebar component.
+ * @param props.user - User authentication and organization data.
+ * @param props - Other properties passed to the underlying shadcn Sidebar component.
+ *
+ * @returns The rendered sidebar component.
+ */
 export const AppSidebar = ({
   user,
   ...props

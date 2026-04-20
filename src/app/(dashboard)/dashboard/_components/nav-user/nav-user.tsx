@@ -28,8 +28,17 @@ import {
   Notification03Icon,
   Logout01Icon
 } from '@hugeicons/core-free-icons'
-import { openLogoutDialog } from './logout/store'
+import { openLogoutDialog } from '../logout/store'
 
+/**
+ * NavUser component renders the user profile section in the sidebar footer.
+ * It includes a dropdown menu for account settings, notifications, and logout.
+ *
+ * @param props - The properties for the NavUser component.
+ * @param props.user - User data including name, email, and avatar URL.
+ *
+ * @returns A SidebarMenu item with a user profile dropdown.
+ */
 export const NavUser = ({
   user
 }: {
@@ -105,6 +114,13 @@ export const NavUser = ({
   )
 }
 
+/**
+ * Internal helper component to render user information (avatar and details).
+ *
+ * @param props - The properties for the UserInfo component.
+ * @param props.user - User data including name, email, and avatar URL.
+ * @param props.className - Optional CSS class for styling.
+ */
 const UserInfo = ({
   user,
   className = 'size-8'
