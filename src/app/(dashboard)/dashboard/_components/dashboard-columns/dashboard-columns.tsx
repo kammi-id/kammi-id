@@ -13,6 +13,10 @@ export interface DashboardData {
   reviewer: string
 }
 
+/**
+ * columns definition for the Dashboard data table.
+ * Defines the columns for DashboardData, including status badge formatting.
+ */
 export const columns: ColumnDef<DashboardData>[] = [
   {
     accessorKey: 'header',

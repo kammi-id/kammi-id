@@ -140,6 +140,12 @@ const chartConfig = {
   }
 } satisfies ChartConfig
 
+/**
+ * ChartAreaInteractive component displays an interactive area chart for total visitors
+ * with time range filtering (7d, 30d, 90d) and responsive layouts.
+ *
+ * @returns A JSX element representing the interactive area chart card.
+ */
 export const ChartAreaInteractive = () => {
   const isMobile = useIsMobile()
   const [timeRange, setTimeRange] = React.useState('90d')
