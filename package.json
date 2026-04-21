@@ -73,7 +73,8 @@
     "prettier-config-standard": "^7.0.0",
     "prettier-plugin-tailwindcss": "^0.7.2",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "wait-on": "^9.0.5"
   },
   "ignoreScripts": [
     "sharp",
