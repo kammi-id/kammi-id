@@ -16,8 +16,12 @@ import {
  * It supports an optional group title and a list of navigation items.
  *
  * @param props - The properties for the NavMain component.
- * @param props.title - Optional title for the navigation group.
- * @param props.items - Array of navigation items containing title, url, optional icon, and optional active state.
+ * @param props.title - Optional title for the navigation group (e.g., "Pembinaan Kader").
+ * @param props.items - Array of navigation items to be rendered as menu buttons.
+ * @param props.items[].title - The text label for the navigation item.
+ * @param props.items[].url - The destination URL for the navigation link.
+ * @param props.items[].icon - Optional React node to be rendered as the item's icon.
+ * @param props.items[].isActive - Optional boolean to indicate if the item is currently active.
  *
  * @returns A SidebarGroup containing the navigation menu.
  */

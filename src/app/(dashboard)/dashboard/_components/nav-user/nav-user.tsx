@@ -36,6 +36,9 @@ import { openLogoutDialog } from '../logout/store'
  *
  * @param props - The properties for the NavUser component.
  * @param props.user - User data including name, email, and avatar URL.
+ * @param props.user.name - The full name of the user.
+ * @param props.user.email - The email address or organization name of the user.
+ * @param props.user.avatar - URL to the user's avatar image.
  *
  * @returns A SidebarMenu item with a user profile dropdown.
  */
@@ -119,7 +122,10 @@ export const NavUser = ({
  *
  * @param props - The properties for the UserInfo component.
  * @param props.user - User data including name, email, and avatar URL.
- * @param props.className - Optional CSS class for styling.
+ * @param props.user.name - The name of the user.
+ * @param props.user.email - The email or organization of the user.
+ * @param props.user.avatar - URL to the user's avatar image.
+ * @param props.className - Optional CSS class for styling the avatar.
  */
 const UserInfo = ({
   user,

@@ -29,10 +29,17 @@ import { NavUser } from '../nav-user'
 /**
  * AppSidebar component provides the main navigation shell for the dashboard.
  * It manages the sidebar structure, including the header (logo),
- * content (dynamic navigation menus), and footer (user profile).
+ * content (dynamic navigation menus based on user roles), and footer (user profile).
  *
  * @param props - The properties for the AppSidebar component.
- * @param props.user - User authentication and organization data.
+ * @param props.user - User authentication and organization data used for role-based menu visibility.
+ * @param props.user.displayName - The display name of the authenticated user.
+ * @param props.user.role - The role of the user (e.g., 'root', 'bph', 'humas') used to determine access levels.
+ * @param props.user.connectedOrganization - Data about the organization the user is currently connected to.
+ * @param props.user.connectedOrganization.name - The name of the connected organization.
+ * @param props.user.connectedOrganization.type - The type of organization, used to determine the label for the branches menu.
+ * @param props.user.connectedMember - Member-specific data for the current user.
+ * @param props.user.connectedMember.photo - URL to the user's profile photo.
  * @param props - Other properties passed to the underlying shadcn Sidebar component.
  *
  * @returns The rendered sidebar component.
