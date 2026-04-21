@@ -28,6 +28,7 @@ import {
   type MemberFormState
 } from './action'
 import { memberSheetStore, memberEditData, closeMemberSheet } from './store'
+import { getCurrentYear, getGenderLabel, getStatusLabel } from './utils'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
   Loading03Icon,
@@ -41,7 +42,7 @@ export const AddMemberForm = ({
 }: {
   organizationId: string
 }) => {
-  const currentYear = new Date().getFullYear()
+  const currentYear = getCurrentYear()
   const editData = useStore(memberEditData)
 
   const [regionData, setRegionData] = React.useState({
@@ -247,7 +248,7 @@ export const AddMemberForm = ({
                           {val}
                         </FieldTitle>
                         <FieldDescription>
-                          {val === 'ikhwan' ? 'Laki-laki' : 'Perempuan'}
+                          {getGenderLabel(val)}
                         </FieldDescription>
                       </FieldContent>
                       <RadioGroupItem value={val} id={`gender-${val}`} />
@@ -281,11 +282,7 @@ export const AddMemberForm = ({
                           {val}
                         </FieldTitle>
                         <FieldDescription>
-                          {val === 'ab1'
-                            ? 'Anggota Biasa 1'
-                            : val === 'ab2'
-                              ? 'Anggota Biasa 2'
-                              : 'Anggota Biasa 3'}
+                          {getStatusLabel(val)}
                         </FieldDescription>
                       </FieldContent>
                       <RadioGroupItem value={val} id={`status-${val}`} />
