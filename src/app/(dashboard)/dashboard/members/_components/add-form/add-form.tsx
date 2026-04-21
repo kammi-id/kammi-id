@@ -61,8 +61,9 @@ export const AddMemberForm = ({ organizationId }: AddMemberFormProps) => {
   const [regionData, setRegionData] =
     React.useState<RegionDataState>(INITIAL_REGION_DATA)
 
-  const [isLoading, setIsLoading] =
-    React.useState<RegionLoadingState>(INITIAL_LOADING_STATE)
+  const [isLoading, setIsLoading] = React.useState<RegionLoadingState>(
+    INITIAL_LOADING_STATE
+  )
 
   const [province, setProvince] = React.useState(
     () => editData?.addressProvinceCode ?? ''

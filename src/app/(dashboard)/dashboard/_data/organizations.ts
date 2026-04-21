@@ -25,9 +25,7 @@ export async function getCachedOrganizations(filters: OrganizationFilters) {
   return readOrganization(filters)
 }
 
-export async function getCachedOrganizationCount(
-  filters: OrganizationFilters
-) {
+export async function getCachedOrganizationCount(filters: OrganizationFilters) {
   'use cache'
   cacheLife('minutes')
   cacheTag('organizations')

@@ -1,2 +1,2 @@
-export * from './members-table';
-export * from './columns';
+export * from './members-table'
+export * from './columns'

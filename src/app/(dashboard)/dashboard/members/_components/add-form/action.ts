@@ -136,7 +136,8 @@ export const fetchCitiesAction = async (provinceCode: string) => {
     return { data, success: true }
   } catch (error: unknown) {
     return {
-      error: error instanceof Error ? error.message : 'Gagal mengambil data kota',
+      error:
+        error instanceof Error ? error.message : 'Gagal mengambil data kota',
       success: false
     }
   }
@@ -149,7 +150,9 @@ export const fetchDistrictsAction = async (cityCode: string) => {
   } catch (error: unknown) {
     return {
       error:
-        error instanceof Error ? error.message : 'Gagal mengambil data kecamatan',
+        error instanceof Error
+          ? error.message
+          : 'Gagal mengambil data kecamatan',
       success: false
     }
   }
@@ -161,7 +164,8 @@ export const fetchVillagesAction = async (districtCode: string) => {
     return { data, success: true }
   } catch (error: unknown) {
     return {
-      error: error instanceof Error ? error.message : 'Gagal mengambil data desa',
+      error:
+        error instanceof Error ? error.message : 'Gagal mengambil data desa',
       success: false
     }
   }

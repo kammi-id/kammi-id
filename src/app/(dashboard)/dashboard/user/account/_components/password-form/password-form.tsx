@@ -10,7 +10,10 @@ import {
   FieldGroup,
   FieldLabel
 } from '~/components/shadcn/ui/field'
-import { updatePasswordAction, type PasswordFormState } from '~/app/(dashboard)/dashboard/user/account/_components/action'
+import {
+  updatePasswordAction,
+  type PasswordFormState
+} from '~/app/(dashboard)/dashboard/user/account/_components/action'
 import { toast } from 'sonner'
 import { PasswordFormProps } from './types'
 

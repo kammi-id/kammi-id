@@ -10,7 +10,10 @@ import {
   FieldGroup,
   FieldLabel
 } from '~/components/shadcn/ui/field'
-import { updateProfileAction, type ProfileFormState } from '~/app/(dashboard)/dashboard/user/account/_components/action'
+import {
+  updateProfileAction,
+  type ProfileFormState
+} from '~/app/(dashboard)/dashboard/user/account/_components/action'
 import { toast } from 'sonner'
 import { AccountFormProps } from './types'
 

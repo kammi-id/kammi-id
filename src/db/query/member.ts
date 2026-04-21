@@ -74,14 +74,11 @@ export const createMember = async (
   tx?: DBExecutor
 ): Promise<Array<Member>> => {
   const execute = async (t: DBExecutor) => {
-    const [newMember] = await t
-      .insert(member)
-      .values(values)
-      .returning({
-        id: member.id,
-        name: member.name,
-        registerNumber: member.registerNumber
-      })
+    const [newMember] = await t.insert(member).values(values).returning({
+      id: member.id,
+      name: member.name,
+      registerNumber: member.registerNumber
+    })
 
     const password = generatePassword()
     const passwordHash = await hashPassword(password)

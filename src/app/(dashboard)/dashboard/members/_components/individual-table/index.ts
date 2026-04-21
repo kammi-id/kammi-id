@@ -1,2 +1,2 @@
-export * from './individual-table';
-export * from './columns';
+export * from './individual-table'
+export * from './columns'

@@ -251,7 +251,7 @@ const MembersPage = async ({ params, searchParams }: PageProps) => {
       </div>
 
       {showSummary && showIndividuals ? (
-        <Tabs defaultValue={activeTab} className='space-y-8'>
+        <Tabs value={activeTab} className='space-y-8'>
           <TabsList className='bg-background w-full justify-start rounded-none border-b p-0'>
             <TabsTrigger
               value='members'

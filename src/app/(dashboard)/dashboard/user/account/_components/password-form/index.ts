@@ -1,1 +1,1 @@
-export * from './password-form';
+export * from './password-form'
