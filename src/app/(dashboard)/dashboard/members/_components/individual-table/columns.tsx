@@ -14,10 +14,16 @@ export interface IndividualMember {
   status: 'ab1' | 'ab2' | 'ab3'
   gender: 'ikhwan' | 'akhwat'
   yearOfEntry: number
-  addressProvinceCode: string
-  addressCityCode: string
-  addressDistrictCode: string
-  addressVillageCode: string
+  addressProvinceCode: string | null
+  addressCityCode: string | null
+  addressDistrictCode: string | null
+  addressSubdistrictCode: string | null
+  addressLine: string | null
+  isAlumn: boolean
+  isSuspended: boolean
+  isNonActive: boolean
+  isCertifiedMentor: boolean
+  isCertifiedInstructor: boolean
   organization: {
     id: string
     name: string

@@ -90,7 +90,7 @@ const FormField = <TField extends FieldValues>({
     <Controller
       control={control}
       name={name}
-      render={({ field = {}, fieldState = {} }) => render(field, fieldState)}
+      render={({ field = {}, fieldState = {} }) => render(field, fieldState) as any}
     />
   )
 }

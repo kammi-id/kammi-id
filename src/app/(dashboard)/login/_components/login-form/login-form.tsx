@@ -41,7 +41,7 @@ import logo from '~/assets/logo.png'
  * @param props.message - Optional status message to display (e.g., 'logout_success').
  * @returns A React element rendering the login form.
  */
-const LoginForm = ({
+export const LoginForm = ({
   className,
   message,
   ...props
@@ -162,4 +162,3 @@ const LoginForm = ({
   )
 }
 
-export default LoginForm

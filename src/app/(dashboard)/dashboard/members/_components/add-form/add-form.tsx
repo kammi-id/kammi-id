@@ -17,7 +17,7 @@ import {
   FieldDescription
 } from '~/components/shadcn/ui/field'
 import { RadioGroup, RadioGroupItem } from '~/components/shadcn/ui/radio-group'
-import { RegionCombobox } from '../region-combobox
+import { RegionCombobox } from '../region-combobox'
 import {
   createMemberAction,
   updateMemberAction,
@@ -416,7 +416,7 @@ export const AddMemberForm = ({ organizationId }: AddMemberFormProps) => {
               id='addressLine'
               name='addressLine'
               placeholder='Nama jalan, No. Rumah, RT/RW, dll'
-              defaultValue={editData?.addressLine}
+              defaultValue={editData?.addressLine ?? undefined}
             />
             <FieldError
               errors={state.errors?.addressLine?.map((m) => ({ message: m }))}
