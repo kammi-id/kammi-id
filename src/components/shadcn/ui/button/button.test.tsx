@@ -1,16 +1,17 @@
-import { describe, it, expect } from "bun:test";
-import { render, screen } from "@testing-library/react";
+import { expect, test, describe, mock } from "bun:test";
+import { render, screen, fireEvent } from "@testing-library/react";
 import { Button } from "./button";
 
-describe("Button component", () => {
-  it("should render the children text", () => {
-    render(<Button>Click Me</Button>);
-    expect(screen.getByText("Click Me")).toBeTruthy();
+describe("Button Component", () => {
+  test("renders correctly", () => {
+    render(<Button>Click me</Button>);
+    expect(screen.getByText("Click me")).toBeInTheDocument();
   });
 
-  it("should apply correct styles based on variant prop", () => {
-    render(<Button variant="destructive">Delete</Button>);
-    const button = screen.getByText("Delete");
-    expect(button.className).toContain("bg-destructive");
+  test("handles click events", () => {
+    const onClick = mock(() => {});
+    render(<Button onClick={onClick}>Click me</Button>);
+    fireEvent.click(screen.getByText("Click me"));
+    expect(onClick).toBeCalled();
   });
 });
