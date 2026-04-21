@@ -17,7 +17,7 @@ import {
   FieldDescription
 } from '~/components/shadcn/ui/field'
 import { RadioGroup, RadioGroupItem } from '~/components/shadcn/ui/radio-group'
-import { RegionCombobox } from './region-combobox'
+import { RegionCombobox } from '../region-combobox
 import {
   createMemberAction,
   updateMemberAction,
@@ -29,6 +29,7 @@ import {
 } from './action'
 import { memberSheetStore, memberEditData, closeMemberSheet } from './store'
 import { getCurrentYear, getGenderLabel, getStatusLabel } from './utils'
+import { INITIAL_REGION_DATA, INITIAL_LOADING_STATE } from './constants'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
   Loading03Icon,
@@ -36,28 +37,32 @@ import {
   Award01Icon
 } from '@hugeicons/core-free-icons'
 import type { RegionItem } from '~/lib/api/region'
+import type {
+  AddMemberFormProps,
+  RegionDataState,
+  RegionLoadingState
+} from './types'
 
-export const AddMemberForm = ({
-  organizationId
-}: {
-  organizationId: string
-}) => {
+/**
+ * AddMemberForm component provides a comprehensive form for adding or updating member data.
+ *
+ * It manages complex state for personal information, hierarchical address selection
+ * (Province -> City -> District -> Village), and certification/status flags.
+ * The form handles both creation and editing modes based on the `memberEditData` store.
+ *
+ * @param props - Component properties.
+ * @param props.organizationId - The ID of the organization to which the member will be added.
+ * @returns A form element with scrollable content sections and sticky action buttons.
+ */
+export const AddMemberForm = ({ organizationId }: AddMemberFormProps) => {
   const currentYear = getCurrentYear()
   const editData = useStore(memberEditData)
 
-  const [regionData, setRegionData] = React.useState({
-    provinces: [] as RegionItem[],
-    cities: [] as RegionItem[],
-    districts: [] as RegionItem[],
-    subdistricts: [] as RegionItem[]
-  })
+  const [regionData, setRegionData] =
+    React.useState<RegionDataState>(INITIAL_REGION_DATA)
 
-  const [isLoading, setIsLoading] = React.useState({
-    province: false,
-    city: false,
-    district: false,
-    subdistrict: false
-  })
+  const [isLoading, setIsLoading] =
+    React.useState<RegionLoadingState>(INITIAL_LOADING_STATE)
 
   const [province, setProvince] = React.useState(
     () => editData?.addressProvinceCode ?? ''
