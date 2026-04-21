@@ -30,7 +30,7 @@ const getRandomWordFromDictionary = (): string => {
 /**
  * Menghasilkan 5 karakter alfanumerik acak.
  */
-const getRandomAlphanumeric = (length: number = 5): string => {
+export const getRandomAlphanumeric = (length: number = 5): string => {
   const chars = 'abcdefghijklmnopqrstuvwxyz0123456789'
   let result = ''
   for (let i = 0; i < length; i++) {
