@@ -1,5 +1,5 @@
 import { atom } from 'nanostores'
-import { type IndividualMember } from '../individual-columns'
+import { type IndividualMember } from '../individual-table/columns'
 
 export const memberSheetStore = atom<boolean>(false)
 export const memberEditData = atom<IndividualMember | null>(null)

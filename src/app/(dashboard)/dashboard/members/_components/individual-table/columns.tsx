@@ -14,6 +14,10 @@ export interface IndividualMember {
   status: 'ab1' | 'ab2' | 'ab3'
   gender: 'ikhwan' | 'akhwat'
   yearOfEntry: number
+  addressProvinceCode: string
+  addressCityCode: string
+  addressDistrictCode: string
+  addressVillageCode: string
   organization: {
     id: string
     name: string

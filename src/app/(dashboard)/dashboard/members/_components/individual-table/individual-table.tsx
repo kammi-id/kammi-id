@@ -2,7 +2,7 @@
 
 import * as React from 'react'
 import { DataTable } from '../../../_components/data-table'
-import { columns, type IndividualMember } from './individual-columns'
+import { columns, type IndividualMember } from './columns'
 import {
   openMemberSheet,
   memberSheetStore,
