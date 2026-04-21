@@ -1,2 +1,6 @@
 [run]
 bun = true
+
+[test]
+# Use happy-dom for component tests
+environment = "happy-dom"
