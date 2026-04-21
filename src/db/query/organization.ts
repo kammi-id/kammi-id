@@ -13,6 +13,7 @@ import {
   desc,
   count
 } from 'drizzle-orm'
+import { type DBExecutor } from '../types'
 
 import { createUser } from './user'
 import { generatePassword, hashPassword } from '~/lib/utils/user'
@@ -151,8 +152,10 @@ export const countOrganization = async (
 }
 
 export const readOrganization = async (
-  filters: OrganizationFilters = {}
+  filters: OrganizationFilters = {},
+  tx?: DBExecutor
 ): Promise<Array<Organization>> => {
+  const executor = tx || db
   const where: SQL[] = []
 
   if (filters.id) where.push(inArray(withOrganizationCTE.id, filters.id))
@@ -172,7 +175,7 @@ export const readOrganization = async (
   if (filters.isNonActive !== undefined)
     where.push(eq(withOrganizationCTE.isNonActive, filters.isNonActive))
 
-  const query = db
+  const query = executor
     .with(withOrganizationCTE)
     .select()
     .from(withOrganizationCTE)

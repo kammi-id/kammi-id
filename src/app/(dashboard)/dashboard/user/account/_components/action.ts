@@ -64,9 +64,9 @@ export const updateProfileAction = async (
     updateTag('user')
     revalidatePath('/dashboard/user/account')
     return { success: true }
-  } catch (e: any) {
+  } catch (e: unknown) {
     console.error(e)
-    if (e.message?.includes('unique constraint')) {
+    if (e instanceof Error && e.message?.includes('unique constraint')) {
       return { error: 'Nama pengguna sudah digunakan.' }
     }
     return { error: 'Gagal memperbarui profil.' }

@@ -1,7 +1,14 @@
 import { cacheLife, cacheTag } from 'next/cache'
-import { readMemberAggregates, readDescendantMembers } from '~/db/query/member'
+import {
+  readMemberAggregates,
+  readDescendantMembers,
+  type MemberFilters,
+  type MemberAggregatesFilters
+} from '~/db/query/member'
 
-export async function getCachedMemberAggregates(filters: any) {
+export async function getCachedMemberAggregates(
+  filters: MemberAggregatesFilters
+) {
   'use cache'
   cacheLife('minutes')
   cacheTag('members')
@@ -11,7 +18,7 @@ export async function getCachedMemberAggregates(filters: any) {
 
 export async function getCachedDescendantMembers(
   parentId: string,
-  filters: any
+  filters: MemberFilters
 ) {
   'use cache'
   cacheLife('minutes')

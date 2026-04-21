@@ -5,6 +5,9 @@ import {
   Control,
   Controller,
   FieldValues,
+  FieldPath,
+  ControllerRenderProps,
+  ControllerFieldState
 } from "react-hook-form"
 import { cn } from "~/lib/shadcn/utils"
 import { Label } from "./label"
@@ -51,8 +54,8 @@ const FormLabel = React.forwardRef<
 FormLabel.displayName = "FormLabel"
 
 const FormControl = React.forwardRef<
-  any,
-  React.HTMLAttributes<any>
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
@@ -77,20 +80,26 @@ const FormMessage = React.forwardRef<
 ))
 FormMessage.displayName = "FormMessage"
 
-const FormField = <TField extends FieldValues>({
+const FormField = <
+  TFieldValues extends FieldValues = FieldValues,
+  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
+>({
   control,
   name,
   render,
 }: {
-  control: Control<TField>
-  name: any
-  render: (field: any, state: any) => React.ReactElement
+  control: Control<TFieldValues>
+  name: TName
+  render: (
+    field: ControllerRenderProps<TFieldValues, TName>,
+    state: ControllerFieldState
+  ) => React.ReactElement
 }) => {
   return (
     <Controller
       control={control}
       name={name}
-      render={({ field = {}, fieldState = {} }) => render(field, fieldState)}
+      render={({ field, fieldState }) => render(field, fieldState)}
     />
   )
 }

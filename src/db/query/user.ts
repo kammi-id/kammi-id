@@ -2,6 +2,7 @@ import { db } from '../db'
 import { user } from '../schema/user.sql'
 import { withUserCTE, type User } from './cte/user'
 import { inArray, eq, and, ilike, type SQL } from 'drizzle-orm'
+import { type DBExecutor } from '../types'
 
 type UserInsertValues = typeof user.$inferInsert
 export type UserFilters = {
@@ -15,9 +16,9 @@ export type UserFilters = {
 
 export const createUser = async (
   values: UserInsertValues,
-  tx?: any
+  tx?: DBExecutor
 ): Promise<Array<User>> => {
-  const execute = async (t: any) => {
+  const execute = async (t: DBExecutor) => {
     const [newUser] = await t
       .insert(user)
       .values(values)
@@ -32,7 +33,7 @@ export const createUser = async (
 
 export const readUser = async (
   filters: UserFilters = {},
-  tx?: any
+  tx?: DBExecutor
 ): Promise<Array<User>> => {
   const executor = tx || db
   const where: SQL[] = []

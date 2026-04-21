@@ -14,6 +14,8 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { MembersTable } from '../_components/members-table'
 import { IndividualMemberTable } from '../_components/individual-table'
 import { type Organization } from '../../_data/organizations'
+import { type Member, type MemberAggregatesResult } from '~/db/query/member'
+import { type IndividualMember } from '../_components/individual-table'
 import Link from 'next/link'
 import { cn } from '~/lib/shadcn/utils'
 import { buttonVariants } from '~/components/shadcn/ui/button'
@@ -142,7 +144,7 @@ const MembersPage = async ({ params, searchParams }: PageProps) => {
     ? Promise.all([
         getCachedOrganizations(orgFilters),
         getCachedOrganizationCount(orgFilters),
-        getCachedMemberAggregates(currentOrg.id)
+        getCachedMemberAggregates({ organizationId: currentOrg.id })
       ])
     : Promise.resolve([[], 0, []])
 
@@ -164,8 +166,10 @@ const MembersPage = async ({ params, searchParams }: PageProps) => {
       : '/dashboard/members'
 
   // Map aggregates to organizations (only if summary is shown)
-  const memberData = (organizations as any[]).map((org) => {
-    const agg = (memberAggregates as any[]).find((a: any) => a.organizationId === org.id)
+  const memberData = (organizations as Organization[]).map((org) => {
+    const agg = (memberAggregates as MemberAggregatesResult[]).find(
+      (a) => a.organizationId === org.id
+    )
     return {
       ...org,
       organizationId: org.id,
@@ -200,7 +204,7 @@ const MembersPage = async ({ params, searchParams }: PageProps) => {
   const renderIndividuals = () => (
     <div className='bg-card rounded-[2.5rem] border p-8 md:p-10'>
       <IndividualMemberTable
-        data={mMembers as any[]}
+        data={mMembers as IndividualMember[]}
         pageCount={mPageCount}
         totalCount={mTotalCount as number}
         userRole={user.role}

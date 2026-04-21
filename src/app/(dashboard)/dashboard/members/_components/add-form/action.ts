@@ -70,11 +70,12 @@ export const createMemberAction = async (
     revalidatePath('/dashboard/members')
 
     return { success: true, message: 'Kader berhasil ditambahkan!' }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error(error)
     return {
       success: false,
-      message: error.message || 'Gagal menambahkan kader.'
+      message:
+        error instanceof Error ? error.message : 'Gagal menambahkan kader.'
     }
   }
 }
@@ -107,11 +108,12 @@ export const updateMemberAction = async (
     revalidatePath('/dashboard/members')
 
     return { success: true, message: 'Data kader berhasil diperbarui!' }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error(error)
     return {
       success: false,
-      message: error.message || 'Gagal memperbarui data kader.'
+      message:
+        error instanceof Error ? error.message : 'Gagal memperbarui data kader.'
     }
   }
 }
@@ -120,9 +122,9 @@ export const fetchProvincesAction = async () => {
   try {
     const data = await regionApi.getProvinces()
     return { data, success: true }
-  } catch (error: any) {
+  } catch (error: unknown) {
     return {
-      error: error.message || 'Gagal mengambil data provinsi',
+      error: error instanceof Error ? error.message : 'Gagal mengambil data',
       success: false
     }
   }
@@ -132,9 +134,9 @@ export const fetchCitiesAction = async (provinceCode: string) => {
   try {
     const data = await regionApi.getCities(provinceCode)
     return { data, success: true }
-  } catch (error: any) {
+  } catch (error: unknown) {
     return {
-      error: error.message || 'Gagal mengambil data kota',
+      error: error instanceof Error ? error.message : 'Gagal mengambil data kota',
       success: false
     }
   }
@@ -144,9 +146,10 @@ export const fetchDistrictsAction = async (cityCode: string) => {
   try {
     const data = await regionApi.getDistricts(cityCode)
     return { data, success: true }
-  } catch (error: any) {
+  } catch (error: unknown) {
     return {
-      error: error.message || 'Gagal mengambil data kecamatan',
+      error:
+        error instanceof Error ? error.message : 'Gagal mengambil data kecamatan',
       success: false
     }
   }
@@ -156,9 +159,9 @@ export const fetchVillagesAction = async (districtCode: string) => {
   try {
     const data = await regionApi.getVillages(districtCode)
     return { data, success: true }
-  } catch (error: any) {
+  } catch (error: unknown) {
     return {
-      error: error.message || 'Gagal mengambil data desa',
+      error: error instanceof Error ? error.message : 'Gagal mengambil data desa',
       success: false
     }
   }

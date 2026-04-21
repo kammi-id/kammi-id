@@ -1,7 +1,9 @@
 import { db } from '../db'
 import { member } from '../schema/member.sql'
 import { withMemberCTE, type Member } from './cte/member'
+export { withMemberCTE, type Member }
 import { inArray, eq, and, ilike, sql, desc, type SQL } from 'drizzle-orm'
+import { type DBExecutor } from '../types'
 
 import { createUser } from './user'
 import { generatePassword, hashPassword } from '~/lib/utils/user'
@@ -68,14 +70,18 @@ export const readMemberAggregates = async (
 }
 
 export const createMember = async (
-  values: MemberInsertValues
+  values: MemberInsertValues,
+  tx?: DBExecutor
 ): Promise<Array<Member>> => {
-  return await db.transaction(async (tx) => {
-    const [newMember] = await tx.insert(member).values(values).returning({
-      id: member.id,
-      name: member.name,
-      registerNumber: member.registerNumber
-    })
+  const execute = async (t: DBExecutor) => {
+    const [newMember] = await t
+      .insert(member)
+      .values(values)
+      .returning({
+        id: member.id,
+        name: member.name,
+        registerNumber: member.registerNumber
+      })
 
     const password = generatePassword()
     const passwordHash = await hashPassword(password)
@@ -88,15 +94,18 @@ export const createMember = async (
         role: 'member',
         connectedMemberId: newMember.id
       },
-      tx
+      t
     )
 
-    return await tx
+    return await t
       .with(withMemberCTE)
       .select()
       .from(withMemberCTE)
       .where(eq(withMemberCTE.id, newMember.id))
-  })
+  }
+
+  if (tx) return await execute(tx)
+  return await db.transaction(async (t) => await execute(t))
 }
 
 export const readMember = async (
@@ -129,9 +138,9 @@ export const readMember = async (
   if (filters.isNonActive !== undefined)
     where.push(eq(withMemberCTE.isNonActive, filters.isNonActive))
   if (memberFilters.status)
-    where.push(inArray(withMemberCTE.status, memberFilters.status as any))
+    where.push(inArray(withMemberCTE.status, memberFilters.status))
   if (memberFilters.gender)
-    where.push(eq(withMemberCTE.gender, memberFilters.gender as any))
+    where.push(eq(withMemberCTE.gender, memberFilters.gender))
 
   const query = db
     .with(withMemberCTE)
@@ -160,17 +169,13 @@ export const updateMember = async (
   })
 }
 
-export const deleteMember = async (id: Array<string>): Promise<void> => {
-  await db.delete(member).where(inArray(member.id, id))
-}
-
 export const readDescendantMembers = async (
   parentId: string,
   filters: MemberFilters & { limit?: number; offset?: number } = {}
-): Promise<[Array<Member>, number]> => {
+): Promise<[Member[], number]> => {
   const { limit = 10, offset = 0, name, status, gender } = filters
 
-  // 1. Fetch Data
+  // 1. Fetch Members
   const data = await db
     .execute(
       sql`
