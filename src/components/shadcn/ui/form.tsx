@@ -84,13 +84,13 @@ const FormField = <TField extends FieldValues>({
 }: {
   control: Control<TField>
   name: any
-  render: (field: any, state: any) => React.ReactNode
+  render: (field: any, state: any) => React.ReactElement
 }) => {
   return (
     <Controller
       control={control}
       name={name}
-      render={({ field = {}, fieldState = {} }) => render(field, fieldState) as any}
+      render={({ field = {}, fieldState = {} }) => render(field, fieldState)}
     />
   )
 }
