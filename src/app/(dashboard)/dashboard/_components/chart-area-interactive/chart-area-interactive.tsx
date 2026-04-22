@@ -171,15 +171,19 @@ export const ChartAreaInteractive = () => {
   })
 
   return (
-    <Card className='@container/card'>
-      <CardHeader>
-        <CardTitle>Total Visitors</CardTitle>
-        <CardDescription>
-          <span className='hidden @[540px]/card:block'>
-            Total for the last 3 months
-          </span>
-          <span className='@[540px]/card:hidden'>Last 3 months</span>
-        </CardDescription>
+    <Card className='@container/card overflow-hidden'>
+      <CardHeader className='flex flex-row items-center justify-between gap-4 pb-4'>
+        <div className='space-y-1'>
+          <CardTitle className='text-xl font-bold tracking-tight'>
+            Total Visitors
+          </CardTitle>
+          <CardDescription>
+            <span className='hidden @[540px]/card:block'>
+              Total for the last 3 months
+            </span>
+            <span className='@[540px]/card:hidden'>Last 3 months</span>
+          </CardDescription>
+        </div>
         <CardAction>
           <ToggleGroup
             multiple={false}
@@ -190,9 +194,15 @@ export const ChartAreaInteractive = () => {
             variant='outline'
             className='hidden *:data-[slot=toggle-group-item]:px-4! @[767px]/card:flex'
           >
-            <ToggleGroupItem value='90d'>Last 3 months</ToggleGroupItem>
-            <ToggleGroupItem value='30d'>Last 30 days</ToggleGroupItem>
-            <ToggleGroupItem value='7d'>Last 7 days</ToggleGroupItem>
+            <ToggleGroupItem value='90d' className='text-xs font-medium'>
+              Last 3 months
+            </ToggleGroupItem>
+            <ToggleGroupItem value='30d' className='text-xs font-medium'>
+              Last 30 days
+            </ToggleGroupItem>
+            <ToggleGroupItem value='7d' className='text-xs font-medium'>
+              Last 7 days
+            </ToggleGroupItem>
           </ToggleGroup>
           <Select
             value={timeRange}
@@ -223,12 +233,15 @@ export const ChartAreaInteractive = () => {
           </Select>
         </CardAction>
       </CardHeader>
-      <CardContent className='px-2 pt-4 sm:px-6 sm:pt-6'>
+      <CardContent className='px-2 pt-0 sm:px-6 sm:pt-0'>
         <ChartContainer
           config={chartConfig}
           className='aspect-auto h-[250px] w-full'
         >
-          <AreaChart data={filteredData}>
+          <AreaChart
+            data={filteredData}
+            margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+          >
             <defs>
               <linearGradient id='fillDesktop' x1='0' y1='0' x2='0' y2='1'>
                 <stop
@@ -255,7 +268,11 @@ export const ChartAreaInteractive = () => {
                 />
               </linearGradient>
             </defs>
-            <CartesianGrid vertical={false} />
+            <CartesianGrid
+              vertical={false}
+              strokeDasharray='3 3'
+              strokeOpacity={0.5}
+            />
             <XAxis
               dataKey='date'
               tickLine={false}
@@ -269,6 +286,7 @@ export const ChartAreaInteractive = () => {
                   day: 'numeric'
                 })
               }}
+              tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }}
             />
             <ChartTooltip
               cursor={false}
@@ -289,6 +307,7 @@ export const ChartAreaInteractive = () => {
               type='natural'
               fill='url(#fillMobile)'
               stroke='var(--color-mobile)'
+              strokeWidth={2}
               stackId='a'
             />
             <Area
@@ -296,6 +315,7 @@ export const ChartAreaInteractive = () => {
               type='natural'
               fill='url(#fillDesktop)'
               stroke='var(--color-desktop)'
+              strokeWidth={2}
               stackId='a'
             />
           </AreaChart>

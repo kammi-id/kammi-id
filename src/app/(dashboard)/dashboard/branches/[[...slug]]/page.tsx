@@ -167,12 +167,12 @@ const BranchesPage = async ({ params, searchParams }: PageProps) => {
           <h1 className='font-heading text-3xl font-bold tracking-tight'>
             {pageTitle}
           </h1>
-          <p className='text-muted-foreground'>{subTitle}</p>
+          <p className='text-muted-foreground leading-relaxed'>{subTitle}</p>
         </div>
       </div>
 
       <div className='grid grid-cols-1 gap-8'>
-        <div className='bg-card rounded-[2.5rem] border p-8 md:p-10'>
+        <div className='bg-card rounded-3xl border p-6 shadow-xs md:p-8 lg:p-10'>
           <div className='space-y-8'>
             <div className='space-y-6'>
               <BranchesTable

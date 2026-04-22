@@ -190,7 +190,7 @@ const MembersPage = async ({ params, searchParams }: PageProps) => {
         : 'members'
 
   const renderSummary = () => (
-    <div className='bg-card rounded-[2.5rem] border p-8 md:p-10'>
+    <div className='bg-card rounded-3xl border p-6 shadow-xs md:p-8 lg:p-10'>
       <MembersTable
         data={memberData}
         nameHeader={nameHeader}
@@ -202,7 +202,7 @@ const MembersPage = async ({ params, searchParams }: PageProps) => {
   )
 
   const renderIndividuals = () => (
-    <div className='bg-card rounded-[2.5rem] border p-8 md:p-10'>
+    <div className='bg-card rounded-3xl border p-6 shadow-xs md:p-8 lg:p-10'>
       <IndividualMemberTable
         data={mMembers as IndividualMember[]}
         pageCount={mPageCount}
@@ -246,7 +246,7 @@ const MembersPage = async ({ params, searchParams }: PageProps) => {
           <h1 className='font-heading text-3xl font-bold tracking-tight'>
             {pageTitle}
           </h1>
-          <p className='text-muted-foreground'>{subTitle}</p>
+          <p className='text-muted-foreground leading-relaxed'>{subTitle}</p>
         </div>
       </div>
 

@@ -27,26 +27,33 @@ export const SectionCards = () => {
       <Card className='@container/card'>
         <CardHeader>
           <CardDescription>Total Revenue</CardDescription>
-          <CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>
+          <CardTitle className='text-2xl font-bold tracking-tight tabular-nums @[250px]/card:text-3xl'>
             $1,250.00
           </CardTitle>
           <CardAction>
-            <Badge variant='outline'>
-              <HugeiconsIcon icon={ChartUpIcon} strokeWidth={2} />
+            <Badge
+              variant='outline'
+              className='gap-1 px-1.5 py-0 text-xs font-medium'
+            >
+              <HugeiconsIcon
+                icon={ChartUpIcon}
+                strokeWidth={2}
+                className='size-3'
+              />
               +12.5%
             </Badge>
           </CardAction>
         </CardHeader>
         <CardFooter className='flex-col items-start gap-1.5 text-sm'>
-          <div className='line-clamp-1 flex gap-2 font-medium'>
+          <div className='line-clamp-1 flex items-center gap-2 font-semibold tracking-tight'>
             Trending up this month{' '}
             <HugeiconsIcon
               icon={ChartUpIcon}
               strokeWidth={2}
-              className='size-4'
+              className='text-primary size-3.5'
             />
           </div>
-          <div className='text-muted-foreground'>
+          <div className='text-muted-foreground leading-relaxed'>
             Visitors for the last 6 months
           </div>
         </CardFooter>
@@ -54,26 +61,33 @@ export const SectionCards = () => {
       <Card className='@container/card'>
         <CardHeader>
           <CardDescription>New Customers</CardDescription>
-          <CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>
+          <CardTitle className='text-2xl font-bold tracking-tight tabular-nums @[250px]/card:text-3xl'>
             1,234
           </CardTitle>
           <CardAction>
-            <Badge variant='outline'>
-              <HugeiconsIcon icon={ChartDownIcon} strokeWidth={2} />
+            <Badge
+              variant='outline'
+              className='gap-1 px-1.5 py-0 text-xs font-medium'
+            >
+              <HugeiconsIcon
+                icon={ChartDownIcon}
+                strokeWidth={2}
+                className='size-3'
+              />
               -20%
             </Badge>
           </CardAction>
         </CardHeader>
         <CardFooter className='flex-col items-start gap-1.5 text-sm'>
-          <div className='line-clamp-1 flex gap-2 font-medium'>
+          <div className='line-clamp-1 flex items-center gap-2 font-semibold tracking-tight'>
             Down 20% this period{' '}
             <HugeiconsIcon
               icon={ChartDownIcon}
               strokeWidth={2}
-              className='size-4'
+              className='text-destructive size-3.5'
             />
           </div>
-          <div className='text-muted-foreground'>
+          <div className='text-muted-foreground leading-relaxed'>
             Acquisition needs attention
           </div>
         </CardFooter>
@@ -81,51 +95,69 @@ export const SectionCards = () => {
       <Card className='@container/card'>
         <CardHeader>
           <CardDescription>Active Accounts</CardDescription>
-          <CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>
+          <CardTitle className='text-2xl font-bold tracking-tight tabular-nums @[250px]/card:text-3xl'>
             45,678
           </CardTitle>
           <CardAction>
-            <Badge variant='outline'>
-              <HugeiconsIcon icon={ChartUpIcon} strokeWidth={2} />
+            <Badge
+              variant='outline'
+              className='gap-1 px-1.5 py-0 text-xs font-medium'
+            >
+              <HugeiconsIcon
+                icon={ChartUpIcon}
+                strokeWidth={2}
+                className='size-3'
+              />
               +12.5%
             </Badge>
           </CardAction>
         </CardHeader>
         <CardFooter className='flex-col items-start gap-1.5 text-sm'>
-          <div className='line-clamp-1 flex gap-2 font-medium'>
+          <div className='line-clamp-1 flex items-center gap-2 font-semibold tracking-tight'>
             Strong user retention{' '}
             <HugeiconsIcon
               icon={ChartUpIcon}
               strokeWidth={2}
-              className='size-4'
+              className='text-primary size-3.5'
             />
           </div>
-          <div className='text-muted-foreground'>Engagement exceed targets</div>
+          <div className='text-muted-foreground leading-relaxed'>
+            Engagement exceed targets
+          </div>
         </CardFooter>
       </Card>
       <Card className='@container/card'>
         <CardHeader>
           <CardDescription>Growth Rate</CardDescription>
-          <CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>
+          <CardTitle className='text-2xl font-bold tracking-tight tabular-nums @[250px]/card:text-3xl'>
             4.5%
           </CardTitle>
           <CardAction>
-            <Badge variant='outline'>
-              <HugeiconsIcon icon={ChartUpIcon} strokeWidth={2} />
+            <Badge
+              variant='outline'
+              className='gap-1 px-1.5 py-0 text-xs font-medium'
+            >
+              <HugeiconsIcon
+                icon={ChartUpIcon}
+                strokeWidth={2}
+                className='size-3'
+              />
               +4.5%
             </Badge>
           </CardAction>
         </CardHeader>
         <CardFooter className='flex-col items-start gap-1.5 text-sm'>
-          <div className='line-clamp-1 flex gap-2 font-medium'>
+          <div className='line-clamp-1 flex items-center gap-2 font-semibold tracking-tight'>
             Steady performance increase{' '}
             <HugeiconsIcon
               icon={ChartUpIcon}
               strokeWidth={2}
-              className='size-4'
+              className='text-primary size-3.5'
             />
           </div>
-          <div className='text-muted-foreground'>Meets growth projections</div>
+          <div className='text-muted-foreground leading-relaxed'>
+            Meets growth projections
+          </div>
         </CardFooter>
       </Card>
     </div>

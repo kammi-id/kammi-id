@@ -36,17 +36,17 @@ const AccountPage = async () => {
           <h1 className='font-heading text-3xl font-bold tracking-tight'>
             Pengaturan Akun
           </h1>
-          <p className='text-muted-foreground'>
+          <p className='text-muted-foreground leading-relaxed'>
             Kelola informasi dan preferensi akun Anda.
           </p>
         </div>
       </div>
 
       <div className='grid grid-cols-1 gap-8 lg:grid-cols-2'>
-        <div className='bg-card rounded-[2.5rem] border p-8 md:p-10'>
+        <div className='bg-card rounded-3xl border p-6 shadow-xs md:p-8 lg:p-10'>
           <div className='space-y-8'>
             <div className='space-y-1'>
-              <h2 className='text-xl font-semibold tracking-tight'>
+              <h2 className='text-xl font-bold tracking-tight'>
                 Informasi Profil
               </h2>
               <p className='text-muted-foreground text-sm'>
@@ -65,10 +65,10 @@ const AccountPage = async () => {
           </div>
         </div>
 
-        <div className='bg-card rounded-[2.5rem] border p-8 md:p-10'>
+        <div className='bg-card rounded-3xl border p-6 shadow-xs md:p-8 lg:p-10'>
           <div className='space-y-8'>
             <div className='space-y-1'>
-              <h2 className='text-xl font-semibold tracking-tight'>Keamanan</h2>
+              <h2 className='text-xl font-bold tracking-tight'>Keamanan</h2>
               <p className='text-muted-foreground text-sm'>
                 Perbarui kata sandi Anda untuk menjaga keamanan akun.
               </p>

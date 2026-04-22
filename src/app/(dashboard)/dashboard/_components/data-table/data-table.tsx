@@ -58,7 +58,7 @@ interface DataTableProps<TData, TValue> {
  * @param props.onRowClick - Optional callback triggered when a row is clicked.
  * @returns A React element rendering the data table with pagination and search.
  */
-export const DataTable = <TData, TValue>({
+export function DataTable<TData, TValue>({
   columns,
   data,
   searchKey,
@@ -67,7 +67,7 @@ export const DataTable = <TData, TValue>({
   actionElement,
   queryPrefix = '',
   onRowClick
-}: DataTableProps<TData, TValue>) => {
+}: DataTableProps<TData, TValue>) {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -196,26 +196,37 @@ export const DataTable = <TData, TValue>({
 
   return (
     <div className='space-y-4'>
-      <div className='flex items-center justify-between gap-2'>
+      <div className='flex items-center justify-between gap-4'>
         <div className='flex flex-1 items-center gap-2'>
           {searchKey && (
-            <Input
-              placeholder={`Cari ${searchKey}...`}
-              value={searchValue}
-              onChange={(event) => setSearchValue(event.target.value)}
-              className='h-8 max-w-sm'
-            />
+            <div className='relative w-full max-w-sm'>
+              <Input
+                placeholder={`Cari ${searchKey}...`}
+                value={searchValue}
+                onChange={(event) => setSearchValue(event.target.value)}
+                className='h-9 pl-9'
+              />
+              <div className='text-muted-foreground absolute top-1/2 left-3 -translate-y-1/2'>
+                <HugeiconsIcon
+                  icon={ArrowLeft02Icon}
+                  className='size-4 rotate-180'
+                />
+              </div>
+            </div>
           )}
         </div>
         <div className='flex items-center gap-2'>{actionElement}</div>
       </div>
-      <div className='rounded-md border'>
+      <div className='bg-card overflow-hidden rounded-xl border shadow-xs'>
         <Table>
-          <TableHeader>
+          <TableHeader className='bg-muted/50'>
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
+              <TableRow key={headerGroup.id} className='hover:bg-transparent'>
                 {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
+                  <TableHead
+                    key={header.id}
+                    className='text-muted-foreground h-10 text-xs font-bold tracking-wider uppercase'
+                  >
                     {header.isPlaceholder
                       ? null
                       : flexRender(
@@ -235,12 +246,12 @@ export const DataTable = <TData, TValue>({
                   data-state={row.getIsSelected() && 'selected'}
                   onClick={() => onRowClick?.(row.original)}
                   className={cn(
-                    onRowClick &&
-                      'hover:bg-muted/50 cursor-pointer transition-colors'
+                    'transition-colors',
+                    onRowClick && 'hover:bg-muted/50 cursor-pointer'
                   )}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell key={cell.id} className='py-3'>
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()
@@ -253,7 +264,7 @@ export const DataTable = <TData, TValue>({
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className='h-24 text-center'
+                  className='text-muted-foreground h-32 text-center'
                 >
                   Tidak ada hasil.
                 </TableCell>
@@ -262,12 +273,12 @@ export const DataTable = <TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <div className='flex items-center justify-between px-2'>
-        <div className='text-muted-foreground text-sm'>
+      <div className='flex items-center justify-between px-1'>
+        <div className='text-muted-foreground text-xs'>
           {table.getFilteredSelectedRowModel().rows.length} dari{' '}
           {totalCount > 0 ? totalCount : data.length} baris terpilih.
           {totalCount > 0 && (
-            <span className='ml-2 text-xs opacity-70'>
+            <span className='ml-2 opacity-70'>
               (Menampilkan {pagination.pageIndex * pagination.pageSize + 1}-
               {Math.min(
                 (pagination.pageIndex + 1) * pagination.pageSize,
@@ -277,12 +288,12 @@ export const DataTable = <TData, TValue>({
             </span>
           )}
         </div>
-        <div className='flex items-center space-x-2'>
+        <div className='flex items-center gap-2'>
           <Link
             href={getPageURL(pagination.pageIndex - 1)}
             className={cn(
               buttonVariants({ variant: 'outline', size: 'sm' }),
-              'h-8 px-2',
+              'h-8 px-3 text-xs font-medium',
               !table.getCanPreviousPage() && 'pointer-events-none opacity-50'
             )}
             aria-disabled={!table.getCanPreviousPage()}
@@ -290,7 +301,7 @@ export const DataTable = <TData, TValue>({
           >
             Sebelumnya
           </Link>
-          <div className='flex items-center gap-1 text-sm font-medium'>
+          <div className='text-muted-foreground flex items-center gap-1 text-xs font-medium'>
             Halaman {pagination.pageIndex + 1}
             {pageCount > 0 && ` dari ${pageCount}`}
           </div>
@@ -298,7 +309,7 @@ export const DataTable = <TData, TValue>({
             href={getPageURL(pagination.pageIndex + 1)}
             className={cn(
               buttonVariants({ variant: 'outline', size: 'sm' }),
-              'h-8 px-2',
+              'h-8 px-3 text-xs font-medium',
               !table.getCanNextPage() && 'pointer-events-none opacity-50'
             )}
             aria-disabled={!table.getCanNextPage()}
