@@ -43,30 +43,88 @@ export const readMemberAggregates = async (
 ): Promise<Array<MemberAggregatesResult>> => {
   const { organizationId } = filters
 
-  return await db
+  // 1. Fetch the entire subtree and direct member counts in one go
+  // We use a recursive CTE to find all organizations in the subtree
+  const results = await db
     .execute(
       sql`
     WITH RECURSIVE org_tree AS (
-      SELECT id FROM organization
+      SELECT id, parent_id,
+             CASE
+               WHEN type = 'pp' THEN 1
+               WHEN type = 'pw' THEN 2
+               WHEN type IN ('pd', 'pdln') THEN 3
+               WHEN type = 'pk' THEN 4
+               ELSE 5
+             END as level
+      FROM organization
       WHERE ${organizationId ? sql`id = ${organizationId}` : sql`true`}
       UNION ALL
-      SELECT o.id FROM organization o
+      SELECT o.id, o.parent_id,
+             CASE
+               WHEN o.type = 'pp' THEN 1
+               WHEN o.type = 'pw' THEN 2
+               WHEN o.type IN ('pd', 'pdln') THEN 3
+               WHEN o.type = 'pk' THEN 4
+               ELSE 5
+             END as level
+      FROM organization o
       JOIN org_tree ot ON o.parent_id = ot.id
     )
     SELECT
-      m.organization_id as "organizationId",
+      ot.id as "organizationId",
+      ot.parent_id as "parentId",
+      ot.level as "level",
       count(*) FILTER (WHERE m.status = 'ab1')::int as "ab1",
       count(*) FILTER (WHERE m.status = 'ab2')::int as "ab2",
       count(*) FILTER (WHERE m.status = 'ab3')::int as "ab3",
       count(*) FILTER (WHERE m.gender = 'ikhwan')::int as "ikhwan",
       count(*) FILTER (WHERE m.gender = 'akhwat')::int as "akhwat",
-      count(*)::int as "total"
-    FROM member m
-    JOIN org_tree ot ON m.organization_id = ot.id
-    GROUP BY m.organization_id
+      count(m.id)::int as "total"
+    FROM org_tree ot
+    LEFT JOIN member m ON m.organization_id = ot.id
+    GROUP BY ot.id, ot.parent_id, ot.level
   `
     )
-    .then((res) => res as MemberAggregatesResult[])
+    .then((res) => res as any[])
+
+  // 2. Bottom-up aggregation in TypeScript
+  // Map to store accumulated results: { [orgId: string]: MemberAggregatesResult }
+  const accumulated: Record<string, MemberAggregatesResult> = {}
+
+  // Initialize with direct counts
+  for (const row of results) {
+    accumulated[row.organizationId] = {
+      organizationId: row.organizationId,
+      ab1: row.ab1 || 0,
+      ab2: row.ab2 || 0,
+      ab3: row.ab3 || 0,
+      ikhwan: row.ikhwan || 0,
+      akhwat: row.akhwat || 0,
+      total: row.total || 0
+    }
+  }
+
+  // Sort organizations by level descending (PK -> PP) to ensure children are processed before parents
+  const sortedOrgs = results.sort((a, b) => b.level - a.level)
+
+  for (const org of sortedOrgs) {
+    const current = accumulated[org.organizationId]
+    const parentId = org.parentId
+
+    if (parentId && accumulated[parentId]) {
+      const parent = accumulated[parentId]
+      parent.ab1 += current.ab1
+      parent.ab2 += current.ab2
+      parent.ab3 += current.ab3
+      parent.ikhwan += current.ikhwan
+      parent.akhwat += current.akhwat
+      parent.total += current.total
+    }
+  }
+
+  // Return only those that were requested or all in subtree
+  return Object.values(accumulated)
 }
 
 export const createMember = async (
