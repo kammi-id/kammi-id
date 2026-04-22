@@ -83,6 +83,9 @@ export const readMemberAggregates = async (
       count(m.id)::int as "total"
     FROM org_tree ot
     LEFT JOIN member m ON m.organization_id = ot.id
+      AND m.is_alumn = false
+      AND m.is_suspended = false
+      AND m.is_non_active = false
     GROUP BY ot.id, ot.parent_id, ot.level
   `
     )
@@ -239,10 +242,17 @@ export const readDescendantMembers = async (
       UNION ALL
       SELECT o.id FROM organization o JOIN org_tree ot ON o.parent_id = ot.id
     )
-    SELECT 
-      m.id, m.name, m.phone, m.register_number as "registerNumber", 
-      m.organization_id as "organizationId", m.is_alumn as "isAlumn", 
-      m.is_suspended as "isSuspended", m.is_non_active as "isNonActive", 
+    SELECT
+      m.id, m.name, m.phone, m.register_number as "registerNumber",
+      m.organization_id as "organizationId", m.is_alumn as "isAlumn",
+      m.is_suspended as "isSuspended", m.is_non_active as "isNonActive",
+      m.is_certified_mentor as "isCertifiedMentor",
+      m.is_certified_instructor as "isCertifiedInstructor",
+      m.address_province_code as "addressProvinceCode",
+      m.address_city_code as "addressCityCode",
+      m.address_district_code as "addressDistrictCode",
+      m.address_subdistrict_code as "addressSubdistrictCode",
+      m.address_line as "addressLine",
       m.status, m.gender, m.year_of_entry as "yearOfEntry",
       json_build_object(
         'id', o.id,
@@ -252,6 +262,9 @@ export const readDescendantMembers = async (
     FROM member m
     JOIN organization o ON m.organization_id = o.id
     WHERE m.organization_id IN (SELECT id FROM org_tree)
+      AND m.is_alumn = false
+      AND m.is_suspended = false
+      AND m.is_non_active = false
     ${name ? sql`AND m.name ILIKE ${`%${name}%`}` : sql``}
     ${status ? sql`AND m.status IN ${status}` : sql``}
     ${gender ? sql`AND m.gender = ${gender}` : sql``}
@@ -273,6 +286,9 @@ export const readDescendantMembers = async (
     SELECT count(*)::int as count
     FROM member m
     WHERE m.organization_id IN (SELECT id FROM org_tree)
+      AND m.is_alumn = false
+      AND m.is_suspended = false
+      AND m.is_non_active = false
     ${name ? sql`AND m.name ILIKE ${`%${name}%`}` : sql``}
     ${status ? sql`AND m.status IN ${status}` : sql``}
     ${gender ? sql`AND m.gender = ${gender}` : sql``}

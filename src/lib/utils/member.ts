@@ -71,8 +71,12 @@ export const generateRegisterNumber = async (
 
   let nextSeq = 1
   if (lastMember) {
-    const lastSeqStr = lastMember.registerNumber.slice(-3)
-    nextSeq = parseInt(lastSeqStr) + 1
+    // Extract everything after the prefix as the sequence
+    const seqStr = lastMember.registerNumber.slice(prefix.length)
+    const lastSeq = parseInt(seqStr)
+    if (!isNaN(lastSeq)) {
+      nextSeq = lastSeq + 1
+    }
   }
 
   return `${prefix}${nextSeq.toString().padStart(3, '0')}`

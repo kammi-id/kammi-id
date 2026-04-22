@@ -6,7 +6,8 @@ import { columns, type IndividualMember } from './columns'
 import {
   openMemberSheet,
   memberSheetStore,
-  closeMemberSheet
+  closeMemberSheet,
+  memberEditData
 } from '../add-form/store'
 import { useStore } from '@nanostores/react'
 import { Add01Icon } from '@hugeicons/core-free-icons'
@@ -44,7 +45,10 @@ export const IndividualMemberTable = ({
   parentOrgId
 }: IndividualMemberTableProps) => {
   const isOpen = useStore(memberSheetStore)
+  const editData = useStore(memberEditData)
   const canManage = userRole === 'root' || userRole === 'bpk'
+
+  const isEditMode = !!editData
 
   return (
     <>
@@ -76,9 +80,13 @@ export const IndividualMemberTable = ({
       <Sheet open={isOpen} onOpenChange={(open) => !open && closeMemberSheet()}>
         <SheetContent className='sm:max-w-[450px]'>
           <SheetHeader>
-            <SheetTitle>Tambah Data Kader</SheetTitle>
+            <SheetTitle>
+              {isEditMode ? 'Ubah Data Kader' : 'Tambah Data Kader'}
+            </SheetTitle>
             <SheetDescription>
-              Masukkan informasi dasar kader baru untuk pendaftaran.
+              {isEditMode
+                ? 'Perbarui informasi dasar kader untuk memastikan data tetap akurat.'
+                : 'Masukkan informasi dasar kader baru untuk pendaftaran.'}
             </SheetDescription>
           </SheetHeader>
           <div className='h-full overflow-hidden'>

@@ -32,30 +32,33 @@ export const RegionCombobox = ({
 }: RegionComboboxProps) => {
   const [searchQuery, setSearchQuery] = React.useState('')
 
-  const selectedName = React.useMemo(
-    () => options.find((opt) => opt.code === value)?.name || '',
-    [options, value]
-  )
+  const selectedOption = React.useMemo(() => {
+    const found = options.find((opt) => opt.code === value)
+    console.log(
+      `[RegionCombobox Debug] Value: "${value}", Options Count: ${options.length}, Found:`,
+      found
+    )
+    return found
+  }, [options, value])
 
   const filteredOptions = React.useMemo(() => {
-    return options.filter((opt) =>
-      opt.name.toLowerCase().includes(searchQuery.toLowerCase())
+    if (!searchQuery) return options
+
+    if (value && searchQuery === value) return options
+
+    return options.filter(
+      (opt) =>
+        opt.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        opt.code.toLowerCase().includes(searchQuery.toLowerCase())
     )
-  }, [options, searchQuery])
+  }, [options, searchQuery, value])
 
   return (
-    <Combobox
-      value={selectedName}
-      onValueChange={(name) => {
-        const selectedOption = options.find((opt) => opt.name === name)
-        if (selectedOption) {
-          onValueChange(selectedOption.code)
-        }
-      }}
-    >
+    <Combobox value={value} onValueChange={onValueChange}>
       <ComboboxInput
         placeholder={placeholder}
         disabled={disabled}
+        value={selectedOption?.name ?? searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
       />
       <ComboboxContent>
@@ -69,7 +72,7 @@ export const RegionCombobox = ({
           ) : (
             <ComboboxGroup>
               {filteredOptions.map((opt) => (
-                <ComboboxItem key={opt.code} value={opt.name}>
+                <ComboboxItem key={opt.code} value={opt.code}>
                   {opt.name}
                 </ComboboxItem>
               ))}

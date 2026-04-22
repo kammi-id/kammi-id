@@ -4,6 +4,7 @@ import * as React from 'react'
 import { useActionState, useEffect } from 'react'
 import { useStore } from '@nanostores/react'
 import { toast } from 'sonner'
+import { cn } from '~/lib/shadcn/utils'
 import { Button } from '~/components/shadcn/ui/button'
 import { Input } from '~/components/shadcn/ui/input'
 import { Switch } from '~/components/shadcn/ui/switch'
@@ -45,26 +46,28 @@ import type {
 
 /**
  * AddMemberForm component provides a comprehensive form for adding or updating member data.
- *
- * It manages complex state for personal information, hierarchical address selection
- * (Province -> City -> District -> Village), and certification/status flags.
- * The form handles both creation and editing modes based on the `memberEditData` store.
- *
- * @param props - Component properties.
- * @param props.organizationId - The ID of the organization to which the member will be added.
- * @returns A form element with scrollable content sections and sticky action buttons.
  */
 export const AddMemberForm = ({ organizationId }: AddMemberFormProps) => {
   const currentYear = getCurrentYear()
   const editData = useStore(memberEditData)
 
+  // 1. Declare Action State FIRST to avoid ReferenceErrors in subsequent hooks
+  const [state, action, isPending] = useActionState(
+    async (prevState: MemberFormState, formData: FormData) => {
+      if (editData) {
+        return updateMemberAction(prevState, formData)
+      }
+      return createMemberAction(prevState, formData)
+    },
+    { success: false } as MemberFormState
+  )
+
+  // 2. Other states
   const [regionData, setRegionData] =
     React.useState<RegionDataState>(INITIAL_REGION_DATA)
-
   const [isLoading, setIsLoading] = React.useState<RegionLoadingState>(
     INITIAL_LOADING_STATE
   )
-
   const [province, setProvince] = React.useState(
     () => editData?.addressProvinceCode ?? ''
   )
@@ -75,7 +78,6 @@ export const AddMemberForm = ({ organizationId }: AddMemberFormProps) => {
   const [subdistrict, setSubdistrict] = React.useState(
     () => editData?.addressSubdistrictCode ?? ''
   )
-
   const [isAlumn, setIsAlumn] = React.useState(editData?.isAlumn ?? false)
   const [isSuspended, setIsSuspended] = React.useState(
     editData?.isSuspended ?? false
@@ -89,7 +91,19 @@ export const AddMemberForm = ({ organizationId }: AddMemberFormProps) => {
   const [isCertifiedInstructor, setIsCertifiedInstructor] = React.useState(
     editData?.isCertifiedInstructor ?? false
   )
+  const [isInitializing, setIsInitializing] = React.useState(true)
+  const [hasChanges, setHasChanges] = React.useState(false)
+  const [selectedGender, setSelectedGender] = React.useState(
+    editData?.gender ?? 'ikhwan'
+  )
+  const [selectedStatus, setSelectedStatus] = React.useState(
+    editData?.status ?? 'ab1'
+  )
 
+  const getRegionName = (options: RegionItem[] | undefined, code: string) =>
+    options?.find((opt) => opt.code === code)?.name ?? ''
+
+  // 3. Effects (all hooks now have access to state)
   useEffect(() => {
     if (editData) {
       setProvince(editData.addressProvinceCode || '')
@@ -101,7 +115,35 @@ export const AddMemberForm = ({ organizationId }: AddMemberFormProps) => {
       setIsNonActive(editData.isNonActive ?? false)
       setIsCertifiedMentor(editData.isCertifiedMentor ?? false)
       setIsCertifiedInstructor(editData.isCertifiedInstructor ?? false)
+      setSelectedGender(editData.gender ?? 'ikhwan')
+      setSelectedStatus(editData.status ?? 'ab1')
+    } else if (state?.values) {
+      setProvince(state.values.addressProvinceCode || '')
+      setCity(state.values.addressCityCode || '')
+      setDistrict(state.values.addressDistrictCode || '')
+      setSubdistrict(state.values.addressSubdistrictCode || '')
+      setIsAlumn(state.values.isAlumn === 'true')
+      setIsSuspended(state.values.isSuspended === 'true')
+      setIsNonActive(state.values.isNonActive === 'true')
+      setIsCertifiedMentor(state.values.isCertifiedMentor === 'true')
+      setIsCertifiedInstructor(state.values.isCertifiedInstructor === 'true')
+      setSelectedGender(state.values.gender ?? 'ikhwan')
+      setSelectedStatus(state.values.status ?? 'ab1')
     }
+    setIsInitializing(false)
+  }, [editData, state?.values])
+
+  useEffect(() => {
+    if (state?.success) {
+      toast.success(state.message)
+      closeMemberSheet()
+    } else if (state?.message) {
+      toast.error(state.message)
+    }
+  }, [state])
+
+  const handleInputChange = React.useCallback(() => {
+    if (editData) setHasChanges(true)
   }, [editData])
 
   useEffect(() => {
@@ -152,8 +194,7 @@ export const AddMemberForm = ({ organizationId }: AddMemberFormProps) => {
       if (!isCurrent) return
       setIsLoading((prev) => ({ ...prev, district: false }))
       if (res.success) {
-        const updatedData = { ...regionData, districts: res.data || [] }
-        setRegionData(updatedData)
+        setRegionData((prev) => ({ ...prev, districts: res.data || [] }))
       } else {
         toast.error(res.error)
       }
@@ -184,25 +225,6 @@ export const AddMemberForm = ({ organizationId }: AddMemberFormProps) => {
     }
   }, [district])
 
-  const [state, action, isPending] = useActionState(
-    async (prevState: MemberFormState, formData: FormData) => {
-      if (editData) {
-        return updateMemberAction(prevState, formData)
-      }
-      return createMemberAction(prevState, formData)
-    },
-    { success: false } as MemberFormState
-  )
-
-  useEffect(() => {
-    if (state.success) {
-      toast.success(state.message)
-      closeMemberSheet()
-    } else if (state.message) {
-      toast.error(state.message)
-    }
-  }, [state])
-
   return (
     <form
       id='add-member-form'
@@ -214,18 +236,19 @@ export const AddMemberForm = ({ organizationId }: AddMemberFormProps) => {
         {editData && <input type='hidden' name='id' value={editData.id} />}
 
         <FieldGroup>
-          <h3 className='mb-4 text-lg font-semibold'>Data Diri</h3>
+          <h3 className='font-heading mb-4 text-lg font-semibold'>Data Diri</h3>
           <Field>
             <FieldLabel htmlFor='name'>Nama Lengkap</FieldLabel>
             <Input
               id='name'
               name='name'
               placeholder='Masukkan nama lengkap'
-              defaultValue={editData?.name}
+              defaultValue={editData?.name ?? state?.values?.name ?? ''}
+              onChange={handleInputChange}
               required
             />
             <FieldError
-              errors={state.errors?.name?.map((m) => ({ message: m }))}
+              errors={state?.errors?.name?.map((m) => ({ message: m }))}
             />
           </Field>
 
@@ -234,18 +257,27 @@ export const AddMemberForm = ({ organizationId }: AddMemberFormProps) => {
               <FieldLabel>Gender</FieldLabel>
               <RadioGroup
                 name='gender'
-                defaultValue={editData?.gender ?? 'ikhwan'}
-                className='flex flex-col gap-3'
+                value={selectedGender}
+                onValueChange={(val) => {
+                  setSelectedGender(val)
+                  handleInputChange()
+                }}
+                className='grid grid-cols-2 gap-3'
               >
                 {['ikhwan', 'akhwat'].map((val) => (
                   <FieldLabel
                     key={val}
                     htmlFor={`gender-${val}`}
-                    className='cursor-pointer'
+                    className={cn(
+                      'cursor-pointer rounded-xl border-2 p-3 transition-all',
+                      selectedGender === val
+                        ? 'border-primary bg-primary/10 text-primary'
+                        : 'border-muted-foreground/20 bg-background hover:border-primary/50'
+                    )}
                   >
                     <Field orientation='horizontal'>
-                      <FieldContent>
-                        <FieldTitle className='flex items-center gap-2 capitalize'>
+                      <FieldContent className='flex-1'>
+                        <FieldTitle className='flex items-center justify-center gap-2 text-center font-semibold capitalize'>
                           <HugeiconsIcon
                             icon={UserIcon}
                             strokeWidth={2}
@@ -253,11 +285,15 @@ export const AddMemberForm = ({ organizationId }: AddMemberFormProps) => {
                           />
                           {val}
                         </FieldTitle>
-                        <FieldDescription>
+                        <FieldDescription className='text-center text-xs'>
                           {getGenderLabel(val)}
                         </FieldDescription>
                       </FieldContent>
-                      <RadioGroupItem value={val} id={`gender-${val}`} />
+                      <RadioGroupItem
+                        value={val}
+                        id={`gender-${val}`}
+                        className='sr-only'
+                      />
                     </Field>
                   </FieldLabel>
                 ))}
@@ -268,30 +304,43 @@ export const AddMemberForm = ({ organizationId }: AddMemberFormProps) => {
               <FieldLabel>Status</FieldLabel>
               <RadioGroup
                 name='status'
-                defaultValue={editData?.status ?? 'ab1'}
-                className='flex flex-col gap-3'
+                value={selectedStatus}
+                onValueChange={(val) => {
+                  setSelectedStatus(val)
+                  handleInputChange()
+                }}
+                className='grid grid-cols-3 gap-2'
               >
                 {['ab1', 'ab2', 'ab3'].map((val) => (
                   <FieldLabel
                     key={val}
                     htmlFor={`status-${val}`}
-                    className='cursor-pointer'
+                    className={cn(
+                      'cursor-pointer rounded-xl border-2 p-2 transition-all',
+                      selectedStatus === val
+                        ? 'border-primary bg-primary/10 text-primary'
+                        : 'border-muted-foreground/20 bg-background hover:border-primary/50'
+                    )}
                   >
                     <Field orientation='horizontal'>
-                      <FieldContent>
-                        <FieldTitle className='flex items-center gap-2 uppercase'>
+                      <FieldContent className='flex-1'>
+                        <FieldTitle className='flex items-center justify-center gap-2 text-center text-xs font-semibold uppercase'>
                           <HugeiconsIcon
                             icon={Award01Icon}
                             strokeWidth={2}
-                            className='size-4'
+                            className='size-3'
                           />
                           {val}
                         </FieldTitle>
-                        <FieldDescription>
+                        <FieldDescription className='text-center text-[10px] leading-tight'>
                           {getStatusLabel(val)}
                         </FieldDescription>
                       </FieldContent>
-                      <RadioGroupItem value={val} id={`status-${val}`} />
+                      <RadioGroupItem
+                        value={val}
+                        id={`status-${val}`}
+                        className='sr-only'
+                      />
                     </Field>
                   </FieldLabel>
                 ))}
@@ -305,10 +354,11 @@ export const AddMemberForm = ({ organizationId }: AddMemberFormProps) => {
               id='phone'
               name='phone'
               placeholder='Contoh: 08123456789'
-              defaultValue={editData?.phone ?? ''}
+              defaultValue={editData?.phone ?? state?.values?.phone ?? ''}
+              onChange={handleInputChange}
             />
             <FieldError
-              errors={state.errors?.phone?.map((m) => ({ message: m }))}
+              errors={state?.errors?.phone?.map((m) => ({ message: m }))}
             />
           </Field>
 
@@ -320,17 +370,22 @@ export const AddMemberForm = ({ organizationId }: AddMemberFormProps) => {
               type='number'
               min='1998'
               max={currentYear}
-              defaultValue={editData?.yearOfEntry ?? currentYear}
+              defaultValue={
+                editData?.yearOfEntry ??
+                state?.values?.yearOfEntry ??
+                currentYear
+              }
+              onChange={handleInputChange}
               required
             />
             <FieldError
-              errors={state.errors?.yearOfEntry?.map((m) => ({ message: m }))}
+              errors={state?.errors?.yearOfEntry?.map((m) => ({ message: m }))}
             />
           </Field>
         </FieldGroup>
 
         <FieldGroup>
-          <h3 className='mb-4 text-lg font-semibold'>Alamat</h3>
+          <h3 className='font-heading mb-4 text-lg font-semibold'>Alamat</h3>
           <div className='flex flex-col gap-4'>
             <Field>
               <FieldLabel htmlFor='addressProvince'>Provinsi</FieldLabel>
@@ -341,10 +396,18 @@ export const AddMemberForm = ({ organizationId }: AddMemberFormProps) => {
                 isLoading={isLoading.province}
                 onValueChange={(val) => {
                   setProvince(val)
-                  setCity('')
-                  setDistrict('')
-                  setSubdistrict('')
+                  handleInputChange()
+                  if (!isInitializing) {
+                    setCity('')
+                    setDistrict('')
+                    setSubdistrict('')
+                  }
                 }}
+              />
+              <input
+                type='hidden'
+                name='addressProvince'
+                value={getRegionName(regionData.provinces, province)}
               />
               <input
                 type='hidden'
@@ -362,10 +425,18 @@ export const AddMemberForm = ({ organizationId }: AddMemberFormProps) => {
                 isLoading={isLoading.city}
                 onValueChange={(val) => {
                   setCity(val)
-                  setDistrict('')
-                  setSubdistrict('')
+                  handleInputChange()
+                  if (!isInitializing) {
+                    setDistrict('')
+                    setSubdistrict('')
+                  }
                 }}
                 disabled={!province}
+              />
+              <input
+                type='hidden'
+                name='addressCity'
+                value={getRegionName(regionData.cities, city)}
               />
               <input type='hidden' name='addressCityCode' value={city ?? ''} />
             </Field>
@@ -379,9 +450,17 @@ export const AddMemberForm = ({ organizationId }: AddMemberFormProps) => {
                 isLoading={isLoading.district}
                 onValueChange={(val) => {
                   setDistrict(val)
-                  setSubdistrict('')
+                  handleInputChange()
+                  if (!isInitializing) {
+                    setSubdistrict('')
+                  }
                 }}
                 disabled={!city}
+              />
+              <input
+                type='hidden'
+                name='addressDistrict'
+                value={getRegionName(regionData.districts, district)}
               />
               <input
                 type='hidden'
@@ -401,8 +480,14 @@ export const AddMemberForm = ({ organizationId }: AddMemberFormProps) => {
                 isLoading={isLoading.subdistrict}
                 onValueChange={(val) => {
                   setSubdistrict(val)
+                  handleInputChange()
                 }}
                 disabled={!district}
+              />
+              <input
+                type='hidden'
+                name='addressSubdistrict'
+                value={getRegionName(regionData.subdistricts, subdistrict)}
               />
               <input
                 type='hidden'
@@ -417,16 +502,21 @@ export const AddMemberForm = ({ organizationId }: AddMemberFormProps) => {
               id='addressLine'
               name='addressLine'
               placeholder='Nama jalan, No. Rumah, RT/RW, dll'
-              defaultValue={editData?.addressLine ?? undefined}
+              defaultValue={
+                editData?.addressLine ?? state?.values?.addressLine ?? undefined
+              }
+              onChange={handleInputChange}
             />
             <FieldError
-              errors={state.errors?.addressLine?.map((m) => ({ message: m }))}
+              errors={state?.errors?.addressLine?.map((m) => ({ message: m }))}
             />
           </Field>
         </FieldGroup>
 
         <FieldGroup>
-          <h3 className='mb-4 text-lg font-semibold'>Status & Sertifikasi</h3>
+          <h3 className='font-heading mb-4 text-lg font-semibold'>
+            Status & Sertifikasi
+          </h3>
           <div className='flex flex-col gap-4'>
             <Field orientation='horizontal' className='justify-between gap-4'>
               <FieldLabel htmlFor='isCertifiedMentor'>Pemandu</FieldLabel>
@@ -434,7 +524,10 @@ export const AddMemberForm = ({ organizationId }: AddMemberFormProps) => {
                 <Switch
                   id='isCertifiedMentor'
                   checked={isCertifiedMentor}
-                  onCheckedChange={setIsCertifiedMentor}
+                  onCheckedChange={(val) => {
+                    setIsCertifiedMentor(val)
+                    handleInputChange()
+                  }}
                 />
                 <input
                   type='hidden'
@@ -451,7 +544,10 @@ export const AddMemberForm = ({ organizationId }: AddMemberFormProps) => {
                 <Switch
                   id='isCertifiedInstructor'
                   checked={isCertifiedInstructor}
-                  onCheckedChange={setIsCertifiedInstructor}
+                  onCheckedChange={(val) => {
+                    setIsCertifiedInstructor(val)
+                    handleInputChange()
+                  }}
                 />
                 <input
                   type='hidden'
@@ -469,7 +565,10 @@ export const AddMemberForm = ({ organizationId }: AddMemberFormProps) => {
                 <Switch
                   id='isAlumn'
                   checked={isAlumn}
-                  onCheckedChange={setIsAlumn}
+                  onCheckedChange={(val) => {
+                    setIsAlumn(val)
+                    handleInputChange()
+                  }}
                 />
                 <input
                   type='hidden'
@@ -484,7 +583,10 @@ export const AddMemberForm = ({ organizationId }: AddMemberFormProps) => {
                 <Switch
                   id='isNonActive'
                   checked={isNonActive}
-                  onCheckedChange={setIsNonActive}
+                  onCheckedChange={(val) => {
+                    setIsNonActive(val)
+                    handleInputChange()
+                  }}
                 />
                 <input
                   type='hidden'
@@ -499,7 +601,10 @@ export const AddMemberForm = ({ organizationId }: AddMemberFormProps) => {
                 <Switch
                   id='isSuspended'
                   checked={isSuspended}
-                  onCheckedChange={setIsSuspended}
+                  onCheckedChange={(val) => {
+                    setIsSuspended(val)
+                    handleInputChange()
+                  }}
                 />
                 <input
                   type='hidden'
@@ -520,7 +625,10 @@ export const AddMemberForm = ({ organizationId }: AddMemberFormProps) => {
         >
           Batal
         </Button>
-        <Button type='submit' disabled={isPending}>
+        <Button
+          type='submit'
+          disabled={isPending || (!!editData && !hasChanges)}
+        >
           {isPending && (
             <HugeiconsIcon icon={Loading03Icon} className='mr-2 animate-spin' />
           )}

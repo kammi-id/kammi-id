@@ -7,6 +7,14 @@ import { generateRegisterNumber } from '~/lib/utils/member'
 import { readActiveSession } from '~/lib/auth/cookies'
 import { regionApi } from '~/lib/api/region'
 
+const booleanSchema = z.preprocess((val) => {
+  if (typeof val === 'string') {
+    if (val.toLowerCase() === 'true') return true
+    if (val.toLowerCase() === 'false') return false
+  }
+  return val
+}, z.boolean())
+
 const memberSchema = z.object({
   id: z.string().uuid().optional(),
   name: z.string().min(1, 'Nama wajib diisi.'),
@@ -24,17 +32,18 @@ const memberSchema = z.object({
   addressDistrictCode: z.string().optional().nullable(),
   addressSubdistrictCode: z.string().optional().nullable(),
   addressLine: z.string().optional().nullable(),
-  isAlumn: z.coerce.boolean().default(false),
-  isSuspended: z.coerce.boolean().default(false),
-  isNonActive: z.coerce.boolean().default(false),
-  isCertifiedMentor: z.coerce.boolean().default(false),
-  isCertifiedInstructor: z.coerce.boolean().default(false)
+  isAlumn: booleanSchema.default(false),
+  isSuspended: booleanSchema.default(false),
+  isNonActive: booleanSchema.default(false),
+  isCertifiedMentor: booleanSchema.default(false),
+  isCertifiedInstructor: booleanSchema.default(false)
 })
 
 export type MemberFormState = {
   success?: boolean
   message?: string
   errors?: Record<string, string[]>
+  values?: Record<string, any>
 }
 
 export const createMemberAction = async (
@@ -44,14 +53,14 @@ export const createMemberAction = async (
   const session = await readActiveSession()
   if (!session) return { success: false, message: 'Tidak terautentikasi' }
 
-  const validated = memberSchema.safeParse(
-    Object.fromEntries(formData.entries())
-  )
+  const rawData = Object.fromEntries(formData.entries())
+  const validated = memberSchema.safeParse(rawData)
   if (!validated.success) {
     return {
       success: false,
       errors: validated.error.flatten().fieldErrors as Record<string, string[]>,
-      message: 'Validasi gagal.'
+      message: 'Validasi gagal.',
+      values: rawData
     }
   }
 
@@ -75,7 +84,8 @@ export const createMemberAction = async (
     return {
       success: false,
       message:
-        error instanceof Error ? error.message : 'Gagal menambahkan kader.'
+        error instanceof Error ? error.message : 'Gagal menambahkan kader.',
+      values: rawData
     }
   }
 }
@@ -87,14 +97,14 @@ export const updateMemberAction = async (
   const session = await readActiveSession()
   if (!session) return { success: false, message: 'Tidak terautentikasi' }
 
-  const validated = memberSchema.safeParse(
-    Object.fromEntries(formData.entries())
-  )
+  const rawData = Object.fromEntries(formData.entries())
+  const validated = memberSchema.safeParse(rawData)
   if (!validated.success) {
     return {
       success: false,
       errors: validated.error.flatten().fieldErrors as Record<string, string[]>,
-      message: 'Validasi gagal.'
+      message: 'Validasi gagal.',
+      values: rawData
     }
   }
 
@@ -113,7 +123,10 @@ export const updateMemberAction = async (
     return {
       success: false,
       message:
-        error instanceof Error ? error.message : 'Gagal memperbarui data kader.'
+        error instanceof Error
+          ? error.message
+          : 'Gagal memperbarui data kader.',
+      values: rawData
     }
   }
 }

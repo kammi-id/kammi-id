@@ -22,7 +22,9 @@ const fetchRegionData = async <T>(endpoint: string): Promise<T> => {
     headers: {
       'x-api-co-id': token,
       'Content-Type': 'application/json'
-    }
+    },
+    cache: 'force-cache',
+    next: { revalidate: 31536000 } // Cache for 1 year
   })
 
   if (!response.ok) {

@@ -88,7 +88,24 @@ export const columns: ColumnDef<IndividualMember>[] = [
   {
     accessorKey: 'gender',
     header: 'Gender',
-    cell: ({ row }) => <span className='capitalize'>{row.original.gender}</span>
+    cell: ({ row }) => {
+      const gender = row.original.gender
+      const colors: Record<string, string> = {
+        ikhwan: 'bg-blue-100 text-blue-700 border-blue-200',
+        akhwat: 'bg-pink-100 text-pink-700 border-pink-200'
+      }
+      return (
+        <Badge
+          variant='outline'
+          className={cn(
+            'font-bold',
+            colors[gender] || 'border-slate-200 bg-slate-100 text-slate-700'
+          )}
+        >
+          <span className='capitalize'>{gender}</span>
+        </Badge>
+      )
+    }
   },
   {
     accessorKey: 'phone',
