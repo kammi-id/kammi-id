@@ -1,6 +1,5 @@
-import { redirect } from 'next/navigation'
+import { NextResponse, NextRequest } from 'next/server'
 import { readActiveSession } from '~/lib/auth/cookies'
-import { NextRequest } from 'next/server'
 
 export const config = {
   matcher: '/dashboard/:path*',
@@ -10,7 +9,7 @@ export async function proxy(request: NextRequest) {
   const session = await readActiveSession()
 
   if (!session) {
-    redirect('/login')
+    return NextResponse.redirect(new URL('/login', request.url))
   }
 
   const { pathname } = request.nextUrl
@@ -19,6 +18,6 @@ export async function proxy(request: NextRequest) {
   const isAdminPath = adminPaths.some((path) => pathname.startsWith(path))
 
   if (isAdminPath && session.user.role === 'member') {
-    redirect('/dashboard?error=unauthorized')
+    return NextResponse.redirect(new URL('/dashboard?error=unauthorized', request.url))
   }
 }
