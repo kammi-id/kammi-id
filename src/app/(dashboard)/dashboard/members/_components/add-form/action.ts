@@ -44,7 +44,7 @@ export type MemberFormState = {
   success?: boolean
   message?: string
   errors?: Record<string, string[]>
-  values?: Record<string, any>
+  values?: Record<string, unknown>
 }
 
 export const createMemberAction = async (
