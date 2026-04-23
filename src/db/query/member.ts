@@ -321,7 +321,7 @@ export const readDescendantMembers = async (
     LIMIT ${limit} OFFSET ${offset}
   `
     )
-    .then((res) => res as unknown as Member[])
+    .then((res) => res as Member[])
 
   // 2. Fetch Total Count
   const countResult = await db
