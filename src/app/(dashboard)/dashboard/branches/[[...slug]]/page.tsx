@@ -1,3 +1,4 @@
+import { AccessGuard } from '~/components/access-guard'
 import { redirect } from 'next/navigation'
 import { readActiveSession } from '~/lib/auth/cookies'
 import {

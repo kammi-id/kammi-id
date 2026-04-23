@@ -1,4 +1,5 @@
-import { redirect } from 'next/navigation'
+import { AccessGuard } from '~/components/access-guard'
+import { notFound, redirect } from 'next/navigation'
 import { readActiveSession } from '~/lib/auth/cookies'
 import {
   getCachedOrganization,
@@ -49,6 +50,38 @@ const MembersPage = async ({ params, searchParams }: PageProps) => {
       </div>
     )
   }
+
+  const type = typeof sParams.type === 'string' ? sParams.type : undefined
+
+  // Special view access control
+  if (type) {
+    if (type === 'pemandu' || type === 'instruktur') {
+      if (!['bpk', 'root'].includes(user.role)) {
+        return (
+          <div className='flex h-[calc(100vh-theme(spacing.24))] items-center justify-center'>
+            <p className='text-muted-foreground'>
+              Antum tidak memiliki akses ke halaman ini.
+            </p>
+          </div>
+        )
+      }
+      if (type === 'instruktur') {
+        // Temporary check before currentOrg is fetched to avoid unnecessary DB calls
+        // But actually we need currentOrg to know if it's 'pk'
+      }
+    } else if (type === 'alumni') {
+      if (!['bph', 'bpk', 'root'].includes(user.role)) {
+        return (
+          <div className='flex h-[calc(100vh-theme(spacing.24))] items-center justify-center'>
+            <p className='text-muted-foreground'>
+              Antum tidak memiliki akses ke halaman ini.
+            </p>
+          </div>
+        )
+      }
+    }
+  }
+
   const allowedRoles = ['bph', 'bpk', 'bpw', 'root']
   if (!allowedRoles.includes(user.role)) {
     return (
@@ -80,21 +113,43 @@ const MembersPage = async ({ params, searchParams }: PageProps) => {
     )
   }
 
+  if ((type === 'instruktur' || type === 'pemandu') && currentOrg.type === 'pk') {
+    notFound()
+  }
+
   // UI Customization based on Org Type
-  let pageTitle = `Data Kader ${currentOrg.name}`
-  let subTitle = `Menampilkan jumlah anggota di bawah ${currentOrg.name}.`
+  const typeLabel =
+    type === 'pemandu'
+      ? 'Data Pemandu'
+      : type === 'instruktur'
+      ? 'Data Instruktur'
+      : type === 'alumni'
+      ? 'Data Alumni'
+      : 'Data Kader'
+
+  const typeSubLabel =
+    type === 'pemandu'
+      ? 'pemandu'
+      : type === 'instruktur'
+      ? 'instruktur'
+      : type === 'alumni'
+      ? 'alumni'
+      : 'anggota'
+
+  let pageTitle = `${typeLabel} ${currentOrg.name}`
+  let subTitle = `Menampilkan jumlah ${typeSubLabel} di bawah ${currentOrg.name}.`
   let nameHeader = 'Nama Organisasi'
 
   if (currentOrg.type === 'pp') {
-    pageTitle = 'Data Kader se-Indonesia'
+    pageTitle = `${typeLabel} se-Indonesia`
     subTitle =
-      'Menampilkan statistik anggota dari seluruh wilayah dan daerah luar negeri.'
+      `Menampilkan statistik ${typeSubLabel} dari seluruh wilayah dan daerah luar negeri.`
     nameHeader = 'PW/PDLN'
   } else if (currentOrg.type === 'pw') {
-    subTitle = `Statistik anggota di wilayah ${currentOrg.name}.`
+    subTitle = `Statistik ${typeSubLabel} di wilayah ${currentOrg.name}.`
     nameHeader = 'PD/PK'
   } else if (currentOrg.type === 'pd') {
-    subTitle = `Statistik anggota di daerah ${currentOrg.name}.`
+    subTitle = `Statistik ${typeSubLabel} di daerah ${currentOrg.name}.`
     nameHeader = 'PK'
   }
 
@@ -124,8 +179,17 @@ const MembersPage = async ({ params, searchParams }: PageProps) => {
   const mOffset = (mPage - 1) * mLimit
 
   // Fetch logic based on Org Type
-  const showSummary = ['pp', 'pw', 'pd', 'pdln'].includes(currentOrg.type)
-  const showIndividuals = ['pd', 'pdln', 'pk'].includes(currentOrg.type)
+  const isSpecialView = type === 'pemandu' || type === 'instruktur'
+  const showSummary = (type === 'alumni' || !type)
+    ? ['pp', 'pw', 'pd', 'pdln'].includes(currentOrg.type)
+    : ['pp', 'pw', 'pd', 'pdln'].includes(currentOrg.type) && currentOrg.type !== 'pd'
+
+  const showIndividuals = ['pd', 'pdln', 'pk'].includes(currentOrg.type) || (isSpecialView && currentOrg.type === 'pw')
+  if (isSpecialView && currentOrg.type === 'pk') {
+    // This is already handled by notFound() above, but for safety
+    // we can keep showIndividuals = false or just rely on notFound()
+  }
+
 
   const orgFilters = {
     parentId: [currentOrg.id],
@@ -138,8 +202,12 @@ const MembersPage = async ({ params, searchParams }: PageProps) => {
   const mFilters = {
     name: mQuery,
     limit: mLimit,
-    offset: mOffset
+    offset: mOffset,
+    isCertifiedMentor: type === 'pemandu',
+    isCertifiedInstructor: type === 'instruktur',
+    isAlumn: type === 'alumni'
   }
+
 
   const summaryPromise = showSummary
     ? Promise.all([
@@ -149,7 +217,10 @@ const MembersPage = async ({ params, searchParams }: PageProps) => {
     : Promise.resolve([[], 0])
 
   const aggregatesPromise = getCachedMemberAggregates({
-    organizationId: currentOrg.id
+    organizationId: currentOrg.id,
+    isCertifiedMentor: type === 'pemandu',
+    isCertifiedInstructor: type === 'instruktur',
+    isAlumn: type === 'alumni'
   })
 
   const individualsPromise = showIndividuals
@@ -198,6 +269,12 @@ const MembersPage = async ({ params, searchParams }: PageProps) => {
         ? 'individuals'
         : 'members'
 
+  const individualsLabel = type === 'pemandu'
+    ? 'Daftar Pemandu'
+    : type === 'instruktur'
+    ? 'Daftar Instruktur'
+    : 'Daftar Kader'
+
   const renderSummary = () => (
     <div className='bg-card rounded-3xl border p-6 shadow-xs md:p-8 lg:p-10'>
       <MembersTable
@@ -206,6 +283,7 @@ const MembersPage = async ({ params, searchParams }: PageProps) => {
         pageCount={pageCount}
         totalCount={totalCount as number}
         basePath={basePath}
+        type={type}
       />
     </div>
   )
@@ -218,6 +296,7 @@ const MembersPage = async ({ params, searchParams }: PageProps) => {
         totalCount={mTotalCount as number}
         userRole={user.role}
         parentOrgId={currentOrg.id}
+        type={type}
       />
     </div>
   )
@@ -266,9 +345,10 @@ const MembersPage = async ({ params, searchParams }: PageProps) => {
       <div className='space-y-10'>
         {overallAggregate && (
           <div className='animate-in fade-in slide-in-from-bottom-4 duration-500'>
-            <MemberSectionCards data={overallAggregate} />
+            <MemberSectionCards data={overallAggregate} type={type} />
           </div>
         )}
+
 
         {showSummary && showIndividuals ? (
           <Tabs value={activeTab} className='space-y-8'>
@@ -283,7 +363,7 @@ const MembersPage = async ({ params, searchParams }: PageProps) => {
               <TabsTrigger
                 value='individuals'
                 className='data-[state=active]:border-primary text-muted-foreground data-[state=active]:text-foreground relative h-12 rounded-none border-b-2 border-b-transparent bg-transparent px-4 pt-2 pb-3 font-semibold shadow-none transition-none data-[state=active]:bg-transparent data-[state=active]:shadow-none'
-                render={<Link href={`${basePath}?tab=individuals`} />}
+                render={<Link href={`${basePath}?tab=individuals${type ? `&type=${type}` : ''}`} />}
               >
                 Daftar Kader
               </TabsTrigger>

@@ -6,6 +6,7 @@ import { createMember, updateMember } from '~/db/query/member'
 import { generateRegisterNumber } from '~/lib/utils/member'
 import { readActiveSession } from '~/lib/auth/cookies'
 import { regionApi } from '~/lib/api/region'
+import { fetchAllowedOrgIds } from '~/db/query/organization'
 
 const booleanSchema = z.preprocess((val) => {
   if (typeof val === 'string') {
@@ -64,6 +65,20 @@ export const createMemberAction = async (
     }
   }
 
+  // Access Validation
+  const { user } = session
+  if (!user) return { success: false, message: 'Pengguna tidak ditemukan' }
+
+  const allowedOrgIds = await fetchAllowedOrgIds(user)
+  if (!allowedOrgIds.includes(validated.data.organizationId)) {
+    return { success: false, message: 'Antum tidak memiliki otoritas untuk menambahkan kader di wilayah ini.' }
+  }
+
+  const mutationRoles = ['root', 'bph', 'bpk', 'bpw']
+  if (!mutationRoles.includes(user.role)) {
+    return { success: false, message: 'Role antum tidak diizinkan untuk melakukan mutasi data.' }
+  }
+
   try {
     const registerNumber = await generateRegisterNumber(
       validated.data.organizationId,
@@ -110,6 +125,20 @@ export const updateMemberAction = async (
 
   const { id, ...data } = validated.data
   if (!id) return { success: false, message: 'ID Kader tidak ditemukan.' }
+
+  // Access Validation
+  const { user } = session
+  if (!user) return { success: false, message: 'Pengguna tidak ditemukan' }
+
+  const allowedOrgIds = await fetchAllowedOrgIds(user)
+  if (!allowedOrgIds.includes(data.organizationId)) {
+    return { success: false, message: 'Antum tidak memiliki otoritas untuk memperbarui kader di wilayah ini.' }
+  }
+
+  const mutationRoles = ['root', 'bph', 'bpk', 'bpw']
+  if (!mutationRoles.includes(user.role)) {
+    return { success: false, message: 'Role antum tidak diizinkan untuk melakukan mutasi data.' }
+  }
 
   try {
     await updateMember(data, id)
