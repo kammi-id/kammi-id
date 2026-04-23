@@ -422,8 +422,10 @@ export const readDescendantMembers = async (
   `
     )
     .then((res) => {
-      const row = res[0] as { count: number } | undefined
-      return row ? { count: row.count } : { count: 0 }
+      const row = res[0]
+      return row && typeof row === 'object' && 'count' in row
+        ? { count: Number(row.count) }
+        : { count: 0 }
     })
 
   return [data, countResult?.count ?? 0]
