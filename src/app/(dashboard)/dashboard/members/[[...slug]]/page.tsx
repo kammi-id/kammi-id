@@ -193,10 +193,10 @@ const MembersPage = async ({ params, searchParams }: PageProps) => {
     memberAggregates
   ] = await Promise.all([summaryPromise, individualsPromise, aggregatesPromise])
 
-  const pageCount = Math.ceil((totalCount as number) / limit)
-  const mPageCount = Math.ceil((mTotalCount as number) / mLimit)
+  const pageCount = Math.ceil(totalCount / limit)
+  const mPageCount = Math.ceil(mTotalCount / mLimit)
 
-  const overallAggregate = (memberAggregates as MemberAggregatesResult[]).find(
+  const overallAggregate = memberAggregates.find(
     (a) => a.organizationId === currentOrg.id
   )
 
@@ -206,8 +206,8 @@ const MembersPage = async ({ params, searchParams }: PageProps) => {
       : '/dashboard/members'
 
   // Map aggregates to organizations (only if summary is shown)
-  const memberData = (organizations as Organization[]).map((org) => {
-    const agg = (memberAggregates as MemberAggregatesResult[]).find(
+  const memberData = organizations.map((org) => {
+    const agg = memberAggregates.find(
       (a) => a.organizationId === org.id
     )
     return {
@@ -241,7 +241,7 @@ const MembersPage = async ({ params, searchParams }: PageProps) => {
         data={memberData}
         nameHeader={nameHeader}
         pageCount={pageCount}
-        totalCount={totalCount as number}
+        totalCount={totalCount}
         basePath={basePath}
         type={type}
       />
@@ -253,7 +253,7 @@ const MembersPage = async ({ params, searchParams }: PageProps) => {
       <IndividualMemberTable
         data={mMembers as IndividualMember[]}
         pageCount={mPageCount}
-        totalCount={mTotalCount as number}
+        totalCount={mTotalCount}
         userRole={user.role}
         parentOrgId={currentOrg.id}
         type={type}
