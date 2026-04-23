@@ -36,16 +36,6 @@ const BranchesPage = async ({ params, searchParams }: PageProps) => {
       </div>
     )
   }
-  const allowedRoles = ['bph', 'bpk', 'bpw', 'root']
-  if (!allowedRoles.includes(user.role)) {
-    return (
-      <div className='flex h-[calc(100vh-theme(spacing.24))] items-center justify-center'>
-        <p className='text-muted-foreground'>
-          Antum tidak memiliki akses ke halaman ini.
-        </p>
-      </div>
-    )
-  }
 
   let currentOrg: Organization | undefined
 
@@ -136,61 +126,63 @@ const BranchesPage = async ({ params, searchParams }: PageProps) => {
       : '/dashboard/branches'
 
   return (
-    <div className='space-y-8 px-4 py-4 md:py-6 lg:px-6'>
-      <div className='flex items-center gap-4'>
-        {slug && slug.length > 0 && (
-          <Link
-            href={
-              slug.length === 1
-                ? '/dashboard/branches'
-                : `/dashboard/branches/${slug.slice(0, -1).join('/')}`
-            }
-            className={cn(
-              buttonVariants({ variant: 'outline', size: 'icon' }),
-              'size-10 shrink-0 rounded-xl'
-            )}
-          >
-            <HugeiconsIcon
-              icon={ArrowLeft02Icon}
-              strokeWidth={2}
-              className='size-5'
-            />
-          </Link>
-        )}
-        <div className='bg-primary/10 text-primary flex size-12 items-center justify-center rounded-2xl'>
-          <HugeiconsIcon
-            icon={Database01Icon}
-            strokeWidth={2}
-            className='size-7'
-          />
-        </div>
-        <div>
-          <h1 className='font-heading text-3xl font-bold tracking-tight'>
-            {pageTitle}
-          </h1>
-          <p className='text-muted-foreground leading-relaxed'>{subTitle}</p>
-        </div>
-      </div>
-
-      <div className='grid grid-cols-1 gap-8'>
-        <div className='bg-card rounded-3xl border p-6 shadow-xs md:p-8 lg:p-10'>
-          <div className='space-y-8'>
-            <div className='space-y-6'>
-              <BranchesTable
-                data={organizations}
-                nameHeader={nameHeader}
-                addButtonLabel={addButtonLabel}
-                pageCount={pageCount}
-                totalCount={totalCount}
-                parentOrg={currentOrg}
-                userRole={user.role}
-                basePath={basePath}
+    <AccessGuard allowedRoles={['root', 'bph', 'bpw']} levelRequirement={2}>
+      <div className='space-y-8 px-4 py-4 md:py-6 lg:px-6'>
+        <div className='flex items-center gap-4'>
+          {slug && slug.length > 0 && (
+            <Link
+              href={
+                slug.length === 1
+                  ? '/dashboard/branches'
+                  : `/dashboard/branches/${slug.slice(0, -1).join('/')}`
+              }
+              className={cn(
+                buttonVariants({ variant: 'outline', size: 'icon' }),
+                'size-10 shrink-0 rounded-xl'
+              )}
+            >
+              <HugeiconsIcon
+                icon={ArrowLeft02Icon}
+                strokeWidth={2}
+                className='size-5'
               />
+            </Link>
+          )}
+          <div className='bg-primary/10 text-primary flex size-12 items-center justify-center rounded-2xl'>
+            <HugeiconsIcon
+              icon={Database01Icon}
+              strokeWidth={2}
+              className='size-7'
+            />
+          </div>
+          <div>
+            <h1 className='font-heading text-3xl font-bold tracking-tight'>
+              {pageTitle}
+            </h1>
+            <p className='text-muted-foreground leading-relaxed'>{subTitle}</p>
+          </div>
+        </div>
+
+        <div className='grid grid-cols-1 gap-8'>
+          <div className='bg-card rounded-3xl border p-6 shadow-xs md:p-8 lg:p-10'>
+            <div className='space-y-8'>
+              <div className='space-y-6'>
+                <BranchesTable
+                  data={organizations}
+                  nameHeader={nameHeader}
+                  addButtonLabel={addButtonLabel}
+                  pageCount={pageCount}
+                  totalCount={totalCount}
+                  parentOrg={currentOrg}
+                  userRole={user.role}
+                  basePath={basePath}
+                />
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </AccessGuard>
   )
 }
 
