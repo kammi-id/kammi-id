@@ -23,6 +23,8 @@ export type MemberFilters = {
   isNonActive?: boolean
   status?: ('ab1' | 'ab2' | 'ab3')[]
   gender?: 'ikhwan' | 'akhwat'
+  isCertifiedMentor?: boolean
+  isCertifiedInstructor?: boolean
 }
 
 export type MemberAggregatesFilters = {
@@ -108,7 +110,19 @@ export const readMemberAggregates = async (
     GROUP BY ot.id, ot.parent_id, ot.level
   `
     )
-    .then((res) => res as MemberAggregatesResult[])
+    .then((res) => {
+      return res.map((row: any) => ({
+        organizationId: row.organizationId,
+        parentId: row.parentId,
+        level: row.level,
+        ab1: row.ab1 || 0,
+        ab2: row.ab2 || 0,
+        ab3: row.ab3 || 0,
+        ikhwan: row.ikhwan || 0,
+        akhwat: row.akhwat || 0,
+        total: row.total || 0,
+      })) as MemberAggregatesResult[]
+    })
 
   // 2. Bottom-up aggregation in TypeScript
   // Map to store accumulated results: { [orgId: string]: MemberAggregatesResult }
@@ -118,6 +132,8 @@ export const readMemberAggregates = async (
   for (const row of results) {
     accumulated[row.organizationId] = {
       organizationId: row.organizationId,
+      parentId: row.parentId,
+      level: row.level,
       ab1: row.ab1 || 0,
       ab2: row.ab2 || 0,
       ab3: row.ab3 || 0,
@@ -321,7 +337,29 @@ export const readDescendantMembers = async (
     LIMIT ${limit} OFFSET ${offset}
   `
     )
-    .then((res) => res as Member[])
+    .then((res) => {
+      return res.map((row: any) => ({
+        id: row.id,
+        name: row.name,
+        phone: row.phone,
+        registerNumber: row.registerNumber,
+        organizationId: row.organizationId,
+        isAlumn: row.isAlumn,
+        isSuspended: row.isSuspended,
+        isNonActive: row.isNonActive,
+        isCertifiedMentor: row.isCertifiedMentor,
+        isCertifiedInstructor: row.isCertifiedInstructor,
+        addressProvinceCode: row.addressProvinceCode,
+        addressCityCode: row.addressCityCode,
+        addressDistrictCode: row.addressDistrictCode,
+        addressSubdistrictCode: row.addressSubdistrictCode,
+        addressLine: row.addressLine,
+        status: row.status,
+        gender: row.gender,
+        yearOfEntry: row.yearOfEntry,
+        organization: row.organization,
+      })) as Member[]
+    })
 
   // 2. Fetch Total Count
   const countResult = await db
@@ -345,7 +383,10 @@ export const readDescendantMembers = async (
     ${gender ? sql`AND m.gender = ${gender}` : sql``}
   `
     )
-    .then((res) => res[0] as { count: number })
+    .then((res) => {
+      const row = res[0] as any
+      return row ? { count: row.count } : { count: 0 }
+    })
 
   return [data, countResult?.count ?? 0]
 }
