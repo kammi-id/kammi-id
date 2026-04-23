@@ -46,6 +46,18 @@ export type MemberAggregatesResult = {
   total: number
 }
 
+type MemberAggregatesRow = {
+  organizationId: string
+  parentId: string | null
+  level: number
+  ab1: number | null
+  ab2: number | null
+  ab3: number | null
+  ikhwan: number | null
+  akhwat: number | null
+  total: number | null
+}
+
 export const readMemberAggregates = async (
   filters: MemberAggregatesFilters & { user?: { role: string; connectedOrganizationId: string | null } } = {}
 ): Promise<Array<MemberAggregatesResult>> => {
@@ -111,7 +123,7 @@ export const readMemberAggregates = async (
   `
     )
     .then((res) => {
-      return res.map((row: any) => ({
+      return res.map((row: MemberAggregatesRow) => ({
         organizationId: row.organizationId,
         parentId: row.parentId,
         level: row.level,
@@ -121,7 +133,7 @@ export const readMemberAggregates = async (
         ikhwan: row.ikhwan || 0,
         akhwat: row.akhwat || 0,
         total: row.total || 0,
-      })) as MemberAggregatesResult[]
+      }))
     })
 
   // 2. Bottom-up aggregation in TypeScript
@@ -275,6 +287,32 @@ export const updateMember = async (
   })
 }
 
+type MemberDescendantRow = {
+  id: string
+  name: string
+  phone: string | null
+  registerNumber: string | null
+  organizationId: string
+  isAlumn: boolean
+  isSuspended: boolean
+  isNonActive: boolean
+  isCertifiedMentor: boolean
+  isCertifiedInstructor: boolean
+  addressProvinceCode: string | null
+  addressCityCode: string | null
+  addressDistrictCode: string | null
+  addressSubdistrictCode: string | null
+  addressLine: string | null
+  status: string
+  gender: string
+  yearOfEntry: number | null
+  organization: {
+    id: string
+    name: string
+    slug: string
+  }
+}
+
 export const readDescendantMembers = async (
   parentId: string,
   filters: MemberFilters & { limit?: number; offset?: number; user?: { role: string; connectedOrganizationId: string | null } } = {}
@@ -338,7 +376,7 @@ export const readDescendantMembers = async (
   `
     )
     .then((res) => {
-      return res.map((row: any) => ({
+      return res.map((row: MemberDescendantRow) => ({
         id: row.id,
         name: row.name,
         phone: row.phone,
@@ -358,7 +396,7 @@ export const readDescendantMembers = async (
         gender: row.gender,
         yearOfEntry: row.yearOfEntry,
         organization: row.organization,
-      })) as Member[]
+      }))
     })
 
   // 2. Fetch Total Count
@@ -384,7 +422,7 @@ export const readDescendantMembers = async (
   `
     )
     .then((res) => {
-      const row = res[0] as any
+      const row = res[0] as { count: number } | undefined
       return row ? { count: row.count } : { count: 0 }
     })
 
