@@ -20,10 +20,12 @@ Access is further filtered by roles. Even if a user has hierarchical access to a
 - **BPH**: Management access.
 - **BPK (Pembinaan Kader)**: HR, Cadre, Alumni, Mentor, Instructor data.
 - **BPW (Pengembangan Wilayah)**: Regional, Area, and Commissariat structural data.
-- **Humas**: Public Relations and Communication data.
+- **Humas**: Public Relations and Communication data. **Constraint: Restricted to own organization level only (no subtree access).**
 - **Member**: Personal data only.
 
-**Constraint Example:** A `Humas` role at `PW Jabar` cannot access `BPK` data in `PW Jabar` or any `PD/PK` below it.
+**Constraint Example:** 
+1. A `Humas` role at `PW Jabar` cannot access `BPK` data in `PW Jabar` or any `PD/PK` below it.
+2. A `Humas` role at `PW Jabar` CANNOT access any data in `PD` or `PK` below it, even if it is Humas data.
 
 ## 2. Technical Architecture
 
@@ -58,6 +60,7 @@ The system implements a "Defense in Depth" strategy across three layers.
 - **The `allowed_organizations` CTE**:
   - Uses `WITH RECURSIVE` to calculate the organization subtree.
   - **Input**: `connectedOrganizationId` from session.
+  - **Role Exception**: For `Humas` role, the recursive step is skipped, returning only the `connectedOrganizationId`.
   - **Output**: A list of all `organization.id`s that the user is allowed to access.
 - **Query Integration**:
   - Every data-fetching query must `JOIN` or filter by `organization_id IN (SELECT id FROM allowed_organizations)`.
