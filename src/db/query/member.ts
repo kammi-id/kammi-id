@@ -34,6 +34,8 @@ export type MemberAggregatesFilters = {
 
 export type MemberAggregatesResult = {
   organizationId: string
+  parentId: string | null
+  level: number
   ab1: number
   ab2: number
   ab3: number
@@ -43,9 +45,20 @@ export type MemberAggregatesResult = {
 }
 
 export const readMemberAggregates = async (
-  filters: MemberAggregatesFilters = {}
+  filters: MemberAggregatesFilters & { user?: { role: string; connectedOrganizationId: string | null } } = {}
 ): Promise<Array<MemberAggregatesResult>> => {
-  const { organizationId, isCertifiedMentor, isCertifiedInstructor, isAlumn } = filters
+  const { organizationId, isCertifiedMentor, isCertifiedInstructor, isAlumn, user } = filters
+
+  let allowedOrgIds: string[] = []
+  if (user) {
+    const allowedRoles = ['root', 'bph', 'bpk']
+    if (!allowedRoles.includes(user.role)) {
+      return []
+    }
+
+    allowedOrgIds = await fetchAllowedOrgIds(user)
+    if (allowedOrgIds.length === 0) return []
+  }
 
   // 1. Fetch the entire subtree and direct member counts in one go
   // We use a recursive CTE to find all organizations in the subtree
@@ -63,6 +76,7 @@ export const readMemberAggregates = async (
              END as level
       FROM organization
       WHERE ${organizationId ? sql`id = ${organizationId}` : sql`true`}
+      ${user ? sql`AND id IN ${allowedOrgIds}` : sql``}
       UNION ALL
       SELECT o.id, o.parent_id,
              CASE
@@ -94,7 +108,7 @@ export const readMemberAggregates = async (
     GROUP BY ot.id, ot.parent_id, ot.level
   `
     )
-    .then((res) => res as any[])
+    .then((res) => res as MemberAggregatesResult[])
 
   // 2. Bottom-up aggregation in TypeScript
   // Map to store accumulated results: { [orgId: string]: MemberAggregatesResult }
@@ -178,6 +192,11 @@ export const readMember = async (
   const where: SQL[] = []
 
   if (user) {
+    const allowedRoles = ['root', 'bph', 'bpk']
+    if (!allowedRoles.includes(user.role)) {
+      return []
+    }
+
     const allowedIds = await fetchAllowedOrgIds(user)
     if (allowedIds.length === 0) {
       return []
@@ -295,7 +314,7 @@ export const readDescendantMembers = async (
       ${filters.isCertifiedMentor !== undefined ? sql`AND m.is_certified_mentor = ${filters.isCertifiedMentor}` : sql``}
       ${filters.isCertifiedInstructor !== undefined ? sql`AND m.is_certified_instructor = ${filters.isCertifiedInstructor}` : sql``}
       ${filters.isAlumn === false ? sql`AND m.is_suspended = false AND m.is_non_active = false` : sql``}
-    ${name ? sql`AND m.name ILIKE ${`%${name}%`}` : sql``}
+    ${name ? sql`AND m.name ILIKE ${'%' + name + '%'}` : sql``}
     ${status ? sql`AND m.status IN ${status}` : sql``}
     ${gender ? sql`AND m.gender = ${gender}` : sql``}
     ORDER BY m.name ASC
@@ -321,7 +340,7 @@ export const readDescendantMembers = async (
       ${filters.isCertifiedMentor !== undefined ? sql`AND m.is_certified_mentor = ${filters.isCertifiedMentor}` : sql``}
       ${filters.isCertifiedInstructor !== undefined ? sql`AND m.is_certified_instructor = ${filters.isCertifiedInstructor}` : sql``}
       ${filters.isAlumn === false ? sql`AND m.is_suspended = false AND m.is_non_active = false` : sql``}
-    ${name ? sql`AND m.name ILIKE ${`%${name}%`}` : sql``}
+    ${name ? sql`AND m.name ILIKE ${'%' + name + '%'}` : sql``}
     ${status ? sql`AND m.status IN ${status}` : sql``}
     ${gender ? sql`AND m.gender = ${gender}` : sql``}
   `
