@@ -11,12 +11,45 @@ import {
   type SQL,
   asc,
   desc,
-  count
+  count,
+  sql
 } from 'drizzle-orm'
 import { type DBExecutor } from '../types'
 
 import { createUser } from './user'
 import { generatePassword, hashPassword } from '~/lib/utils/user'
+
+export const fetchAllowedOrgIds = async (user: {
+  role: string
+  connectedOrganizationId: string | null
+}): Promise<string[]> => {
+  if (user.role === 'root') {
+    const result = await db.select({ id: organization.id }).from(organization)
+    return result.map((r) => r.id)
+  }
+
+  if (user.role === 'humas') {
+    return user.connectedOrganizationId ? [user.connectedOrganizationId] : []
+  }
+
+  if (!user.connectedOrganizationId) {
+    return []
+  }
+
+  // Recursive CTE to find all organizations in the subtree
+  const query = sql`
+    WITH RECURSIVE org_hierarchy AS (
+      SELECT id FROM ${organization} WHERE id = ${user.connectedOrganizationId}
+      UNION ALL
+      SELECT o.id FROM ${organization} o
+      JOIN org_hierarchy oh ON o.parent_id = oh.id
+    )
+    SELECT id FROM org_hierarchy
+  `
+
+  const result: { id: string }[] = await db.execute(query)
+  return result.map((r) => r.id)
+}
 
 type OrganizationInsertValues = typeof organization.$inferInsert
 export type OrganizationFilters = {
