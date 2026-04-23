@@ -8,6 +8,7 @@ import { type DBExecutor } from '../types'
 import { createUser } from './user'
 import { generatePassword, hashPassword } from '~/lib/utils/user'
 import { organization } from '../schema/organization.sql'
+import { fetchAllowedOrgIds } from './organization'
 
 type MemberInsertValues = typeof member.$inferInsert
 export type MemberFilters = {
@@ -26,6 +27,9 @@ export type MemberFilters = {
 
 export type MemberAggregatesFilters = {
   organizationId?: string
+  isCertifiedMentor?: boolean
+  isCertifiedInstructor?: boolean
+  isAlumn?: boolean
 }
 
 export type MemberAggregatesResult = {
@@ -41,7 +45,7 @@ export type MemberAggregatesResult = {
 export const readMemberAggregates = async (
   filters: MemberAggregatesFilters = {}
 ): Promise<Array<MemberAggregatesResult>> => {
-  const { organizationId } = filters
+  const { organizationId, isCertifiedMentor, isCertifiedInstructor, isAlumn } = filters
 
   // 1. Fetch the entire subtree and direct member counts in one go
   // We use a recursive CTE to find all organizations in the subtree
@@ -83,9 +87,10 @@ export const readMemberAggregates = async (
       count(m.id)::int as "total"
     FROM org_tree ot
     LEFT JOIN member m ON m.organization_id = ot.id
-      AND m.is_alumn = false
-      AND m.is_suspended = false
-      AND m.is_non_active = false
+      ${isAlumn !== undefined ? sql`AND m.is_alumn = ${isAlumn}` : sql`AND m.is_alumn = false`}
+      ${isCertifiedMentor !== undefined ? sql`AND m.is_certified_mentor = ${isCertifiedMentor}` : sql``}
+      ${isCertifiedInstructor !== undefined ? sql`AND m.is_certified_instructor = ${isCertifiedInstructor}` : sql``}
+      ${isAlumn === false ? sql`AND m.is_suspended = false AND m.is_non_active = false` : sql``}
     GROUP BY ot.id, ot.parent_id, ot.level
   `
     )
@@ -167,10 +172,18 @@ export const createMember = async (
 }
 
 export const readMember = async (
-  filters: MemberFilters & { limit?: number; offset?: number } = {}
+  filters: MemberFilters & { limit?: number; offset?: number; user?: { role: string; connectedOrganizationId: string | null } } = {}
 ): Promise<Array<Member>> => {
-  const { limit, offset, ...memberFilters } = filters
+  const { limit, offset, user, ...memberFilters } = filters
   const where: SQL[] = []
+
+  if (user) {
+    const allowedIds = await fetchAllowedOrgIds(user)
+    if (allowedIds.length === 0) {
+      return []
+    }
+    where.push(inArray(withMemberCTE.organizationId, allowedIds))
+  }
 
   if (memberFilters.id) where.push(inArray(withMemberCTE.id, memberFilters.id))
   if (memberFilters.name)
@@ -229,9 +242,24 @@ export const updateMember = async (
 
 export const readDescendantMembers = async (
   parentId: string,
-  filters: MemberFilters & { limit?: number; offset?: number } = {}
+  filters: MemberFilters & { limit?: number; offset?: number; user?: { role: string; connectedOrganizationId: string | null } } = {}
 ): Promise<[Member[], number]> => {
-  const { limit = 10, offset = 0, name, status, gender } = filters
+  const { limit = 10, offset = 0, user, ...memberFilters } = filters
+
+  if (user) {
+    const allowedIds = await fetchAllowedOrgIds(user)
+    if (allowedIds.length === 0) {
+      return [[], 0]
+    }
+    // We need to make sure the requested parentId is also in the allowed list,
+    // or the user is root. Root is handled by fetchAllowedOrgIds returning all.
+    // But for specific subtree queries, the user must have access to the root of that subtree.
+    if (!allowedIds.includes(parentId)) {
+      return [[], 0]
+    }
+  }
+
+  const { name, status, gender } = memberFilters
 
   // 1. Fetch Members
   const data = await db
@@ -262,9 +290,11 @@ export const readDescendantMembers = async (
     FROM member m
     JOIN organization o ON m.organization_id = o.id
     WHERE m.organization_id IN (SELECT id FROM org_tree)
-      AND m.is_alumn = false
-      AND m.is_suspended = false
-      AND m.is_non_active = false
+      ${filters.user ? sql`AND m.organization_id IN ${await fetchAllowedOrgIds(filters.user)}` : sql``}
+      ${filters.isAlumn !== undefined ? sql`AND m.is_alumn = ${filters.isAlumn}` : sql`AND m.is_alumn = false`}
+      ${filters.isCertifiedMentor !== undefined ? sql`AND m.is_certified_mentor = ${filters.isCertifiedMentor}` : sql``}
+      ${filters.isCertifiedInstructor !== undefined ? sql`AND m.is_certified_instructor = ${filters.isCertifiedInstructor}` : sql``}
+      ${filters.isAlumn === false ? sql`AND m.is_suspended = false AND m.is_non_active = false` : sql``}
     ${name ? sql`AND m.name ILIKE ${`%${name}%`}` : sql``}
     ${status ? sql`AND m.status IN ${status}` : sql``}
     ${gender ? sql`AND m.gender = ${gender}` : sql``}
@@ -286,9 +316,11 @@ export const readDescendantMembers = async (
     SELECT count(*)::int as count
     FROM member m
     WHERE m.organization_id IN (SELECT id FROM org_tree)
-      AND m.is_alumn = false
-      AND m.is_suspended = false
-      AND m.is_non_active = false
+      ${filters.user ? sql`AND m.organization_id IN ${await fetchAllowedOrgIds(filters.user)}` : sql``}
+      ${filters.isAlumn !== undefined ? sql`AND m.is_alumn = ${filters.isAlumn}` : sql`AND m.is_alumn = false`}
+      ${filters.isCertifiedMentor !== undefined ? sql`AND m.is_certified_mentor = ${filters.isCertifiedMentor}` : sql``}
+      ${filters.isCertifiedInstructor !== undefined ? sql`AND m.is_certified_instructor = ${filters.isCertifiedInstructor}` : sql``}
+      ${filters.isAlumn === false ? sql`AND m.is_suspended = false AND m.is_non_active = false` : sql``}
     ${name ? sql`AND m.name ILIKE ${`%${name}%`}` : sql``}
     ${status ? sql`AND m.status IN ${status}` : sql``}
     ${gender ? sql`AND m.gender = ${gender}` : sql``}
