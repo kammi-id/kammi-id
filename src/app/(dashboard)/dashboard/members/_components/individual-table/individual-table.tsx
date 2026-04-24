@@ -2,25 +2,26 @@
 
 import * as React from 'react'
 import { DataTable } from '../../../_components/data-table'
-import { columns, type IndividualMember } from './columns'
-import {
-  openMemberSheet,
-  memberSheetStore,
-  closeMemberSheet,
-  memberEditData
-} from '../add-form/store'
+import { type IndividualMember } from './types'
+import { getColumns } from './columns'
 import { useStore } from '@nanostores/react'
-import { Add01Icon } from '@hugeicons/core-free-icons'
-import { HugeiconsIcon } from '@hugeicons/react'
+import {
+  memberSheetStore,
+  memberEditData,
+  openMemberSheet,
+  closeMemberSheet
+} from '~/app/(dashboard)/dashboard/members/_components/add-form/store'
 import { Button } from '~/components/shadcn/ui/button'
 import {
   Sheet,
   SheetContent,
-  SheetDescription,
   SheetHeader,
-  SheetTitle
+  SheetTitle,
+  SheetDescription
 } from '~/components/shadcn/ui/sheet'
-import { AddMemberForm } from '../add-form'
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Add01Icon } from '@hugeicons/core-free-icons'
+import { AddMemberForm } from '~/app/(dashboard)/dashboard/members/_components/add-form/add-form'
 
 interface IndividualMemberTableProps {
   data: IndividualMember[]
@@ -28,6 +29,7 @@ interface IndividualMemberTableProps {
   totalCount: number
   userRole: string
   parentOrgId: string
+  type?: string
 }
 
 /**
@@ -42,7 +44,8 @@ export const IndividualMemberTable = ({
   pageCount,
   totalCount,
   userRole,
-  parentOrgId
+  parentOrgId,
+  type
 }: IndividualMemberTableProps) => {
   const isOpen = useStore(memberSheetStore)
   const editData = useStore(memberEditData)
@@ -53,7 +56,7 @@ export const IndividualMemberTable = ({
   return (
     <>
       <DataTable
-        columns={columns}
+        columns={getColumns(type)}
         data={data}
         searchKey='name'
         pageCount={pageCount}
@@ -61,7 +64,9 @@ export const IndividualMemberTable = ({
         queryPrefix='m'
         onRowClick={canManage ? (member) => openMemberSheet(member) : undefined}
         actionElement={
-          canManage && (
+          canManage &&
+          type !== 'pemandu' &&
+          type !== 'instruktur' && (
             <Button
               size='sm'
               className='h-8 gap-2'
@@ -72,7 +77,7 @@ export const IndividualMemberTable = ({
                 strokeWidth={2}
                 className='size-4'
               />
-              Tambah Kader
+              {type === 'alumni' ? 'Tambah Alumni' : 'Tambah Kader'}
             </Button>
           )
         }

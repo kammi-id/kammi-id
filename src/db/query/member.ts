@@ -59,9 +59,17 @@ type MemberAggregatesRow = {
 }
 
 export const readMemberAggregates = async (
-  filters: MemberAggregatesFilters & { user?: { role: string; connectedOrganizationId: string | null } } = {}
+  filters: MemberAggregatesFilters & {
+    user?: { role: string; connectedOrganizationId: string | null }
+  } = {}
 ): Promise<Array<MemberAggregatesResult>> => {
-  const { organizationId, isCertifiedMentor, isCertifiedInstructor, isAlumn, user } = filters
+  const {
+    organizationId,
+    isCertifiedMentor,
+    isCertifiedInstructor,
+    isAlumn,
+    user
+  } = filters
 
   let allowedOrgIds: string[] = []
   if (user) {
@@ -115,10 +123,11 @@ export const readMemberAggregates = async (
       count(m.id)::int as "total"
     FROM org_tree ot
     LEFT JOIN member m ON m.organization_id = ot.id
-      ${isAlumn !== undefined ? sql`AND m.is_alumn = ${isAlumn}` : sql`AND m.is_alumn = false`}
+      ${isAlumn !== undefined ? sql`AND m.is_alumn = ${isAlumn}` : sql``}
       ${isCertifiedMentor !== undefined ? sql`AND m.is_certified_mentor = ${isCertifiedMentor}` : sql``}
       ${isCertifiedInstructor !== undefined ? sql`AND m.is_certified_instructor = ${isCertifiedInstructor}` : sql``}
-      ${isAlumn === false ? sql`AND m.is_suspended = false AND m.is_non_active = false` : sql``}
+      ${isAlumn === false ? sql`AND m.is_non_active = false` : sql``}
+      ${sql`AND m.is_suspended = false`}
     GROUP BY ot.id, ot.parent_id, ot.level
   `
     )
@@ -132,7 +141,7 @@ export const readMemberAggregates = async (
         ab3: row.ab3 || 0,
         ikhwan: row.ikhwan || 0,
         akhwat: row.akhwat || 0,
-        total: row.total || 0,
+        total: row.total || 0
       }))
     })
 
@@ -214,7 +223,11 @@ export const createMember = async (
 }
 
 export const readMember = async (
-  filters: MemberFilters & { limit?: number; offset?: number; user?: { role: string; connectedOrganizationId: string | null } } = {}
+  filters: MemberFilters & {
+    limit?: number
+    offset?: number
+    user?: { role: string; connectedOrganizationId: string | null }
+  } = {}
 ): Promise<Array<Member>> => {
   const { limit, offset, user, ...memberFilters } = filters
   const where: SQL[] = []
@@ -315,7 +328,11 @@ type MemberDescendantRow = {
 
 export const readDescendantMembers = async (
   parentId: string,
-  filters: MemberFilters & { limit?: number; offset?: number; user?: { role: string; connectedOrganizationId: string | null } } = {}
+  filters: MemberFilters & {
+    limit?: number
+    offset?: number
+    user?: { role: string; connectedOrganizationId: string | null }
+  } = {}
 ): Promise<[Member[], number]> => {
   const { limit = 10, offset = 0, user, ...memberFilters } = filters
 
@@ -364,10 +381,11 @@ export const readDescendantMembers = async (
     JOIN organization o ON m.organization_id = o.id
     WHERE m.organization_id IN (SELECT id FROM org_tree)
       ${filters.user ? sql`AND m.organization_id IN ${await fetchAllowedOrgIds(filters.user)}` : sql``}
-      ${filters.isAlumn !== undefined ? sql`AND m.is_alumn = ${filters.isAlumn}` : sql`AND m.is_alumn = false`}
+      ${filters.isAlumn !== undefined ? sql`AND m.is_alumn = ${filters.isAlumn}` : sql``}
       ${filters.isCertifiedMentor !== undefined ? sql`AND m.is_certified_mentor = ${filters.isCertifiedMentor}` : sql``}
       ${filters.isCertifiedInstructor !== undefined ? sql`AND m.is_certified_instructor = ${filters.isCertifiedInstructor}` : sql``}
-      ${filters.isAlumn === false ? sql`AND m.is_suspended = false AND m.is_non_active = false` : sql``}
+      ${filters.isAlumn === false ? sql`AND m.is_non_active = false` : sql``}
+      ${sql`AND m.is_suspended = false`}
     ${name ? sql`AND m.name ILIKE ${'%' + name + '%'}` : sql``}
     ${status ? sql`AND m.status IN ${status}` : sql``}
     ${gender ? sql`AND m.gender = ${gender}` : sql``}
@@ -395,7 +413,7 @@ export const readDescendantMembers = async (
         status: row.status,
         gender: row.gender,
         yearOfEntry: row.yearOfEntry,
-        organization: row.organization,
+        organization: row.organization
       }))
     })
 
@@ -412,10 +430,11 @@ export const readDescendantMembers = async (
     FROM member m
     WHERE m.organization_id IN (SELECT id FROM org_tree)
       ${filters.user ? sql`AND m.organization_id IN ${await fetchAllowedOrgIds(filters.user)}` : sql``}
-      ${filters.isAlumn !== undefined ? sql`AND m.is_alumn = ${filters.isAlumn}` : sql`AND m.is_alumn = false`}
+      ${filters.isAlumn !== undefined ? sql`AND m.is_alumn = ${filters.isAlumn}` : sql``}
       ${filters.isCertifiedMentor !== undefined ? sql`AND m.is_certified_mentor = ${filters.isCertifiedMentor}` : sql``}
       ${filters.isCertifiedInstructor !== undefined ? sql`AND m.is_certified_instructor = ${filters.isCertifiedInstructor}` : sql``}
-      ${filters.isAlumn === false ? sql`AND m.is_suspended = false AND m.is_non_active = false` : sql``}
+      ${filters.isAlumn === false ? sql`AND m.is_non_active = false` : sql``}
+      ${sql`AND m.is_suspended = false`}
     ${name ? sql`AND m.name ILIKE ${'%' + name + '%'}` : sql``}
     ${status ? sql`AND m.status IN ${status}` : sql``}
     ${gender ? sql`AND m.gender = ${gender}` : sql``}
