@@ -1,4 +1,4 @@
-import { MembersPageContent } from '../_components/MembersPageContent'
+import { MembersPageContent } from '../../members/_components/MembersPageContent'
 
 export default async function Page({
   params,
@@ -14,7 +14,7 @@ export default async function Page({
     <MembersPageContent
       params={resolvedParams}
       searchParams={resolvedSearchParams}
-      type={undefined}
+      type='alumni'
     />
   )
 }

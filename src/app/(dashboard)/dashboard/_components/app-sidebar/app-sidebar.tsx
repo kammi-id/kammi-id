@@ -59,13 +59,13 @@ export const AppSidebar = ({
   }
 } & React.ComponentProps<typeof Sidebar>) => {
   const orgType = user.connectedOrganization?.type ?? 'pd'
-  const allowedRolesOrg = ['bph', 'bpk', 'bpw', 'root']
+  const allowedRolesOrg = ['root', 'bph', 'bpw']
   const canAccessOrg = allowedRolesOrg.includes(user.role)
 
-  const allowedRolesPembinaan = ['bph', 'bpk', 'root']
+  const allowedRolesPembinaan = ['root', 'bph', 'bpk']
   const canAccessPembinaan = allowedRolesPembinaan.includes(user.role)
 
-  const allowedRolesPublikasi = ['humas', 'root']
+  const allowedRolesPublikasi = ['root', 'humas']
   const canAccessPublikasi = allowedRolesPublikasi.includes(user.role)
 
   const mapping = {
@@ -90,24 +90,34 @@ export const AppSidebar = ({
     {
       title: 'Data Kader',
       url: '/dashboard/members',
-      icon: <HugeiconsIcon icon={UserGroupIcon} strokeWidth={2} />
+      icon: <HugeiconsIcon icon={UserGroupIcon} strokeWidth={2} />,
+      roles: ['bph', 'bpk', 'root']
     },
     {
       title: 'Dauroh',
       url: '#',
-      icon: <HugeiconsIcon icon={Menu01Icon} strokeWidth={2} />
+      icon: <HugeiconsIcon icon={Menu01Icon} strokeWidth={2} />,
+      roles: ['bph', 'bpk', 'root']
     },
     {
       title: 'Data Pemandu',
-      url: '#',
-      icon: <HugeiconsIcon icon={UserGroupIcon} strokeWidth={2} />
+      url: '/dashboard/pemandu',
+      icon: <HugeiconsIcon icon={UserGroupIcon} strokeWidth={2} />,
+      roles: ['bpk', 'root']
     },
     {
       title: 'Data Instruktur',
-      url: '#',
-      icon: <HugeiconsIcon icon={UserGroupIcon} strokeWidth={2} />
+      url: '/dashboard/instruktur',
+      icon: <HugeiconsIcon icon={UserGroupIcon} strokeWidth={2} />,
+      roles: ['bpk', 'root']
+    },
+    {
+      title: 'Data Alumni',
+      url: '/dashboard/alumni',
+      icon: <HugeiconsIcon icon={UserGroupIcon} strokeWidth={2} />,
+      roles: ['bph', 'bpk', 'root']
     }
-  ]
+  ].filter((item) => item.roles.includes(user.role))
 
   const menuOrganisasi = [
     {

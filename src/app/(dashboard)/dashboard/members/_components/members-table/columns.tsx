@@ -23,16 +23,18 @@ export interface MemberOrganization {
 
 export const getColumns = (
   nameHeader: string,
-  basePath: string
+  basePath: string,
+  type?: string
 ): ColumnDef<MemberOrganization>[] => [
   {
     accessorKey: 'name',
     header: nameHeader,
     cell: ({ row }) => {
       const org = row.original
+      const href = `${basePath}/${org.slug}`
       return (
         <Link
-          href={`${basePath}/${org.slug}`}
+          href={href}
           className={cn(
             buttonVariants({ variant: 'ghost', size: 'sm' }),
             '-ml-2 h-8 px-2 font-medium'

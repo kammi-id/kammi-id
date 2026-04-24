@@ -71,12 +71,19 @@ export const createMemberAction = async (
 
   const allowedOrgIds = await fetchAllowedOrgIds(user)
   if (!allowedOrgIds.includes(validated.data.organizationId)) {
-    return { success: false, message: 'Antum tidak memiliki otoritas untuk menambahkan kader di wilayah ini.' }
+    return {
+      success: false,
+      message:
+        'Antum tidak memiliki otoritas untuk menambahkan kader di wilayah ini.'
+    }
   }
 
   const mutationRoles = ['root', 'bph', 'bpk', 'bpw']
   if (!mutationRoles.includes(user.role)) {
-    return { success: false, message: 'Role antum tidak diizinkan untuk melakukan mutasi data.' }
+    return {
+      success: false,
+      message: 'Role antum tidak diizinkan untuk melakukan mutasi data.'
+    }
   }
 
   try {
@@ -92,6 +99,9 @@ export const createMemberAction = async (
 
     updateTag('members')
     revalidatePath('/dashboard/members')
+    revalidatePath('/dashboard/alumni')
+    revalidatePath('/dashboard/pemandu')
+    revalidatePath('/dashboard/instruktur')
 
     return { success: true, message: 'Kader berhasil ditambahkan!' }
   } catch (error: unknown) {
@@ -132,12 +142,19 @@ export const updateMemberAction = async (
 
   const allowedOrgIds = await fetchAllowedOrgIds(user)
   if (!allowedOrgIds.includes(data.organizationId)) {
-    return { success: false, message: 'Antum tidak memiliki otoritas untuk memperbarui kader di wilayah ini.' }
+    return {
+      success: false,
+      message:
+        'Antum tidak memiliki otoritas untuk memperbarui kader di wilayah ini.'
+    }
   }
 
   const mutationRoles = ['root', 'bph', 'bpk', 'bpw']
   if (!mutationRoles.includes(user.role)) {
-    return { success: false, message: 'Role antum tidak diizinkan untuk melakukan mutasi data.' }
+    return {
+      success: false,
+      message: 'Role antum tidak diizinkan untuk melakukan mutasi data.'
+    }
   }
 
   try {
@@ -145,6 +162,9 @@ export const updateMemberAction = async (
 
     updateTag('members')
     revalidatePath('/dashboard/members')
+    revalidatePath('/dashboard/alumni')
+    revalidatePath('/dashboard/pemandu')
+    revalidatePath('/dashboard/instruktur')
 
     return { success: true, message: 'Data kader berhasil diperbarui!' }
   } catch (error: unknown) {
