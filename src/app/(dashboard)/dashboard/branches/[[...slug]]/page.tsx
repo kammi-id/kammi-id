@@ -103,7 +103,9 @@ const BranchesPage = async ({ params, searchParams }: PageProps) => {
   if (typeof sParams.sort === 'string') {
     const [col, dir] = sParams.sort.split('.')
     if (col && (dir === 'asc' || dir === 'desc')) {
-      orderBy = [{ column: col as keyof Organization, direction: dir }]
+      if (currentOrg && Object.prototype.hasOwnProperty.call(currentOrg, col)) {
+        orderBy = [{ column: col as keyof Organization, direction: dir }]
+      }
     }
   }
 

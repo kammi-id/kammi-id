@@ -10,6 +10,7 @@ interface MembersTableProps {
   pageCount: number
   totalCount: number
   basePath: string
+  type?: string
 }
 
 /**
@@ -24,9 +25,10 @@ export const MembersTable = ({
   nameHeader,
   pageCount,
   totalCount,
-  basePath
+  basePath,
+  type
 }: MembersTableProps) => {
-  const columns = getColumns(nameHeader, basePath)
+  const columns = getColumns(nameHeader, basePath, type)
 
   return (
     <DataTable

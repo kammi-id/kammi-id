@@ -12,16 +12,22 @@ interface MemberSectionCardsProps {
     akhwat: number
     total: number
   }
+  type?: string
 }
 
-export const MemberSectionCards = ({ data }: MemberSectionCardsProps) => {
+export const MemberSectionCards = ({ data, type }: MemberSectionCardsProps) => {
   const secondaryMetrics = [
     { label: 'AB 3', value: data.ab3, color: 'green' },
     { label: 'AB 2', value: data.ab2, color: 'red' },
     { label: 'AB 1', value: data.ab1, color: 'blue' },
     { label: 'Ikhwan', value: data.ikhwan, color: 'blue' },
     { label: 'Akhwat', value: data.akhwat, color: 'pink' }
-  ]
+  ].filter((metric) => {
+    if (type === 'pemandu' || type === 'instruktur' || type === 'alumni') {
+      return !['AB 1', 'AB 2', 'AB 3'].includes(metric.label)
+    }
+    return true
+  })
 
   const colorMap: Record<
     string,

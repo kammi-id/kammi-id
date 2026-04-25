@@ -2,9 +2,14 @@
 
 import React, { useState, useEffect } from 'react'
 import { Input } from '~/components/shadcn/ui/input'
-import { Loader2, Upload, User } from 'lucide-react'
+import {
+  Loading01Icon,
+  Upload01Icon,
+  UserIcon
+} from '@hugeicons/core-free-icons'
+import { HugeiconsIcon } from '@hugeicons/react'
 import { uploadImageAction, getSignedUrlAction } from '~/lib/actions/storage'
-import { cn } from '~/lib/utils'
+import { cn } from '~/lib/shadcn/utils'
 
 interface ImageUploadProps {
   value?: string
@@ -74,49 +79,62 @@ const ImageUpload = ({
   }
 
   return (
-    <div className="space-y-2">
-      {label && <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">{label}</label>}
+    <div className='space-y-2'>
+      {label && (
+        <label className='text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70'>
+          {label}
+        </label>
+      )}
 
-      <div className="flex items-center gap-4">
-        <div className="relative group">
+      <div className='flex items-center gap-4'>
+        <div className='group relative'>
           <div
             className={cn(
-              "relative h-20 w-20 overflow-hidden rounded-full border-2 border-dashed border-muted-foreground/25 bg-muted flex items-center justify-center transition-all",
-              "group-hover:border-primary/50"
+              'border-muted-foreground/25 bg-muted relative flex h-20 w-20 items-center justify-center overflow-hidden rounded-full border-2 border-dashed transition-all',
+              'group-hover:border-primary/50'
             )}
           >
             {preview ? (
               <img
                 src={preview || ''}
-                alt="Preview"
-                className="h-full w-full object-cover"
+                alt='Preview'
+                className='h-full w-full object-cover'
               />
             ) : (
-              <User className="h-10 w-10 text-muted-foreground" />
+              <HugeiconsIcon
+                icon={UserIcon}
+                className='text-muted-foreground h-10 w-10'
+              />
             )}
 
             {isUploading && (
-              <div className="absolute inset-0 bg-background/60 flex items-center justify-center">
-                <Loader2 className="h-6 w-6 animate-spin text-primary" />
+              <div className='bg-background/60 absolute inset-0 flex items-center justify-center'>
+                <HugeiconsIcon
+                  icon={Loading01Icon}
+                  className='text-primary h-6 w-6 animate-spin'
+                />
               </div>
             )}
           </div>
         </div>
 
-        <div className="flex-1">
-          <div className="relative">
+        <div className='flex-1'>
+          <div className='relative'>
             <Input
-              type="file"
-              accept="image/*"
+              type='file'
+              accept='image/*'
               onChange={handleFileChange}
               disabled={isUploading}
-              className="cursor-pointer"
+              className='cursor-pointer'
             />
-            <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-              <Upload className="h-4 w-4 text-muted-foreground" />
+            <div className='pointer-events-none absolute top-1/2 right-3 -translate-y-1/2'>
+              <HugeiconsIcon
+                icon={Upload01Icon}
+                className='text-muted-foreground h-4 w-4'
+              />
             </div>
           </div>
-          <p className="text-[11px] text-muted-foreground mt-1">
+          <p className='text-muted-foreground mt-1 text-[11px]'>
             Max size: 5MB. Supported: JPG, PNG, WebP.
           </p>
         </div>
