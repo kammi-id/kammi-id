@@ -12,7 +12,8 @@ const orgSchema = z.object({
     message: 'Tipe organisasi tidak valid.'
   }),
   parentId: z.string().min(1, 'Parent ID wajib diisi.'),
-  slug: z.string().min(1, 'Slug organisasi wajib diisi.')
+  slug: z.string().min(1, 'Slug organisasi wajib diisi.'),
+  logo: z.string().optional()
 })
 
 export type OrgFormState = {
@@ -42,7 +43,8 @@ export async function createOrganizationAction(
       code: formData.get('code'),
       type: formData.get('type'),
       parentId: formData.get('parentId'),
-      slug: formData.get('slug')
+      slug: formData.get('slug'),
+      logo: formData.get('logo') as string | null
     }
 
     const validated = orgSchema.safeParse(rawData)
@@ -98,7 +100,8 @@ export async function updateOrganizationAction(
       code: formData.get('code'),
       type: formData.get('type'),
       parentId: formData.get('parentId'),
-      slug: formData.get('slug')
+      slug: formData.get('slug'),
+      logo: formData.get('logo') as string | null
     }
 
     const validated = orgSchema.safeParse(rawData)

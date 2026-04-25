@@ -26,6 +26,8 @@ import {
 import { type Organization } from '../branches-table/columns'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Loading03Icon } from '@hugeicons/core-free-icons'
+import { ImageUpload } from '~/components/image-upload'
+import { deleteImageAction } from '~/lib/actions/storage'
 
 export const AddOrganizationForm = ({
   parentOrg,
@@ -36,6 +38,7 @@ export const AddOrganizationForm = ({
   editData?: Organization | null
   onClose: () => void
 }) => {
+  const [logoPath, setLogoPath] = React.useState<string | undefined>(editData?.logo)
   const [state, action, isPending] = React.useActionState(
     async (prevState: OrgFormState, formData: FormData) => {
       if (editData) {
@@ -54,6 +57,14 @@ export const AddOrganizationForm = ({
       toast.error(state.message)
     }
   }, [state])
+
+  React.useEffect(() => {
+    return () => {
+      if (logoPath && logoPath !== editData?.logo) {
+        deleteImageAction(logoPath)
+      }
+    }
+  }, [logoPath, editData?.logo])
 
   const childTypes: Record<string, { value: string; label: string }[]> = {
     pp: [
@@ -136,6 +147,16 @@ export const AddOrganizationForm = ({
           <FieldError
             errors={state.errors?.slug?.map((m) => ({ message: m }))}
           />
+        </Field>
+
+        <Field>
+          <ImageUpload
+            label='Logo Wilayah'
+            folder='logos'
+            value={logoPath}
+            onChange={(path) => setLogoPath(path)}
+          />
+          <input type='hidden' name='logo' value={logoPath || ''} />
         </Field>
 
         <div className='flex justify-end gap-3 pt-4'>
