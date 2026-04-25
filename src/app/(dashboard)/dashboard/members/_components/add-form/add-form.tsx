@@ -31,6 +31,8 @@ import {
 import { memberSheetStore, memberEditData, closeMemberSheet } from './store'
 import { getCurrentYear, getGenderLabel, getStatusLabel } from './utils'
 import { INITIAL_REGION_DATA, INITIAL_LOADING_STATE } from './constants'
+import { ImageUpload } from '~/components/image-upload'
+import { deleteImageAction } from '~/lib/actions/storage'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
   Loading03Icon,
@@ -91,6 +93,7 @@ export const AddMemberForm = ({ organizationId }: AddMemberFormProps) => {
   const [isCertifiedInstructor, setIsCertifiedInstructor] = React.useState(
     editData?.isCertifiedInstructor ?? false
   )
+  const [photo, setPhoto] = React.useState(() => editData?.photo ?? '')
   const [isInitializing, setIsInitializing] = React.useState(true)
   const [hasChanges, setHasChanges] = React.useState(false)
   const [selectedGender, setSelectedGender] = React.useState(
@@ -117,6 +120,7 @@ export const AddMemberForm = ({ organizationId }: AddMemberFormProps) => {
       setIsCertifiedInstructor(editData.isCertifiedInstructor ?? false)
       setSelectedGender(editData.gender ?? 'ikhwan')
       setSelectedStatus(editData.status ?? 'ab1')
+      setPhoto(editData.photo ?? '')
     } else if (state?.values) {
       setProvince(state.values.addressProvinceCode || '')
       setCity(state.values.addressCityCode || '')
@@ -129,6 +133,7 @@ export const AddMemberForm = ({ organizationId }: AddMemberFormProps) => {
       setIsCertifiedInstructor(state.values.isCertifiedInstructor === 'true')
       setSelectedGender(state.values.gender ?? 'ikhwan')
       setSelectedStatus(state.values.status ?? 'ab1')
+      setPhoto(state.values.photo || '')
     }
     setIsInitializing(false)
   }, [editData, state?.values])
@@ -141,6 +146,14 @@ export const AddMemberForm = ({ organizationId }: AddMemberFormProps) => {
       toast.error(state.message)
     }
   }, [state])
+
+  useEffect(() => {
+    return () => {
+      if (photo && photo !== (editData?.photo ?? '')) {
+        deleteImageAction(photo)
+      }
+    }
+  }, [photo, editData])
 
   const handleInputChange = React.useCallback(() => {
     if (editData) setHasChanges(true)
@@ -250,6 +263,19 @@ export const AddMemberForm = ({ organizationId }: AddMemberFormProps) => {
             <FieldError
               errors={state?.errors?.name?.map((m) => ({ message: m }))}
             />
+          </Field>
+
+          <Field className='mt-4'>
+            <ImageUpload
+              label='Foto Anggota'
+              folder='members'
+              value={photo}
+              onChange={(path) => {
+                setPhoto(path)
+                handleInputChange()
+              }}
+            />
+            <input type='hidden' name='photo' value={photo} />
           </Field>
 
           <div className='mt-4 flex flex-col gap-6'>
