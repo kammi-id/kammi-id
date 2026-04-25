@@ -24,6 +24,18 @@ export const uploadImageAction = async (formData: FormData) => {
 }
 
 /**
+ * Gets a signed URL for a file.
+ */
+export const getSignedUrlAction = async (path: string) => {
+  try {
+    return await storage.getSignedUrl(path)
+  } catch (error) {
+    console.error('getSignedUrlAction Error:', error)
+    throw new Error('Gagal mengambil URL gambar.')
+  }
+}
+
+/**
  * Deletes an image from storage.
  * @param path The path of the image to delete.
  */
