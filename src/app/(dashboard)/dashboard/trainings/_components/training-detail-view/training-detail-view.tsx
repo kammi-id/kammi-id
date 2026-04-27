@@ -6,7 +6,7 @@ import {
   removeInstructorAction,
   addAttendantAction,
   addInstructorAction
-} from '~/lib/actions/training'
+} from './action'
 import {
   Card,
   CardContent,
