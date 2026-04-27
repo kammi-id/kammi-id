@@ -25,6 +25,9 @@ export const trainingQuery = {
 
     return await db.query.training.findMany({
       where: and(...where),
+      with: {
+        organization: true,
+      },
     })
   },
 
