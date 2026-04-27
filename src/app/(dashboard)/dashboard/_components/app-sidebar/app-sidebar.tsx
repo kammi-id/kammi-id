@@ -95,7 +95,7 @@ export const AppSidebar = ({
     },
     {
       title: 'Dauroh',
-      url: '#',
+      url: '/dashboard/trainings',
       icon: <HugeiconsIcon icon={Menu01Icon} strokeWidth={2} />,
       roles: ['bph', 'bpk', 'root']
     },
