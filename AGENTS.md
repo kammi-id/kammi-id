@@ -10,9 +10,12 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 **CRITICAL:** You MUST consider and invoke relevant skills BEFORE any response or action.
 
+- **Shadcn & BaseUI Rule:** Always invoke both `shadcn` and `base-ui-docs` skills whenever creating, modifying, or debugging components that utilize Shadcn UI or BaseUI primitives. **Note: This project specifically uses BaseUI as the primitive layer for Shadcn, NOT RadixUI.**
 - If there is even a 1% chance a skill might apply to the task, invoke it using the `Skill` tool.
 - This check must happen BEFORE clarifying questions, exploration, or implementation.
 - Follow the specific workflow defined in the invoked skill exactly.
+
+**VERIFICATION PROTOCOL:** Always check for errors in Next.js DevTools using `get_errors` immediately after completing any task or fixing a bug to ensure no new regressions were introduced.
 
 # Coding Standards
 

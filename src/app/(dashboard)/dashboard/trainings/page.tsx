@@ -1,25 +1,18 @@
 import {
   trainingQuery
-} from '@/db/query/training'
+} from '~/db/query/training'
 import {
-  readOrganization
-} from '@/db/query/organization'
+  readOrganization,
+  fetchAllowedOrgIds
+} from '~/db/query/organization'
 import {
   TrainingTable
 } from './_components/training-table'
 import {
   AddTrainingModal
 } from './_components/add-training-modal'
-import {
-  FilterForm
-} from './_components/filter-form'
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription
-} from '~/components/shadcn/ui/card'
+import { AccessGuard } from '~/components/access-guard'
+import { readActiveSession } from '~/lib/auth/cookies'
 
 interface TrainingsPageProps {
   searchParams: Promise<{
@@ -33,40 +26,42 @@ export default async function TrainingsPage({ searchParams }: TrainingsPageProps
   const organizationId = params.organizationId
   const year = params.year ? parseInt(params.year) : undefined
 
-  const [trainings, organizations] = await Promise.all([
+  const session = await readActiveSession()
+  const user = session?.user
+  const userRole = user?.role || ''
+
+  const [trainings, allOrganizations] = await Promise.all([
     trainingQuery.getAll({ organizationId, year }),
     readOrganization({ isNonActive: false })
   ])
 
+  // Filter organizations based on user's jurisdiction
+  const allowedOrgIds = await fetchAllowedOrgIds({
+    role: user?.role || userRole,
+    connectedOrganizationId: user?.connectedOrganization?.id || null
+  })
+
+
+  const organizations = allOrganizations.filter(org => allowedOrgIds.includes(org.id))
+
   return (
-    <div className='flex flex-col gap-6 p-6'>
-      <div className='flex items-center justify-between'>
-        <div>
-          <h1 className='text-2xl font-bold tracking-tight'>Daftar Pelatihan</h1>
-          <p className='text-muted-foreground'>Kelola semua sesi pelatihan organisasi di sini.</p>
+    <AccessGuard allowedRoles={['root', 'bph', 'bpk']}>
+      <div className='flex flex-col gap-6 p-6'>
+        <div className='flex items-center justify-between'>
+          <div>
+            <h1 className='text-2xl font-bold tracking-tight'>Daftar Dauroh</h1>
+            <p className='text-muted-foreground'>Kelola semua sesi dauroh organisasi di sini.</p>
+          </div>
+          <AddTrainingModal
+            organizations={organizations.map(o => ({ id: o.id, name: o.name, type: o.type }))}
+            userRole={userRole}
+          />
         </div>
-        <AddTrainingModal
-          organizations={organizations.map(o => ({ id: o.id, name: o.name }))}
+
+        <TrainingTable
+          data={trainings}
         />
       </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Filter</CardTitle>
-          <CardDescription>Saring pelatihan berdasarkan organisasi atau tahun.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <FilterForm
-            initialOrganizationId={organizationId}
-            initialYear={year?.toString()}
-            organizations={organizations.map(o => ({ id: o.id, name: o.name }))}
-          />
-        </CardContent>
-      </Card>
-
-      <TrainingTable
-        data={trainings}
-      />
-    </div>
+    </AccessGuard>
   )
 }

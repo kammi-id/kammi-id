@@ -1,38 +1,47 @@
 'use client'
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '~/components/shadcn/ui/dialog'
+import { useStore } from '@nanostores/react'
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '~/components/shadcn/ui/sheet'
 import { Button } from '~/components/shadcn/ui/button'
-import { PlusIcon } from '@hugeicons/core-free-icons'
+import { Add01Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { TrainingForm } from './form'
 import { useRouter } from 'next/navigation'
+import { addTrainingSheetStore } from './store'
 
 interface AddTrainingModalProps {
-  organizations: { id: string; name: string }[]
+  organizations: { id: string; name: string; type: string }[]
+  userRole: string
 }
 
-export const AddTrainingModal = ({ organizations }: AddTrainingModalProps) => {
+export const AddTrainingModal = ({ organizations, userRole }: AddTrainingModalProps) => {
   const router = useRouter()
+  const isOpen = useStore(addTrainingSheetStore)
+  const canManage = userRole === 'root' || userRole === 'bpk'
+
+  if (!canManage) return null
 
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button className='gap-2'>
-          <HugeiconsIcon icon={PlusIcon} className='size-4' />
-          Tambah Pelatihan
-        </Button>
-      </DialogTrigger>
-      <DialogContent className='sm:max-w-[425px]'>
-        <DialogHeader>
-          <DialogTitle>Tambah Pelatihan Baru</DialogTitle>
-        </DialogHeader>
+    <Sheet open={isOpen} onOpenChange={(open) => addTrainingSheetStore.set(open)}>
+      <SheetTrigger
+        render={
+          <Button className='gap-2'>
+            <HugeiconsIcon icon={Add01Icon} className='size-4' />
+            Tambah Dauroh
+          </Button>
+        }
+      />
+      <SheetContent className='sm:max-w-[425px]'>
+        <SheetHeader>
+          <SheetTitle>Tambah Dauroh Baru</SheetTitle>
+        </SheetHeader>
         <TrainingForm
           organizations={organizations}
           onSuccess={() => {
             router.refresh()
           }}
         />
-      </DialogContent>
-    </Dialog>
+      </SheetContent>
+    </Sheet>
   )
 }

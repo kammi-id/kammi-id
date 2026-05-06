@@ -28,12 +28,29 @@ export const fetchAllowedOrgIds = async (user: {
     return result.map((r) => r.id)
   }
 
-  if (user.role === 'humas') {
-    return user.connectedOrganizationId ? [user.connectedOrganizationId] : []
-  }
-
   if (!user.connectedOrganizationId) {
     return []
+  }
+
+  const userOrg = await db
+    .select({ type: organization.type })
+    .from(organization)
+    .where(eq(organization.id, user.connectedOrganizationId))
+    .limit(1)
+    .then((res) => res[0])
+
+  if (!userOrg) {
+    return []
+  }
+
+  // BPK at PP level should see everything
+  if (user.role === 'bpk' && userOrg.type === 'pp') {
+    const result = await db.select({ id: organization.id }).from(organization)
+    return result.map((r) => r.id)
+  }
+
+  if (user.role === 'humas') {
+    return [user.connectedOrganizationId]
   }
 
   // Recursive CTE to find all organizations in the subtree
@@ -47,8 +64,17 @@ export const fetchAllowedOrgIds = async (user: {
     SELECT id FROM org_hierarchy
   `
 
-  const result: { id: string }[] = await db.execute(query)
-  return result.map((r) => r.id)
+  const result = await db.execute(query)
+
+  // Handle different possible return formats from db.execute
+  const rows = (result as any).rows || result
+
+  const ids = (Array.isArray(rows) ? rows : []).flatMap((r) => {
+    if (typeof r === 'object' && r !== null && 'id' in r) return [r.id]
+    return []
+  })
+
+  return ids
 }
 
 type OrganizationInsertValues = typeof organization.$inferInsert

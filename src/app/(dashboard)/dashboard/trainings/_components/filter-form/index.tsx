@@ -11,7 +11,7 @@ import {
   SelectValue
 } from '~/components/shadcn/ui/select'
 import { Button } from '~/components/shadcn/ui/button'
-import { XIcon } from '@hugeicons/core-free-icons'
+import { Cancel01Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 
 interface FilterFormProps {
@@ -88,7 +88,7 @@ export const FilterForm = ({
 
       {(initialOrganizationId || initialYear) && (
         <Button variant='ghost' onClick={clearFilters} className='gap-2'>
-          <HugeiconsIcon icon={XIcon} className='size-4' />
+          <HugeiconsIcon icon={Cancel01Icon} className='size-4' />
           Reset
         </Button>
       )}

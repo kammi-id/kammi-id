@@ -137,8 +137,8 @@ export function DataTable<TData, TValue>({
   )
 
   const table = useReactTable({
-    data,
-    columns,
+    data: data ?? [],
+    columns: columns ?? [],
     pageCount,
     state: {
       sorting,
@@ -147,6 +147,7 @@ export function DataTable<TData, TValue>({
       columnFilters,
       pagination
     },
+
     onRowSelectionChange: setRowSelection,
     onColumnVisibilityChange: setColumnVisibility,
     // Handlers update URL instead of local state

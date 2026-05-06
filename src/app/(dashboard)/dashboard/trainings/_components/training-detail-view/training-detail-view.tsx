@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useTransition } from 'react'
+import React, { useActionState, useEffect } from 'react'
 import {
   updateAttendantStatusAction,
   removeInstructorAction,
@@ -23,7 +23,7 @@ import {
 import {
   UserGroupIcon,
   UserCheckIcon,
-  Trash01Icon,
+  Delete01Icon,
   Add01Icon,
   Calendar01Icon,
   Info01Icon
@@ -37,76 +37,59 @@ interface TrainingDetailViewProps {
 }
 
 export const TrainingDetailView = ({ training }: TrainingDetailViewProps) => {
-  const [isPending, startTransition] = useTransition()
+  // Action state for adding attendants
+  const [attendantState, addAttendantActionWrapper, isAttendantPending] = useActionState(
+    addAttendantAction,
+    { success: false, message: '', errors: {} }
+  )
+
+  // Action state for adding instructors
+  const [instructorState, addInstructorActionWrapper, isInstructorPending] = useActionState(
+    addInstructorAction,
+    { success: false, message: '', errors: {} }
+  )
+
+  // Handle attendant success/error
+  useEffect(() => {
+    if (attendantState.success) {
+      toast.success('Peserta berhasil ditambahkan')
+    } else if (attendantState.message && !attendantState.errors) {
+      toast.error(attendantState.message)
+    }
+  }, [attendantState])
+
+  // Handle instructor success/error
+  useEffect(() => {
+    if (instructorState.success) {
+      toast.success('Instruktur berhasil ditambahkan')
+    } else if (instructorState.message && !instructorState.errors) {
+      toast.error(instructorState.message)
+    }
+  }, [instructorState])
 
   const handleTogglePassing = async (memberId: string, currentStatus: boolean) => {
-    startTransition(async () => {
-      const res = await updateAttendantStatusAction({
-        trainingId: training.id,
-        memberId,
-        isPassing: !currentStatus,
-      })
-      if (res.success) {
-        toast.success('Status kelulusan diperbarui')
-      } else {
-        toast.error(res.message)
-      }
-    })
+    const formData = new FormData()
+    formData.append('trainingId', training.id)
+    formData.append('memberId', memberId)
+    formData.append('isPassing', String(!currentStatus))
+
+    const res = await updateAttendantStatusAction(null, formData)
+    if (res.success) {
+      toast.success('Status kelulusan diperbarui')
+    } else {
+      toast.error(res.message)
+    }
   }
 
   const handleRemoveInstructor = async (memberId: string) => {
     if (!confirm('Hapus instruktur ini?')) return
 
-    startTransition(async () => {
-      const res = await removeInstructorAction(training.id, memberId)
-      if (res.success) {
-        toast.success('Instruktur dihapus')
-      } else {
-        toast.error(res.message)
-      }
-    })
-  }
-
-  const handleAddAttendant = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    const formData = new FormData(e.currentTarget)
-    const memberId = formData.get('memberId') as string
-
-    if (!memberId) return
-
-    startTransition(async () => {
-      const res = await addAttendantAction({
-        trainingId: training.id,
-        memberId,
-      })
-      if (res.success) {
-        toast.success('Peserta berhasil ditambahkan')
-      } else {
-        toast.error(res.message)
-      }
-    })
-  }
-
-  const handleAddInstructor = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    const formData = new FormData(e.currentTarget)
-    const memberId = formData.get('memberId') as string
-    const role = formData.get('role') as any
-
-    if (!memberId || !role) return
-
-    startTransition(async () => {
-      const res = await addInstructorAction({
-        trainingId: training.id,
-        memberId,
-        role,
-      })
-      if (res.success) {
-        toast.success('Instruktur berhasil ditambahkan')
-      } else {
-        toast.error(res.message)
-      }
-    })
+    const res = await removeInstructorAction(training.id, memberId)
+    if (res.success) {
+      toast.success('Instruktur dihapus')
+    } else {
+      toast.error(res.message)
+    }
   }
 
   return (
@@ -126,18 +109,18 @@ export const TrainingDetailView = ({ training }: TrainingDetailViewProps) => {
             <span>Mulai: {training.startDate}</span>
           </div>
           <div className="flex items-center gap-2 text-sm">
-            <HugeiconsPicon icon={Calendar01Icon} className="h-4 w-4 text-muted-foreground" />
+            <HugeiconsIcon icon={Calendar01Icon} className="h-4 w-4 text-muted-foreground" />
             <span>Selesai: {training.endDate}</span>
           </div>
           <div className="flex items-center gap-2 text-sm">
             <span className="font-medium px-2 py-0.5 bg-primary/10 text-primary rounded-full text-xs uppercase">
               {training.type}
             </span>
-            {training.registrationDeadline && (
+            {training.registrationDeadline ? (
               <span className="text-muted-foreground text-xs">
                 Deadline: {training.registrationDeadline}
               </span>
-            )}
+            ) : null}
           </div>
         </CardContent>
       </Card>
@@ -155,12 +138,16 @@ export const TrainingDetailView = ({ training }: TrainingDetailViewProps) => {
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
-            <form onSubmit={handleAddAttendant} className="flex gap-2">
-              <Input name="memberId" placeholder="Member ID (UUID)" className="h-8 text-xs" />
-              <Button type="submit" size="sm" disabled={isPending} className="h-8">
+            <form action={addAttendantActionWrapper} className="flex gap-2">
+              <input type="hidden" name="trainingId" value={training.id} />
+              <Input name="memberId" placeholder="Member ID (UUID)" className="h-8 text-xs" required />
+              <Button type="submit" size="sm" disabled={isAttendantPending} className="h-8">
                 <HugeiconsIcon icon={Add01Icon} className="h-4 w-4" />
               </Button>
             </form>
+            {attendantState.errors?.memberId && (
+              <p className="text-xs font-medium text-destructive">{attendantState.errors.memberId[0]}</p>
+            )}
 
             <div className="space-y-2">
               {training._attendants?.map((att) => (
@@ -172,14 +159,14 @@ export const TrainingDetailView = ({ training }: TrainingDetailViewProps) => {
                     <Checkbox
                       checked={att.isPassing}
                       onCheckedChange={() => handleTogglePassing(att.memberId, att.isPassing)}
-                      disabled={isPending}
+                      disabled={isAttendantPending}
                     />
                     <span className="text-sm font-medium">{att.member?.name}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    {att.isPassing && (
+                    {att.isPassing ? (
                       <span className="text-[10px] font-bold text-green-600 uppercase">Lulus</span>
-                    )}
+                    ) : null}
                     <HugeiconsIcon
                       icon={UserCheckIcon}
                       className={cn("h-4 w-4", att.isPassing ? "text-green-500" : "text-muted-foreground")}
@@ -187,9 +174,9 @@ export const TrainingDetailView = ({ training }: TrainingDetailViewProps) => {
                   </div>
                 </div>
               ))}
-              {(!training._attendants || training._attendants.length === 0) && (
+              {(!training._attendants || training._attendants.length === 0) ? (
                 <p className="text-center text-xs text-muted-foreground py-4">Belum ada peserta.</p>
-              )}
+              ) : null}
             </div>
           </CardContent>
         </Card>
@@ -206,11 +193,13 @@ export const TrainingDetailView = ({ training }: TrainingDetailViewProps) => {
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
-            <form onSubmit={handleAddInstructor} className="flex gap-2">
-              <Input name="memberId" placeholder="Member ID" className="h-8 text-xs" />
+            <form action={addInstructorActionWrapper} className="flex gap-2">
+              <input type="hidden" name="trainingId" value={training.id} />
+              <Input name="memberId" placeholder="Member ID" className="h-8 text-xs" required />
               <select
                 name="role"
                 className="h-8 text-xs rounded-md border bg-background px-2 text-foreground ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                defaultValue="master"
               >
                 <option value="master">Master</option>
                 <option value="assistant_master">Assistant Master</option>
@@ -220,10 +209,13 @@ export const TrainingDetailView = ({ training }: TrainingDetailViewProps) => {
                 <option value="observer">Observer</option>
                 <option value="ustadz_of_training">Ustadz of Training</option>
               </select>
-              <Button type="submit" size="sm" disabled={isPending} className="h-8">
+              <Button type="submit" size="sm" disabled={isInstructorPending} className="h-8">
                 <HugeiconsIcon icon={Add01Icon} className="h-4 w-4" />
               </Button>
             </form>
+            {instructorState.errors?.memberId && (
+              <p className="text-xs font-medium text-destructive">{instructorState.errors.memberId[0]}</p>
+            )}
 
             <div className="space-y-2">
               {training._instructors?.map((ins) => (
@@ -239,16 +231,16 @@ export const TrainingDetailView = ({ training }: TrainingDetailViewProps) => {
                     variant="ghost"
                     size="sm"
                     onClick={() => handleRemoveInstructor(ins.memberId)}
-                    disabled={isPending}
+                    disabled={isInstructorPending}
                     className="h-8 w-8 p-0 text-destructive hover:bg-destructive/10"
                   >
-                    <HugeiconsIcon icon={Trash01Icon} className="h-4 w-4" />
+                    <HugeiconsIcon icon={Delete01Icon} className="h-4 w-4" />
                   </Button>
                 </div>
               ))}
-              {(!training._instructors || training._instructors.length === 0) && (
+              {(!training._instructors || training._instructors.length === 0) ? (
                 <p className="text-center text-xs text-muted-foreground py-4">Belum ada instruktur.</p>
-              )}
+              ) : null}
             </div>
           </CardContent>
         </Card>

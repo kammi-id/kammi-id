@@ -1,4 +1,5 @@
 import { MembersPageContent } from '../../members/_components/MembersPageContent'
+import { AccessGuard } from '~/components/access-guard/access-guard'
 
 export default async function Page({
   params,
@@ -11,10 +12,12 @@ export default async function Page({
   const resolvedSearchParams = await searchParams
 
   return (
-    <MembersPageContent
-      params={resolvedParams}
-      searchParams={resolvedSearchParams}
-      type='alumni'
-    />
+    <AccessGuard allowedRoles={['root', 'bph', 'bpk']}>
+      <MembersPageContent
+        params={resolvedParams}
+        searchParams={resolvedSearchParams}
+        type='alumni'
+      />
+    </AccessGuard>
   )
 }

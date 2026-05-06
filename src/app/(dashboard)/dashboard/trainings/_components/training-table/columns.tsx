@@ -1,7 +1,7 @@
 'use client'
 
 import { ColumnDef } from '@tanstack/react-table'
-import { Edit01Icon, TrashIcon } from '@hugeicons/core-free-icons'
+import { Edit01Icon, Delete01Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import Link from 'next/link'
 import { Badge } from '~/components/shadcn/ui/badge'
@@ -55,7 +55,7 @@ export const getColumns = (
 ): ColumnDef<Training>[] => [
   {
     accessorKey: 'name',
-    header: 'Nama Pelatihan',
+    header: 'Nama Dauroh',
     cell: ({ row }) => {
       const training = row.original
       const orgSlug = training.organization.slug
@@ -153,7 +153,7 @@ export const getColumns = (
                     onClick={() => onDelete?.(row.original.id)}
                   >
                     <HugeiconsIcon
-                      icon={TrashIcon}
+                      icon={Delete01Icon}
                       strokeWidth={2}
                       className='size-4'
                     />

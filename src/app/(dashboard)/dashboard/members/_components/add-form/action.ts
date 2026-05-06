@@ -79,13 +79,15 @@ export const createMemberAction = async (
     }
   }
 
-  const mutationRoles = ['root', 'bph', 'bpk', 'bpw']
+// ... existing code ...
+  const mutationRoles = ['root', 'bpk']
   if (!mutationRoles.includes(user.role)) {
     return {
       success: false,
       message: 'Role antum tidak diizinkan untuk melakukan mutasi data.'
     }
   }
+// ... existing code ...
 
   try {
     const registerNumber = await generateRegisterNumber(
@@ -150,13 +152,15 @@ export const updateMemberAction = async (
     }
   }
 
-  const mutationRoles = ['root', 'bph', 'bpk', 'bpw']
+// ... existing code ...
+  const mutationRoles = ['root', 'bpk']
   if (!mutationRoles.includes(user.role)) {
     return {
       success: false,
       message: 'Role antum tidak diizinkan untuk melakukan mutasi data.'
     }
   }
+// ... existing code ...
 
   try {
     await updateMember(data, id)

@@ -1,173 +1,248 @@
 'use client'
 
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
+import { useActionState, useEffect, useState } from 'react'
 import { Button } from '~/components/shadcn/ui/button'
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '~/components/shadcn/ui/form'
 import { Input } from '~/components/shadcn/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/shadcn/ui/select'
+import {
+  Combobox,
+  ComboboxInput,
+  ComboboxContent,
+  ComboboxItem,
+  ComboboxGroup,
+  ComboboxList,
+  ComboboxEmpty,
+} from '~/components/shadcn/ui/combobox'
+import { RadioGroup, RadioGroupItem } from '~/components/shadcn/ui/radio-group'
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+  FieldContent,
+  FieldTitle,
+  FieldDescription,
+} from '~/components/shadcn/ui/field'
 import { createTrainingAction } from './action'
-import { TrainingFormValues } from './types'
 import { toast } from 'sonner'
-import { useTransition } from 'react'
+import { closeAddTrainingSheet } from './store'
+import { cn } from '~/lib/shadcn/utils'
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Award01Icon } from '@hugeicons/core-free-icons'
 
-const formSchema = z.object({
-  organizationId: z.string().min(1, 'Organisasi wajib dipilih'),
-  name: z.string().min(1, 'Nama pelatihan wajib diisi'),
-  startDate: z.string().min(1, 'Tanggal mulai wajib diisi'),
-  endDate: z.string().min(1, 'Tanggal selesai wajib diisi'),
-  registrationDeadline: z.string().optional(),
-  type: z.enum(['dm1', 'dm2', 'dpmk', 'tfi', 'dm3', 'other']),
-})
+const TRAINING_TYPE_LABELS: Record<string, string> = {
+  dm1: 'DM 1',
+  dm2: 'DM 2',
+  dpmk: 'DPMK',
+  tfi: 'TFI',
+  dm3: 'DM 3',
+  other: 'Lainnya',
+}
 
 interface TrainingFormProps {
-  organizations: { id: string; name: string }[]
+  organizations: { id: string; name: string; type: string }[]
   onSuccess: () => void
 }
 
 export const TrainingForm = ({ organizations, onSuccess }: TrainingFormProps) => {
-  const [isPending, startTransition] = useTransition()
-
-  const form = useForm<TrainingFormValues>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      name: '',
-      startDate: new Date().toISOString().split('T')[0],
-      endDate: new Date().toISOString().split('T')[0],
-      type: 'dm1',
-    },
+  const [state, formAction, isPending] = useActionState(createTrainingAction, {
+    success: false,
+    message: '',
+    errors: {},
   })
 
-  const onSubmit = async (values: TrainingFormValues) => {
-    startTransition(async () => {
-      const response = await createTrainingAction(values)
-      if (response.success) {
-        toast.success(response.message)
-        onSuccess()
-      } else {
-        toast.error(response.message)
-      }
-    })
+  const [orgId, setOrgId] = useState(organizations[0]?.id || '')
+  const [type, setType] = useState('dm1')
+  const [orgSearchQuery, setOrgSearchQuery] = useState('')
+
+  useEffect(() => {
+    if (state.success) {
+      toast.success(state.message)
+      onSuccess()
+      closeAddTrainingSheet()
+    } else if (state.message && !state.errors) {
+      toast.error(state.message)
+    }
+  }, [state, onSuccess])
+
+  const selectedOrg = organizations.find((org) => org.id === orgId)
+  const selectedOrgType = selectedOrg?.type
+
+  const filteredOrgs = organizations.filter((org) =>
+    org.name.toLowerCase().includes(orgSearchQuery.toLowerCase())
+  )
+
+  const getAvailableTypes = () => {
+    if (!selectedOrgType) return Object.keys(TRAINING_TYPE_LABELS)
+
+    if (selectedOrgType === 'pk') {
+      return ['dm1', 'other']
+    }
+    if (selectedOrgType === 'pd' || selectedOrgType === 'pdln') {
+      return ['dm1', 'dm2', 'dpmk', 'tfi', 'other']
+    }
+    // PW or PP
+    return Object.keys(TRAINING_TYPE_LABELS)
   }
 
+  const availableTypes = getAvailableTypes()
+
+  useEffect(() => {
+    if (availableTypes.length > 0 && !availableTypes.includes(type)) {
+      setType(availableTypes[0])
+    }
+  }, [availableTypes, type])
+
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
-        <FormField
-          control={form.control}
-          name='organizationId'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Organisasi</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder='Pilih Organisasi' />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {organizations.map((org) => (
-                    <SelectItem key={org.id} value={org.id}>
-                      {org.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+    <form action={formAction} className='flex h-full max-h-[calc(100vh-120px)] flex-col'>
+      <div className='flex-1 space-y-6 overflow-y-auto p-6'>
+        <FieldGroup>
+          <h3 className='font-heading mb-4 text-lg font-semibold'>Informasi Dauroh</h3>
 
-        <FormField
-          control={form.control}
-          name='name'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Nama Pelatihan</FormLabel>
-              <FormControl>
-                <Input placeholder='Contoh: DM 1 Nasional' {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+          <Field>
+            <FieldLabel htmlFor='organizationId'>Penyelenggara</FieldLabel>
+            <input type='hidden' name='organizationId' value={orgId || ''} />
+            <Combobox value={orgId || ''} onValueChange={setOrgId}>
+              <ComboboxInput
+                placeholder='Pilih Penyelenggara'
+                value={(selectedOrg?.name ?? orgSearchQuery) || ''}
+                onChange={(e) => setOrgSearchQuery(e.target.value)}
+              />
+              <ComboboxContent>
+                <ComboboxList>
+                  {filteredOrgs.length === 0 ? (
+                    <ComboboxEmpty>Data tidak ditemukan.</ComboboxEmpty>
+                  ) : (
+                    <ComboboxGroup>
+                      {filteredOrgs.map((org) => (
+                        <ComboboxItem key={org.id} value={org.id}>
+                          {org.name}
+                        </ComboboxItem>
+                      ))}
+                    </ComboboxGroup>
+                  )}
+                </ComboboxList>
+              </ComboboxContent>
+            </Combobox>
+            <FieldError
+              errors={state.errors?.organizationId?.map((m) => ({ message: m }))}
+            />
+          </Field>
 
-        <div className='grid grid-cols-2 gap-4'>
-          <FormField
-            control={form.control}
-            name='startDate'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Tanggal Mulai</FormLabel>
-                <FormControl>
-                  <Input type='date' {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name='endDate'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Tanggal Selesai</FormLabel>
-                <FormControl>
-                  <Input type='date' {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
+          <Field className='mt-4'>
+            <FieldLabel>Tipe Dauroh</FieldLabel>
+            <input type='hidden' name='type' value={type} />
+            <RadioGroup
+              value={type}
+              onValueChange={setType}
+              className='grid grid-cols-2 gap-3'
+            >
+              {availableTypes.map((val) => {
+                const label = TRAINING_TYPE_LABELS[val]
+                return (
+                  <FieldLabel
+                    key={val}
+                    htmlFor={`type-${val}`}
+                    className={cn(
+                      'cursor-pointer rounded-xl border-2 p-3 transition-all',
+                      type === val
+                        ? 'border-primary bg-primary/10 text-primary'
+                        : 'border-muted-foreground/20 bg-background hover:border-primary/50'
+                    )}
+                  >
+                    <Field orientation='horizontal'>
+                      <FieldContent className='flex-1'>
+                        <FieldTitle className='flex items-center justify-center gap-2 text-center font-semibold'>
+                          <HugeiconsIcon
+                            icon={Award01Icon}
+                            strokeWidth={2}
+                            className='size-4'
+                          />
+                          {label}
+                        </FieldTitle>
+                      </FieldContent>
+                      <RadioGroupItem
+                        value={val}
+                        id={`type-${val}`}
+                        className='sr-only'
+                      />
+                    </Field>
+                  </FieldLabel>
+                )
+              })}
+            </RadioGroup>
+            <FieldError
+              errors={state.errors?.type?.map((m) => ({ message: m }))}
+            />
+          </Field>
 
-        <FormField
-          control={form.control}
-          name='registrationDeadline'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Deadline Pendaftaran (Opsional)</FormLabel>
-              <FormControl>
-                <Input type='date' {...field} value={field.value || ''} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+          <Field className='mt-4'>
+            <FieldLabel htmlFor='name'>Nama Dauroh</FieldLabel>
+            <Input
+              id='name'
+              name='name'
+              placeholder='Contoh: DM 1 Nasional'
+              required
+            />
+            <FieldError
+              errors={state.errors?.name?.map((m) => ({ message: m }))}
+            />
+          </Field>
 
-        <FormField
-          control={form.control}
-          name='type'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Tipe Pelatihan</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder='Pilih Tipe' />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value='dm1'>DM 1</SelectItem>
-                  <SelectItem value='dm2'>DM 2</SelectItem>
-                  <SelectItem value='dpmk'>DPMK</SelectItem>
-                  <SelectItem value='tfi'>TFI</SelectItem>
-                  <SelectItem value='dm3'>DM 3</SelectItem>
-                  <SelectItem value='other'>Lainnya</SelectItem>
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+          <div className='grid grid-cols-2 gap-4 mt-4'>
+            <Field>
+              <FieldLabel htmlFor='startDate'>Tanggal Mulai</FieldLabel>
+              <Input
+                id='startDate'
+                name='startDate'
+                type='date'
+                defaultValue={new Date().toISOString().split('T')[0]}
+                required
+              />
+              <FieldError
+                errors={state.errors?.startDate?.map((m) => ({ message: m }))}
+              />
+            </Field>
+            <Field>
+              <FieldLabel htmlFor='endDate'>Tanggal Selesai</FieldLabel>
+              <Input
+                id='endDate'
+                name='endDate'
+                type='date'
+                defaultValue={new Date().toISOString().split('T')[0]}
+                required
+              />
+              <FieldError
+                errors={state.errors?.endDate?.map((m) => ({ message: m}))}
+              />
+            </Field>
+          </div>
 
-        <div className='flex justify-end gap-2 pt-4'>
-          <Button type='submit' disabled={isPending}>
-            {isPending ? 'Menyimpan...' : 'Simpan Pelatihan'}
-          </Button>
-        </div>
-      </form>
-    </Form>
+          <Field className='mt-4'>
+            <FieldLabel htmlFor='registrationDeadline'>Deadline Pendaftaran (Opsional)</FieldLabel>
+            <Input
+              id='registrationDeadline'
+              name='registrationDeadline'
+              type='date'
+            />
+            <FieldError
+              errors={state.errors?.registrationDeadline?.map((m) => ({ message: m }))}
+            />
+          </Field>
+        </FieldGroup>
+      </div>
+
+      <div className='bg-background sticky bottom-0 flex justify-end gap-3 border-t p-6'>
+        <Button
+          type='button'
+          variant='outline'
+          onClick={() => closeAddTrainingSheet()}
+        >
+          Batal
+        </Button>
+        <Button type='submit' disabled={isPending}>
+          {isPending ? 'Menyimpan...' : 'Simpan Dauroh'}
+        </Button>
+      </div>
+    </form>
   )
 }
