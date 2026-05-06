@@ -1,16 +1,7 @@
-import {
-  trainingQuery
-} from '~/db/query/training'
-import {
-  readOrganization,
-  fetchAllowedOrgIds
-} from '~/db/query/organization'
-import {
-  TrainingTable
-} from './_components/training-table'
-import {
-  AddTrainingModal
-} from './_components/add-training-modal'
+import { trainingQuery } from '~/db/query/training'
+import { readOrganization, fetchAllowedOrgIds } from '~/db/query/organization'
+import { TrainingTable } from './_components/training-table'
+import { AddTrainingModal } from './_components/add-training-modal'
 import { AccessGuard } from '~/components/access-guard'
 import { readActiveSession } from '~/lib/auth/cookies'
 
@@ -21,7 +12,9 @@ interface TrainingsPageProps {
   }>
 }
 
-export default async function TrainingsPage({ searchParams }: TrainingsPageProps) {
+export default async function TrainingsPage({
+  searchParams
+}: TrainingsPageProps) {
   const params = await searchParams
   const organizationId = params.organizationId
   const year = params.year ? parseInt(params.year) : undefined
@@ -41,8 +34,9 @@ export default async function TrainingsPage({ searchParams }: TrainingsPageProps
     connectedOrganizationId: user?.connectedOrganization?.id || null
   })
 
-
-  const organizations = allOrganizations.filter(org => allowedOrgIds.includes(org.id))
+  const organizations = allOrganizations.filter((org) =>
+    allowedOrgIds.includes(org.id)
+  )
 
   return (
     <AccessGuard allowedRoles={['root', 'bph', 'bpk']}>
@@ -50,17 +44,21 @@ export default async function TrainingsPage({ searchParams }: TrainingsPageProps
         <div className='flex items-center justify-between'>
           <div>
             <h1 className='text-2xl font-bold tracking-tight'>Daftar Dauroh</h1>
-            <p className='text-muted-foreground'>Kelola semua sesi dauroh organisasi di sini.</p>
+            <p className='text-muted-foreground'>
+              Kelola semua sesi dauroh organisasi di sini.
+            </p>
           </div>
           <AddTrainingModal
-            organizations={organizations.map(o => ({ id: o.id, name: o.name, type: o.type }))}
+            organizations={organizations.map((o) => ({
+              id: o.id,
+              name: o.name,
+              type: o.type
+            }))}
             userRole={userRole}
           />
         </div>
 
-        <TrainingTable
-          data={trainings}
-        />
+        <TrainingTable data={trainings} />
       </div>
     </AccessGuard>
   )

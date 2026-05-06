@@ -2,11 +2,7 @@
 
 import * as React from 'react'
 import { Switch } from '~/components/shadcn/ui/switch'
-import {
-  Field,
-  FieldGroup,
-  FieldLabel
-} from '~/components/shadcn/ui/field'
+import { Field, FieldGroup, FieldLabel } from '~/components/shadcn/ui/field'
 
 interface StatusSectionProps {
   isCertifiedMentor: boolean
@@ -60,9 +56,7 @@ export const StatusSection = ({
           </div>
         </Field>
         <Field orientation='horizontal' className='justify-between gap-4'>
-          <FieldLabel htmlFor='isCertifiedInstructor'>
-            Instruktur
-          </FieldLabel>
+          <FieldLabel htmlFor='isCertifiedInstructor'>Instruktur</FieldLabel>
           <div className='flex items-center gap-2'>
             <Switch
               id='isCertifiedInstructor'

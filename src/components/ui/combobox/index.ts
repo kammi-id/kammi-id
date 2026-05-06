@@ -1,2 +1,2 @@
-export * from './combobox';
-export * from './types';
+export * from './combobox'
+export * from './types'

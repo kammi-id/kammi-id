@@ -35,11 +35,6 @@ export const getColumns = (type?: string): ColumnDef<IndividualMember>[] => {
       )
     },
     {
-      id: 'organization',
-      accessorKey: 'organization.name',
-      header: 'Organisasi'
-    },
-    {
       accessorKey: 'status',
       header: 'Status',
       cell: ({ row }) => {

@@ -20,7 +20,10 @@ import { AccessGuard } from '~/components/access-guard'
 
 import { MembersPageHeader } from './members-page-header'
 import { MembersPageTabs } from './members-page-tabs'
-import { getMembersPageLabels, parseMembersSearchParams } from './members-page-utils'
+import {
+  getMembersPageLabels,
+  parseMembersSearchParams
+} from './members-page-utils'
 
 interface MembersPageContentProps {
   params: { slug?: string[] }
@@ -80,7 +83,10 @@ export const MembersPageContent = async ({
     notFound()
   }
 
-  const { pageTitle, subTitle, nameHeader } = getMembersPageLabels(activeType, currentOrg)
+  const { pageTitle, subTitle, nameHeader } = getMembersPageLabels(
+    activeType,
+    currentOrg
+  )
   const { summary, individuals } = parseMembersSearchParams(sParams)
 
   const isSpecialView = activeType === 'pemandu' || activeType === 'instruktur'

@@ -130,9 +130,7 @@ export const AddressSection = ({
         </Field>
 
         <Field>
-          <FieldLabel htmlFor='addressSubdistrict'>
-            Kelurahan/Desa
-          </FieldLabel>
+          <FieldLabel htmlFor='addressSubdistrict'>Kelurahan/Desa</FieldLabel>
           <RegionCombobox
             value={subdistrict}
             options={regionData.subdistricts}
@@ -162,13 +160,13 @@ export const AddressSection = ({
           id='addressLine'
           name='addressLine'
           placeholder='Nama jalan, No. Rumah, RT/RW, dll'
-          defaultValue={
-            state?.values?.addressLine ?? undefined
-          }
+          defaultValue={state?.values?.addressLine ?? undefined}
           onChange={handleInputChange}
         />
         <FieldError
-          errors={state?.errors?.addressLine?.map((m: string) => ({ message: m }))}
+          errors={state?.errors?.addressLine?.map((m: string) => ({
+            message: m
+          }))}
         />
       </Field>
     </FieldGroup>

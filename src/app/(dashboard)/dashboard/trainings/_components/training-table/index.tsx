@@ -6,7 +6,7 @@ import {
   getCoreRowModel,
   useReactTable,
   getPaginationRowModel,
-  getFilteredRowModel,
+  getFilteredRowModel
 } from '@tanstack/react-table'
 import { DataTable } from '~/app/(dashboard)/dashboard/_components/data-table/data-table'
 import { getColumns, type Training } from './columns'
@@ -27,11 +27,5 @@ export const TrainingTable = ({
   const [isPending, startTransition] = useTransition()
   const columns = getColumns(onEdit, onDelete)
 
-  return (
-    <DataTable
-      data={data}
-      columns={columns}
-      isPending={isPending}
-    />
-  )
+  return <DataTable data={data} columns={columns} isPending={isPending} />
 }

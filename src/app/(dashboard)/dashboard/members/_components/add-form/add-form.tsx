@@ -58,14 +58,26 @@ export const AddMemberForm = ({ organizationId }: AddMemberFormProps) => {
 
   // 3. Local States
   const [isAlumn, setIsAlumn] = React.useState(editData?.isAlumn ?? false)
-  const [isSuspended, setIsSuspended] = React.useState(editData?.isSuspended ?? false)
-  const [isNonActive, setIsNonActive] = React.useState(editData?.isNonActive ?? false)
-  const [isCertifiedMentor, setIsCertifiedMentor] = React.useState(editData?.isCertifiedMentor ?? false)
-  const [isCertifiedInstructor, setIsCertifiedInstructor] = React.useState(editData?.isCertifiedInstructor ?? false)
+  const [isSuspended, setIsSuspended] = React.useState(
+    editData?.isSuspended ?? false
+  )
+  const [isNonActive, setIsNonActive] = React.useState(
+    editData?.isNonActive ?? false
+  )
+  const [isCertifiedMentor, setIsCertifiedMentor] = React.useState(
+    editData?.isCertifiedMentor ?? false
+  )
+  const [isCertifiedInstructor, setIsCertifiedInstructor] = React.useState(
+    editData?.isCertifiedInstructor ?? false
+  )
   const [photo, setPhoto] = React.useState(() => editData?.photo ?? '')
   const [hasChanges, setHasChanges] = React.useState(false)
-  const [selectedGender, setSelectedGender] = React.useState(editData?.gender ?? 'ikhwan')
-  const [selectedStatus, setSelectedStatus] = React.useState(editData?.status ?? 'ab1')
+  const [selectedGender, setSelectedGender] = React.useState(
+    editData?.gender ?? 'ikhwan'
+  )
+  const [selectedStatus, setSelectedStatus] = React.useState(
+    editData?.status ?? 'ab1'
+  )
   const [isInitializing, setIsInitializing] = React.useState(true)
 
   // 4. Effects

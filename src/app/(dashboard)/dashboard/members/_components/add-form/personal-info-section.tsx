@@ -16,10 +16,7 @@ import {
 import { RadioGroup, RadioGroupItem } from '~/components/shadcn/ui/radio-group'
 import { ImageUpload } from '~/components/image-upload'
 import { HugeiconsIcon } from '@hugeicons/react'
-import {
-  UserIcon,
-  Award01Icon
-} from '@hugeicons/core-free-icons'
+import { UserIcon, Award01Icon } from '@hugeicons/core-free-icons'
 import { getGenderLabel, getStatusLabel } from './utils'
 
 interface PersonalInfoSectionProps {
@@ -197,15 +194,15 @@ export const PersonalInfoSection = ({
           min='1998'
           max={currentYear}
           defaultValue={
-            editData?.yearOfEntry ??
-            state?.values?.yearOfEntry ??
-            currentYear
+            editData?.yearOfEntry ?? state?.values?.yearOfEntry ?? currentYear
           }
           onChange={handleInputChange}
           required
         />
         <FieldError
-          errors={state?.errors?.yearOfEntry?.map((m: string) => ({ message: m }))}
+          errors={state?.errors?.yearOfEntry?.map((m: string) => ({
+            message: m
+          }))}
         />
       </Field>
     </FieldGroup>

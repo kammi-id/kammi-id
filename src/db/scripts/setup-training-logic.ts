@@ -7,8 +7,12 @@ async function setup() {
   try {
     // 1. Date Constraints
     console.log('Adding date constraints...')
-    await db.execute(sql`ALTER TABLE training ADD CONSTRAINT check_end_date CHECK (end_date >= start_date)`);
-    await db.execute(sql`ALTER TABLE training ADD CONSTRAINT check_deadline CHECK (registration_deadline <= start_date)`);
+    await db.execute(
+      sql`ALTER TABLE training ADD CONSTRAINT check_end_date CHECK (end_date >= start_date)`
+    )
+    await db.execute(
+      sql`ALTER TABLE training ADD CONSTRAINT check_deadline CHECK (registration_deadline <= start_date)`
+    )
 
     // 2. Identifier Trigger Function
     console.log('Creating trigger function...')
@@ -27,18 +31,20 @@ async function setup() {
           RETURN NEW;
       END;
       $$ LANGUAGE plpgsql;
-    `);
+    `)
 
     // 3. Trigger
     console.log('Creating trigger...')
     // Drop if exists to avoid errors on re-run
-    await db.execute(sql`DROP TRIGGER IF EXISTS tr_training_identifier ON training`);
+    await db.execute(
+      sql`DROP TRIGGER IF EXISTS tr_training_identifier ON training`
+    )
     await db.execute(sql`
       CREATE TRIGGER tr_training_identifier
       BEFORE INSERT ON training
       FOR EACH ROW
       EXECUTE FUNCTION fn_generate_training_identifier();
-    `);
+    `)
 
     console.log('✅ Training system custom logic applied successfully!')
   } catch (e) {

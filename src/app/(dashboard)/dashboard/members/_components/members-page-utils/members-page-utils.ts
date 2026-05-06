@@ -36,9 +36,12 @@ export const getMembersPageLabels = (activeType?: string, currentOrg: any) => {
   return { pageTitle, subTitle, nameHeader }
 }
 
-export const parseMembersSearchParams = (sParams: { [key: string]: string | string[] | undefined }) => {
+export const parseMembersSearchParams = (sParams: {
+  [key: string]: string | string[] | undefined
+}) => {
   const query = typeof sParams.q === 'string' ? sParams.q : undefined
-  const page = typeof sParams.page === 'string' ? Math.max(1, parseInt(sParams.page)) : 1
+  const page =
+    typeof sParams.page === 'string' ? Math.max(1, parseInt(sParams.page)) : 1
   const limit = typeof sParams.size === 'string' ? parseInt(sParams.size) : 10
   const offset = (page - 1) * limit
 
@@ -51,8 +54,10 @@ export const parseMembersSearchParams = (sParams: { [key: string]: string | stri
   }
 
   const mQuery = typeof sParams.mq === 'string' ? sParams.mq : undefined
-  const mPage = typeof sParams.mpage === 'string' ? Math.max(1, parseInt(sParams.mpage)) : 1
-  const mLimit = typeof sParams.msize === 'string' ? parseInt(sParams.msize) : 10
+  const mPage =
+    typeof sParams.mpage === 'string' ? Math.max(1, parseInt(sParams.mpage)) : 1
+  const mLimit =
+    typeof sParams.msize === 'string' ? parseInt(sParams.msize) : 10
   const mOffset = (mPage - 1) * mLimit
 
   return {

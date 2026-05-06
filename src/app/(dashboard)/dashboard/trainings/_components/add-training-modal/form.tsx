@@ -10,7 +10,7 @@ import {
   ComboboxItem,
   ComboboxGroup,
   ComboboxList,
-  ComboboxEmpty,
+  ComboboxEmpty
 } from '~/components/shadcn/ui/combobox'
 import { RadioGroup, RadioGroupItem } from '~/components/shadcn/ui/radio-group'
 import {
@@ -20,7 +20,7 @@ import {
   FieldLabel,
   FieldContent,
   FieldTitle,
-  FieldDescription,
+  FieldDescription
 } from '~/components/shadcn/ui/field'
 import { createTrainingAction } from './action'
 import { toast } from 'sonner'
@@ -35,7 +35,7 @@ const TRAINING_TYPE_LABELS: Record<string, string> = {
   dpmk: 'DPMK',
   tfi: 'TFI',
   dm3: 'DM 3',
-  other: 'Lainnya',
+  other: 'Lainnya'
 }
 
 interface TrainingFormProps {
@@ -43,11 +43,14 @@ interface TrainingFormProps {
   onSuccess: () => void
 }
 
-export const TrainingForm = ({ organizations, onSuccess }: TrainingFormProps) => {
+export const TrainingForm = ({
+  organizations,
+  onSuccess
+}: TrainingFormProps) => {
   const [state, formAction, isPending] = useActionState(createTrainingAction, {
     success: false,
     message: '',
-    errors: {},
+    errors: {}
   })
 
   const [orgId, setOrgId] = useState(organizations[0]?.id || '')
@@ -93,10 +96,15 @@ export const TrainingForm = ({ organizations, onSuccess }: TrainingFormProps) =>
   }, [availableTypes, type])
 
   return (
-    <form action={formAction} className='flex h-full max-h-[calc(100vh-120px)] flex-col'>
+    <form
+      action={formAction}
+      className='flex h-full max-h-[calc(100vh-120px)] flex-col'
+    >
       <div className='flex-1 space-y-6 overflow-y-auto p-6'>
         <FieldGroup>
-          <h3 className='font-heading mb-4 text-lg font-semibold'>Informasi Dauroh</h3>
+          <h3 className='font-heading mb-4 text-lg font-semibold'>
+            Informasi Dauroh
+          </h3>
 
           <Field>
             <FieldLabel htmlFor='organizationId'>Penyelenggara</FieldLabel>
@@ -124,7 +132,9 @@ export const TrainingForm = ({ organizations, onSuccess }: TrainingFormProps) =>
               </ComboboxContent>
             </Combobox>
             <FieldError
-              errors={state.errors?.organizationId?.map((m) => ({ message: m }))}
+              errors={state.errors?.organizationId?.map((m) => ({
+                message: m
+              }))}
             />
           </Field>
 
@@ -188,7 +198,7 @@ export const TrainingForm = ({ organizations, onSuccess }: TrainingFormProps) =>
             />
           </Field>
 
-          <div className='grid grid-cols-2 gap-4 mt-4'>
+          <div className='mt-4 grid grid-cols-2 gap-4'>
             <Field>
               <FieldLabel htmlFor='startDate'>Tanggal Mulai</FieldLabel>
               <Input
@@ -212,20 +222,24 @@ export const TrainingForm = ({ organizations, onSuccess }: TrainingFormProps) =>
                 required
               />
               <FieldError
-                errors={state.errors?.endDate?.map((m) => ({ message: m}))}
+                errors={state.errors?.endDate?.map((m) => ({ message: m }))}
               />
             </Field>
           </div>
 
           <Field className='mt-4'>
-            <FieldLabel htmlFor='registrationDeadline'>Deadline Pendaftaran (Opsional)</FieldLabel>
+            <FieldLabel htmlFor='registrationDeadline'>
+              Deadline Pendaftaran (Opsional)
+            </FieldLabel>
             <Input
               id='registrationDeadline'
               name='registrationDeadline'
               type='date'
             />
             <FieldError
-              errors={state.errors?.registrationDeadline?.map((m) => ({ message: m }))}
+              errors={state.errors?.registrationDeadline?.map((m) => ({
+                message: m
+              }))}
             />
           </Field>
         </FieldGroup>

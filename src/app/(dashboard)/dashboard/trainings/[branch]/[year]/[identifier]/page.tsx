@@ -1,6 +1,6 @@
-import { notFound } from "next/navigation"
-import { trainingQuery } from "@/db/query/training"
-import { TrainingDetailView } from "../_components/training-detail-view"
+import { notFound } from 'next/navigation'
+import { trainingQuery } from '@/db/query/training'
+import { TrainingDetailView } from '../_components/training-detail-view'
 
 interface PageProps {
   params: Promise<{

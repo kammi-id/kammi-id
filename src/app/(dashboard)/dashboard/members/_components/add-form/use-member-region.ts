@@ -18,8 +18,11 @@ export const useMemberRegion = (
   initialDistrict = '',
   initialSubdistrict = ''
 ) => {
-  const [regionData, setRegionData] = useState<RegionDataState>(INITIAL_REGION_DATA)
-  const [isLoading, setIsLoading] = useState<RegionLoadingState>(INITIAL_LOADING_STATE)
+  const [regionData, setRegionData] =
+    useState<RegionDataState>(INITIAL_REGION_DATA)
+  const [isLoading, setIsLoading] = useState<RegionLoadingState>(
+    INITIAL_LOADING_STATE
+  )
   const [province, setProvince] = useState(initialProvince)
   const [city, setCity] = useState(initialCity)
   const [district, setDistrict] = useState(initialDistrict)

@@ -64,7 +64,7 @@ export const getColumns = (
           href={`/dashboard/trainings/${orgSlug}/${training.year}/${training.identifier}`}
           className={cn(
             buttonVariants({ variant: 'ghost', size: 'sm' }),
-            '-ml-2 h-8 px-2 font-medium text-foreground'
+            'text-foreground -ml-2 h-8 px-2 font-medium'
           )}
         >
           {training.name}
@@ -75,7 +75,9 @@ export const getColumns = (
   {
     accessorKey: 'organization.name',
     header: 'Organisasi',
-    cell: ({ row }) => <div className='-ml-2 h-8 px-2'>{row.original.organization.name}</div>
+    cell: ({ row }) => (
+      <div className='-ml-2 h-8 px-2'>{row.original.organization.name}</div>
+    )
   },
   {
     accessorKey: 'type',
@@ -100,7 +102,11 @@ export const getColumns = (
     header: 'ID',
     cell: ({ row }) => {
       const { year, identifier } = row.original
-      return <div className='-ml-2 h-8 px-2 font-mono text-xs'>{year}-${identifier}</div>
+      return (
+        <div className='-ml-2 h-8 px-2 font-mono text-xs'>
+          {year}-${identifier}
+        </div>
+      )
     }
   },
   {
@@ -108,9 +114,21 @@ export const getColumns = (
     header: 'Tanggal',
     cell: ({ row }) => {
       const { startDate, endDate } = row.original
-      const start = new Date(startDate).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })
-      const end = new Date(endDate).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })
-      return <div className='-ml-2 h-8 px-2 text-xs'>{start} - {end}</div>
+      const start = new Date(startDate).toLocaleDateString('id-ID', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric'
+      })
+      const end = new Date(endDate).toLocaleDateString('id-ID', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric'
+      })
+      return (
+        <div className='-ml-2 h-8 px-2 text-xs'>
+          {start} - {end}
+        </div>
+      )
     }
   },
   {
@@ -149,7 +167,7 @@ export const getColumns = (
                   <Button
                     variant='ghost'
                     size='sm'
-                    className='h-8 w-8 p-0 text-destructive hover:text-destructive'
+                    className='text-destructive hover:text-destructive h-8 w-8 p-0'
                     onClick={() => onDelete?.(row.original.id)}
                   >
                     <HugeiconsIcon

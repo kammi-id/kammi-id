@@ -1,7 +1,13 @@
 'use client'
 
 import { useStore } from '@nanostores/react'
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '~/components/shadcn/ui/sheet'
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger
+} from '~/components/shadcn/ui/sheet'
 import { Button } from '~/components/shadcn/ui/button'
 import { Add01Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
@@ -14,7 +20,10 @@ interface AddTrainingModalProps {
   userRole: string
 }
 
-export const AddTrainingModal = ({ organizations, userRole }: AddTrainingModalProps) => {
+export const AddTrainingModal = ({
+  organizations,
+  userRole
+}: AddTrainingModalProps) => {
   const router = useRouter()
   const isOpen = useStore(addTrainingSheetStore)
   const canManage = userRole === 'root' || userRole === 'bpk'
@@ -22,7 +31,10 @@ export const AddTrainingModal = ({ organizations, userRole }: AddTrainingModalPr
   if (!canManage) return null
 
   return (
-    <Sheet open={isOpen} onOpenChange={(open) => addTrainingSheetStore.set(open)}>
+    <Sheet
+      open={isOpen}
+      onOpenChange={(open) => addTrainingSheetStore.set(open)}
+    >
       <SheetTrigger
         render={
           <Button className='gap-2'>

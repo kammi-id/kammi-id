@@ -1,1 +1,1 @@
-export * from "./training-detail-view"
+export * from './training-detail-view'
