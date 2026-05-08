@@ -8,7 +8,7 @@ import {
 } from '../../_data/organizations'
 import { Database01Icon, ArrowLeft02Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { BranchesTable } from '../_components/branches-table'
+import { BranchesGrid } from '../_components/branches-grid'
 import { type Organization } from '../_components/branches-table/columns'
 import Link from 'next/link'
 import { cn } from '~/lib/shadcn/utils'
@@ -94,7 +94,7 @@ const BranchesPage = async ({ params, searchParams }: PageProps) => {
   const query = typeof sParams.q === 'string' ? sParams.q : undefined
   const page =
     typeof sParams.page === 'string' ? Math.max(1, parseInt(sParams.page)) : 1
-  const limit = typeof sParams.size === 'string' ? parseInt(sParams.size) : 10
+  const limit = typeof sParams.size === 'string' ? parseInt(sParams.size) : 12
   const offset = (page - 1) * limit
 
   let orderBy:
@@ -166,18 +166,17 @@ const BranchesPage = async ({ params, searchParams }: PageProps) => {
         </div>
 
         <div className='grid grid-cols-1 gap-8'>
-          <div className='bg-card rounded-3xl border p-6 shadow-xs md:p-8 lg:p-10'>
+          <div className='bg-card border-border rounded-lg border p-6 shadow-sm md:p-8 lg:p-10'>
             <div className='space-y-8'>
               <div className='space-y-6'>
-                <BranchesTable
+                <BranchesGrid
                   data={organizations}
-                  nameHeader={nameHeader}
-                  addButtonLabel={addButtonLabel}
+                  basePath={basePath}
                   pageCount={pageCount}
                   totalCount={totalCount}
-                  parentOrg={currentOrg}
+                  addButtonLabel={addButtonLabel}
                   userRole={user.role}
-                  basePath={basePath}
+                  parentOrg={currentOrg}
                 />
               </div>
             </div>

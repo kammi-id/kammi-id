@@ -36,14 +36,18 @@ export const getColumns = (
     cell: ({ row }) => {
       const org = row.original
       if (org.type === 'pk') {
-        return <div className='-ml-2 h-8 px-2 font-medium'>{org.name}</div>
+        return (
+          <div className='text-foreground -ml-2 h-8 px-2 font-semibold'>
+            {org.name}
+          </div>
+        )
       }
       return (
         <Link
           href={`${basePath}/${org.slug}`}
           className={cn(
             buttonVariants({ variant: 'ghost', size: 'sm' }),
-            '-ml-2 h-8 px-2 font-medium'
+            'text-foreground -ml-2 h-8 px-2 font-semibold'
           )}
         >
           {org.name}
@@ -53,7 +57,16 @@ export const getColumns = (
   },
   {
     accessorKey: 'type',
-    header: 'Tipe',
+    header: () => (
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger>
+            <span className='cursor-help'>Tipe</span>
+          </TooltipTrigger>
+          <TooltipContent>Tipe Organisasi (PW, PD, PK, etc.)</TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    ),
     cell: ({ row }) => {
       const type = row.original.type
       const labels: Record<string, string> = {
@@ -64,11 +77,11 @@ export const getColumns = (
         pp: 'Pusat'
       }
       const colors: Record<string, string> = {
-        pw: 'bg-green-100 text-green-700 border-green-200',
-        pd: 'bg-blue-100 text-blue-700 border-blue-200',
-        pdln: 'bg-blue-100 text-blue-700 border-blue-200',
-        pk: 'bg-red-100 text-red-700 border-red-200',
-        pp: 'bg-slate-100 text-slate-700 border-slate-200'
+        pw: 'border-primary text-primary bg-primary/10',
+        pd: 'border-blue-200 text-blue-600 bg-blue-50',
+        pdln: 'border-blue-200 text-blue-600 bg-blue-50',
+        pk: 'border-red-200 text-red-600 bg-red-50',
+        pp: 'border-slate-200 text-slate-600 bg-slate-50'
       }
       return (
         <Badge

@@ -16,8 +16,8 @@ export const user = pgTable('user', (t) => ({
     .notNull(),
   connectedOrganizationId: t
     .uuid('connected_organization_id')
-    .references(() => organization.id, { onDelete: 'set null' }),
+    .references(() => organization.id, { onDelete: 'cascade' }),
   connectedMemberId: t
     .uuid('connected_member_id')
-    .references(() => member.id, { onDelete: 'set null' })
+    .references(() => member.id, { onDelete: 'cascade' })
 }))

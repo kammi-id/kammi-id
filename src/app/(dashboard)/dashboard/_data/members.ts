@@ -11,7 +11,7 @@ export async function getCachedMemberAggregates(
 ) {
   'use cache'
   cacheLife('minutes')
-  cacheTag('members')
+  cacheTag('kader')
 
   return readMemberAggregates(filters)
 }
@@ -22,7 +22,7 @@ export async function getCachedDescendantMembers(
 ) {
   'use cache'
   cacheLife('minutes')
-  cacheTag('members')
+  cacheTag('kader')
 
   return readDescendantMembers(parentId, filters)
 }

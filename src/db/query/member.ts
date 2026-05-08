@@ -15,6 +15,7 @@ export type MemberFilters = {
   id?: string[]
   name?: string
   registerNumber?: string
+  phone?: string
   organizationId?: string[]
   provinceCode?: string[]
   cityCode?: string[]
@@ -25,6 +26,8 @@ export type MemberFilters = {
   gender?: 'ikhwan' | 'akhwat'
   isCertifiedMentor?: boolean
   isCertifiedInstructor?: boolean
+  sort?: string
+  order?: 'asc' | 'desc'
 }
 
 export type MemberAggregatesFilters = {
@@ -252,6 +255,8 @@ export const readMember = async (
     where.push(
       ilike(withMemberCTE.registerNumber, `%${memberFilters.registerNumber}%`)
     )
+  if (memberFilters.phone)
+    where.push(ilike(withMemberCTE.phone, `%${memberFilters.phone}%`))
   if (memberFilters.organizationId)
     where.push(
       inArray(withMemberCTE.organizationId, memberFilters.organizationId)
@@ -273,11 +278,22 @@ export const readMember = async (
   if (memberFilters.gender)
     where.push(eq(withMemberCTE.gender, memberFilters.gender))
 
+  const sortMapping: Record<string, string> = {
+    name: 'm.name',
+    yearOfEntry: 'm.year_of_entry',
+    registerNumber: 'm.register_number',
+    phone: 'm.phone'
+  }
+
+  const sortCol = sortMapping[memberFilters.sort || ''] || 'm.year_of_entry'
+  const sortDir = memberFilters.order === 'asc' ? 'ASC' : 'DESC'
+
   const query = db
     .with(withMemberCTE)
     .select()
     .from(withMemberCTE)
     .where(and(...where))
+    .orderBy(sql.raw(`${sortCol} ${sortDir}`), sql`m.name ASC`)
 
   if (limit !== undefined) query.limit(limit)
   if (offset !== undefined) query.offset(offset)
@@ -351,6 +367,16 @@ export const readDescendantMembers = async (
 
   const { name, status, gender } = memberFilters
 
+  const sortMapping: Record<string, string> = {
+    name: 'm.name',
+    yearOfEntry: 'm.year_of_entry',
+    registerNumber: 'm.register_number',
+    phone: 'm.phone'
+  }
+
+  const sortCol = sortMapping[memberFilters.sort || ''] || 'm.year_of_entry'
+  const sortDir = memberFilters.order === 'asc' ? 'ASC' : 'DESC'
+
   // 1. Fetch Members
   const data = await db
     .execute(
@@ -389,7 +415,7 @@ export const readDescendantMembers = async (
     ${name ? sql`AND m.name ILIKE ${'%' + name + '%'}` : sql``}
     ${status ? sql`AND m.status IN ${status}` : sql``}
     ${gender ? sql`AND m.gender = ${gender}` : sql``}
-    ORDER BY m.name ASC
+    ORDER BY ${sql.raw(sortCol)} ${sql.raw(sortDir)}, m.name ASC
     LIMIT ${limit} OFFSET ${offset}
   `
     )

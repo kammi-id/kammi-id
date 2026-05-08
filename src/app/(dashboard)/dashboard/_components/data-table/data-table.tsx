@@ -20,11 +20,17 @@ import {
 } from '~/components/shadcn/ui/table'
 import { Button, buttonVariants } from '~/components/shadcn/ui/button'
 import { Input } from '~/components/shadcn/ui/input'
+import { Badge } from '~/components/shadcn/ui/badge'
 import { useSearchParams, usePathname, useRouter } from 'next/navigation'
 import { cn } from '~/lib/shadcn/utils'
 import Link from 'next/link'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { ArrowLeft02Icon } from '@hugeicons/core-free-icons'
+import {
+  ArrowLeft02Icon,
+  FilterIcon,
+  SortByUp01Icon,
+  SortByDown01Icon
+} from '@hugeicons/core-free-icons'
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -35,29 +41,10 @@ interface DataTableProps<TData, TValue> {
   actionElement?: React.ReactNode
   queryPrefix?: string
   onRowClick?: (data: TData) => void
+  footerRows?: React.ReactNode
+  filterKeys?: string[]
 }
 
-/**
- * DataTable component is a generic, high-performance table used for displaying
- * and managing lists of data.
- *
- * It integrates with @tanstack/react-table for core logic and uses URL search
- * parameters as the single source of truth for sorting, filtering, and pagination,
- * ensuring that table state is shareable and persistent across refreshes.
- *
- * @template TData The type of data for each row.
- * @template TValue The type of value in the columns.
- * @param props - The properties for the DataTable component.
- * @param props.columns - Column definitions for the table.
- * @param props.data - The array of data to be displayed.
- * @param props.searchKey - The key used for filtering/searching the data.
- * @param props.pageCount - Total number of pages available.
- * @param props.totalCount - Total number of items in the dataset.
- * @param props.actionElement - Optional React element to render in the top-right action area.
- * @param props.queryPrefix - Prefix for the URL search parameters to avoid conflicts.
- * @param props.onRowClick - Optional callback triggered when a row is clicked.
- * @returns A React element rendering the data table with pagination and search.
- */
 export function DataTable<TData, TValue>({
   columns,
   data,
@@ -66,7 +53,9 @@ export function DataTable<TData, TValue>({
   totalCount = 0,
   actionElement,
   queryPrefix = '',
-  onRowClick
+  onRowClick,
+  footerRows,
+  filterKeys = []
 }: DataTableProps<TData, TValue>) {
   const router = useRouter()
   const pathname = usePathname()
@@ -77,7 +66,6 @@ export function DataTable<TData, TValue>({
   const sizeKey = `${queryPrefix}size`
   const sortKey = `${queryPrefix}sort`
 
-  // Derived state from URL (Single Source of Truth)
   const sorting = React.useMemo(() => {
     const sort = searchParams.get(sortKey)
     if (!sort) return []
@@ -107,7 +95,6 @@ export function DataTable<TData, TValue>({
     React.useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = React.useState({})
 
-  // Helper to update URL (used for search/replace navigation)
   const updateURL = React.useCallback(
     (updates: Record<string, string | null>) => {
       const params = new URLSearchParams(searchParams.toString())
@@ -123,7 +110,17 @@ export function DataTable<TData, TValue>({
     [pathname, router, searchParams]
   )
 
-  // Helper to create page URL for Next Link
+  const clearFilters = React.useCallback(() => {
+    const updates: Record<string, string | null> = {
+      [qKey]: null,
+      [pageKey]: '1'
+    }
+    filterKeys.forEach((key) => {
+      updates[key] = null
+    })
+    updateURL(updates)
+  }, [updateURL, qKey, pageKey, filterKeys])
+
   const getPageURL = React.useCallback(
     (pageIndex: number) => {
       const params = new URLSearchParams(searchParams.toString())
@@ -150,7 +147,6 @@ export function DataTable<TData, TValue>({
 
     onRowSelectionChange: setRowSelection,
     onColumnVisibilityChange: setColumnVisibility,
-    // Handlers update URL instead of local state
     onSortingChange: (updaterOrValue) => {
       const newSorting =
         typeof updaterOrValue === 'function'
@@ -179,26 +175,22 @@ export function DataTable<TData, TValue>({
     manualFiltering: true
   })
 
-  // Debounced search
   const [searchValue, setSearchValue] = React.useState(
     searchParams.get(qKey) || ''
   )
   React.useEffect(() => {
     const timeout = setTimeout(() => {
       if (searchValue !== (searchParams.get(qKey) || '')) {
-        updateURL({ [qKey]: searchValue || null, [pageKey]: '1' }) // Reset to page 1 on search
+        updateURL({ [qKey]: searchValue || null, [pageKey]: '1' })
       }
     }, 300)
     return () => clearTimeout(timeout)
   }, [searchValue, updateURL, searchParams, qKey, pageKey])
 
-  const isSubPage = pathname.split('/').filter(Boolean).length > 2
-  const parentPath = pathname.split('/').slice(0, -1).join('/')
-
   return (
     <div className='space-y-4'>
       <div className='flex items-center justify-between gap-4'>
-        <div className='flex flex-1 items-center gap-2'>
+        <div className='flex flex-1 items-center gap-3'>
           {searchKey && (
             <div className='relative w-full max-w-sm'>
               <Input
@@ -215,10 +207,48 @@ export function DataTable<TData, TValue>({
               </div>
             </div>
           )}
+          <div className='flex items-center gap-2 overflow-x-auto pb-1'>
+            {filterKeys.map((key) => {
+              const value = searchParams.get(key)
+              if (!value) return null
+              return (
+                <Badge
+                  key={key}
+                  variant='secondary'
+                  className='hover:bg-destructive/10 hover:text-destructive flex items-center gap-1 px-2 py-0.5 text-xs font-medium transition-colors'
+                  onClick={() => updateURL({ [key]: null, [pageKey]: '1' })}
+                >
+                  {key === 'status'
+                    ? 'Status'
+                    : key === 'gender'
+                      ? 'Gender'
+                      : key}
+                  : {value}
+                  <HugeiconsIcon icon={FilterIcon} className='size-3' />
+                </Badge>
+              )
+            })}
+            {(filterKeys.some((key) => searchParams.has(key)) ||
+              searchParams.get(qKey)) && (
+              <Button
+                variant='ghost'
+                size='sm'
+                className='text-muted-foreground hover:text-foreground h-8 px-2 text-xs font-medium'
+                onClick={clearFilters}
+              >
+                Hapus Semua
+              </Button>
+            )}
+          </div>
         </div>
         <div className='flex items-center gap-2'>{actionElement}</div>
       </div>
-      <div className='bg-card overflow-hidden rounded-xl border shadow-xs'>
+      <div
+        className={cn(
+          'bg-card overflow-hidden rounded-xl border shadow-xs',
+          pathname.includes('/perangkat') && 'border-transparent'
+        )}
+      >
         <Table>
           <TableHeader className='bg-muted/50'>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -228,12 +258,26 @@ export function DataTable<TData, TValue>({
                     key={header.id}
                     className='text-muted-foreground h-10 text-xs font-bold tracking-wider uppercase'
                   >
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
+                    {header.isPlaceholder ? null : (
+                      <div className='flex items-center gap-1'>
+                        {flexRender(
                           header.column.columnDef.header,
                           header.getContext()
                         )}
+                        {header.column.getIsSorted() === 'asc' && (
+                          <HugeiconsIcon
+                            icon={SortByUp01Icon}
+                            className='text-primary size-3'
+                          />
+                        )}
+                        {header.column.getIsSorted() === 'desc' && (
+                          <HugeiconsIcon
+                            icon={SortByDown01Icon}
+                            className='text-primary size-3'
+                          />
+                        )}
+                      </div>
+                    )}
                   </TableHead>
                 ))}
               </TableRow>
@@ -241,26 +285,28 @@ export function DataTable<TData, TValue>({
           </TableHeader>
           <TableBody>
             {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && 'selected'}
-                  onClick={() => onRowClick?.(row.original)}
-                  className={cn(
-                    'transition-colors',
-                    onRowClick && 'hover:bg-muted/50 cursor-pointer'
-                  )}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className='py-3'>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
+              <>
+                {table.getRowModel().rows.map((row) => (
+                  <TableRow
+                    key={row.id}
+                    data-state={row.getIsSelected() && 'selected'}
+                    onClick={() => onRowClick?.(row.original)}
+                    className={cn(
+                      'transition-colors',
+                      onRowClick && 'hover:bg-muted/50 cursor-pointer'
+                    )}
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id} className='py-3'>
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))}
+              </>
             ) : (
               <TableRow>
                 <TableCell
@@ -271,6 +317,7 @@ export function DataTable<TData, TValue>({
                 </TableCell>
               </TableRow>
             )}
+            {footerRows}
           </TableBody>
         </Table>
       </div>

@@ -89,7 +89,7 @@ export const AppSidebar = ({
   const menuPembinaan = [
     {
       title: 'Data Kader',
-      url: '/dashboard/members',
+      url: '/dashboard/kader',
       icon: <HugeiconsIcon icon={UserGroupIcon} strokeWidth={2} />,
       roles: ['bph', 'bpk', 'root']
     },
@@ -100,14 +100,8 @@ export const AppSidebar = ({
       roles: ['bph', 'bpk', 'root']
     },
     {
-      title: 'Data Pemandu',
-      url: '/dashboard/pemandu',
-      icon: <HugeiconsIcon icon={UserGroupIcon} strokeWidth={2} />,
-      roles: ['bpk', 'root']
-    },
-    {
-      title: 'Data Instruktur',
-      url: '/dashboard/instruktur',
+      title: 'Perangkat Kaderisasi',
+      url: '/dashboard/perangkat',
       icon: <HugeiconsIcon icon={UserGroupIcon} strokeWidth={2} />,
       roles: ['bpk', 'root']
     },

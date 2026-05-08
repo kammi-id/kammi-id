@@ -1,0 +1,144 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-05-06T10:00:00Z",
+  "title": "Design System: KAMMI-ID",
+  "extensions": {
+    "colorMeta": {
+      "primary": {
+        "role": "primary",
+        "displayName": "Vanguard Green",
+        "canonical": "oklch(0.508 0.118 165.612)",
+        "tonalRamp": [
+          "oklch(0.2 0.1 165)",
+          "oklch(0.3 0.11 165)",
+          "oklch(0.4 0.12 165)",
+          "oklch(0.508 0.118 165.612)",
+          "oklch(0.6 0.11 165)",
+          "oklch(0.7 0.1 165)",
+          "oklch(0.8 0.08 165)",
+          "oklch(0.9 0.05 165)"
+        ]
+      },
+      "foreground": {
+        "role": "neutral",
+        "displayName": "Deep Slate",
+        "canonical": "oklch(0.141 0.005 285.823)",
+        "tonalRamp": [
+          "oklch(0.1 0.01 285)",
+          "oklch(0.2 0.01 285)",
+          "oklch(0.3 0.01 285)",
+          "oklch(0.4 0.01 285)",
+          "oklch(0.5 0.01 285)",
+          "oklch(0.6 0.01 285)",
+          "oklch(0.7 0.01 285)",
+          "oklch(0.8 0.01 285)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Page titles and high-level section headers."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "The workhorse font for all primary content."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Badges, tags, and metadata."
+      }
+    },
+    "shadows": [
+      {
+        "name": "ambient-lift",
+        "value": "0 2px 8px rgba(0,0,0,0.05)",
+        "purpose": "Subtle lift for cards and inputs at rest."
+      },
+      {
+        "name": "active-lift",
+        "value": "0 4px 12px rgba(0,0,0,0.1)",
+        "purpose": "Pronounced lift for modals and active dropdowns."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-standard",
+        "value": "cubic-bezier(0.4, 0, 0.2, 1)",
+        "purpose": "Default easing for state transitions."
+      }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The main action trigger, evoking growth and energy.",
+      "html": "<button class=\"ds-btn-primary\">SAVE CHANGES</button>",
+      "css": ".ds-btn-primary { background: oklch(0.508 0.118 165.612); color: oklch(0.979 0.021 166.113); padding: 8px 16px; border-radius: 8px; font-weight: 600; border: none; cursor: pointer; transition: all 0.2s ease-standard; } .ds-btn-primary:hover { background: oklch(0.45 0.12 165); transform: scale(1.02); }"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Secondary action, restrained and clean.",
+      "html": "<button class=\"ds-btn-ghost\">CANCEL</button>",
+      "css": ".ds-btn-ghost { background: transparent; color: oklch(0.141 0.005 285.823); padding: 8px 16px; border-radius: 8px; font-weight: 500; border: 1px solid oklch(0.92 0.004 286.32); cursor: pointer; transition: all 0.2s ease-standard; } .ds-btn-ghost:hover { background: oklch(0.967 0.001 286.375); }"
+    },
+    {
+      "name": "Standard Input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Refined field for data entry with explicit focus.",
+      "html": "<input type=\"text\" class=\"ds-input\" placeholder=\"Enter name...\" />",
+      "css": ".ds-input { background: white; color: oklch(0.141 0.005 285.823); border: 1px solid oklch(0.92 0.004 286.32); padding: 8px 12px; border-radius: 8px; font-size: 14px; outline: none; transition: all 0.2s ease-standard; } .ds-input:focus { border-color: oklch(0.508 0.118 165.612); box-shadow: 0 0 0 2px oklch(0.508 0.118 165.612 / 0.2); }"
+    },
+    {
+      "name": "Data Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Structured container for organized data.",
+      "html": "<div class=\"ds-card\">Content</div>",
+      "css": ".ds-card { background: white; border: 1px solid oklch(0.92 0.004 286.32); border-radius: 10px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Vanguard Archive",
+    "overview": "The Vanguard Archive is a digital manifestation of youthful idealism meeting professional execution. It rejects the sterile, rigid nature of traditional administrative tools in favor of a high-velocity, high-clarity environment.",
+    "keyCharacteristics": [
+      "High-Velocity",
+      "Structured Precision",
+      "Inclusive Boldness"
+    ],
+    "rules": [
+      {
+        "name": "The Rare Accent Rule",
+        "body": "Vanguard Green is the sole high-chroma accent. Its usage is focused on intent; when a user sees Green, they know it is the primary path forward.",
+        "section": "colors"
+      },
+      {
+        "name": "The Response Rule",
+        "body": "Shadows are not decorative; they are functional. A shadow always indicates that an element is now 'above' the main archive and ready for interaction.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do use a high-contrast ratio for all text",
+      "Do implement inline editing and keyboard shortcuts for data-heavy tables",
+      "Do provide a tooltip for every non-obvious label or action",
+      "Do use the Mono font for IDs, NIKs, and status codes"
+    ],
+    "donts": [
+      "Don't use the 'Government App' aesthetic",
+      "Don't use side-stripe borders as colored accents",
+      "Don't use gradient text",
+      "Don't use modals as the first thought for data entry"
+    ]
+  }
+}
