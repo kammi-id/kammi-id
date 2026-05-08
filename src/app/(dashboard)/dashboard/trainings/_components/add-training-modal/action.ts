@@ -22,7 +22,7 @@ const TrainingSchema = z.object({
   type: z.enum(['dm1', 'dm2', 'dpmk', 'tfi', 'dm3', 'other'])
 })
 
-type ActionResponse<T = any> = {
+type ActionResponse<T = unknown> = {
   success: boolean
   message: string
   errors?: Record<string, string[]>
@@ -30,7 +30,7 @@ type ActionResponse<T = any> = {
 }
 
 export const createTrainingAction = async (
-  prevState: any,
+  _prevState: ActionResponse,
   formData: FormData
 ): Promise<ActionResponse> => {
   try {

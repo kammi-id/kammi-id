@@ -2,6 +2,8 @@ import { trainingQuery } from '~/db/query/training'
 import { readOrganization, fetchAllowedOrgIds } from '~/db/query/organization'
 import { TrainingTable } from './_components/training-table'
 import { AddTrainingModal } from './_components/add-training-modal'
+import { TrainingSectionCards } from './_components/training-section-cards'
+import { TrainingPageHeader } from './_components/training-page-header'
 import { AccessGuard } from '~/components/access-guard'
 import { readActiveSession } from '~/lib/auth/cookies'
 
@@ -28,6 +30,23 @@ export default async function TrainingsPage({
     readOrganization({ isNonActive: false })
   ])
 
+  // Calculate metrics for summary cards
+  const currentYear = new Date().getFullYear()
+  const typesCount: Record<string, number> = {}
+  const orgsWithTraining = new Set<string>()
+
+  trainings.forEach((t) => {
+    typesCount[t.type] = (typesCount[t.type] || 0) + 1
+    orgsWithTraining.add(t.organization.id)
+  })
+
+  const metrics = {
+    total: trainings.length,
+    thisYear: trainings.filter((t) => t.year === currentYear).length,
+    orgsWithTraining: orgsWithTraining.size,
+    typesCount
+  }
+
   // Filter organizations based on user's jurisdiction
   const allowedOrgIds = await fetchAllowedOrgIds({
     role: user?.role || userRole,
@@ -40,14 +59,12 @@ export default async function TrainingsPage({
 
   return (
     <AccessGuard allowedRoles={['root', 'bph', 'bpk']}>
-      <div className='flex flex-col gap-6 p-6'>
-        <div className='flex items-center justify-between'>
-          <div>
-            <h1 className='text-2xl font-bold tracking-tight'>Daftar Dauroh</h1>
-            <p className='text-muted-foreground'>
-              Kelola semua sesi dauroh organisasi di sini.
-            </p>
-          </div>
+      <div className='flex flex-col gap-8 p-6'>
+        <div className='flex items-center justify-between gap-4'>
+          <TrainingPageHeader
+            pageTitle='Daftar Dauroh'
+            subTitle='Kelola semua sesi dauroh organisasi di sini.'
+          />
           <AddTrainingModal
             organizations={organizations.map((o) => ({
               id: o.id,
@@ -57,6 +74,8 @@ export default async function TrainingsPage({
             userRole={userRole}
           />
         </div>
+
+        <TrainingSectionCards data={metrics} />
 
         <TrainingTable data={trainings} />
       </div>

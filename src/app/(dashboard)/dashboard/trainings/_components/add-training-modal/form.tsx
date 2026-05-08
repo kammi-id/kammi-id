@@ -19,8 +19,7 @@ import {
   FieldGroup,
   FieldLabel,
   FieldContent,
-  FieldTitle,
-  FieldDescription
+  FieldTitle
 } from '~/components/shadcn/ui/field'
 import { createTrainingAction } from './action'
 import { toast } from 'sonner'
@@ -28,6 +27,7 @@ import { closeAddTrainingSheet } from './store'
 import { cn } from '~/lib/shadcn/utils'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Award01Icon } from '@hugeicons/core-free-icons'
+import * as React from 'react'
 
 const TRAINING_TYPE_LABELS: Record<string, string> = {
   dm1: 'DM 1',
@@ -70,11 +70,15 @@ export const TrainingForm = ({
   const selectedOrg = organizations.find((org) => org.id === orgId)
   const selectedOrgType = selectedOrg?.type
 
-  const filteredOrgs = organizations.filter((org) =>
-    org.name.toLowerCase().includes(orgSearchQuery.toLowerCase())
+  const filteredOrgs = React.useMemo(
+    () =>
+      organizations.filter((org) =>
+        org.name.toLowerCase().includes(orgSearchQuery.toLowerCase())
+      ),
+    [organizations, orgSearchQuery]
   )
 
-  const getAvailableTypes = () => {
+  const availableTypes = React.useMemo(() => {
     if (!selectedOrgType) return Object.keys(TRAINING_TYPE_LABELS)
 
     if (selectedOrgType === 'pk') {
@@ -85,15 +89,12 @@ export const TrainingForm = ({
     }
     // PW or PP
     return Object.keys(TRAINING_TYPE_LABELS)
+  }, [selectedOrgType])
+
+  // Synchronize type if it's no longer available
+  if (availableTypes.length > 0 && !availableTypes.includes(type)) {
+    setType(availableTypes[0])
   }
-
-  const availableTypes = getAvailableTypes()
-
-  useEffect(() => {
-    if (availableTypes.length > 0 && !availableTypes.includes(type)) {
-      setType(availableTypes[0])
-    }
-  }, [availableTypes, type])
 
   return (
     <form

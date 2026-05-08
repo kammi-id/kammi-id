@@ -19,23 +19,38 @@ import { type DBExecutor } from '../types'
 import { createUser } from './user'
 import { generatePassword, hashPassword } from '~/lib/utils/user'
 
+export type Organization = {
+  id: string
+  name: string
+  code: string
+  slug: string
+  type: string
+  level: number
+  parentId: string | null
+  childrenCount?: number
+}
+
 export const fetchAllowedOrgIds = async (user: {
   role: string
-  connectedOrganizationId: string | null
+  connectedOrganization?: { id: string } | null
+  connectedOrganizationId?: string | null
 }): Promise<string[]> => {
+  const connectedOrgId =
+    user.connectedOrganization?.id || user.connectedOrganizationId
+
   if (user.role === 'root') {
     const result = await db.select({ id: organization.id }).from(organization)
     return result.map((r) => r.id)
   }
 
-  if (!user.connectedOrganizationId) {
+  if (!connectedOrgId) {
     return []
   }
 
   const userOrg = await db
     .select({ type: organization.type })
     .from(organization)
-    .where(eq(organization.id, user.connectedOrganizationId))
+    .where(eq(organization.id, connectedOrgId))
     .limit(1)
     .then((res) => res[0])
 
@@ -43,38 +58,27 @@ export const fetchAllowedOrgIds = async (user: {
     return []
   }
 
-  // BPK at PP level should see everything
-  if (user.role === 'bpk' && userOrg.type === 'pp') {
-    const result = await db.select({ id: organization.id }).from(organization)
-    return result.map((r) => r.id)
-  }
-
   if (user.role === 'humas') {
-    return [user.connectedOrganizationId]
+    return [connectedOrgId]
   }
 
-  // Recursive CTE to find all organizations in the subtree
-  const query = sql`
-    WITH RECURSIVE org_hierarchy AS (
-      SELECT id FROM ${organization} WHERE id = ${user.connectedOrganizationId}
-      UNION ALL
-      SELECT o.id FROM ${organization} o
-      JOIN org_hierarchy oh ON o.parent_id = oh.id
-    )
-    SELECT id FROM org_hierarchy
-  `
+  try {
+    const result = await db.execute(sql`
+      WITH RECURSIVE org_hierarchy AS (
+        SELECT id FROM ${organization} WHERE id = ${connectedOrgId}
+        UNION ALL
+        SELECT o.id FROM ${organization} o
+        JOIN org_hierarchy oh ON o.parent_id = oh.id
+      )
+      SELECT id FROM org_hierarchy
+    `)
 
-  const result = await db.execute(query)
-
-  // Handle different possible return formats from db.execute
-  const rows = (result as any).rows || result
-
-  const ids = (Array.isArray(rows) ? rows : []).flatMap((r) => {
-    if (typeof r === 'object' && r !== null && 'id' in r) return [r.id]
-    return []
-  })
-
-  return ids
+    const rows = (result as any).rows || result
+    const ids = (Array.isArray(rows) ? rows : []).map((r: any) => r.id)
+    return ids
+  } catch (error) {
+    return [connectedOrgId]
+  }
 }
 
 type OrganizationInsertValues = typeof organization.$inferInsert
@@ -236,7 +240,18 @@ export const readOrganization = async (
 
   const query = executor
     .with(withOrganizationCTE)
-    .select()
+    .select({
+      id: withOrganizationCTE.id,
+      name: withOrganizationCTE.name,
+      code: withOrganizationCTE.code,
+      slug: withOrganizationCTE.slug,
+      type: withOrganizationCTE.type,
+      level: withOrganizationCTE.level,
+      parentId: withOrganizationCTE.parentId,
+      childrenCount: sql`
+        (SELECT count(*) FROM ${organization} WHERE parent_id = ${withOrganizationCTE.id})
+      `.mapWith(Number)
+    })
     .from(withOrganizationCTE)
     .where(and(...where))
 
@@ -247,8 +262,13 @@ export const readOrganization = async (
     })
     query.orderBy(...orderClauses)
   } else {
-    // Default sorting if no orderBy is provided
-    query.orderBy(asc(withOrganizationCTE.level), asc(withOrganizationCTE.code))
+    // Default sorting: Alphanumeric sort for 'code'
+    // Extracts digits from code and sorts them as integers, then falls back to string sort
+    query.orderBy(
+      asc(withOrganizationCTE.level),
+      sql`substring(${withOrganizationCTE.code} from '[0-9]+')::int`,
+      asc(withOrganizationCTE.code)
+    )
   }
 
   if (filters.limit !== undefined) {
