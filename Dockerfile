@@ -24,15 +24,15 @@ ENV NEXT_TELEMETRY_DISABLED 1
 RUN bun run build
 
 # Stage 3: Runner
-FROM oven/bun:1.1-slim AS runner
+FROM oven/bun:1.1-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV production
 ENV NEXT_TELEMETRY_DISABLED 1
 
 # Create a non-root user
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
+RUN addgroup -S -g 1001 nodejs
+RUN adduser -S -u 1001 nextjs -G nodejs
 
 # Set correct permissions for prerender cache
 RUN mkdir .next
