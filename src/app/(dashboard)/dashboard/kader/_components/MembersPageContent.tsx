@@ -7,18 +7,18 @@ import {
   getCachedOrganization,
   getCachedOrganizations,
   getCachedOrganizationCount
-} from '../../_data/organizations'
+} from '~/app/(dashboard)/dashboard/_data/organizations'
 import { fetchAllowedOrgIds } from '~/db/query/organization'
 import {
   getCachedMemberAggregates,
   getCachedDescendantMembers
-} from '../../_data/members'
+} from '~/app/(dashboard)/dashboard/_data/members'
 import { MembersTable } from './members-table'
 import { IndividualMemberTable } from './individual-table'
 import { MemberSectionCards } from './member-section-cards'
 import { MembersGrid } from './members-grid/members-grid'
 import { TierSummary } from './members-grid/tier-summary'
-import { type Organization } from '../_data/organizations'
+import { type Organization } from '~/app/(dashboard)/dashboard/_data/organizations'
 import { AccessGuard } from '~/components/access-guard'
 
 import { MembersPageHeader } from './members-page-header'
