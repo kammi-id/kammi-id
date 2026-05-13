@@ -9,11 +9,12 @@ async function verify() {
     // Manually specify an organization ID if the auto-fetch fails,
     // but first let's try to fix the fetch.
     const orgs = await db.execute(sql`SELECT id FROM organization LIMIT 1`)
-    if (!orgs.rows || orgs.rows.length === 0) {
+    const rows = orgs as any[]
+    if (rows.length === 0) {
       console.error('❌ No organization found in DB. Please create one first.')
       process.exit(1)
     }
-    const orgId = orgs.rows[0].id
+    const orgId = rows[0].id
     console.log(`Using organization: ${orgId}`)
 
     // Clean up previous test data

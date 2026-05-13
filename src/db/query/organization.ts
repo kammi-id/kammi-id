@@ -19,17 +19,6 @@ import { type DBExecutor } from '../types'
 import { createUser } from './user'
 import { generatePassword, hashPassword } from '~/lib/utils/user'
 
-export type Organization = {
-  id: string
-  name: string
-  code: string
-  slug: string
-  type: string
-  level: number
-  parentId: string | null
-  childrenCount?: number
-}
-
 export const fetchAllowedOrgIds = async (user: {
   role: string
   connectedOrganization?: { id: string } | null
@@ -94,7 +83,7 @@ export type OrganizationFilters = {
   limit?: number
   offset?: number
   orderBy?: {
-    column: keyof Organization
+    column: keyof Organization | 'childrenCount'
     direction: 'asc' | 'desc'
   }[]
 }
@@ -245,9 +234,12 @@ export const readOrganization = async (
       name: withOrganizationCTE.name,
       code: withOrganizationCTE.code,
       slug: withOrganizationCTE.slug,
+      codeSlug: withOrganizationCTE.codeSlug,
       type: withOrganizationCTE.type,
       level: withOrganizationCTE.level,
+      logo: withOrganizationCTE.logo,
       parentId: withOrganizationCTE.parentId,
+      isNonActive: withOrganizationCTE.isNonActive,
       childrenCount: sql`
         (SELECT count(*) FROM ${organization} WHERE parent_id = ${withOrganizationCTE.id})
       `.mapWith(Number)
@@ -258,7 +250,10 @@ export const readOrganization = async (
   if (filters.orderBy && filters.orderBy.length > 0) {
     const orderClauses = filters.orderBy.map(({ column, direction }) => {
       const orderFn = direction === 'asc' ? asc : desc
-      return orderFn(withOrganizationCTE[column])
+      if (column === 'childrenCount') {
+        return orderFn(sql`children_count`)
+      }
+      return orderFn(withOrganizationCTE[column as keyof typeof withOrganizationCTE] as any)
     })
     query.orderBy(...orderClauses)
   } else {

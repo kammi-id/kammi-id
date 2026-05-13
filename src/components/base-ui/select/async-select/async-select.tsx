@@ -1,5 +1,5 @@
 import { Select } from '@base-ui/react/select'
-import { cn } from '@/lib/utils'
+import { cn } from '~/lib/shadcn/utils'
 import React from 'react'
 
 export interface AsyncSelectOption {
@@ -9,8 +9,8 @@ export interface AsyncSelectOption {
 }
 
 export interface AsyncSelectProps {
-  value?: string
-  onChange?: (value: string) => void
+  value?: string | null
+  onChange?: (value: string | null) => void
   options: AsyncSelectOption[]
   onLoadMore?: () => Promise<void>
   isLoading?: boolean
@@ -26,7 +26,7 @@ export const AsyncSelect = ({
   options,
   onLoadMore,
   isLoading = false,
-  placeholder = 'Select an option...',
+  placeholder = 'Select option...',
   label,
   error,
   name
@@ -50,15 +50,15 @@ export const AsyncSelect = ({
             'border-slate-200 hover:border-slate-300 dark:border-slate-700 dark:hover:border-slate-600',
             'disabled:cursor-not-allowed disabled:opacity-50',
             error && 'border-red-500',
-            'data-[state=open]:border-transparent data-[state=open]:ring-2 data-[state=open]:ring-blue-500'
+            'data-[popup-open]:border-transparent data-[popup-open]:ring-2 data-[popup-open]:ring-blue-500'
           )}
         >
           <Select.Value placeholder={placeholder}>
-            {isLoading ? 'Loading...' : placeholder}
+            {isLoading && !value ? 'Loading...' : undefined}
           </Select.Value>
-          <span className='pointer-events-none flex items-center justify-center'>
+          <Select.Icon className='flex items-center justify-center'>
             <svg
-              className='h-4 w-4 transition-transform data-[state=open]:rotate-180'
+              className='h-4 w-4 transition-transform data-[popup-open]:rotate-180'
               fill='none'
               stroke='currentColor'
               viewBox='0 0 24 24'
@@ -70,56 +70,60 @@ export const AsyncSelect = ({
                 d='M19 9l-7 7-7-7'
               />
             </svg>
-          </span>
+          </Select.Icon>
         </Select.Trigger>
 
-        <Select.Positioner>
-          <Select.Portal>
-            <Select.Content
+        <Select.Portal>
+          <Select.Positioner sideOffset={8}>
+            <Select.Popup
               className={cn(
-                'z-50 max-h-60 w-full overflow-auto rounded-md border border-slate-200 bg-white py-1 shadow-lg dark:border-slate-700 dark:bg-slate-900',
-                'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95'
+                'z-50 min-w-[var(--anchor-width)] overflow-hidden rounded-md border border-slate-200 bg-white py-1 shadow-lg dark:border-slate-700 dark:bg-slate-900',
+                'transition-[transform,scale,opacity] duration-150',
+                'data-[starting-style]:scale-95 data-[starting-style]:opacity-0',
+                'data-[ending-style]:scale-95 data-[ending-style]:opacity-0'
               )}
             >
-              {options.length === 0 && !isLoading ? (
-                <div className='px-3 py-2 text-center text-sm text-slate-500'>
-                  No options found
-                </div>
-              ) : (
-                <Select.Group>
-                  {options.map((option) => (
-                    <Select.Item
-                      key={option.value}
-                      value={option.value}
-                      disabled={option.disabled}
-                      className={cn(
-                        'cursor-pointer px-3 py-2 text-sm transition-colors outline-none',
-                        'data-[highlighted]:bg-blue-50 data-[highlighted]:text-blue-700 dark:data-[highlighted]:bg-blue-900/30 dark:data-[highlighted]:text-blue-400',
-                        'data-[selected]:font-semibold',
-                        'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800',
-                        'disabled:cursor-not-allowed disabled:opacity-50'
-                      )}
-                    >
-                      {option.label}
-                    </Select.Item>
-                  ))}
+              <Select.List className='max-h-60 overflow-auto outline-none'>
+                {options.length === 0 && !isLoading ? (
+                  <div className='px-3 py-2 text-center text-sm text-slate-500'>
+                    No options found
+                  </div>
+                ) : (
+                  <>
+                    {options.map((option) => (
+                      <Select.Item
+                        key={option.value}
+                        value={option.value}
+                        disabled={option.disabled}
+                        className={cn(
+                          'cursor-pointer px-3 py-2 text-sm transition-colors outline-none',
+                          'data-[highlighted]:bg-blue-50 data-[highlighted]:text-blue-700 dark:data-[highlighted]:bg-blue-900/30 dark:data-[highlighted]:text-blue-400',
+                          'data-[selected]:font-semibold',
+                          'text-slate-700 dark:text-slate-300',
+                          'disabled:cursor-not-allowed disabled:opacity-50'
+                        )}
+                      >
+                        <Select.ItemText>{option.label}</Select.ItemText>
+                      </Select.Item>
+                    ))}
 
-                  {onLoadMore && (
-                    <div
-                      className='cursor-pointer px-3 py-2 text-center text-sm transition-colors hover:bg-slate-100 dark:hover:bg-slate-800'
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        onLoadMore()
-                      }}
-                    >
-                      {isLoading ? 'Loading more...' : 'Load more'}
-                    </div>
-                  )}
-                </Select.Group>
-              )}
-            </Select.Content>
-          </Select.Portal>
-        </Select.Positioner>
+                    {onLoadMore && (
+                      <div
+                        className='cursor-pointer px-3 py-2 text-center text-sm text-blue-600 transition-colors hover:bg-slate-100 dark:text-blue-400 dark:hover:bg-slate-800'
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          onLoadMore()
+                        }}
+                      >
+                        {isLoading ? 'Loading more...' : 'Load more'}
+                      </div>
+                    )}
+                  </>
+                )}
+              </Select.List>
+            </Select.Popup>
+          </Select.Positioner>
+        </Select.Portal>
       </Select.Root>
 
       {error && <p className='text-xs text-red-500'>{error}</p>}

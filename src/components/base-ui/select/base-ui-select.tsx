@@ -3,7 +3,7 @@
 import React, { useEffect, useMemo } from 'react'
 import { useSelect } from './use-select'
 import { BaseUISelectProps, SelectOption } from './types'
-import { cn } from '@/lib/utils'
+import { cn } from '~/lib/shadcn/utils'
 
 const BaseUISelect = ({
   value,

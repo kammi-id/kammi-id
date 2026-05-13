@@ -3,7 +3,7 @@
 import * as React from 'react'
 import { Combobox as BaseCombobox } from '@base-ui/react'
 import { ComboboxProps, ComboboxOption } from './types'
-import { cn } from '@/lib/utils'
+import { cn } from '~/lib/shadcn/utils'
 
 const Combobox = <T extends string>({
   options,

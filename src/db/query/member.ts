@@ -135,7 +135,8 @@ export const readMemberAggregates = async (
   `
     )
     .then((res) => {
-      return res.map((row: MemberAggregatesRow) => ({
+      const rows = res as unknown as MemberAggregatesRow[]
+      return rows.map((row) => ({
         organizationId: row.organizationId,
         parentId: row.parentId,
         level: row.level,
@@ -327,11 +328,16 @@ type MemberDescendantRow = {
   isNonActive: boolean
   isCertifiedMentor: boolean
   isCertifiedInstructor: boolean
+  addressProvince: string | null
+  addressCity: string | null
+  addressDistrict: string | null
+  addressSubdistrict: string | null
   addressProvinceCode: string | null
   addressCityCode: string | null
   addressDistrictCode: string | null
   addressSubdistrictCode: string | null
   addressLine: string | null
+  photo: string | null
   status: string
   gender: string
   yearOfEntry: number | null
@@ -392,11 +398,16 @@ export const readDescendantMembers = async (
       m.is_suspended as "isSuspended", m.is_non_active as "isNonActive",
       m.is_certified_mentor as "isCertifiedMentor",
       m.is_certified_instructor as "isCertifiedInstructor",
+      m.address_province as "addressProvince",
+      m.address_city as "addressCity",
+      m.address_district as "addressDistrict",
+      m.address_subdistrict as "addressSubdistrict",
       m.address_province_code as "addressProvinceCode",
       m.address_city_code as "addressCityCode",
       m.address_district_code as "addressDistrictCode",
       m.address_subdistrict_code as "addressSubdistrictCode",
       m.address_line as "addressLine",
+      m.photo,
       m.status, m.gender, m.year_of_entry as "yearOfEntry",
       json_build_object(
         'id', o.id,
@@ -420,26 +431,32 @@ export const readDescendantMembers = async (
   `
     )
     .then((res) => {
-      return res.map((row: MemberDescendantRow) => ({
+      const rows = res as unknown as MemberDescendantRow[]
+      return rows.map((row) => ({
         id: row.id,
         name: row.name,
         phone: row.phone,
-        registerNumber: row.registerNumber,
+        registerNumber: row.registerNumber as string,
         organizationId: row.organizationId,
         isAlumn: row.isAlumn,
         isSuspended: row.isSuspended,
         isNonActive: row.isNonActive,
         isCertifiedMentor: row.isCertifiedMentor,
         isCertifiedInstructor: row.isCertifiedInstructor,
+        addressProvince: row.addressProvince,
+        addressCity: row.addressCity,
+        addressDistrict: row.addressDistrict,
+        addressSubdistrict: row.addressSubdistrict,
         addressProvinceCode: row.addressProvinceCode,
         addressCityCode: row.addressCityCode,
         addressDistrictCode: row.addressDistrictCode,
         addressSubdistrictCode: row.addressSubdistrictCode,
         addressLine: row.addressLine,
-        status: row.status,
-        gender: row.gender,
-        yearOfEntry: row.yearOfEntry,
-        organization: row.organization
+        photo: row.photo,
+        status: row.status as 'ab1' | 'ab2' | 'ab3',
+        gender: row.gender as 'ikhwan' | 'akhwat',
+        yearOfEntry: row.yearOfEntry as number,
+        organization: row.organization as any
       }))
     })
 
