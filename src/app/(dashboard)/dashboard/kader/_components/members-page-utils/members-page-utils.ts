@@ -74,7 +74,7 @@ export const parseMembersSearchParams = (sParams: {
   const mOffset = (mPage - 1) * mLimit
 
   return {
-    summary: { query, page, limit, offset },
+    summary: { query, page, limit, offset, orderBy: [{ column: 'name', direction: order }] },
     individuals: {
       mQuery,
       mPage,
