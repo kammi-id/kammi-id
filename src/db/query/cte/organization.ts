@@ -6,4 +6,6 @@ export const withOrganizationCTE = db
   .$with('with_organization_cte')
   .as(db.select({ ...getColumns(organization) }).from(organization))
 
-export type Organization = typeof organization.$inferSelect
+export type Organization = typeof organization.$inferSelect & {
+  childrenCount?: number
+}

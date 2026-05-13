@@ -257,8 +257,8 @@ export const searchMembersAction = async (query: string) => {
       .where(
         and(
           sql`${withMemberCTE.status} IN ('ab2', 'ab3')`,
-          sql`${withMemberCTE.is_suspended} = false`,
-          sql`${withMemberCTE.is_non_active} = false`,
+          sql`${withMemberCTE.isSuspended} = false`,
+          sql`${withMemberCTE.isNonActive} = false`,
           or(
             ilike(withMemberCTE.name, `%${query}%`),
             ilike(withMemberCTE.registerNumber, `%${query}%`),

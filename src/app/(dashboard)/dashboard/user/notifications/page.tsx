@@ -1,4 +1,4 @@
-import { BellRingIcon } from '@hugeicons/core-free-icons'
+import { Notification03Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 
 const NotificationsPage = () => {
@@ -7,7 +7,7 @@ const NotificationsPage = () => {
       <div className='flex items-center gap-4'>
         <div className='bg-primary/10 text-primary flex size-12 items-center justify-center rounded-2xl'>
           <HugeiconsIcon
-            icon={BellRingIcon}
+            icon={Notification03Icon}
             strokeWidth={2}
             className='size-7'
           />
@@ -27,7 +27,7 @@ const NotificationsPage = () => {
           <div className='mb-4 flex justify-center'>
             <div className='bg-muted rounded-full p-4'>
               <HugeiconsIcon
-                icon={BellRingIcon}
+                icon={Notification03Icon}
                 strokeWidth={2}
                 className='text-muted-foreground size-10'
               />

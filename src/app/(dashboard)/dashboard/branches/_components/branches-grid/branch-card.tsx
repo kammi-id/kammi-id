@@ -1,6 +1,6 @@
 'use client'
 
-import { Organization } from './columns'
+import { Organization } from '../branches-table/columns'
 import { Button } from '~/components/shadcn/ui/button'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Edit01Icon, ChevronRight } from '@hugeicons/core-free-icons'

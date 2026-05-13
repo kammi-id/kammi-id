@@ -1,6 +1,6 @@
 'use client'
 
-import { Organization } from './columns'
+import { Organization } from '../branches-table/columns'
 import {
   Sheet,
   SheetContent,

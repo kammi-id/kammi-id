@@ -83,6 +83,9 @@ export const AddMemberForm = ({
   const [selectedStatus, setSelectedStatus] = React.useState(
     editData?.status ?? 'ab1'
   )
+  const [selectedOrgId, setSelectedOrgId] = React.useState(
+    editData?.organizationId || organizationId
+  )
   // 4. State Synchronization (Render Phase)
   const [prevSyncKey, setPrevSyncKey] = React.useState('')
   const currentSyncKey =
@@ -106,19 +109,20 @@ export const AddMemberForm = ({
       setPhoto(editData.photo ?? '')
       setSelectedOrgId(editData.organizationId || organizationId)
     } else if (state?.values) {
-      setProvince(state.values.addressProvinceCode || '')
-      setCity(state.values.addressCityCode || '')
-      setDistrict(state.values.addressDistrictCode || '')
-      setSubdistrict(state.values.addressSubdistrictCode || '')
-      setIsAlumn(state.values.isAlumn === 'true')
-      setIsSuspended(state.values.isSuspended === 'true')
-      setIsNonActive(state.values.isNonActive === 'true')
-      setIsCertifiedMentor(state.values.isCertifiedMentor === 'true')
-      setIsCertifiedInstructor(state.values.isCertifiedInstructor === 'true')
-      setSelectedGender(state.values.gender ?? 'ikhwan')
-      setSelectedStatus(state.values.status ?? 'ab1')
-      setPhoto(state.values.photo || '')
-      setSelectedOrgId(state.values.organizationId || organizationId)
+      const values = state.values as any
+      setProvince(values.addressProvinceCode || '')
+      setCity(values.addressCityCode || '')
+      setDistrict(values.addressDistrictCode || '')
+      setSubdistrict(values.addressSubdistrictCode || '')
+      setIsAlumn(values.isAlumn === 'true')
+      setIsSuspended(values.isSuspended === 'true')
+      setIsNonActive(values.isNonActive === 'true')
+      setIsCertifiedMentor(values.isCertifiedMentor === 'true')
+      setIsCertifiedInstructor(values.isCertifiedInstructor === 'true')
+      setSelectedGender(values.gender ?? 'ikhwan')
+      setSelectedStatus(values.status ?? 'ab1')
+      setPhoto(values.photo || '')
+      setSelectedOrgId(values.organizationId || organizationId)
     }
   }
 
@@ -180,7 +184,7 @@ export const AddMemberForm = ({
           ))}
         </div>
 
-        <input type='hidden' name='organizationId' value={organizationId} />
+        <input type='hidden' name='organizationId' value={selectedOrgId} />
         {editData && <input type='hidden' name='id' value={editData.id} />}
 
         {currentStep === 1 && (

@@ -39,7 +39,7 @@ export const AddOrganizationForm = ({
   onClose: () => void
 }) => {
   const [logoPath, setLogoPath] = React.useState<string | undefined>(
-    editData?.logo
+    editData?.logo ?? undefined
   )
   const [state, action, isPending] = React.useActionState(
     async (prevState: OrgFormState, formData: FormData) => {

@@ -103,7 +103,7 @@ export const TrainingDetailView = ({ training }: TrainingDetailViewProps) => {
       <Card>
         <CardHeader>
           <div className='text-primary flex items-center gap-2'>
-            <HugeiconsIcon icon={Info01Icon} className='h-5 w-5' />
+            <HugeiconsIcon icon={InformationCircleIcon} className='h-5 w-5' />
             <CardTitle>Informasi Training</CardTitle>
           </div>
           <CardDescription>{training.name}</CardDescription>

@@ -5,7 +5,6 @@ import { useRouter, usePathname, useSearchParams } from 'next/navigation'
 
 interface BranchesPaginationProps {
   pageCount: number
-  currentPage: string | null
 }
 
 export const BranchesPagination = ({ pageCount }: BranchesPaginationProps) => {

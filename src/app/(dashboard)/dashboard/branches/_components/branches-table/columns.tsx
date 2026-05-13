@@ -23,6 +23,9 @@ export interface Organization {
   type: string
   level: number
   parentId: string | null
+  logo?: string | null
+  isNonActive?: boolean
+  childrenCount?: number
 }
 
 export const getColumns = (

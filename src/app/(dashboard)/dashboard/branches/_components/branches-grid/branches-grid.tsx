@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from 'react'
-import { Organization } from './columns'
+import { Organization } from '../branches-table/columns'
 import { useStore } from '@nanostores/react'
 import { orgSheetStore } from '../add-form/store'
 import { BranchCard } from './branch-card'

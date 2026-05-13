@@ -1,9 +1,9 @@
 'use server'
 
 import { z } from 'zod'
-import { trainingQuery } from '@/db/query/training'
-import { member } from '@/db/schema/member.sql'
-import { db } from '@/db/db'
+import { trainingQuery } from '~/db/query/training'
+import { member } from '~/db/schema/member.sql'
+import { db } from '~/db/db'
 import { eq } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
 
