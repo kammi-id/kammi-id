@@ -1,0 +1,21 @@
+node_modules
+.next
+.git
+.gitignore
+.dockerignore
+Dockerfile
+README.md
+LICENSE
+tests
+playwright
+playwright-report
+playwright-ct.config.ts
+playwright.config.ts
+.agents
+.claude
+.vscode
+.gemini
+docs
+bun.lock
+# Exclude environment variables
+.env*.local
