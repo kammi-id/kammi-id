@@ -1,4 +1,7 @@
 import Image from 'next/image'
+import Link from 'next/link'
+import { buttonVariants } from '~/components/shadcn/ui/button/button'
+import { cn } from '~/lib/shadcn/utils'
 import { getLeadershipSettings } from '~/app/(main)/_data/site-settings'
 import { resolveSiteImage } from '~/lib/utils/site-image'
 
@@ -34,7 +37,7 @@ export const LeadershipSection = async () => {
   const trio = [secretary, chairman, treasurer].filter(Boolean) as Leader[]
 
   return (
-    <section className='relative bg-background overflow-hidden' aria-labelledby='leadership-heading'>
+    <section className='relative bg-background overflow-hidden min-h-screen flex flex-col' aria-labelledby='leadership-heading'>
       {/* Header */}
       <div className='pt-14 sm:pt-16 lg:pt-20 pb-8 text-center px-6 lg:px-8'>
         <p className='font-sans text-xs font-semibold tracking-widest text-primary uppercase'>
@@ -48,6 +51,9 @@ export const LeadershipSection = async () => {
         </h2>
         <div className='mx-auto mt-1 h-1 w-12 rounded-full bg-primary' aria-hidden='true' />
       </div>
+
+      {/* Spacer — dorong foto ke bawah section */}
+      <div className='flex-1' />
 
       {/* Photo + name trio — items-end aligns photo bottoms */}
       <div className='flex items-end justify-center'>
@@ -104,6 +110,13 @@ export const LeadershipSection = async () => {
             </div>
           )
         })}
+      </div>
+
+      {/* CTA */}
+      <div className='flex justify-center py-8'>
+        <Link href='/pengurus' className={cn(buttonVariants({ variant: 'outline' }))}>
+          Pengurus Lengkap
+        </Link>
       </div>
     </section>
   )
