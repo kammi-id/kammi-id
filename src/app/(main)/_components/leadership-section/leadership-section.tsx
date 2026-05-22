@@ -62,10 +62,10 @@ export const LeadershipSection = async () => {
           const isSecretary = leader === secretary
           const isTreasurer = leader === treasurer
 
-          // Tinggi: sekjend 90%, bendum 85% dari tinggi ketum — width menyesuaikan rasio foto
-          const hBase = isChairman ? 160 : isSecretary ? Math.round(160 * 0.90) : Math.round(160 * 0.85)
-          const hSm   = isChairman ? 267 : isSecretary ? Math.round(267 * 0.90) : Math.round(267 * 0.85)
-          const hLg   = isChairman ? 420 : isSecretary ? Math.round(420 * 0.90) : Math.round(420 * 0.85)
+          // Tinggi: sekjend 95%, bendum 90% dari tinggi ketum — width menyesuaikan rasio foto
+          const hBase = isChairman ? 160 : isSecretary ? Math.round(160 * 0.95) : Math.round(160 * 0.90)
+          const hSm   = isChairman ? 267 : isSecretary ? Math.round(267 * 0.95) : Math.round(267 * 0.90)
+          const hLg   = isChairman ? 420 : isSecretary ? Math.round(420 * 0.95) : Math.round(420 * 0.90)
 
           // Overlap tetap ~20% dari lebar sekitar (estimasi visual)
           const overlapClass = isSecretary
