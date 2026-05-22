@@ -4,10 +4,8 @@ const nextConfig: NextConfig = {
   output: 'standalone',
   cacheComponents: true,
   reactCompiler: true,
-  experimental: {
-    serverActions: {
-      bodySizeLimit: '50mb'
-    }
+  serverActions: {
+    bodySizeLimit: '50mb'
   },
   images: {
     remotePatterns: [
