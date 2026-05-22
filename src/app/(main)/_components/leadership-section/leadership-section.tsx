@@ -67,16 +67,16 @@ export const LeadershipSection = async () => {
           const isSecretary = leader === secretary
           const isTreasurer = leader === treasurer
 
-          // Ketum = 65vh section, sekjend 95%, bendum 90% — min 65vh agar tidak terlalu kecil
-          const vhFactor = isChairman ? 65 : isSecretary ? 65 * 0.95 : 65 * 0.90
-          const minPx    = isChairman ? 220 : isSecretary ? 209 : 198
-          const maxPx    = isChairman ? 650 : isSecretary ? 618 : 585
+          // Ketum = 65vh, sekjend + bendum = 95% tinggi ketum
+          const vhFactor = isChairman ? 65 : 65 * 0.95
+          const minPx    = isChairman ? 220 : 209
+          const maxPx    = isChairman ? 650 : 618
 
-          // Overlap tetap ~20% dari lebar sekitar (estimasi visual)
+          // Overlap ~30% dari lebar estimasi foto
           const overlapClass = isSecretary
-            ? '-mr-[22px] sm:-mr-[36px] lg:-mr-[60px]'
+            ? '-mr-[45px] sm:-mr-[60px] lg:-mr-[90px]'
             : isTreasurer
-              ? '-ml-[20px] sm:-ml-[34px] lg:-ml-[58px]'
+              ? '-ml-[45px] sm:-ml-[60px] lg:-ml-[90px]'
               : ''
 
           const zClass = isChairman ? 'z-10' : 'z-0'
