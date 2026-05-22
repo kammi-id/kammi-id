@@ -67,10 +67,10 @@ export const LeadershipSection = async () => {
           const isSecretary = leader === secretary
           const isTreasurer = leader === treasurer
 
-          // Tinggi: sekjend 95%, bendum 90% dari tinggi ketum — width menyesuaikan rasio foto
-          const hBase = isChairman ? 160 : isSecretary ? Math.round(160 * 0.95) : Math.round(160 * 0.90)
-          const hSm   = isChairman ? 267 : isSecretary ? Math.round(267 * 0.95) : Math.round(267 * 0.90)
-          const hLg   = isChairman ? 420 : isSecretary ? Math.round(420 * 0.95) : Math.round(420 * 0.90)
+          // Ketum = 65vh section, sekjend 95%, bendum 90% — min 65vh agar tidak terlalu kecil
+          const vhFactor = isChairman ? 65 : isSecretary ? 65 * 0.95 : 65 * 0.90
+          const minPx    = isChairman ? 220 : isSecretary ? 209 : 198
+          const maxPx    = isChairman ? 650 : isSecretary ? 618 : 585
 
           // Overlap tetap ~20% dari lebar sekitar (estimasi visual)
           const overlapClass = isSecretary
@@ -87,7 +87,7 @@ export const LeadershipSection = async () => {
               className={`relative shrink-0 flex flex-col items-center ${overlapClass} ${zClass}`}
             >
               {/* Photo — height-controlled, width auto (rasio asli foto) */}
-              <div style={{ height: `clamp(${hBase}px, ${(hSm / 640) * 100}vw, ${hLg}px)` }}>
+              <div style={{ height: `clamp(${minPx}px, ${vhFactor}vh, ${maxPx}px)` }}>
                 {leader.photoSrc ? (
                   <Image
                     src={leader.photoSrc}
