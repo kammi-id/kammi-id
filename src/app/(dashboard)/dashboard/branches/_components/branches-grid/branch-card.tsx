@@ -24,10 +24,10 @@ export const BranchCard = ({ org, basePath, onEdit }: BranchCardProps) => {
   }
   const colors: Record<string, string> = {
     pw: 'border-primary text-primary bg-primary/5',
-    pd: 'border-blue-200 text-blue-600 bg-blue-50/50',
-    pdln: 'border-blue-200 text-blue-600 bg-blue-50/50',
-    pk: 'border-red-200 text-red-600 bg-red-50/50',
-    pp: 'border-slate-200 text-slate-600 bg-slate-50/50'
+    pd: '[border-color:var(--org-pd-border)] [color:var(--org-pd-text)] [background:var(--org-pd-bg)]',
+    pdln: '[border-color:var(--org-pd-border)] [color:var(--org-pd-text)] [background:var(--org-pd-bg)]',
+    pk: '[border-color:var(--org-pk-border)] [color:var(--org-pk-text)] [background:var(--org-pk-bg)]',
+    pp: '[border-color:var(--org-pp-border)] [color:var(--org-pp-text)] [background:var(--org-pp-bg)]'
   }
 
   return (

@@ -8,6 +8,18 @@ const nextConfig: NextConfig = {
     serverActions: {
       bodySizeLimit: '50mb'
     }
+  },
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'picsum.photos'
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com'
+      }
+    ]
   }
 }
 

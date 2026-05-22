@@ -492,3 +492,36 @@ export const readDescendantMembers = async (
 
   return [data, countResult?.count ?? 0]
 }
+
+export type MemberYearDistributionResult = {
+  year: number
+  count: number
+}
+
+export const readMemberYearDistribution = async (
+  organizationIds?: string[]
+): Promise<MemberYearDistributionResult[]> => {
+  const conditions = [
+    eq(member.isAlumn, false),
+    eq(member.isSuspended, false),
+    eq(member.isNonActive, false),
+    ...(organizationIds?.length
+      ? [inArray(member.organizationId, organizationIds)]
+      : [])
+  ]
+
+  const results = await db
+    .select({
+      year: member.yearOfEntry,
+      count: sql<number>`count(*)::int`
+    })
+    .from(member)
+    .where(and(...conditions))
+    .groupBy(member.yearOfEntry)
+    .orderBy(member.yearOfEntry)
+
+  return results.map((row) => ({
+    year: row.year,
+    count: Number(row.count)
+  }))
+}

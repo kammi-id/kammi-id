@@ -29,8 +29,8 @@ export const BranchesHeader = ({
         organisasi
       </div>
       {canManage && (
-        <Button size='sm' className='h-8 gap-2' onClick={onAdd}>
-          <HugeiconsIcon icon={Add01Icon} strokeWidth={2} className='size-4' />
+        <Button size='sm' onClick={onAdd}>
+          <HugeiconsIcon icon={Add01Icon} strokeWidth={2} data-icon='inline-start' />
           Tambah {addButtonLabel}
         </Button>
       )}

@@ -140,12 +140,11 @@ export const getColumns = (
           <div className='flex justify-end gap-1'>
             <Tooltip>
               <TooltipTrigger
-                asChild
                 render={
                   <Button
                     variant='ghost'
                     size='sm'
-                    className='h-8 w-8 p-0'
+                    className='size-8 p-0'
                     onClick={() => onEdit?.(row.original)}
                   >
                     <HugeiconsIcon
@@ -155,19 +154,16 @@ export const getColumns = (
                     />
                   </Button>
                 }
-              >
-                <span>Edit {row.original.name}</span>
-              </TooltipTrigger>
+              />
               <TooltipContent>Edit {row.original.name}</TooltipContent>
             </Tooltip>
             <Tooltip>
               <TooltipTrigger
-                asChild
                 render={
                   <Button
                     variant='ghost'
                     size='sm'
-                    className='text-destructive hover:text-destructive h-8 w-8 p-0'
+                    className='text-destructive hover:text-destructive size-8 p-0'
                     onClick={() => onDelete?.(row.original.id)}
                   >
                     <HugeiconsIcon
@@ -177,9 +173,8 @@ export const getColumns = (
                     />
                   </Button>
                 }
-              >
-                <span>Hapus {row.original.name}</span>
-              </TooltipTrigger>
+              />
+
               <TooltipContent>Hapus {row.original.name}</TooltipContent>
             </Tooltip>
           </div>

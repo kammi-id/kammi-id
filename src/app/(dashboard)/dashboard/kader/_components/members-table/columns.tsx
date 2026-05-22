@@ -58,18 +58,18 @@ export const getColumns = (
         pp: 'Pusat'
       }
       const colors: Record<string, string> = {
-        pw: 'bg-green-100 text-green-700 border-green-200',
-        pd: 'bg-blue-100 text-blue-700 border-blue-200',
-        pdln: 'bg-blue-100 text-blue-700 border-blue-200',
-        pk: 'bg-red-100 text-red-700 border-red-200',
-        pp: 'bg-slate-100 text-slate-700 border-slate-200'
+        pw: '[background:var(--org-pw-bg)] [color:var(--org-pw-text)] [border-color:var(--org-pw-border)]',
+        pd: '[background:var(--org-pd-bg)] [color:var(--org-pd-text)] [border-color:var(--org-pd-border)]',
+        pdln: '[background:var(--org-pd-bg)] [color:var(--org-pd-text)] [border-color:var(--org-pd-border)]',
+        pk: '[background:var(--org-pk-bg)] [color:var(--org-pk-text)] [border-color:var(--org-pk-border)]',
+        pp: '[background:var(--org-pp-bg)] [color:var(--org-pp-text)] [border-color:var(--org-pp-border)]'
       }
       return (
         <Badge
           variant='outline'
           className={cn(
             'font-bold',
-            colors[type] || 'border-slate-200 bg-slate-100 text-slate-700'
+            colors[type] || '[background:var(--org-pp-bg)] [color:var(--org-pp-text)] [border-color:var(--org-pp-border)]'
           )}
         >
           {(labels[type] || type).toUpperCase()}
@@ -90,11 +90,11 @@ export const getColumns = (
             className={cn(
               'absolute top-0 left-0 h-full transition-all duration-500',
               key === 'ab3'
-                ? 'bg-green-500/20'
+                ? 'bg-primary/15'
                 : key === 'ab2'
-                  ? 'bg-red-500/20'
+                  ? 'bg-primary/25'
                   : key === 'ab1'
-                    ? 'bg-blue-500/20'
+                    ? 'bg-primary/35'
                     : 'bg-primary/10'
             )}
             style={{ width: `${percentage}%` }}

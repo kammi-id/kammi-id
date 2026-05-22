@@ -37,8 +37,8 @@ export const AddTrainingModal = ({
     >
       <SheetTrigger
         render={
-          <Button className='gap-2'>
-            <HugeiconsIcon icon={Add01Icon} className='size-4' />
+          <Button>
+            <HugeiconsIcon icon={Add01Icon} data-icon='inline-start' />
             Tambah Dauroh
           </Button>
         }

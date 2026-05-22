@@ -51,6 +51,7 @@ src/lib/shadcn/*
 .agents
 .claude
 .gemini
+.antigravitycli
 
 # seeder data 
 src/scripts/data/organization.json

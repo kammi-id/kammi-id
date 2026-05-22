@@ -2,7 +2,7 @@
 name: KAMMI-ID
 description: The Single Source of Truth for KAMMI Organization
 colors:
-  primary: 'oklch(0.508 0.118 165.612)'
+  primary: 'oklch(0.52 0.20 17)'
   foreground: 'oklch(0.141 0.005 285.823)'
   background: 'oklch(1 0 0)'
   muted: 'oklch(0.967 0.001 286.375)'
@@ -30,7 +30,7 @@ spacing:
 components:
   button-primary:
     backgroundColor: '{colors.primary}'
-    textColor: 'oklch(0.979 0.021 166.113)'
+    textColor: 'oklch(0.98 0.008 17)'
     rounded: '{rounded.md}'
     padding: '8px 16px'
   button-ghost:
@@ -62,7 +62,7 @@ A high-contrast palette that balances the energy of youth with the stability of 
 
 ### Primary
 
-- **Vanguard Green** (oklch(0.508 0.118 165.612)): The heartbeat of the system. Used for primary actions, active states, and brand identity. It represents growth, energy, and the organization's core identity.
+- **Vanguard Crimson** (oklch(0.52 0.20 17)): The heartbeat of the system. Used for primary actions, active states, and brand identity. It represents courage, energy, and the organization's core identity.
 
 ### Neutral
 
@@ -74,7 +74,7 @@ A high-contrast palette that balances the energy of youth with the stability of 
 
 - **Siren Red** (oklch(0.577 0.245 27.325)): Reserved strictly for destructive actions and critical errors.
 
-**The Rare Accent Rule.** Vanguard Green is the sole high-chroma accent. Its usage is focused on intent; when a user sees Green, they know it is the primary path forward.
+**The Rare Accent Rule.** Vanguard Crimson is the sole high-chroma accent. Its usage is focused on intent; when a user sees Crimson, they know it is the primary path forward.
 
 ## 3. Typography
 
@@ -117,7 +117,7 @@ The components follow a **Refined and Restrained** philosophy: precise, minimal,
 ### Inputs / Fields
 
 - **Style:** Minimalist stroke (Mist Border) with a white background. Radius is matched to buttons (8px).
-- **Focus:** The border shifts to Vanguard Green with a very subtle outer glow (ring) to clearly indicate focus.
+- **Focus:** The border shifts to Vanguard Crimson with a very subtle outer glow (ring) to clearly indicate focus.
 - **Interactive:** Focus is paired with an explicit tooltip if the field requires specific formatting (e.g., NIK).
 
 ### Cards / Containers

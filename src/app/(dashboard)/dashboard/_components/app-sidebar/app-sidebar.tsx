@@ -19,7 +19,8 @@ import {
   Database01Icon,
   CommandIcon,
   Add01Icon,
-  Note01Icon
+  Note01Icon,
+  Home01Icon
 } from '@hugeicons/core-free-icons'
 import Image from 'next/image'
 import logo from '~/assets/logo.png'
@@ -67,6 +68,10 @@ export const AppSidebar = ({
 
   const allowedRolesPublikasi = ['root', 'humas']
   const canAccessPublikasi = allowedRolesPublikasi.includes(user.role)
+
+  const canAccessHalamanPublik =
+    user.role === 'root' ||
+    (user.role === 'humas' && user.connectedOrganization?.type === 'pp')
 
   const mapping = {
     pp: 'Daftar Wilayah',
@@ -171,6 +176,23 @@ export const AppSidebar = ({
         )}
         {canAccessPublikasi && (
           <NavMain title='Berita & Publikasi' items={menuBerita} />
+        )}
+        {canAccessHalamanPublik && (
+          <NavMain
+            title='Halaman Publik'
+            items={[
+              {
+                title: 'Halaman Utama',
+                url: '/dashboard/pages/home',
+                icon: <HugeiconsIcon icon={Home01Icon} strokeWidth={2} />
+              },
+              {
+                title: 'Pengurus Pusat',
+                url: '/dashboard/pages/managers',
+                icon: <HugeiconsIcon icon={UserGroupIcon} strokeWidth={2} />
+              }
+            ]}
+          />
         )}
       </SidebarContent>
       <SidebarFooter>

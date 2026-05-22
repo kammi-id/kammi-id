@@ -22,11 +22,11 @@ export const TierSummary = ({ data }: TierSummaryProps) => {
   }
 
   const colors: Record<string, string> = {
-    pp: 'text-slate-600 bg-slate-50 border-slate-200',
+    pp: '[color:var(--org-pp-text)] [background:var(--org-pp-bg)] [border-color:var(--org-pp-border)]',
     pw: 'text-primary bg-primary/5 border-primary/20',
-    pd: 'text-blue-600 bg-blue-50 border-blue-100',
-    pdln: 'text-blue-600 bg-blue-50 border-blue-100',
-    pk: 'text-red-600 bg-red-50 border-red-100'
+    pd: '[color:var(--org-pd-text)] [background:var(--org-pd-bg)] [border-color:var(--org-pd-border)]',
+    pdln: '[color:var(--org-pd-text)] [background:var(--org-pd-bg)] [border-color:var(--org-pd-border)]',
+    pk: '[color:var(--org-pk-text)] [background:var(--org-pk-bg)] [border-color:var(--org-pk-border)]'
   }
 
   return (

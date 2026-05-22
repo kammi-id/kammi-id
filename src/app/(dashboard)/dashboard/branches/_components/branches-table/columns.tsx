@@ -81,17 +81,17 @@ export const getColumns = (
       }
       const colors: Record<string, string> = {
         pw: 'border-primary text-primary bg-primary/10',
-        pd: 'border-blue-200 text-blue-600 bg-blue-50',
-        pdln: 'border-blue-200 text-blue-600 bg-blue-50',
-        pk: 'border-red-200 text-red-600 bg-red-50',
-        pp: 'border-slate-200 text-slate-600 bg-slate-50'
+        pd: '[border-color:var(--org-pd-border)] [color:var(--org-pd-text)] [background:var(--org-pd-bg)]',
+        pdln: '[border-color:var(--org-pd-border)] [color:var(--org-pd-text)] [background:var(--org-pd-bg)]',
+        pk: '[border-color:var(--org-pk-border)] [color:var(--org-pk-text)] [background:var(--org-pk-bg)]',
+        pp: '[border-color:var(--org-pp-border)] [color:var(--org-pp-text)] [background:var(--org-pp-bg)]'
       }
       return (
         <Badge
           variant='outline'
           className={cn(
             'font-bold',
-            colors[type] || 'border-slate-200 bg-slate-100 text-slate-700'
+            colors[type] || '[border-color:var(--org-pp-border)] [color:var(--org-pp-text)] [background:var(--org-pp-bg)]'
           )}
         >
           {(labels[type] || type).toUpperCase()}
@@ -111,7 +111,7 @@ export const getColumns = (
                 <Button
                   variant='ghost'
                   size='sm'
-                  className='h-8 w-8 p-0'
+                  className='size-8 p-0'
                   onClick={() => onEdit?.(row.original)}
                 >
                   <HugeiconsIcon

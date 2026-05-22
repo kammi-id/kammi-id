@@ -30,9 +30,7 @@ export const getColumns = (
         >
           <TooltipProvider>
             <Tooltip>
-              <TooltipTrigger asChild>
-                <span>NIK</span>
-              </TooltipTrigger>
+              <TooltipTrigger render={<span>NIK</span>} />
               <TooltipContent>Nomor Induk Kader</TooltipContent>
             </Tooltip>
           </TooltipProvider>

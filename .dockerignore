@@ -16,5 +16,7 @@ playwright.config.ts
 .vscode
 .gemini
 docs
+.antigravitycli
+
 # Exclude environment variables
 .env*.local

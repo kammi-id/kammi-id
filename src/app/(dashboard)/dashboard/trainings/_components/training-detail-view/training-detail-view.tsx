@@ -103,7 +103,7 @@ export const TrainingDetailView = ({ training }: TrainingDetailViewProps) => {
       <Card>
         <CardHeader>
           <div className='text-primary flex items-center gap-2'>
-            <HugeiconsIcon icon={InformationCircleIcon} className='h-5 w-5' />
+            <HugeiconsIcon icon={InformationCircleIcon} className='size-5' />
             <CardTitle>Informasi Training</CardTitle>
           </div>
           <CardDescription>{training.name}</CardDescription>
@@ -112,14 +112,14 @@ export const TrainingDetailView = ({ training }: TrainingDetailViewProps) => {
           <div className='flex items-center gap-2 text-sm'>
             <HugeiconsIcon
               icon={Calendar01Icon}
-              className='text-muted-foreground h-4 w-4'
+              className='text-muted-foreground size-4'
             />
             <span>Mulai: {training.startDate}</span>
           </div>
           <div className='flex items-center gap-2 text-sm'>
             <HugeiconsIcon
               icon={Calendar01Icon}
-              className='text-muted-foreground h-4 w-4'
+              className='text-muted-foreground size-4'
             />
             <span>Selesai: {training.endDate}</span>
           </div>
@@ -142,7 +142,7 @@ export const TrainingDetailView = ({ training }: TrainingDetailViewProps) => {
           <CardHeader className='flex flex-row items-center justify-between'>
             <div>
               <div className='text-primary flex items-center gap-2'>
-                <HugeiconsIcon icon={UserGroupIcon} className='h-5 w-5' />
+                <HugeiconsIcon icon={UserGroupIcon} className='size-5' />
                 <CardTitle>
                   Peserta ({training._attendants?.length ?? 0})
                 </CardTitle>
@@ -167,7 +167,7 @@ export const TrainingDetailView = ({ training }: TrainingDetailViewProps) => {
                 disabled={isAttendantPending}
                 className='h-8'
               >
-                <HugeiconsIcon icon={Add01Icon} className='h-4 w-4' />
+                <HugeiconsIcon icon={Add01Icon} className='size-4' />
               </Button>
             </form>
             {attendantState.errors?.memberId && (
@@ -196,16 +196,16 @@ export const TrainingDetailView = ({ training }: TrainingDetailViewProps) => {
                   </div>
                   <div className='flex items-center gap-2'>
                     {att.isPassing ? (
-                      <span className='text-[10px] font-bold text-green-600 uppercase'>
+                      <span className='text-[10px] font-bold uppercase [color:var(--status-pass-text)]'>
                         Lulus
                       </span>
                     ) : null}
                     <HugeiconsIcon
                       icon={UserCheckIcon}
                       className={cn(
-                        'h-4 w-4',
+                        'size-4',
                         att.isPassing
-                          ? 'text-green-500'
+                          ? '[color:var(--status-pass-text)]'
                           : 'text-muted-foreground'
                       )}
                     />
@@ -226,7 +226,7 @@ export const TrainingDetailView = ({ training }: TrainingDetailViewProps) => {
           <CardHeader className='flex flex-row items-center justify-between'>
             <div>
               <div className='text-primary flex items-center gap-2'>
-                <HugeiconsIcon icon={UserCheckIcon} className='h-5 w-5' />
+                <HugeiconsIcon icon={UserCheckIcon} className='size-5' />
                 <CardTitle>
                   Instruktur ({training._instructors?.length ?? 0})
                 </CardTitle>
@@ -264,7 +264,7 @@ export const TrainingDetailView = ({ training }: TrainingDetailViewProps) => {
                 disabled={isInstructorPending}
                 className='h-8'
               >
-                <HugeiconsIcon icon={Add01Icon} className='h-4 w-4' />
+                <HugeiconsIcon icon={Add01Icon} className='size-4' />
               </Button>
             </form>
             {instructorState.errors?.memberId && (
@@ -292,9 +292,9 @@ export const TrainingDetailView = ({ training }: TrainingDetailViewProps) => {
                     size='sm'
                     onClick={() => handleRemoveInstructor(ins.memberId)}
                     disabled={isInstructorPending}
-                    className='text-destructive hover:bg-destructive/10 h-8 w-8 p-0'
+                    className='text-destructive hover:bg-destructive/10 size-8 p-0'
                   >
-                    <HugeiconsIcon icon={Delete01Icon} className='h-4 w-4' />
+                    <HugeiconsIcon icon={Delete01Icon} className='size-4' />
                   </Button>
                 </div>
               ))}

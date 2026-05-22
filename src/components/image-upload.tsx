@@ -29,15 +29,19 @@ const ImageUpload = ({
 
   useEffect(() => {
     const updatePreview = async () => {
-      if (value) {
-        try {
-          const signedUrl = await getSignedUrlAction(value)
-          setPreview(signedUrl)
-        } catch (error) {
-          console.error('Failed to fetch signed URL for preview:', error)
-          setPreview(null)
-        }
-      } else {
+      if (!value) {
+        setPreview(null)
+        return
+      }
+      if (value.startsWith('http://') || value.startsWith('https://') || value.startsWith('/')) {
+        setPreview(value)
+        return
+      }
+      try {
+        const signedUrl = await getSignedUrlAction(value)
+        setPreview(signedUrl)
+      } catch (error) {
+        console.error('Failed to fetch signed URL for preview:', error)
         setPreview(null)
       }
     }
@@ -59,7 +63,7 @@ const ImageUpload = ({
       const formData = new FormData()
       formData.append('file', file)
       formData.append('folder', folder)
-      if (value) {
+      if (value && !value.startsWith('http://') && !value.startsWith('https://') && !value.startsWith('/')) {
         formData.append('existingPath', value)
       }
 

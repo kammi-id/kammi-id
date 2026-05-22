@@ -44,5 +44,6 @@ next-env.d.ts
 dictionary.txt
 users.csv
 
-# generated docs
-docs
+# antigravity v2
+.antigravitycli
+.playwright-mcp

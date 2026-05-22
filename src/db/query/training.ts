@@ -1,5 +1,5 @@
 import { db } from '~/db/db'
-import { eq, and, inArray } from 'drizzle-orm'
+import { eq, and, inArray, gte, sql } from 'drizzle-orm'
 import {
   training,
   trainingAttendants,
@@ -11,6 +11,23 @@ import { member } from '~/db/schema/member.sql'
 export type TrainingFilters = {
   organizationId?: string
   year?: number
+}
+
+export type UpcomingTraining = {
+  id: string
+  name: string
+  startDate: string
+  endDate: string
+  registrationDeadline: string | null
+  type: 'dm1' | 'dm2' | 'dpmk' | 'tfi' | 'dm3' | 'other'
+  year: number
+  identifier: number
+  organization: {
+    id: string
+    name: string
+    slug: string
+    codeSlug: string
+  }
 }
 
 export type TrainingCreateInput = typeof training.$inferInsert
@@ -93,6 +110,61 @@ export const trainingQuery = {
         member: i.member
       }))
     }
+  },
+
+  /**
+   * Fetch upcoming trainings (start_date >= today), scoped to given org IDs.
+   */
+  getUpcoming: async (
+    organizationIds?: string[],
+    limit = 10
+  ): Promise<UpcomingTraining[]> => {
+    const today = new Date().toISOString().split('T')[0]
+
+    const where = [
+      gte(training.startDate, today),
+      organizationIds && organizationIds.length > 0
+        ? inArray(training.organizationId, organizationIds)
+        : undefined
+    ].filter(Boolean) as ReturnType<typeof gte>[]
+
+    const rows = await db
+      .select({
+        id: training.id,
+        name: training.name,
+        startDate: training.startDate,
+        endDate: training.endDate,
+        registrationDeadline: training.registrationDeadline,
+        type: training.type,
+        year: training.year,
+        identifier: training.identifier,
+        orgId: organization.id,
+        orgName: organization.name,
+        orgSlug: organization.slug,
+        orgCodeSlug: organization.codeSlug
+      })
+      .from(training)
+      .leftJoin(organization, eq(training.organizationId, organization.id))
+      .where(and(...where))
+      .orderBy(training.startDate)
+      .limit(limit)
+
+    return rows.map((row) => ({
+      id: row.id,
+      name: row.name,
+      startDate: row.startDate,
+      endDate: row.endDate,
+      registrationDeadline: row.registrationDeadline ?? null,
+      type: row.type,
+      year: row.year!,
+      identifier: row.identifier,
+      organization: {
+        id: row.orgId!,
+        name: row.orgName!,
+        slug: row.orgSlug!,
+        codeSlug: row.orgCodeSlug!
+      }
+    }))
   },
 
   /**
