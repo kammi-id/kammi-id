@@ -7,17 +7,6 @@ type Leader = { name: string; role: string; photoUrl: string; photoSrc: string |
 const findByRole = (leaders: Leader[], keyword: string, fallback: Leader | undefined) =>
   leaders.find((l) => l.role.toLowerCase().includes(keyword.toLowerCase())) ?? fallback
 
-const Nameplate = ({ name, role }: { name: string; role: string }) => (
-  <div className='absolute top-4 left-4 right-4 z-20 bg-background/92 px-3 py-2.5'>
-    <p className='font-sans text-[9px] font-semibold tracking-[0.18em] text-primary uppercase leading-none'>
-      {role}
-    </p>
-    <p className='font-heading text-sm font-bold text-foreground leading-tight mt-1'>
-      {name}
-    </p>
-  </div>
-)
-
 export const LeadershipSection = async () => {
   const { periodLabel, heading, leaders } = await getLeadershipSettings()
 
@@ -45,12 +34,9 @@ export const LeadershipSection = async () => {
   const trio = [secretary, chairman, treasurer].filter(Boolean) as Leader[]
 
   return (
-    <section
-      className='relative bg-background overflow-hidden min-h-[300px] sm:min-h-[460px] lg:min-h-[640px]'
-      aria-labelledby='leadership-heading'
-    >
-      {/* Section header */}
-      <div className='pt-14 sm:pt-16 lg:pt-20 pb-4 text-center px-6 lg:px-8 relative z-10'>
+    <section className='relative bg-background overflow-hidden' aria-labelledby='leadership-heading'>
+      {/* Header */}
+      <div className='pt-14 sm:pt-16 lg:pt-20 pb-8 text-center px-6 lg:px-8'>
         <p className='font-sans text-xs font-semibold tracking-widest text-primary uppercase'>
           {periodLabel}
         </p>
@@ -63,64 +49,59 @@ export const LeadershipSection = async () => {
         <div className='mx-auto mt-1 h-1 w-12 rounded-full bg-primary' aria-hidden='true' />
       </div>
 
-      {/* Photo composition — flush to section bottom */}
-      <div className='absolute bottom-0 inset-x-0 flex items-end justify-center'>
-        {trio.map((leader, i) => {
+      {/* Photo + name trio — items-end aligns photo bottoms */}
+      <div className='flex items-end justify-center'>
+        {trio.map((leader) => {
           const isChairman = leader === chairman
-          const isLeft = leader === secretary
+          const isSecretary = leader === secretary
+          const isTreasurer = leader === treasurer
 
-          // Secretary (left) and treasurer (right) are 90% the chairman's size
-          const wBase = isChairman ? 120 : 108
-          const hBase = isChairman ? 160 : 144
-          const wSm = isChairman ? 200 : 180
-          const hSm = isChairman ? 267 : 240
-          const wLg = isChairman ? 380 : 342
-          const hLg = isChairman ? 507 : 456
+          // Sekretaris 85%, Bendahara 80%, Ketua 100%
+          const factor = isChairman ? 1 : isSecretary ? 0.85 : 0.8
 
-          // ~20% overlap: 22px base / 36px sm / 68px lg
-          const overlapClass = isLeft
-            ? '-mr-[22px] sm:-mr-[36px] lg:-mr-[68px]'
-            : isChairman
-              ? ''
-              : '-ml-[22px] sm:-ml-[36px] lg:-ml-[68px]'
+          const wBase = Math.round(120 * factor)
+          const wSm   = Math.round(200 * factor)
+          const wLg   = Math.round(340 * factor)
+
+          // ~20% overlap of each flanker's own width
+          const overlapClass = isSecretary
+            ? '-mr-[20px] sm:-mr-[34px] lg:-mr-[58px]'
+            : isTreasurer
+              ? '-ml-[19px] sm:-ml-[32px] lg:-ml-[54px]'
+              : ''
 
           const zClass = isChairman ? 'z-10' : 'z-0'
 
           return (
             <div
               key={leader.name}
-              className={`relative shrink-0 ${overlapClass} ${zClass}`}
+              className={`relative shrink-0 flex flex-col items-center ${overlapClass} ${zClass}`}
             >
-              {/* Photo frame — no border-radius per spec */}
-              <div
-                className='relative overflow-hidden'
-                style={{
-                  width: `clamp(${wBase}px, ${(wSm / 640) * 100}vw, ${wLg}px)`,
-                  height: `clamp(${hBase}px, ${(hSm / 640) * 100}vw, ${hLg}px)`
-                }}
-              >
-                {/* Nameplate — 1rem from top border of photo */}
-                <Nameplate name={leader.name} role={leader.role} />
-
-                {/* Photo */}
+              {/* Photo — full image, no crop, no frame, no gradient */}
+              <div style={{ width: `clamp(${wBase}px, ${(wSm / 640) * 100}vw, ${wLg}px)` }}>
                 {leader.photoSrc ? (
                   <Image
                     src={leader.photoSrc}
                     alt={`Foto ${leader.name}`}
                     width={wLg}
-                    height={hLg}
-                    className='h-full w-full object-cover object-top'
+                    height={Math.round(wLg * 4 / 3)}
+                    className='w-full'
+                    style={{ height: 'auto' }}
                     unoptimized={leader.photoSrc.includes('?')}
                   />
                 ) : (
-                  <div className='h-full w-full bg-muted' />
+                  <div className='w-full bg-muted' style={{ aspectRatio: '3/4' }} />
                 )}
+              </div>
 
-                {/* Very subtle bottom vignette for visual grounding */}
-                <div
-                  className='absolute inset-0 bg-gradient-to-t from-foreground/8 via-transparent to-transparent pointer-events-none'
-                  aria-hidden='true'
-                />
+              {/* Name plate — below photo */}
+              <div className='pt-3 pb-5 text-center px-1'>
+                <p className='font-sans text-[9px] font-semibold tracking-[0.18em] text-primary uppercase leading-none'>
+                  {leader.role}
+                </p>
+                <p className='font-heading text-sm font-bold text-foreground leading-tight mt-1'>
+                  {leader.name}
+                </p>
               </div>
             </div>
           )
