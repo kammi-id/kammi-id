@@ -11,7 +11,7 @@ import {
 } from '~/components/shadcn/ui/card'
 import { Separator } from '~/components/shadcn/ui/separator'
 import { LeadershipForm } from './_components/leadership-form'
-import { getCachedLeadershipSettings } from './_data/settings'
+import { getLeadershipSettings } from './_data/settings'
 
 const ManagersSettingsPage = async () => {
   const session = await readActiveSession()
@@ -23,7 +23,7 @@ const ManagersSettingsPage = async () => {
 
   if (!isRoot && !isHumasPP) redirect('/dashboard')
 
-  const leadership = await getCachedLeadershipSettings()
+  const leadership = await getLeadershipSettings()
 
   return (
     <div className='space-y-8 px-4 py-4 md:py-6 lg:px-6'>
