@@ -56,17 +56,14 @@ export const LeadershipSection = async () => {
           const isSecretary = leader === secretary
           const isTreasurer = leader === treasurer
 
-          // Sekretaris 90%, Bendahara 85%, Ketua 100%
-          const factor = isChairman ? 1 : isSecretary ? 0.9 : 0.85
+          // Tinggi: sekjend 98%, bendum 95% dari tinggi ketum — width menyesuaikan rasio foto
+          const hBase = isChairman ? 160 : isSecretary ? Math.round(160 * 0.98) : Math.round(160 * 0.95)
+          const hSm   = isChairman ? 267 : isSecretary ? Math.round(267 * 0.98) : Math.round(267 * 0.95)
+          const hLg   = isChairman ? 420 : isSecretary ? Math.round(420 * 0.98) : Math.round(420 * 0.95)
 
-          const wBase = Math.round(120 * factor)
-          const wSm   = Math.round(200 * factor)
-          const wLg   = Math.round(340 * factor)
-
-          // ~20% overlap of each flanker's own width
-          // sekjend lg: 306px → 61px | bendum lg: 289px → 58px
+          // Overlap tetap ~20% dari lebar sekitar (estimasi visual)
           const overlapClass = isSecretary
-            ? '-mr-[22px] sm:-mr-[36px] lg:-mr-[61px]'
+            ? '-mr-[22px] sm:-mr-[36px] lg:-mr-[60px]'
             : isTreasurer
               ? '-ml-[20px] sm:-ml-[34px] lg:-ml-[58px]'
               : ''
@@ -78,20 +75,20 @@ export const LeadershipSection = async () => {
               key={leader.name}
               className={`relative shrink-0 flex flex-col items-center ${overlapClass} ${zClass}`}
             >
-              {/* Photo — full image, no crop, no frame, no gradient */}
-              <div style={{ width: `clamp(${wBase}px, ${(wSm / 640) * 100}vw, ${wLg}px)` }}>
+              {/* Photo — height-controlled, width auto (rasio asli foto) */}
+              <div style={{ height: `clamp(${hBase}px, ${(hSm / 640) * 100}vw, ${hLg}px)` }}>
                 {leader.photoSrc ? (
                   <Image
                     src={leader.photoSrc}
                     alt={`Foto ${leader.name}`}
-                    width={wLg}
-                    height={Math.round(wLg * 4 / 3)}
-                    className='w-full'
-                    style={{ height: 'auto' }}
+                    width={400}
+                    height={534}
+                    className='h-full w-auto max-w-none'
+                    style={{ height: '100%', width: 'auto' }}
                     unoptimized={leader.photoSrc.includes('?')}
                   />
                 ) : (
-                  <div className='w-full bg-muted' style={{ aspectRatio: '3/4' }} />
+                  <div className='h-full w-24 bg-muted' />
                 )}
               </div>
 
