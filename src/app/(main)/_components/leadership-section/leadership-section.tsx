@@ -56,18 +56,19 @@ export const LeadershipSection = async () => {
           const isSecretary = leader === secretary
           const isTreasurer = leader === treasurer
 
-          // Sekretaris 85%, Bendahara 80%, Ketua 100%
-          const factor = isChairman ? 1 : isSecretary ? 0.85 : 0.8
+          // Sekretaris 90%, Bendahara 85%, Ketua 100%
+          const factor = isChairman ? 1 : isSecretary ? 0.9 : 0.85
 
           const wBase = Math.round(120 * factor)
           const wSm   = Math.round(200 * factor)
           const wLg   = Math.round(340 * factor)
 
           // ~20% overlap of each flanker's own width
+          // sekjend lg: 306px → 61px | bendum lg: 289px → 58px
           const overlapClass = isSecretary
-            ? '-mr-[20px] sm:-mr-[34px] lg:-mr-[58px]'
+            ? '-mr-[22px] sm:-mr-[36px] lg:-mr-[61px]'
             : isTreasurer
-              ? '-ml-[19px] sm:-ml-[32px] lg:-ml-[54px]'
+              ? '-ml-[20px] sm:-ml-[34px] lg:-ml-[58px]'
               : ''
 
           const zClass = isChairman ? 'z-10' : 'z-0'
