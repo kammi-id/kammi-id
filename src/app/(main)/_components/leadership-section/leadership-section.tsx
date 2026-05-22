@@ -50,6 +50,11 @@ export const LeadershipSection = async () => {
           {heading}
         </h2>
         <div className='mx-auto mt-1 h-1 w-12 rounded-full bg-primary' aria-hidden='true' />
+        <div className='mt-6'>
+          <Link href='/pengurus' className={cn(buttonVariants({ variant: 'outline' }))}>
+            Pengurus Lengkap
+          </Link>
+        </div>
       </div>
 
       {/* Spacer — dorong foto ke bawah section */}
@@ -98,8 +103,8 @@ export const LeadershipSection = async () => {
                 )}
               </div>
 
-              {/* Name plate — below photo */}
-              <div className='pt-3 pb-5 text-center px-1'>
+              {/* Name plate — below photo, flush to section bottom */}
+              <div className='pt-3 pb-0 text-center px-1'>
                 <p className='font-sans text-[9px] font-semibold tracking-[0.18em] text-primary uppercase leading-none'>
                   {leader.role}
                 </p>
@@ -112,12 +117,6 @@ export const LeadershipSection = async () => {
         })}
       </div>
 
-      {/* CTA */}
-      <div className='flex justify-center py-8'>
-        <Link href='/pengurus' className={cn(buttonVariants({ variant: 'outline' }))}>
-          Pengurus Lengkap
-        </Link>
-      </div>
     </section>
   )
 }
