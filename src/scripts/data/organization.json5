@@ -408,11 +408,165 @@
     parent_code: 'PW4'
   },
   {
+    name: 'PK KAMMI Tuanku Tambusai',
+    slug: 'tuanku-tambusai',
+    type: 'pk',
+    code: '4.PD-1.TUANKU-TAMBUSAI',
+    parent_code: '4.PD-1'
+  },
+  {
+    name: 'PK KAMMI Atthursina',
+    slug: 'atthursina',
+    type: 'pk',
+    code: '4.PD-1.ATTHURSINA',
+    parent_code: '4.PD-1'
+  },
+  {
+    name: 'PK KAMMI Ibnu Batutah',
+    slug: 'ibnu-batutah',
+    type: 'pk',
+    code: '4.PD-1.IBNU-BATUTAH',
+    parent_code: '4.PD-1'
+  },
+  {
+    name: 'PK KAMMI Al Adiyat',
+    slug: 'al-adiyat',
+    type: 'pk',
+    code: '4.PD-1.AL-ADIYAT',
+    parent_code: '4.PD-1'
+  },
+  {
+    name: 'PK KAMMI Suska',
+    slug: 'suska',
+    type: 'pk',
+    code: '4.PD-1.SUSKA',
+    parent_code: '4.PD-1'
+  },
+  {
+    name: 'PK KAMMI Buya Hamka',
+    slug: 'buya-hamka',
+    type: 'pk',
+    code: '4.PD-1.BUYA-HAMKA',
+    parent_code: '4.PD-1'
+  },
+  {
+    name: 'PK KAMMI Raliji',
+    slug: 'raliji',
+    type: 'pk',
+    code: '4.PD-1.RALIJI',
+    parent_code: '4.PD-1'
+  },
+  {
     name: 'PD KAMMI Lancang Kuning',
     slug: 'lancang-kuning',
     type: 'pd',
     code: '4.PD-2',
     parent_code: 'PW4'
+  },
+  {
+    name: 'PK KAMMI Kuansing',
+    slug: 'kuansing',
+    type: 'pk',
+    code: '4.PD-2.KUANSING',
+    parent_code: '4.PD-2'
+  },
+  {
+    name: 'PK KAMMI Rohul',
+    slug: 'rohul',
+    type: 'pk',
+    code: '4.PD-2.ROHUL',
+    parent_code: '4.PD-2'
+  },
+  {
+    name: 'PK KAMMI Bengkalis',
+    slug: 'bengkalis',
+    type: 'pk',
+    code: '4.PD-2.BENGKALIS',
+    parent_code: '4.PD-2'
+  },
+  {
+    name: 'PD KAMMI Rokan',
+    slug: 'rokan',
+    type: 'pd',
+    code: '4.PD-3',
+    parent_code: 'PW4'
+  },
+  {
+    name: 'PK KAMMI Rohil',
+    slug: 'rohil',
+    type: 'pk',
+    code: '4.PD-3.ROHIL',
+    parent_code: '4.PD-3'
+  },
+  {
+    name: 'PK KAMMI Duri',
+    slug: 'duri',
+    type: 'pk',
+    code: '4.PD-3.DURI',
+    parent_code: '4.PD-3'
+  },
+  {
+    name: 'PK KAMMI Dumai',
+    slug: 'dumai',
+    type: 'pk',
+    code: '4.PD-3.DUMAI',
+    parent_code: '4.PD-3'
+  },
+  {
+    name: 'PD KAMMI Sri Indrapura',
+    slug: 'sri-indrapura',
+    type: 'pd',
+    code: '4.PD-4',
+    parent_code: 'PW4'
+  },
+  {
+    name: 'PK KAMMI Pelalawan',
+    slug: 'pelalawan',
+    type: 'pk',
+    code: '4.PD-4.PELALAWAN',
+    parent_code: '4.PD-4'
+  },
+  {
+    name: 'PK KAMMI Siak',
+    slug: 'siak',
+    type: 'pk',
+    code: '4.PD-4.SIAK',
+    parent_code: '4.PD-4'
+  },
+  {
+    name: 'PK KAMMI Kampar',
+    slug: 'kampar',
+    type: 'pk',
+    code: '4.PD-4.KAMPAR',
+    parent_code: '4.PD-4'
+  },
+  {
+    name: 'PD KAMMI Indragiri',
+    slug: 'indragiri',
+    type: 'pd',
+    code: '4.PD-5',
+    parent_code: 'PW4'
+  },
+  {
+    name: 'PK KAMMI Sultan Mahmudsyah',
+    slug: 'sultan-mahmudsyah',
+    type: 'pk',
+    code: '4.PD-5.SULTAN-MAHMUDSYAH',
+    parent_code: '4.PD-5'
+  },
+  {
+    name: 'PK KAMMI Inhil',
+    slug: 'inhil',
+    type: 'pk',
+    code: '4.PD-5.INHIL',
+    parent_code: '4.PD-5'
+  },
+  {
+    name: 'PK KAMMI Air Molek',
+    slug: 'air-molek',
+    type: 'pk',
+    code: '4.PD-5.AIR-MOLEK',
+    parent_code: '4.PD-5'
   },
 
   // PW5: Kepulauan Riau
@@ -2126,6 +2280,41 @@
     parent_code: 'PW22'
   },
   {
+    name: 'PK KAMMI Unhas',
+    slug: 'unhas',
+    type: 'pk',
+    code: '22.PD-1.UNHAS',
+    parent_code: '22.PD-1'
+  },
+  {
+    name: 'PK KAMMI UMI',
+    slug: 'umi',
+    type: 'pk',
+    code: '22.PD-1.UMI',
+    parent_code: '22.PD-1'
+  },
+  {
+    name: 'PK KAMMI Al Furqan',
+    slug: 'al-furqan',
+    type: 'pk',
+    code: '22.PD-1.AL-FURQAN',
+    parent_code: '22.PD-1'
+  },
+  {
+    name: 'PK KAMMI UIM',
+    slug: 'uim',
+    type: 'pk',
+    code: '22.PD-1.UIM',
+    parent_code: '22.PD-1'
+  },
+  {
+    name: 'PK KAMMI UIN Makassar',
+    slug: 'uin-makassar',
+    type: 'pk',
+    code: '22.PD-1.UIN',
+    parent_code: '22.PD-1'
+  },
+  {
     name: 'PD KAMMI Gowa',
     slug: 'gowa',
     type: 'pd',
@@ -2138,6 +2327,34 @@
     type: 'pd',
     code: '22.PD-3',
     parent_code: 'PW22'
+  },
+  {
+    name: 'PK KAMMI Hasan Al Banna',
+    slug: 'hasan-al-banna',
+    type: 'pk',
+    code: '22.PD-3.HASAN-AL-BANNA',
+    parent_code: '22.PD-3'
+  },
+  {
+    name: 'PK KAMMI UNCP',
+    slug: 'uncp',
+    type: 'pk',
+    code: '22.PD-3.UNCP',
+    parent_code: '22.PD-3'
+  },
+  {
+    name: 'PK KAMMI Yusuf Al Qaradawi',
+    slug: 'yusuf-al-qaradawi',
+    type: 'pk',
+    code: '22.PD-3.YUSUF-AL-QARADAWI',
+    parent_code: '22.PD-3'
+  },
+  {
+    name: 'PK KAMMI Al Falah',
+    slug: 'al-falah',
+    type: 'pk',
+    code: '22.PD-3.AL-FALAH',
+    parent_code: '22.PD-3'
   },
   {
     name: 'PD KAMMI Maros',
@@ -2379,6 +2596,20 @@
     parent_code: 'PW26'
   },
   {
+    name: 'PK KAMMI Syariah',
+    slug: 'syariah-sula',
+    type: 'pk',
+    code: '26.PD-1.SYARIAH',
+    parent_code: '26.PD-1'
+  },
+  {
+    name: 'PK KAMMI Tarbiyah',
+    slug: 'tarbiyah-sula',
+    type: 'pk',
+    code: '26.PD-1.TARBIYAH',
+    parent_code: '26.PD-1'
+  },
+  {
     name: 'PD KAMMI Halmahera Selatan',
     slug: 'halmahera-selatan',
     type: 'pd',
@@ -2386,11 +2617,53 @@
     parent_code: 'PW26'
   },
   {
+    name: 'PK KAMMI STAIA',
+    slug: 'staia',
+    type: 'pk',
+    code: '26.PD-2.STAIA',
+    parent_code: '26.PD-2'
+  },
+  {
     name: 'PD KAMMI Ternate',
     slug: 'ternate',
     type: 'pd',
     code: '26.PD-3',
     parent_code: 'PW26'
+  },
+  {
+    name: 'PK KAMMI IAIN Ternate',
+    slug: 'iain-ternate',
+    type: 'pk',
+    code: '26.PD-3.IAIN',
+    parent_code: '26.PD-3'
+  },
+  {
+    name: 'PK KAMMI FKIP',
+    slug: 'fkip-ternate',
+    type: 'pk',
+    code: '26.PD-3.FKIP',
+    parent_code: '26.PD-3'
+  },
+  {
+    name: 'PK KAMMI Khairun',
+    slug: 'khairun',
+    type: 'pk',
+    code: '26.PD-3.KHAIRUN',
+    parent_code: '26.PD-3'
+  },
+  {
+    name: 'PK KAMMI UMMU',
+    slug: 'ummu',
+    type: 'pk',
+    code: '26.PD-3.UMMU',
+    parent_code: '26.PD-3'
+  },
+  {
+    name: 'PK KAMMI ISDIK',
+    slug: 'isdik',
+    type: 'pk',
+    code: '26.PD-3.ISDIK',
+    parent_code: '26.PD-3'
   },
 
   // PW27: Papua
@@ -2402,8 +2675,8 @@
     parent_code: 'KAMMI'
   },
   {
-    name: 'PD KAMMI Papua',
-    slug: 'papua-pd',
+    name: 'PD KAMMI Jayapura',
+    slug: 'jayapura',
     type: 'pd',
     code: '27.PD-1',
     parent_code: 'PW27'
@@ -2414,6 +2687,27 @@
     type: 'pd',
     code: '27.PD-2',
     parent_code: 'PW27'
+  },
+  {
+    name: 'PK KAMMI Manokwari',
+    slug: 'manokwari',
+    type: 'pk',
+    code: '27.PD-2.MANOKWARI',
+    parent_code: '27.PD-2'
+  },
+  {
+    name: 'PK KAMMI Fakfak',
+    slug: 'fakfak',
+    type: 'pk',
+    code: '27.PD-2.FAKFAK',
+    parent_code: '27.PD-2'
+  },
+  {
+    name: 'PK KAMMI Sorong Raya',
+    slug: 'sorong-raya',
+    type: 'pk',
+    code: '27.PD-2.SORONG-RAYA',
+    parent_code: '27.PD-2'
   },
   {
     name: 'PD KAMMI Papua Selatan',
