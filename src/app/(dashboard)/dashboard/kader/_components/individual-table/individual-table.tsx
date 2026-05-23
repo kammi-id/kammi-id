@@ -34,7 +34,7 @@ import {
   Cancel01Icon
 } from '@hugeicons/core-free-icons'
 import { Spinner } from '~/components/shadcn/ui/spinner'
-import { createMemberAction } from '~/app/(dashboard)/dashboard/kader/_components/add-form/action'
+import { createMemberAction, type MemberFormState } from '~/app/(dashboard)/dashboard/kader/_components/add-form/action'
 import { toast } from 'sonner'
 
 interface IndividualMemberTableProps {
