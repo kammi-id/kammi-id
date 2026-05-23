@@ -6,7 +6,8 @@ import { useStore } from '@nanostores/react'
 import {
   inlineMembersStore,
   updateInlineRow,
-  removeInlineRow
+  removeInlineRow,
+  type InlineRow
 } from '../add-form/store'
 import { type IndividualMember } from '../individual-table/types'
 import { Button } from '~/components/shadcn/ui/button'
@@ -44,7 +45,7 @@ interface InlineQuickAddRowProps {
 }
 
 interface InlineRowProps {
-  member: Partial<IndividualMember>
+  member: InlineRow
   index: number
   filteredOrganizations: Organization[]
   currentYear: number
@@ -66,6 +67,8 @@ const getDescendantIds = (
 const InlineRow = ({ member, index, filteredOrganizations, currentYear }: InlineRowProps) => {
   const [searchQuery, setSearchQuery] = React.useState('')
 
+  const isEmpty = !member.name?.trim() || !member.organizationId
+
   const selectedOrg = React.useMemo(
     () => filteredOrganizations.find((org) => org.id === member.organizationId) ?? null,
     [filteredOrganizations, member.organizationId]
@@ -79,7 +82,10 @@ const InlineRow = ({ member, index, filteredOrganizations, currentYear }: Inline
   }, [filteredOrganizations, searchQuery])
 
   return (
-    <TableRow className='bg-primary/5 hover:bg-primary/10 group transition-colors'>
+    <TableRow
+      data-empty={isEmpty || undefined}
+      className='group bg-primary/5 transition-colors hover:bg-primary/10 data-[empty]:bg-destructive/5 data-[empty]:hover:bg-destructive/8'
+    >
       <TableCell className='p-2'>
         <div className='text-muted-foreground text-center text-xs italic'>
           Auto
@@ -88,7 +94,7 @@ const InlineRow = ({ member, index, filteredOrganizations, currentYear }: Inline
       <TableCell className='p-2'>
         <Input
           value={member.name ?? ''}
-          placeholder='Nama'
+          placeholder='Nama lengkap'
           className='h-8 px-2 py-0 text-xs focus-visible:ring-1'
           onChange={(e) => updateInlineRow(index, { name: e.target.value })}
         />
@@ -217,59 +223,46 @@ export const InlineQuickAddRow = ({
     inlineMembersStore.set([
       ...current,
       {
+        _rowId: `row-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
         name: '',
         organizationId: '',
-        status: 'ab1' as 'ab1',
-        gender: 'ikhwan' as 'ikhwan',
+        status: 'ab1' as const,
+        gender: 'ikhwan' as const,
         phone: '',
         yearOfEntry: currentYear,
         isAlumn: type === 'alumni'
-      } as Partial<IndividualMember>
+      } as InlineRow
     ])
   }
 
-  if (inlineMembers.length === 0) {
-    return (
-      <TableRow className='hover:bg-transparent'>
-        <TableCell colSpan={7} className='p-2'>
-          <Button
-            variant='ghost'
-            size='sm'
-            className='h-8 w-full justify-center border-2 border-dashed text-xs'
-            onClick={addRow}
-          >
-            <HugeiconsIcon icon={AddIcon} className='mr-2 size-3' />
-            Tambah Data Kader
-          </Button>
-        </TableCell>
-      </TableRow>
-    )
-  }
+  const addRowButton = (
+    <TableRow className='hover:bg-transparent'>
+      <TableCell colSpan={7} className='p-2'>
+        <Button
+          variant='ghost'
+          size='sm'
+          className='h-8 w-full justify-center border-2 border-dashed text-xs'
+          onClick={addRow}
+        >
+          <HugeiconsIcon icon={AddIcon} className='mr-2 size-3' />
+          {inlineMembers.length === 0 ? 'Tambah Data Kader' : 'Tambah Baris Lagi'}
+        </Button>
+      </TableCell>
+    </TableRow>
+  )
 
   return (
     <>
       {inlineMembers.map((member, index) => (
         <InlineRow
-          key={index}
+          key={member._rowId ?? index}
           member={member}
           index={index}
           filteredOrganizations={filteredOrganizations}
           currentYear={currentYear}
         />
       ))}
-      <TableRow className='hover:bg-transparent'>
-        <TableCell colSpan={7} className='p-2'>
-          <Button
-            variant='ghost'
-            size='sm'
-            className='h-8 w-full justify-center border-2 border-dashed text-xs'
-            onClick={addRow}
-          >
-            <HugeiconsIcon icon={AddIcon} className='mr-2 size-3' />
-            Tambah Baris Lagi
-          </Button>
-        </TableCell>
-      </TableRow>
+      {addRowButton}
     </>
   )
 }

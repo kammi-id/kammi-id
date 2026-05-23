@@ -8,31 +8,15 @@ import { getColumns } from './columns'
 import { useStore } from '@nanostores/react'
 import { useRouter, usePathname, useSearchParams } from 'next/navigation'
 import {
-  memberSheetStore,
-  memberEditData,
-  openMemberSheet,
-  closeMemberSheet,
   inlineMembersStore,
-  updateInlineRow,
-  removeInlineRow,
   clearInlineRows,
-  isSavingStore
+  isSavingStore,
+  type InlineRow
 } from '~/app/(dashboard)/dashboard/kader/_components/add-form/store'
 import { Button } from '~/components/shadcn/ui/button'
 import { InlineQuickAddRow } from '../members-table/inline-quick-add-row'
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetDescription
-} from '~/components/shadcn/ui/sheet'
 import { HugeiconsIcon } from '@hugeicons/react'
-import {
-  Add01Icon,
-  CopyCheckIcon,
-  Cancel01Icon
-} from '@hugeicons/core-free-icons'
+import { CopyCheckIcon, Cancel01Icon } from '@hugeicons/core-free-icons'
 import { Spinner } from '~/components/shadcn/ui/spinner'
 import { createMemberAction, type MemberFormState } from '~/app/(dashboard)/dashboard/kader/_components/add-form/action'
 import { toast } from 'sonner'
@@ -48,13 +32,6 @@ interface IndividualMemberTableProps {
   organizations: { id: string; name: string; type: string }[]
 }
 
-/**
- * IndividualMemberTable component displays a detailed table of individual members.
- * It provides functionality to view member details and add new members via a sheet.
- *
- * @param props - Component properties including data, pagination info, and access controls.
- * @returns A DataTable with individual member data and an accompanying member addition sheet.
- */
 export const IndividualMemberTable = ({
   data,
   pageCount,
@@ -69,21 +46,19 @@ export const IndividualMemberTable = ({
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
-  const isOpen = useStore(memberSheetStore)
-  const editData = useStore(memberEditData)
   const inlineMembers = useStore(inlineMembersStore)
   const isSaving = useStore(isSavingStore)
   const canManage = userRole === 'root' || userRole === 'bpk'
 
   const [optimisticData, addOptimisticMember] = useOptimistic(
     data,
-    (state, newMembers: Partial<IndividualMember>[]) => [
+    (state, newMembers: InlineRow[]) => [
       ...state,
       ...newMembers.map(
         (m) =>
           ({
             ...m,
-            id: `temp-${Math.random().toString(36).substr(2, 9)}`,
+            id: `temp-${Math.random().toString(36).substring(2, 11)}`,
             registerNumber: '...',
             organization: {
               name: 'Saving...'
@@ -98,8 +73,17 @@ export const IndividualMemberTable = ({
 
     const membersToSave = [...inlineMembers]
 
+    const invalid = membersToSave.filter(
+      (m) => !m.name?.trim() || !m.organizationId
+    )
+    if (invalid.length > 0) {
+      toast.error(
+        `${invalid.length} baris belum lengkap. Isi nama dan PD/PK sebelum menyimpan.`
+      )
+      return
+    }
+
     isSavingStore.set(true)
-    clearInlineRows()
     React.startTransition(() => {
       addOptimisticMember(membersToSave)
     })
@@ -109,7 +93,7 @@ export const IndividualMemberTable = ({
         membersToSave.map(async (member) => {
           const formData = new FormData()
           Object.entries(member).forEach(([key, value]) => {
-            if (value !== undefined && value !== null) {
+            if (value !== undefined && value !== null && !key.startsWith('_')) {
               formData.append(key, value.toString())
             }
           })
@@ -120,14 +104,23 @@ export const IndividualMemberTable = ({
         })
       )
 
-      const failures = results.filter((r) => !r.success)
-      if (failures.length > 0) {
-        toast.error(`Gagal menyimpan ${failures.length} data kader.`)
+      const failedIndices = results
+        .map((r, i) => (!r.success ? i : -1))
+        .filter((i) => i !== -1)
+
+      if (failedIndices.length > 0) {
+        const failedRows = failedIndices.map((i) => membersToSave[i])
+        inlineMembersStore.set(failedRows)
+        toast.error(
+          `${failedIndices.length} dari ${membersToSave.length} data gagal disimpan. Periksa kembali baris yang ditandai.`
+        )
       } else {
-        toast.success(`Berhasil menyimpan ${membersToSave.length} data kader.`)
+        clearInlineRows()
+        toast.success(`${membersToSave.length} data kader berhasil disimpan.`)
       }
     } catch (error) {
-      toast.error('Terjadi kesalahan saat menyimpan data.')
+      inlineMembersStore.set(membersToSave)
+      toast.error('Terjadi kesalahan saat menyimpan data. Coba lagi.')
       console.error(error)
     } finally {
       isSavingStore.set(false)
@@ -258,7 +251,6 @@ export const IndividualMemberTable = ({
           )
         }
       />
-      {/* Sheet removed as per request */}
     </>
   )
 }
