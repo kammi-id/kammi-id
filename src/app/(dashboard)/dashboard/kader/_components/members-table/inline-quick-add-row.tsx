@@ -42,6 +42,7 @@ interface InlineQuickAddRowProps {
   organizations: Organization[]
   parentOrgId: string
   type?: string
+  orgType?: string
 }
 
 interface InlineRowProps {
@@ -49,6 +50,7 @@ interface InlineRowProps {
   index: number
   filteredOrganizations: Organization[]
   currentYear: number
+  orgColCount: number
 }
 
 const getDescendantIds = (
@@ -64,7 +66,7 @@ const getDescendantIds = (
   return descendants
 }
 
-const InlineRow = ({ member, index, filteredOrganizations, currentYear }: InlineRowProps) => {
+const InlineRow = ({ member, index, filteredOrganizations, currentYear, orgColCount }: InlineRowProps) => {
   const [searchQuery, setSearchQuery] = React.useState('')
 
   const isEmpty = !member.name?.trim() || !member.organizationId
@@ -99,36 +101,38 @@ const InlineRow = ({ member, index, filteredOrganizations, currentYear }: Inline
           onChange={(e) => updateInlineRow(index, { name: e.target.value })}
         />
       </TableCell>
-      <TableCell className='p-2'>
-        <Combobox
-          value={member.organizationId ?? undefined}
-          onValueChange={(val) => {
-            if (val) updateInlineRow(index, { organizationId: val })
-            setSearchQuery('')
-          }}
-        >
-          <ComboboxInput
-            placeholder='Pilih PD/PK'
-            value={selectedOrg?.name ?? searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-          <ComboboxContent>
-            <ComboboxList>
-              {visibleOrgs.length === 0 ? (
-                <ComboboxEmpty>Data tidak ditemukan.</ComboboxEmpty>
-              ) : (
-                <ComboboxGroup>
-                  {visibleOrgs.map((org) => (
-                    <ComboboxItem key={org.id} value={org.id}>
-                      {org.name}
-                    </ComboboxItem>
-                  ))}
-                </ComboboxGroup>
-              )}
-            </ComboboxList>
-          </ComboboxContent>
-        </Combobox>
-      </TableCell>
+      {orgColCount > 0 && (
+        <TableCell className='p-2' colSpan={orgColCount}>
+          <Combobox
+            value={member.organizationId ?? undefined}
+            onValueChange={(val) => {
+              if (val) updateInlineRow(index, { organizationId: val })
+              setSearchQuery('')
+            }}
+          >
+            <ComboboxInput
+              placeholder='Pilih PD/PK'
+              value={selectedOrg?.name ?? searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            <ComboboxContent>
+              <ComboboxList>
+                {visibleOrgs.length === 0 ? (
+                  <ComboboxEmpty>Data tidak ditemukan.</ComboboxEmpty>
+                ) : (
+                  <ComboboxGroup>
+                    {visibleOrgs.map((org) => (
+                      <ComboboxItem key={org.id} value={org.id}>
+                        {org.name}
+                      </ComboboxItem>
+                    ))}
+                  </ComboboxGroup>
+                )}
+              </ComboboxList>
+            </ComboboxContent>
+          </Combobox>
+        </TableCell>
+      )}
       <TableCell className='p-2'>
         <Select
           value={member.status ?? undefined}
@@ -201,22 +205,35 @@ const InlineRow = ({ member, index, filteredOrganizations, currentYear }: Inline
   )
 }
 
+const getOrgColCount = (orgType?: string): number => {
+  if (orgType === 'pp') return 3
+  if (orgType === 'pw') return 2
+  if (orgType === 'pd' || orgType === 'pdln') return 1
+  return 0 // pk: no org picker, auto-assign
+}
+
 export const InlineQuickAddRow = ({
   organizations,
   parentOrgId,
-  type
+  type,
+  orgType
 }: InlineQuickAddRowProps) => {
   const inlineMembers = useStore(inlineMembersStore)
   const currentYear = new Date().getFullYear()
+  const orgColCount = getOrgColCount(orgType)
+  const isPk = orgType === 'pk'
+  const hasStatusCol = type !== 'pemandu' && type !== 'instruktur'
+  const totalColCount = 6 + orgColCount + (hasStatusCol ? 0 : -1)
 
   const filteredOrganizations = React.useMemo(() => {
+    if (isPk) return []
     const descendants = getDescendantIds(parentOrgId, organizations)
     return organizations.filter((org) => {
       const isCorrectType = org.type === 'pd' || org.type === 'pk'
       const isDescendant = descendants.includes(org.id) || org.id === parentOrgId
       return isCorrectType && isDescendant
     })
-  }, [organizations, parentOrgId])
+  }, [organizations, parentOrgId, isPk])
 
   const addRow = () => {
     const current = inlineMembersStore.get()
@@ -225,7 +242,7 @@ export const InlineQuickAddRow = ({
       {
         _rowId: `row-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
         name: '',
-        organizationId: '',
+        organizationId: isPk ? parentOrgId : '',
         status: 'ab1' as const,
         gender: 'ikhwan' as const,
         phone: '',
@@ -237,7 +254,7 @@ export const InlineQuickAddRow = ({
 
   const addRowButton = (
     <TableRow className='hover:bg-transparent'>
-      <TableCell colSpan={7} className='p-2'>
+      <TableCell colSpan={totalColCount} className='p-2'>
         <Button
           variant='ghost'
           size='sm'
@@ -260,6 +277,7 @@ export const InlineQuickAddRow = ({
           index={index}
           filteredOrganizations={filteredOrganizations}
           currentYear={currentYear}
+          orgColCount={orgColCount}
         />
       ))}
       {addRowButton}

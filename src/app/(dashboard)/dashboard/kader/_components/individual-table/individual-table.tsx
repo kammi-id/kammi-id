@@ -203,6 +203,7 @@ export const IndividualMemberTable = ({
               organizations={organizations}
               parentOrgId={parentOrgId}
               type={type}
+              orgType={orgType}
             />
           ) : null
         }
