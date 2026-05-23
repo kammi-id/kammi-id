@@ -104,16 +104,14 @@ export const MembersPageContent = async ({
       : ['pp', 'pw', 'pd', 'pdln'].includes(currentOrg.type) &&
         currentOrg.type !== 'pd'
 
-  const showIndividuals =
-    ['pd', 'pdln', 'pk'].includes(currentOrg.type) ||
-    (isSpecialView && currentOrg.type === 'pw')
+  const showIndividuals = true
 
   const orgFilters = {
     parentId: [currentOrg.id],
     name: summary.query,
+    type: summary.orgType,
     limit: summary.limit,
-    offset: summary.offset,
-    orderBy: summary.orderBy
+    offset: summary.offset
   }
 
   const mFilters = {
@@ -237,7 +235,7 @@ export const MembersPageContent = async ({
   })
 
   const renderSummary = () => (
-    <div className='bg-card rounded-3xl border p-6 shadow-xs md:p-8 lg:p-10'>
+    <div className='bg-card rounded-xl border p-6 shadow-xs'>
       <MembersTable
         data={memberData}
         nameHeader={nameHeader}
@@ -250,7 +248,7 @@ export const MembersPageContent = async ({
   )
 
   const renderIndividuals = () => (
-    <div className='bg-card rounded-3xl border p-6 shadow-xs md:p-8 lg:p-10'>
+    <div className='bg-card rounded-xl border p-6 shadow-xs'>
       <IndividualMemberTable
         data={mMembers}
         pageCount={mPageCount}
@@ -270,7 +268,7 @@ export const MembersPageContent = async ({
 
   return (
     <AccessGuard allowedRoles={['root', 'bph', 'bpk']} levelRequirement={4}>
-      <div className='flex min-h-screen flex-col space-y-12 px-4 py-8 md:px-6 md:py-10 lg:px-8'>
+      <div className='flex min-h-screen flex-col space-y-10 px-4 py-6 md:px-6 md:py-8 lg:px-8'>
         {showHeader && (
           <MembersPageHeader
             slug={slug}
@@ -288,7 +286,7 @@ export const MembersPageContent = async ({
           )}
 
           {showIndividuals && (
-            <div className='bg-card rounded-3xl border p-4 shadow-xs md:p-6 lg:p-8'>
+            <div className='bg-card rounded-xl border p-4 shadow-xs'>
               <IndividualMemberTable
                 data={mMembers}
                 pageCount={mPageCount}
@@ -313,6 +311,9 @@ export const MembersPageContent = async ({
                 pageCount={pageCount}
                 totalCount={totalCount}
                 type={activeType}
+                currentSearch={summary.query ?? ''}
+                currentOrgTypes={summary.orgType ?? []}
+                parentOrgType={currentOrg.type}
               />
             </div>
           )}
