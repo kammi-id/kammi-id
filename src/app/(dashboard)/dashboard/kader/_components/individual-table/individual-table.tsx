@@ -134,14 +134,6 @@ export const IndividualMemberTable = ({
     }
   }, [inlineMembers, isSaving, addOptimisticMember])
 
-  React.useEffect(() => {
-    if (inlineMembers.length === 0) return
-    const timer = setTimeout(() => {
-      handleSave()
-    }, 10000)
-    return () => clearTimeout(timer)
-  }, [inlineMembers, handleSave])
-
   const handleFilterChange = React.useCallback(
     (filterType: 'status' | 'gender', value: string) => {
       const params = new URLSearchParams(searchParams.toString())
