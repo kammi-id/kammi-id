@@ -28,6 +28,17 @@ export const withMemberCTE = db.$with('with_member_cte').as(
     )
 )
 
+type OrgRef = {
+  id: string
+  name: string
+  slug: string
+} | null
+
 export type Member = typeof member.$inferSelect & {
   organization: Organization
+  orgHierarchy?: {
+    pk: OrgRef
+    pd: OrgRef
+    pw: OrgRef
+  } | null
 }

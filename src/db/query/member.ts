@@ -302,6 +302,18 @@ export const readMember = async (
   return await query
 }
 
+export const readMemberByRegisterNumber = async (
+  registerNumber: string
+): Promise<Member | null> => {
+  const [found] = await db
+    .with(withMemberCTE)
+    .select()
+    .from(withMemberCTE)
+    .where(eq(withMemberCTE.registerNumber, registerNumber))
+    .limit(1)
+  return found ?? null
+}
+
 export const updateMember = async (
   values: Partial<MemberInsertValues>,
   id: string
@@ -316,6 +328,12 @@ export const updateMember = async (
       .where(eq(withMemberCTE.id, id))
   })
 }
+
+type OrgRef = {
+  id: string
+  name: string
+  slug: string
+} | null
 
 type MemberDescendantRow = {
   id: string
@@ -346,6 +364,11 @@ type MemberDescendantRow = {
     name: string
     slug: string
   }
+  orgHierarchy: {
+    pk: OrgRef
+    pd: OrgRef
+    pw: OrgRef
+  } | null
 }
 
 export const readDescendantMembers = async (
@@ -413,7 +436,39 @@ export const readDescendantMembers = async (
         'id', o.id,
         'name', o.name,
         'slug', o.slug
-      ) as "organization"
+      ) as "organization",
+      json_build_object(
+        'pk', (
+          WITH RECURSIVE anc AS (
+            SELECT id, name, slug, type, parent_id FROM organization WHERE id = o.id
+            UNION ALL
+            SELECT org.id, org.name, org.slug, org.type, org.parent_id
+            FROM organization org JOIN anc ON org.id = anc.parent_id
+          )
+          SELECT json_build_object('id', id, 'name', name, 'slug', slug)
+          FROM anc WHERE type = 'pk' LIMIT 1
+        ),
+        'pd', (
+          WITH RECURSIVE anc AS (
+            SELECT id, name, slug, type, parent_id FROM organization WHERE id = o.id
+            UNION ALL
+            SELECT org.id, org.name, org.slug, org.type, org.parent_id
+            FROM organization org JOIN anc ON org.id = anc.parent_id
+          )
+          SELECT json_build_object('id', id, 'name', name, 'slug', slug)
+          FROM anc WHERE type IN ('pd', 'pdln') LIMIT 1
+        ),
+        'pw', (
+          WITH RECURSIVE anc AS (
+            SELECT id, name, slug, type, parent_id FROM organization WHERE id = o.id
+            UNION ALL
+            SELECT org.id, org.name, org.slug, org.type, org.parent_id
+            FROM organization org JOIN anc ON org.id = anc.parent_id
+          )
+          SELECT json_build_object('id', id, 'name', name, 'slug', slug)
+          FROM anc WHERE type = 'pw' LIMIT 1
+        )
+      ) as "orgHierarchy"
     FROM member m
     JOIN organization o ON m.organization_id = o.id
     WHERE m.organization_id IN (SELECT id FROM org_tree)
@@ -456,7 +511,12 @@ export const readDescendantMembers = async (
         status: row.status as 'ab1' | 'ab2' | 'ab3',
         gender: row.gender as 'ikhwan' | 'akhwat',
         yearOfEntry: row.yearOfEntry as number,
-        organization: row.organization as any
+        organization: row.organization as any,
+        orgHierarchy: row.orgHierarchy as {
+          pk: OrgRef
+          pd: OrgRef
+          pw: OrgRef
+        } | null
       }))
     })
 
