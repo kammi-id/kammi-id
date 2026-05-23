@@ -1,7 +1,30 @@
 'use client'
 
-import { Card, CardDescription, CardTitle } from '~/components/shadcn/ui/card'
-import { cn } from '~/lib/shadcn/utils'
+const fmt = (n: number) => n.toLocaleString('id-ID')
+const pct = (n: number, total: number) =>
+  total === 0 ? 0 : Math.round((n / total) * 100)
+
+const Stat = ({
+  label,
+  value,
+  sub
+}: {
+  label: string
+  value: number
+  sub?: string
+}) => (
+  <div className='flex flex-col gap-0.5'>
+    <span className='font-mono text-sm font-semibold tabular-nums text-foreground'>
+      {fmt(value)}
+      {sub && (
+        <span className='ml-1 text-xs font-normal text-muted-foreground'>
+          {sub}
+        </span>
+      )}
+    </span>
+    <span className='text-xs text-muted-foreground'>{label}</span>
+  </div>
+)
 
 interface MemberSectionCardsProps {
   data: {
@@ -16,96 +39,49 @@ interface MemberSectionCardsProps {
 }
 
 export const MemberSectionCards = ({ data, type }: MemberSectionCardsProps) => {
-  const secondaryMetrics = [
-    { label: 'AB 3', value: data.ab3 },
-    { label: 'AB 2', value: data.ab2 },
-    { label: 'AB 1', value: data.ab1 },
-    { label: 'Ikhwan', value: data.ikhwan },
-    { label: 'Akhwat', value: data.akhwat }
-  ].filter((metric) => {
-    if (type === 'alumni') return false
-    if (type === 'pemandu' || type === 'instruktur') {
-      return !['AB 1', 'AB 2', 'AB 3'].includes(metric.label)
-    }
-    return true
-  })
+  const { total, ab1, ab2, ab3, ikhwan, akhwat } = data
+  const isAlumni = type === 'alumni'
 
-  const colorMap: Record<
-    string,
-    { bg: string; border: string; text: string; glow: string }
-  > = {
-    blue: {
-      bg: 'bg-blue-50',
-      border: 'border-blue-200',
-      text: 'text-blue-700',
-      glow: 'bg-blue-400/20'
-    },
-    red: {
-      bg: 'bg-red-50',
-      border: 'border-red-200',
-      text: 'text-red-700',
-      glow: 'bg-red-400/20'
-    },
-    green: {
-      bg: 'bg-green-50',
-      border: 'border-green-200',
-      text: 'text-green-700',
-      glow: 'bg-green-400/20'
-    },
-    pink: {
-      bg: 'bg-pink-50',
-      border: 'border-pink-200',
-      text: 'text-pink-700',
-      glow: 'bg-pink-400/20'
-    },
-    primary: {
-      bg: 'bg-primary/5',
-      border: 'border-primary/30',
-      text: 'text-primary',
-      glow: 'bg-primary/10'
-    }
+  if (total === 0) {
+    return (
+      <div className='rounded-xl border bg-card px-5 py-4'>
+        <p className='text-sm text-muted-foreground'>
+          Belum ada data dalam scope ini.
+        </p>
+      </div>
+    )
   }
 
-  return (
-    <div className='flex flex-col gap-8 px-0'>
-      <div
-        className={cn(
-          'grid grid-cols-1 gap-6',
-          type === 'alumni' ? 'max-w-sm' : 'lg:grid-cols-4'
-        )}
-      >
-        <Card
-          className={cn(
-            'border-border bg-primary/5 relative col-span-1 overflow-hidden border p-5 transition-all duration-300 hover:scale-[1.02] hover:shadow-md lg:col-span-1'
-          )}
-        >
-          <CardDescription className='text-primary text-xs font-bold tracking-widest uppercase opacity-80'>
-            {type === 'alumni' ? 'Jumlah Alumni' : 'Jumlah Kader'}
-          </CardDescription>
-          <CardTitle className='font-heading text-primary mt-2 text-5xl font-black tracking-tighter tabular-nums sm:text-6xl'>
-            {data.total.toLocaleString('id-ID')}
-          </CardTitle>
-          <div className='bg-primary absolute top-4 right-4 size-2 animate-pulse rounded-full' />
-        </Card>
+  const ab1Pct = pct(ab1, total)
+  const ab2Pct = pct(ab2, total)
+  const ab3Pct = pct(ab3, total)
 
-        <div className='grid grid-cols-2 gap-4 sm:grid-cols-3 lg:col-span-3'>
-          {secondaryMetrics.map((metric) => (
-            <Card
-              key={metric.label}
-              className={cn(
-                'border-border bg-primary/5 relative overflow-hidden border p-5 transition-all duration-300 hover:scale-[1.02] hover:shadow-sm'
-              )}
-            >
-              <CardDescription className='text-primary text-[10px] font-bold tracking-widest uppercase opacity-70'>
-                {metric.label}
-              </CardDescription>
-              <CardTitle className='font-heading text-primary mt-1 text-2xl font-extrabold tracking-tight tabular-nums sm:text-3xl'>
-                {metric.value.toLocaleString('id-ID')}
-              </CardTitle>
-            </Card>
-          ))}
-        </div>
-      </div>
+  return (
+    <div className='flex flex-wrap items-center gap-x-8 gap-y-3 rounded-xl border bg-card px-5 py-4'>
+      <Stat label='Total' value={total} />
+      {!isAlumni && (
+        <>
+          <div className='hidden h-6 w-px bg-border sm:block' aria-hidden />
+          <Stat label='Ikhwan' value={ikhwan} />
+          <Stat label='Akhwat' value={akhwat} />
+          <div className='hidden h-6 w-px bg-border sm:block' aria-hidden />
+          <Stat
+            label='AB 1'
+            value={ab1}
+            sub={ab1Pct > 0 ? `${ab1Pct}%` : undefined}
+          />
+          <Stat
+            label='AB 2'
+            value={ab2}
+            sub={ab2Pct > 0 ? `${ab2Pct}%` : undefined}
+          />
+          <Stat
+            label='AB 3'
+            value={ab3}
+            sub={ab3Pct > 0 ? `${ab3Pct}%` : undefined}
+          />
+        </>
+      )}
     </div>
   )
 }

@@ -36,6 +36,7 @@ interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
   searchKey?: string
+  placeholder?: string
   pageCount?: number
   totalCount?: number
   actionElement?: React.ReactNode
@@ -49,6 +50,7 @@ export function DataTable<TData, TValue>({
   columns,
   data,
   searchKey,
+  placeholder,
   pageCount = -1,
   totalCount = 0,
   actionElement,
@@ -194,7 +196,7 @@ export function DataTable<TData, TValue>({
           {searchKey && (
             <div className='relative w-full max-w-sm'>
               <Input
-                placeholder={`Cari ${searchKey}...`}
+                placeholder={placeholder ?? `Cari ${searchKey}...`}
                 value={searchValue}
                 onChange={(event) => setSearchValue(event.target.value)}
                 className='h-9 pl-9'

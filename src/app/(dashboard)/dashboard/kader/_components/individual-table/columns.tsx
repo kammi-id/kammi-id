@@ -75,11 +75,13 @@ export const getColumns = (
       header:
         orgType === 'pk'
           ? 'Komisariat'
-          : orgType === 'pw'
-            ? 'PD'
-            : orgType === 'pd'
-              ? 'PK'
-              : 'PW/PD/PDLN/PK',
+          : orgType === 'pd' || orgType === 'pdln'
+            ? 'Komisariat'
+            : orgType === 'pw'
+              ? 'Daerah/Komisariat'
+              : orgType === 'pp'
+                ? 'Wilayah/Daerah'
+                : 'Unit Organisasi',
       cell: ({ row }) => (
         <span className='text-xs'>
           {row.original.organization?.name || '-'}

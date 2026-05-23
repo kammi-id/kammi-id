@@ -196,7 +196,15 @@ export const IndividualMemberTable = ({
         )}
         data={optimisticData}
         searchKey='name'
-        placeholder='Cari nama kader...'
+        placeholder={
+          type === 'alumni'
+            ? 'Cari nama alumni...'
+            : type === 'pemandu'
+              ? 'Cari nama pemandu...'
+              : type === 'instruktur'
+                ? 'Cari nama instruktur...'
+                : 'Cari nama kader...'
+        }
         pageCount={pageCount}
         totalCount={totalCount}
         queryPrefix='m'

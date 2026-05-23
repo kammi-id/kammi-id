@@ -106,6 +106,22 @@ export const MembersPageContent = async ({
 
   const showIndividuals = true
 
+  const individualsHeading =
+    activeType === 'alumni'
+      ? 'Daftar Alumni'
+      : activeType === 'perangkat'
+        ? 'Daftar Perangkat'
+        : 'Daftar Kader'
+
+  const summaryHeading =
+    currentOrg.type === 'pp'
+      ? 'Ringkasan per Wilayah'
+      : currentOrg.type === 'pw'
+        ? 'Ringkasan per Daerah'
+        : currentOrg.type === 'pd' || currentOrg.type === 'pdln'
+          ? 'Ringkasan per Komisariat'
+          : 'Ringkasan'
+
   const orgFilters = {
     parentId: [currentOrg.id],
     name: summary.query,
@@ -286,25 +302,34 @@ export const MembersPageContent = async ({
           )}
 
           {showIndividuals && (
-            <div className='bg-card rounded-xl border p-4 shadow-xs'>
-              <IndividualMemberTable
-                data={mMembers}
-                pageCount={mPageCount}
-                totalCount={mTotalCount}
-                userRole={user.role}
-                parentOrgId={currentOrg.id}
-                type={activeType}
-                organizations={allowedOrganizations.map((org) => ({
-                  id: org.id,
-                  name: org.name,
-                  type: org.type,
-                  parentId: org.parentId
-                }))}
-              />
-            </div>
+            <section aria-label={individualsHeading} className='space-y-3'>
+              <h2 className='text-base font-semibold text-foreground'>
+                {individualsHeading}
+              </h2>
+              <div className='bg-card rounded-xl border p-4 shadow-xs'>
+                <IndividualMemberTable
+                  data={mMembers}
+                  pageCount={mPageCount}
+                  totalCount={mTotalCount}
+                  userRole={user.role}
+                  parentOrgId={currentOrg.id}
+                  type={activeType}
+                  orgType={currentOrg.type}
+                  organizations={allowedOrganizations.map((org) => ({
+                    id: org.id,
+                    name: org.name,
+                    type: org.type,
+                    parentId: org.parentId
+                  }))}
+                />
+              </div>
+            </section>
           )}
           {showSummary && (
-            <div className='space-y-6'>
+            <section aria-label={summaryHeading} className='space-y-3'>
+              <h2 className='text-base font-semibold text-foreground'>
+                {summaryHeading}
+              </h2>
               <MembersGrid
                 data={memberData}
                 basePath={basePath}
@@ -315,7 +340,7 @@ export const MembersPageContent = async ({
                 currentOrgTypes={summary.orgType ?? []}
                 parentOrgType={currentOrg.type}
               />
-            </div>
+            </section>
           )}
         </div>
       </div>
