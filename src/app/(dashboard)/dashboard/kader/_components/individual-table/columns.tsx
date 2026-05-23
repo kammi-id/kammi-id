@@ -1,5 +1,6 @@
 'use client'
 
+import React from 'react'
 import { type IndividualMember } from './types'
 import { ColumnDef } from '@tanstack/react-table'
 import Link from 'next/link'
@@ -13,6 +14,21 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from '~/components/shadcn/ui/tooltip'
+
+type OrgRef = { id: string; name: string; slug: string } | null
+
+const OrgCell = ({ org }: { org: OrgRef }) => {
+  if (!org) return <span className='text-muted-foreground text-xs'>-</span>
+  return (
+    <Link
+      href={`/dashboard/kader/${org.slug}`}
+      title={org.name}
+      className='text-foreground hover:text-primary text-xs transition-colors'
+    >
+      {org.name}
+    </Link>
+  )
+}
 
 export const getColumns = (
   type?: string,
@@ -70,24 +86,39 @@ export const getColumns = (
         )
       }
     },
-    {
-      accessorKey: 'organization',
-      header:
-        orgType === 'pk'
-          ? 'Komisariat'
-          : orgType === 'pd' || orgType === 'pdln'
-            ? 'Komisariat'
-            : orgType === 'pw'
-              ? 'Daerah/Komisariat'
-              : orgType === 'pp'
-                ? 'Wilayah/Daerah'
-                : 'Unit Organisasi',
-      cell: ({ row }) => (
-        <span className='text-xs'>
-          {row.original.organization?.name || '-'}
-        </span>
-      )
-    },
+    ...(orgType === 'pp'
+      ? [
+          {
+            id: 'orgWilayah',
+            header: 'Wilayah',
+            cell: ({ row }: { row: { original: IndividualMember } }) => (
+              <OrgCell org={row.original.orgHierarchy?.pw ?? null} />
+            )
+          } as ColumnDef<IndividualMember>
+        ]
+      : []),
+    ...(orgType === 'pp' || orgType === 'pw'
+      ? [
+          {
+            id: 'orgDaerah',
+            header: 'Daerah',
+            cell: ({ row }: { row: { original: IndividualMember } }) => (
+              <OrgCell org={row.original.orgHierarchy?.pd ?? null} />
+            )
+          } as ColumnDef<IndividualMember>
+        ]
+      : []),
+    ...(orgType === 'pp' || orgType === 'pw' || orgType === 'pd' || orgType === 'pdln'
+      ? [
+          {
+            id: 'orgKomisariat',
+            header: 'Komisariat',
+            cell: ({ row }: { row: { original: IndividualMember } }) => (
+              <OrgCell org={row.original.orgHierarchy?.pk ?? null} />
+            )
+          } as ColumnDef<IndividualMember>
+        ]
+      : []),
     {
       accessorKey: 'status',
       header: () => (
@@ -102,18 +133,28 @@ export const getColumns = (
       ),
       cell: ({ row }) => {
         const status = row.original.status
-        const colors: Record<string, string> = {
-          ab1: 'border-muted-foreground/20 text-muted-foreground bg-muted/50',
-          ab2: 'border-primary/30 text-primary/80 bg-primary/5',
-          ab3: 'border-primary text-primary bg-primary/10'
+        const badgeStyles: Record<string, React.CSSProperties> = {
+          ab1: {
+            backgroundColor: 'oklch(0.65 0.18 145 / 0.12)',
+            borderColor: 'oklch(0.55 0.16 145 / 0.40)',
+            color: 'oklch(0.40 0.16 145)'
+          },
+          ab2: {
+            backgroundColor: 'oklch(0.58 0.20 25 / 0.12)',
+            borderColor: 'oklch(0.48 0.18 25 / 0.40)',
+            color: 'oklch(0.42 0.18 25)'
+          },
+          ab3: {
+            backgroundColor: 'oklch(0.55 0.18 265 / 0.12)',
+            borderColor: 'oklch(0.42 0.17 265 / 0.40)',
+            color: 'oklch(0.38 0.17 265)'
+          }
         }
         return (
           <Badge
             variant='outline'
-            className={cn(
-              'cursor-pointer font-bold transition-opacity hover:opacity-80',
-              colors[status] || 'border-slate-200 bg-slate-100 text-slate-700'
-            )}
+            className={cn('cursor-pointer font-bold transition-opacity hover:opacity-80')}
+            style={badgeStyles[status]}
             onClick={() => onFilterChange?.('status', status)}
           >
             {status.toUpperCase()}
@@ -135,19 +176,25 @@ export const getColumns = (
       ),
       cell: ({ row }) => {
         const gender = row.original.gender
-        const colors: Record<string, string> = {
-          ikhwan:
-            'border-muted-foreground/20 text-muted-foreground bg-muted/50',
-          akhwat: 'border-primary/30 text-primary/80 bg-primary/5'
+        const badgeStyles: Record<string, React.CSSProperties> = {
+          ikhwan: {
+            backgroundColor: 'oklch(0.72 0.14 225 / 0.12)',
+            borderColor: 'oklch(0.55 0.13 225 / 0.40)',
+            color: 'oklch(0.40 0.13 225)'
+          },
+          akhwat: {
+            backgroundColor: 'oklch(0.74 0.14 350 / 0.12)',
+            borderColor: 'oklch(0.58 0.13 350 / 0.40)',
+            color: 'oklch(0.46 0.14 350)'
+          }
         }
         return (
           <Badge
             variant='outline'
             className={cn(
-              'cursor-pointer font-bold transition-opacity hover:opacity-80',
-              colors[gender] || 'border-slate-200 bg-slate-100 text-slate-700',
-              'capitalize'
+              'cursor-pointer font-bold capitalize transition-opacity hover:opacity-80'
             )}
+            style={badgeStyles[gender]}
             onClick={() => onFilterChange?.('gender', gender)}
           >
             {gender}
@@ -162,7 +209,6 @@ export const getColumns = (
         const phone = row.original.phone
         if (!phone) return <span className='text-muted-foreground'>-</span>
 
-        // Clean phone number for WA link (remove non-digits, handle +62/0)
         const cleanPhone = phone.replace(/\D/g, '').replace(/^0/, '62')
 
         return (
@@ -205,7 +251,9 @@ export const getColumns = (
   ]
 
   if (type === 'pemandu' || type === 'instruktur' || type === 'alumni') {
-    return cols.filter((col) => col.accessorKey !== 'status')
+    return cols.filter(
+      (col) => (col as { accessorKey?: string }).accessorKey !== 'status'
+    )
   }
 
   return cols
