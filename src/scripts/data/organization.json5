@@ -893,11 +893,46 @@
     parent_code: 'PW6'
   },
   {
+    name: 'PK KAMMI UIN Raden Fatah',
+    slug: 'uin-raden-fatah',
+    type: 'pk',
+    code: '6.PD-1.UIN-RADEN-FATAH',
+    parent_code: '6.PD-1'
+  },
+  {
+    name: 'PK KAMMI Al-Hadiid',
+    slug: 'al-hadiid',
+    type: 'pk',
+    code: '6.PD-1.AL-HADIID',
+    parent_code: '6.PD-1'
+  },
+  {
     name: 'PD KAMMI Silampari',
     slug: 'silampari',
     type: 'pd',
     code: '6.PD-2',
     parent_code: 'PW6'
+  },
+  {
+    name: 'PK KAMMI Lan Serasan Sekentenan',
+    slug: 'lan-serasan-sekentenan',
+    type: 'pk',
+    code: '6.PD-2.LSS',
+    parent_code: '6.PD-2'
+  },
+  {
+    name: 'PK KAMMI Sebiduk Semare',
+    slug: 'sebiduk-semare',
+    type: 'pk',
+    code: '6.PD-2.SS',
+    parent_code: '6.PD-2'
+  },
+  {
+    name: 'PK KAMMI Beselang Serundingan Musirawas Utara',
+    slug: 'beselang-serundingan-musirawas-utara',
+    type: 'pk',
+    code: '6.PD-2.BSM',
+    parent_code: '6.PD-2'
   },
   {
     name: 'PD KAMMI Ogan',
@@ -907,6 +942,27 @@
     parent_code: 'PW6'
   },
   {
+    name: 'PK KAMMI Unsri',
+    slug: 'unsri',
+    type: 'pk',
+    code: '6.PD-3.UNSRI',
+    parent_code: '6.PD-3'
+  },
+  {
+    name: 'PK KAMMI Prabumulih',
+    slug: 'prabumulih',
+    type: 'pk',
+    code: '6.PD-3.PRABUMULIH',
+    parent_code: '6.PD-3'
+  },
+  {
+    name: 'PK KAMMI Uniski',
+    slug: 'uniski',
+    type: 'pk',
+    code: '6.PD-3.UNISKI',
+    parent_code: '6.PD-3'
+  },
+  {
     name: 'PD KAMMI Oku Raya',
     slug: 'oku-raya',
     type: 'pd',
@@ -914,11 +970,46 @@
     parent_code: 'PW6'
   },
   {
+    name: 'PK KAMMI Semesta',
+    slug: 'semesta',
+    type: 'pk',
+    code: '6.PD-4.SEMESTA',
+    parent_code: '6.PD-4'
+  },
+  {
+    name: 'PK KAMMI Muhammad',
+    slug: 'muhammad',
+    type: 'pk',
+    code: '6.PD-4.MUHAMMAD',
+    parent_code: '6.PD-4'
+  },
+  {
+    name: 'PK KAMMI Sebimbing Sekundang',
+    slug: 'sebimbing-sekundang',
+    type: 'pk',
+    code: '6.PD-4.SEBIMBING-SEKUNDANG',
+    parent_code: '6.PD-4'
+  },
+  {
     name: 'PD KAMMI Muba',
     slug: 'muba',
     type: 'pd',
     code: '6.PD-5',
     parent_code: 'PW6'
+  },
+  {
+    name: 'PK KAMMI Rahmaniyah',
+    slug: 'rahmaniyah',
+    type: 'pk',
+    code: '6.PD-5.RAHMANIYAH',
+    parent_code: '6.PD-5'
+  },
+  {
+    name: 'PK KAMMI Al Ayyubi',
+    slug: 'al-ayyubi',
+    type: 'pk',
+    code: '6.PD-5.AL-AYYUBI',
+    parent_code: '6.PD-5'
   },
 
   // PW7: Bengkulu
