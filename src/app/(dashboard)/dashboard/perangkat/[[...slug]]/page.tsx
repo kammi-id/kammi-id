@@ -99,7 +99,7 @@ function SpecialistsWrapper({
           instrukturCount={instrukturCount}
         />
 
-        <div className='bg-card rounded-xl p-6 shadow-xs'>
+        <div>
           <Tabs
             defaultValue={
               (typeof searchParams.type === 'string'
@@ -125,6 +125,7 @@ function SpecialistsWrapper({
                 type='perangkat'
                 pageType='pemandu'
                 showHeader={false}
+                noPadding
               />
             </TabsContent>
 
@@ -138,6 +139,7 @@ function SpecialistsWrapper({
                 type='perangkat'
                 pageType='instruktur'
                 showHeader={false}
+                noPadding
               />
             </TabsContent>
           </Tabs>

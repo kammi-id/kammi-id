@@ -6,7 +6,7 @@ import {
   getCachedOrganizations,
   getCachedOrganizationCount
 } from '../../_data/organizations'
-import { Database01Icon, ArrowLeft02Icon } from '@hugeicons/core-free-icons'
+import { Globe02Icon, ArrowLeft02Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { BranchesGrid } from '../_components/branches-grid'
 import { type Organization } from '../_components/branches-table/columns'
@@ -150,9 +150,9 @@ const BranchesPage = async ({ params, searchParams }: PageProps) => {
               />
             </Link>
           )}
-          <div className='bg-primary/10 text-primary flex size-12 items-center justify-center rounded-2xl'>
+          <div className='bg-primary/10 text-primary ring-primary/5 flex size-14 shrink-0 items-center justify-center rounded-full ring-4'>
             <HugeiconsIcon
-              icon={Database01Icon}
+              icon={Globe02Icon}
               strokeWidth={2}
               className='size-7'
             />

@@ -1,21 +1,53 @@
 'use client'
 
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { type IndividualMember } from './types'
 import { ColumnDef } from '@tanstack/react-table'
 import Link from 'next/link'
 import { Badge } from '~/components/shadcn/ui/badge'
 import { cn } from '~/lib/shadcn/utils'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Chat01Icon, UserIcon } from '@hugeicons/core-free-icons'
+import { Chat01Icon } from '@hugeicons/core-free-icons'
+
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger
 } from '~/components/shadcn/ui/tooltip'
+import {
+  Avatar,
+  AvatarImage,
+  AvatarFallback
+} from '~/components/shadcn/ui/avatar'
+import { getSignedUrlAction } from '~/lib/actions/storage'
 
 type OrgRef = { id: string; name: string; slug: string } | null
+
+const getInitials = (name: string) => {
+  const parts = name.trim().split(/\s+/)
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase()
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+}
+
+const MemberAvatar = ({ name, photo }: { name: string; photo: string | null }) => {
+  const [src, setSrc] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!photo) { setSrc(null); return }
+    if (photo.startsWith('http://') || photo.startsWith('https://') || photo.startsWith('/')) {
+      setSrc(photo); return
+    }
+    getSignedUrlAction(photo).then(setSrc).catch(() => setSrc(null))
+  }, [photo])
+
+  return (
+    <Avatar className='size-8'>
+      {src && <AvatarImage src={src} alt={`Foto ${name}`} />}
+      <AvatarFallback>{getInitials(name)}</AvatarFallback>
+    </Avatar>
+  )
+}
 
 const OrgCell = ({ org }: { org: OrgRef }) => {
   if (!org) return <span className='text-muted-foreground text-xs'>-</span>
@@ -74,12 +106,7 @@ export const getColumns = (
         const member = row.original
         return (
           <div className='flex items-center gap-2'>
-            <div className='bg-muted flex size-8 items-center justify-center rounded-full'>
-              <HugeiconsIcon
-                icon={UserIcon}
-                className='text-muted-foreground size-4'
-              />
-            </div>
+            <MemberAvatar name={member.name} photo={member.photo} />
             <Link
               href={`/dashboard/profile/${member.registerNumber}`}
               className='text-foreground hover:text-primary font-semibold transition-colors'

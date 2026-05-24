@@ -25,7 +25,7 @@ const AccountPage = async () => {
   return (
     <div className='space-y-8 px-4 py-4 md:py-6 lg:px-6'>
       <div className='flex items-center gap-4'>
-        <div className='bg-primary/10 text-primary flex size-12 items-center justify-center rounded-2xl'>
+        <div className='bg-primary/10 text-primary ring-primary/5 flex size-12 shrink-0 items-center justify-center rounded-full ring-4'>
           <HugeiconsIcon
             icon={UserCircle02Icon}
             strokeWidth={2}
@@ -46,7 +46,7 @@ const AccountPage = async () => {
         <div className='bg-card rounded-3xl border p-6 shadow-xs md:p-8 lg:p-10'>
           <div className='space-y-8'>
             <div className='space-y-1'>
-              <h2 className='text-xl font-bold tracking-tight'>
+              <h2 className='font-heading text-xl font-bold tracking-tight'>
                 Informasi Profil
               </h2>
               <p className='text-muted-foreground text-sm'>
@@ -68,7 +68,7 @@ const AccountPage = async () => {
         <div className='bg-card rounded-3xl border p-6 shadow-xs md:p-8 lg:p-10'>
           <div className='space-y-8'>
             <div className='space-y-1'>
-              <h2 className='text-xl font-bold tracking-tight'>Keamanan</h2>
+              <h2 className='font-heading text-xl font-bold tracking-tight'>Keamanan</h2>
               <p className='text-muted-foreground text-sm'>
                 Perbarui kata sandi Anda untuk menjaga keamanan akun.
               </p>

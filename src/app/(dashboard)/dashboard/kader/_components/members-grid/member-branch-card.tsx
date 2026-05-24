@@ -182,22 +182,16 @@ export const MemberBranchCard = ({
           </div>
         ) : null}
       </div>
-      <div className='border-border/50 mt-6 flex items-center justify-between border-t pt-4'>
-        <div className='flex flex-col'>
-          <span className='text-muted-foreground text-[10px] font-medium tracking-tight uppercase'>
-            Kode
-          </span>
-          <span className='text-foreground font-mono text-xs'>{org.code}</span>
-        </div>
-        {org.childrenCount !== undefined && org.childrenCount > 0 && (
+      {org.childrenCount !== undefined && org.childrenCount > 0 && (
+        <div className='border-border/50 mt-6 flex items-center justify-end border-t pt-4'>
           <div className='flex flex-col text-right'>
             <span className='text-muted-foreground text-[10px] font-medium tracking-tight uppercase'>
               Sub-struktur
             </span>
             <span className='text-foreground text-xs'>{org.childrenCount}</span>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   )
 }

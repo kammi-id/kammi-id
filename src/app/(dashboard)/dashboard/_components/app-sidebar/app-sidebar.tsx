@@ -14,13 +14,16 @@ import {
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
   DashboardSquare01Icon,
-  Menu01Icon,
-  UserGroupIcon,
+  WhiteboardIcon,
+  User02Icon,
+  TeacherIcon,
+  Mortarboard01Icon,
+  Globe02Icon,
   Database01Icon,
-  CommandIcon,
   Add01Icon,
   Note01Icon,
-  Home01Icon
+  Home01Icon,
+  UserGroupIcon
 } from '@hugeicons/core-free-icons'
 import Image from 'next/image'
 import logo from '~/assets/logo.png'
@@ -95,25 +98,25 @@ export const AppSidebar = ({
     {
       title: 'Data Kader',
       url: '/dashboard/kader',
-      icon: <HugeiconsIcon icon={UserGroupIcon} strokeWidth={2} />,
+      icon: <HugeiconsIcon icon={User02Icon} strokeWidth={2} />,
       roles: ['bph', 'bpk', 'root']
     },
     {
       title: 'Dauroh',
       url: '/dashboard/trainings',
-      icon: <HugeiconsIcon icon={Menu01Icon} strokeWidth={2} />,
+      icon: <HugeiconsIcon icon={WhiteboardIcon} strokeWidth={2} />,
       roles: ['bph', 'bpk', 'root']
     },
     {
       title: 'Perangkat Kaderisasi',
       url: '/dashboard/perangkat',
-      icon: <HugeiconsIcon icon={UserGroupIcon} strokeWidth={2} />,
+      icon: <HugeiconsIcon icon={TeacherIcon} strokeWidth={2} />,
       roles: ['bpk', 'root']
     },
     {
       title: 'Data Alumni',
       url: '/dashboard/alumni',
-      icon: <HugeiconsIcon icon={UserGroupIcon} strokeWidth={2} />,
+      icon: <HugeiconsIcon icon={Mortarboard01Icon} strokeWidth={2} />,
       roles: ['bph', 'bpk', 'root']
     }
   ].filter((item) => item.roles.includes(user.role))
@@ -122,7 +125,7 @@ export const AppSidebar = ({
     {
       title: orgLabel,
       url: '/dashboard/branches',
-      icon: <HugeiconsIcon icon={Database01Icon} strokeWidth={2} />
+      icon: <HugeiconsIcon icon={Globe02Icon} strokeWidth={2} />
     }
   ]
 

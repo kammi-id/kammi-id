@@ -28,7 +28,7 @@ const ManagersSettingsPage = async () => {
   return (
     <div className='space-y-8 px-4 py-4 md:py-6 lg:px-6'>
       <div className='flex items-center gap-4'>
-        <div className='flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary'>
+        <div className='flex size-12 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary ring-4 ring-primary/5'>
           <HugeiconsIcon icon={UserGroupIcon} strokeWidth={2} className='size-6' />
         </div>
         <div>

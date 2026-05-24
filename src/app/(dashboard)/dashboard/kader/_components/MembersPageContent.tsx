@@ -33,6 +33,7 @@ interface MembersPageContentProps {
   type: 'alumni' | 'pemandu' | 'instruktur' | 'perangkat' | undefined
   showHeader?: boolean
   pageType?: string
+  noPadding?: boolean
 }
 
 export const MembersPageContent = async ({
@@ -40,7 +41,8 @@ export const MembersPageContent = async ({
   searchParams,
   type,
   showHeader = true,
-  pageType
+  pageType,
+  noPadding = false
 }: MembersPageContentProps) => {
   const { slug } = params
   const sParams = searchParams
@@ -278,7 +280,7 @@ export const MembersPageContent = async ({
 
   return (
     <AccessGuard allowedRoles={['root', 'bph', 'bpk']} levelRequirement={4}>
-      <div className='flex min-h-screen flex-col space-y-10 px-4 py-6 md:px-6 md:py-8 lg:px-8'>
+      <div className={`flex min-h-screen flex-col space-y-10 ${noPadding ? '' : 'px-4 py-6 md:px-6 md:py-8 lg:px-8'}`}>
         {showHeader && (
           <MembersPageHeader
             slug={slug}
@@ -297,7 +299,7 @@ export const MembersPageContent = async ({
 
           {showIndividuals && (
             <section aria-label={individualsHeading} className='space-y-3'>
-              <h2 className='text-base font-semibold text-foreground'>
+              <h2 className='font-heading text-base font-semibold text-foreground'>
                 {individualsHeading}
               </h2>
               <div className='bg-card rounded-xl border p-4 shadow-xs'>
@@ -321,7 +323,7 @@ export const MembersPageContent = async ({
           )}
           {showSummary && (
             <section aria-label={summaryHeading} className='space-y-3'>
-              <h2 className='text-base font-semibold text-foreground'>
+              <h2 className='font-heading text-base font-semibold text-foreground'>
                 {summaryHeading}
               </h2>
               <MembersGrid

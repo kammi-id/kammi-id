@@ -2,6 +2,7 @@
 
 import { PieChart, Pie, Cell } from 'recharts'
 import { fmt } from '~/lib/utils/format'
+import { cn } from '~/lib/shadcn/utils'
 
 const AB_COLORS = ['oklch(0.65 0.18 145)', 'oklch(0.58 0.20 25)', 'oklch(0.55 0.18 265)']
 const GENDER_COLORS = ['oklch(0.72 0.14 225)', 'oklch(0.74 0.14 350)']
@@ -45,15 +46,21 @@ const DonutCard = ({
           </div>
         </div>
       </div>
-      <div className='flex flex-wrap gap-x-3 gap-y-1.5'>
+      <div className={cn('grid gap-2', data.length === 2 ? 'grid-cols-2' : 'grid-cols-3')}>
         {data.map((item, i) => (
-          <div key={item.name} className='flex items-center gap-1.5'>
-            <div
-              className='size-2 shrink-0 rounded-full'
-              style={{ backgroundColor: colors[i % colors.length] }}
-            />
-            <span className='text-xs text-muted-foreground'>{item.name}</span>
-            <span className='font-mono text-xs font-semibold tabular-nums text-foreground'>
+          <div
+            key={item.name}
+            className='legend-item flex flex-col gap-1 rounded-lg px-2 py-1.5 [background-color:color-mix(in_oklch,var(--legend-color)_10%,transparent)]'
+            // @ts-expect-error CSS custom property
+            style={{ '--legend-color': colors[i % colors.length] }}
+          >
+            <div className='flex items-center gap-1.5'>
+              <div className='size-2.5 shrink-0 rounded-full bg-[var(--legend-color)]' />
+              <span className='text-[11px] font-medium leading-none text-[var(--legend-color)]'>
+                {item.name}
+              </span>
+            </div>
+            <span className='pl-4 font-mono text-base font-bold tabular-nums text-foreground'>
               {fmt(item.value)}
             </span>
           </div>
@@ -64,11 +71,13 @@ const DonutCard = ({
 }
 
 const TotalCard = ({ label, value }: { label: string; value: number }) => (
-  <div className='flex flex-col justify-between gap-2 rounded-xl border bg-card p-4'>
+  <div className='flex flex-col gap-2 rounded-xl border bg-card p-4'>
     <p className='text-xs font-medium text-muted-foreground'>{label}</p>
-    <span className='font-mono text-5xl font-bold tabular-nums tracking-tight text-foreground'>
-      {fmt(value)}
-    </span>
+    <div className='flex flex-1 items-center justify-center py-4'>
+      <span className='font-heading text-5xl font-extrabold tabular-nums tracking-tight text-foreground'>
+        {fmt(value)}
+      </span>
+    </div>
   </div>
 )
 
@@ -111,7 +120,7 @@ export const MemberSectionCards = ({ data, type }: MemberSectionCardsProps) => {
 
   if (isAlumni) {
     return (
-      <div className='grid grid-cols-2 gap-4'>
+      <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
         <DonutCard title='Komposisi Gender' data={genderData} colors={GENDER_COLORS} />
         <TotalCard label='Total Alumni' value={total} />
       </div>
@@ -119,7 +128,7 @@ export const MemberSectionCards = ({ data, type }: MemberSectionCardsProps) => {
   }
 
   return (
-    <div className='grid grid-cols-3 gap-4'>
+    <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3'>
       <DonutCard title='Jenjang' data={abData} colors={AB_COLORS} />
       <DonutCard title='Komposisi Gender' data={genderData} colors={GENDER_COLORS} />
       <TotalCard label='Total Kader' value={total} />

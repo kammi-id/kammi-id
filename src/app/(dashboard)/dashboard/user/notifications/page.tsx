@@ -5,7 +5,7 @@ const NotificationsPage = () => {
   return (
     <div className='space-y-8 px-4 py-4 md:py-6 lg:px-6'>
       <div className='flex items-center gap-4'>
-        <div className='bg-primary/10 text-primary flex size-12 items-center justify-center rounded-2xl'>
+        <div className='bg-primary/10 text-primary ring-primary/5 flex size-12 shrink-0 items-center justify-center rounded-full ring-4'>
           <HugeiconsIcon
             icon={Notification03Icon}
             strokeWidth={2}
@@ -33,7 +33,7 @@ const NotificationsPage = () => {
               />
             </div>
           </div>
-          <h2 className='text-lg font-bold'>Belum ada notifikasi</h2>
+          <h2 className='font-heading text-lg font-bold'>Belum ada notifikasi</h2>
           <p className='text-muted-foreground max-w-xs text-sm'>
             Notifikasi Anda akan muncul di sini ketika ada update terbaru
             mengenai organisasi.

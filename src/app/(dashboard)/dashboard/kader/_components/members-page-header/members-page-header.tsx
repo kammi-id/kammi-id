@@ -3,19 +3,20 @@ import { cn } from '~/lib/shadcn/utils'
 import { buttonVariants } from '~/components/shadcn/ui/button'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
-  Database01Icon,
   ArrowLeft02Icon,
-  UserGroupIcon,
-  CommandIcon
+  User02Icon,
+  Mortarboard01Icon,
+  TeacherIcon,
+  Globe02Icon
 } from '@hugeicons/core-free-icons'
 import type { IconSvgElement } from '@hugeicons/react'
 
 const typeIconMap: Record<string, IconSvgElement> = {
-  kader: UserGroupIcon,
-  alumni: UserGroupIcon,
-  pemandu: CommandIcon,
-  instruktur: CommandIcon,
-  perangkat: CommandIcon
+  kader: User02Icon,
+  alumni: Mortarboard01Icon,
+  pemandu: TeacherIcon,
+  instruktur: TeacherIcon,
+  perangkat: TeacherIcon
 }
 
 interface MembersPageHeaderProps {
@@ -31,37 +32,32 @@ export const MembersPageHeader = ({
   subTitle,
   typePath
 }: MembersPageHeaderProps) => {
-  const IconComponent = typeIconMap[typePath] ?? Database01Icon
+  const IconComponent = typeIconMap[typePath] ?? Globe02Icon
+
+  const backHref =
+    slug && slug.length > 0
+      ? slug.length === 1
+        ? `/dashboard/${typePath}`
+        : `/dashboard/${typePath}/${slug.slice(0, -1).join('/')}`
+      : null
 
   return (
-    <div className='flex items-center gap-6'>
-      {slug && slug.length > 0 && (
+    <div className='space-y-3'>
+      {backHref && (
         <Link
-          href={
-            slug.length === 1
-              ? `/dashboard/${typePath}/${slug[0]}`
-              : `/dashboard/${typePath}/${slug.slice(0, -1).join('/')}`
-          }
+          href={backHref}
           className={cn(
-            buttonVariants({ variant: 'outline' }),
-            'shrink-0 gap-1.5 transition-all hover:bg-primary hover:text-primary-foreground'
+            buttonVariants({ variant: 'outline', size: 'icon' }),
+            'size-8 shrink-0 transition-all hover:bg-primary hover:text-primary-foreground'
           )}
+          aria-label='Kembali'
         >
-          <HugeiconsIcon
-            icon={ArrowLeft02Icon}
-            strokeWidth={2}
-            className='size-4'
-          />
-          <span>Kembali</span>
+          <HugeiconsIcon icon={ArrowLeft02Icon} strokeWidth={2} className='size-4' />
         </Link>
       )}
-      <div className='flex items-center gap-5'>
-        <div className='bg-primary/10 text-primary ring-primary/5 flex size-14 items-center justify-center rounded-2xl ring-4'>
-          <HugeiconsIcon
-            icon={IconComponent}
-            strokeWidth={2}
-            className='size-8'
-          />
+      <div className='flex items-start gap-5'>
+        <div className='bg-primary/10 text-primary ring-primary/5 flex size-14 shrink-0 items-center justify-center rounded-full ring-4'>
+          <HugeiconsIcon icon={IconComponent} strokeWidth={2} className='size-7' />
         </div>
         <div>
           <h1 className='font-heading text-3xl font-extrabold tracking-tight sm:text-4xl'>
