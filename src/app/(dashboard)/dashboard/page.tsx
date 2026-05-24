@@ -4,11 +4,12 @@ import { readMemberAggregates } from '~/db/query/member'
 import { getCachedMemberYearDistribution } from './_data/members'
 import { getCachedOrganizationCount } from './_data/organizations'
 import { getCachedUpcomingTrainings } from './_data/trainings'
+import { DashboardHeader } from './_components/dashboard-header'
+import { DashboardStats } from './_components/dashboard-stats'
 import { KaderStats, type KaderStatsData } from './_components/kader-stats'
 import { KaderChart } from './_components/kader-chart'
 import { WilayahStats } from './_components/wilayah-stats'
 import { UpcomingTrainings } from './_components/upcoming-trainings'
-import { DashboardTabs } from './_components/dashboard-tabs'
 
 const sumAggregates = (
   rows: Awaited<ReturnType<typeof readMemberAggregates>>
@@ -38,7 +39,6 @@ const Page = async () => {
 
   const showKader = ['root', 'bph', 'bpk'].includes(role)
   const showWilayah = ['root', 'bph', 'bpw'].includes(role)
-  const showTabs = ['root', 'bph'].includes(role)
 
   const [
     kaderAgg,
@@ -67,15 +67,26 @@ const Page = async () => {
       ? getCachedMemberYearDistribution(allowedOrgIds)
       : Promise.resolve([]),
     showWilayah
-      ? getCachedOrganizationCount({ type: ['pw', 'pdln'], id: allowedOrgIds.length ? allowedOrgIds : undefined })
+      ? getCachedOrganizationCount({
+          type: ['pw', 'pdln'],
+          id: allowedOrgIds.length ? allowedOrgIds : undefined
+        })
       : Promise.resolve(0),
     showWilayah
-      ? getCachedOrganizationCount({ type: ['pd'], id: allowedOrgIds.length ? allowedOrgIds : undefined })
+      ? getCachedOrganizationCount({
+          type: ['pd'],
+          id: allowedOrgIds.length ? allowedOrgIds : undefined
+        })
       : Promise.resolve(0),
     showWilayah
-      ? getCachedOrganizationCount({ type: ['pk'], id: allowedOrgIds.length ? allowedOrgIds : undefined })
+      ? getCachedOrganizationCount({
+          type: ['pk'],
+          id: allowedOrgIds.length ? allowedOrgIds : undefined
+        })
       : Promise.resolve(0),
-    getCachedUpcomingTrainings(allowedOrgIds.length ? allowedOrgIds : undefined)
+    getCachedUpcomingTrainings(
+      allowedOrgIds.length ? allowedOrgIds : undefined
+    )
   ])
 
   const kaderData: KaderStatsData = {
@@ -87,40 +98,39 @@ const Page = async () => {
 
   const wilayahData = { pw: pwCount, pd: pdCount, pk: pkCount }
 
-  const kaderSection = showKader ? (
+  const kaderContent = showKader ? (
     <div className='flex flex-col gap-4'>
       <KaderStats data={kaderData} />
       <KaderChart data={yearDist} />
     </div>
   ) : null
 
-  const wilayahSection = showWilayah ? (
+  const wilayahContent = showWilayah ? (
     <WilayahStats data={wilayahData} />
   ) : null
 
-  return (
-    <div className='flex flex-col gap-6 px-4 py-6 md:px-6 md:py-8 lg:px-8'>
-      <div>
-        <h1 className='font-heading text-2xl font-bold tracking-tight'>Ringkasan</h1>
-        <p className='mt-0.5 text-sm text-muted-foreground'>
-          {user.connectedOrganization?.name ?? 'KAMMI Indonesia'}
-        </p>
-      </div>
+  const orgName = user.connectedOrganization?.name ?? 'KAMMI Indonesia'
 
-      {/* Stats section — tabs for BPH, direct for BPK/BPW */}
-      {showTabs ? (
-        <DashboardTabs
-          kaderContent={kaderSection}
-          wilayahContent={wilayahSection}
+  return (
+    <div className='flex flex-col gap-8 px-4 py-6 md:px-6 md:py-8 lg:px-8'>
+      {/* Zona 1: Contextual Header */}
+      <DashboardHeader
+        displayName={user.displayName}
+        role={role}
+        orgName={orgName}
+        date={new Date()}
+      />
+
+      {/* Zona 2: Stats (role-adaptive) */}
+      {(kaderContent || wilayahContent) && (
+        <DashboardStats
+          role={role}
+          kaderContent={kaderContent}
+          wilayahContent={wilayahContent}
         />
-      ) : (
-        <>
-          {kaderSection}
-          {wilayahSection}
-        </>
       )}
 
-      {/* Upcoming trainings — always shown if user has scope */}
+      {/* Zona 3: Dauroh Terdekat */}
       <UpcomingTrainings data={upcomingTrainings} />
     </div>
   )
