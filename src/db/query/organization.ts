@@ -257,11 +257,17 @@ export const readOrganization = async (
     })
     query.orderBy(...orderClauses)
   } else {
-    // Default sorting: Alphanumeric sort for 'code'
-    // Extracts digits from code and sorts them as integers, then falls back to string sort
+    // Default: type priority (pw → pdln → pd → pk), then numeric code order
     query.orderBy(
-      asc(withOrganizationCTE.level),
-      sql`substring(${withOrganizationCTE.code} from '[0-9]+')::int`,
+      sql`CASE ${withOrganizationCTE.type}
+        WHEN 'pp' THEN 0
+        WHEN 'pw' THEN 1
+        WHEN 'pdln' THEN 2
+        WHEN 'pd' THEN 3
+        WHEN 'pk' THEN 4
+        ELSE 5
+      END`,
+      sql`(substring(${withOrganizationCTE.code} from '[0-9]+'))::int`,
       asc(withOrganizationCTE.code)
     )
   }
@@ -294,4 +300,43 @@ export const updateOrganization = async (
 
 export const deleteOrganization = async (id: Array<string>): Promise<void> => {
   await db.delete(organization).where(inArray(organization.id, id))
+}
+
+type OrgChainNode = {
+  id: string
+  name: string
+  type: string
+  code: string | null
+  slug: string
+  parentId: string | null
+}
+
+export const readOrgHierarchyChain = async (
+  orgId: string
+): Promise<OrgChainNode[]> => {
+  const result = await db.execute(sql`
+    WITH RECURSIVE ancestors AS (
+      SELECT id, name, type, code, slug, parent_id
+      FROM organization
+      WHERE id = ${orgId}
+      UNION ALL
+      SELECT o.id, o.name, o.type, o.code, o.slug, o.parent_id
+      FROM organization o
+      JOIN ancestors a ON o.id = a.parent_id
+    )
+    SELECT id, name, type, code, slug, parent_id as "parentId"
+    FROM ancestors
+    WHERE type != 'pp'
+    ORDER BY
+      CASE type
+        WHEN 'pw' THEN 1
+        WHEN 'pdln' THEN 2
+        WHEN 'pd' THEN 3
+        WHEN 'pk' THEN 4
+        ELSE 5
+      END ASC
+  `)
+
+  const rows = result as unknown as OrgChainNode[]
+  return rows
 }

@@ -65,7 +65,6 @@ export const saveLeadershipAction = async (
 
   try {
     await upsertSiteSettings('leadership', result.data)
-    revalidateTag('site-settings-leadership')
     revalidatePath('/')
     return { success: true }
   } catch {

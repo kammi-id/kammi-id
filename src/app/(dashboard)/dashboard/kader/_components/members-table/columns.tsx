@@ -1,6 +1,6 @@
 'use client'
 
-import { ColumnDef } from '@tanstack/react-table'
+import { type ColumnDef, type CellContext } from '@tanstack/react-table'
 import { Link01Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import Link from 'next/link'
@@ -80,7 +80,7 @@ export const getColumns = (
   ...['ab1', 'ab2', 'ab3', 'ikhwan', 'akhwat'].map((key) => ({
     accessorKey: key,
     header: key.toUpperCase(),
-    cell: ({ row }) => {
+    cell: ({ row }: CellContext<MemberOrganization, unknown>) => {
       const value = row.original[key as keyof MemberOrganization] as number
       const total = row.original.total
       const percentage = total > 0 ? (value / total) * 100 : 0

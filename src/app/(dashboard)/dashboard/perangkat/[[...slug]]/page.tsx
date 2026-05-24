@@ -1,4 +1,3 @@
-import React from 'react'
 import { MembersPageContent } from '../../kader/_components/MembersPageContent'
 import { AccessGuard } from '~/components/access-guard/access-guard'
 import {
@@ -63,7 +62,7 @@ async function Page({
     instrukturAgg.find((a) => a.organizationId === currentOrg.id)?.total || 0
 
   return (
-    <AccessGuard allowedRoles={['root', 'bph', 'bpk']}>
+    <AccessGuard allowedRoles={['root', 'bpk']}>
       <SpecialistsWrapper
         params={resolvedParams}
         searchParams={resolvedSearchParams}
@@ -86,7 +85,7 @@ function SpecialistsWrapper({
   instrukturCount: number
 }) {
   return (
-    <div className='space-y-12 px-4 py-8 md:px-6 md:py-10 lg:px-8'>
+    <div className='space-y-10 px-4 py-6 md:px-6 md:py-8 lg:px-8'>
       <MembersPageHeader
         slug={params.slug}
         pageTitle='Perangkat Kaderisasi'
@@ -100,7 +99,7 @@ function SpecialistsWrapper({
           instrukturCount={instrukturCount}
         />
 
-        <div className='bg-card rounded-lg p-6 shadow-xs md:p-8 lg:p-10'>
+        <div className='bg-card rounded-xl p-6 shadow-xs'>
           <Tabs
             defaultValue={
               (typeof searchParams.type === 'string'

@@ -30,17 +30,6 @@ import { toast } from 'sonner'
 import Image from 'next/image'
 import logo from '~/assets/logo.png'
 
-/**
- * LoginForm component provides the user interface for authenticating into the KAMMI.id platform.
- *
- * It handles user input for username and password, manages password visibility toggling,
- * and integrates with the `loginFormAction` for server-side authentication.
- *
- * @param props - The properties for the LoginForm component.
- * @param props.className - Optional CSS classes to style the outer wrapper.
- * @param props.message - Optional status message to display (e.g., 'logout_success').
- * @returns A React element rendering the login form.
- */
 export const LoginForm = ({
   className,
   message,
@@ -66,21 +55,15 @@ export const LoginForm = ({
       <form action={action}>
         <FieldGroup>
           <div className='flex flex-col items-center gap-2 text-center'>
-            <a
-              href='#'
-              className='flex flex-col items-center gap-2 font-medium'
-            >
-              <div className='flex items-center justify-center rounded-md'>
-                <Image
-                  src={logo}
-                  alt='KAMMI.id'
-                  width={64}
-                  height={64}
-                  className='size-16 object-contain'
-                />
-              </div>
-              <span className='sr-only'>KAMMI.id</span>
-            </a>
+            <div className='flex items-center justify-center rounded-md'>
+              <Image
+                src={logo}
+                alt='KAMMI.id'
+                width={64}
+                height={64}
+                className='size-16 object-contain'
+              />
+            </div>
             <h1 className='text-xl font-bold'>Selamat Datang di KAMMI.id</h1>
           </div>
 
@@ -154,9 +137,8 @@ export const LoginForm = ({
         </FieldGroup>
       </form>
       <FieldDescription className='px-6 text-center'>
-        Dengan mengeklik Masuk, Anda menyetujui{' '}
-        <a href='#'>Syarat dan Ketentuan</a> dan{' '}
-        <a href='#'>Kebijakan Privasi</a> KAMMI.id.
+        Dengan mengeklik Masuk, Antum menyetujui Syarat dan Ketentuan serta
+        Kebijakan Privasi KAMMI.id.
       </FieldDescription>
     </div>
   )

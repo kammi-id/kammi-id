@@ -2582,9 +2582,9 @@
     parent_code: '21.PD-2'
   },
 
-  // PW22: Sulsel
+  // PW22: Sulawesi Selatan
   {
-    name: 'PW KAMMI Sulsel',
+    name: 'PW KAMMI Sulawesi Selatan',
     slug: 'sulsel',
     type: 'pw',
     code: 'PW22',

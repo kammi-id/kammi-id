@@ -23,7 +23,7 @@ export default async function TrainingsPage({
 
   const session = await readActiveSession()
   const user = session?.user
-  const userRole = user?.role || ''
+  const userRole = user?.role ?? ''
 
   const [trainings, allOrganizations] = await Promise.all([
     trainingQuery.getAll({ organizationId, year }),
@@ -37,7 +37,7 @@ export default async function TrainingsPage({
 
   trainings.forEach((t) => {
     typesCount[t.type] = (typesCount[t.type] || 0) + 1
-    orgsWithTraining.add(t.organization.id)
+    if (t.organization?.id) orgsWithTraining.add(t.organization.id)
   })
 
   const metrics = {
@@ -49,8 +49,8 @@ export default async function TrainingsPage({
 
   // Filter organizations based on user's jurisdiction
   const allowedOrgIds = await fetchAllowedOrgIds({
-    role: user?.role || userRole,
-    connectedOrganizationId: user?.connectedOrganization?.id || null
+    role: userRole,
+    connectedOrganizationId: user?.connectedOrganization?.id ?? null
   })
 
   const organizations = allOrganizations.filter((org) =>
@@ -59,7 +59,7 @@ export default async function TrainingsPage({
 
   return (
     <AccessGuard allowedRoles={['root', 'bph', 'bpk']}>
-      <div className='flex flex-col gap-8 p-6'>
+      <div className='flex flex-col gap-8 px-4 py-6 md:px-6 md:py-8 lg:px-8'>
         <div className='flex items-center justify-between gap-4'>
           <TrainingPageHeader
             pageTitle='Daftar Dauroh'
@@ -77,7 +77,11 @@ export default async function TrainingsPage({
 
         <TrainingSectionCards data={metrics} />
 
-        <TrainingTable data={trainings} />
+        <TrainingTable data={trainings.filter((t) => t.organization !== null).map((t) => ({
+            ...t,
+            year: t.year ?? new Date(t.startDate).getFullYear(),
+            organization: t.organization!
+          }))} />
       </div>
     </AccessGuard>
   )

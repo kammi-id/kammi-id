@@ -1,6 +1,5 @@
-import React from 'react'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Database01Icon } from '@hugeicons/core-free-icons'
+import { Menu01Icon } from '@hugeicons/core-free-icons'
 
 interface TrainingPageHeaderProps {
   pageTitle: string
@@ -15,7 +14,7 @@ export const TrainingPageHeader = ({
     <div className='flex items-center gap-6'>
       <div className='bg-primary/10 text-primary ring-primary/5 flex size-14 items-center justify-center rounded-2xl ring-4'>
         <HugeiconsIcon
-          icon={Database01Icon}
+          icon={Menu01Icon}
           strokeWidth={2}
           className='size-8'
         />

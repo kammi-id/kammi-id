@@ -20,6 +20,7 @@ describe('Hierarchical Access Control', () => {
     const [pp] = await createOrganization({
       name: 'PP KAMMI',
       slug: 'pp',
+      code: 'PP',
       type: 'pp',
       parentId: null,
       isNonActive: false
@@ -30,6 +31,7 @@ describe('Hierarchical Access Control', () => {
     const [pwJabar] = await createOrganization({
       name: 'PW Jabar',
       slug: 'pw-jabar',
+      code: 'PW-01',
       type: 'pw',
       parentId: ppId,
       isNonActive: false
@@ -40,6 +42,7 @@ describe('Hierarchical Access Control', () => {
     const [pwJatim] = await createOrganization({
       name: 'PW Jatim',
       slug: 'pw-jatim',
+      code: 'PW-02',
       type: 'pw',
       parentId: ppId,
       isNonActive: false
@@ -50,6 +53,7 @@ describe('Hierarchical Access Control', () => {
     const [pdBandung] = await createOrganization({
       name: 'PD Bandung',
       slug: 'pd-bandung',
+      code: 'PD-01',
       type: 'pd',
       parentId: pwJabarId,
       isNonActive: false
@@ -60,6 +64,7 @@ describe('Hierarchical Access Control', () => {
     const [pkItb] = await createOrganization({
       name: 'PK ITB',
       slug: 'pk-itb',
+      code: 'PK-01',
       type: 'pk',
       parentId: pdBandungId,
       isNonActive: false
@@ -70,6 +75,7 @@ describe('Hierarchical Access Control', () => {
     const [pkUnpad] = await createOrganization({
       name: 'PK UNPAD',
       slug: 'pk-unpad',
+      code: 'PK-02',
       type: 'pk',
       parentId: pdBandungId,
       isNonActive: false

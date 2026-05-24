@@ -32,14 +32,10 @@ export const RegionCombobox = ({
 }: RegionComboboxProps) => {
   const [searchQuery, setSearchQuery] = React.useState('')
 
-  const selectedOption = React.useMemo(() => {
-    const found = options.find((opt) => opt.code === value)
-    console.log(
-      `[RegionCombobox Debug] Value: "${value}", Options Count: ${options.length}, Found:`,
-      found
-    )
-    return found
-  }, [options, value])
+  const selectedOption = React.useMemo(
+    () => options.find((opt) => opt.code === value),
+    [options, value]
+  )
 
   const filteredOptions = React.useMemo(() => {
     if (!searchQuery) return options
@@ -54,7 +50,7 @@ export const RegionCombobox = ({
   }, [options, searchQuery, value])
 
   return (
-    <Combobox value={value} onValueChange={onValueChange}>
+    <Combobox value={value} onValueChange={(val) => onValueChange(val ?? '')}>
       <ComboboxInput
         placeholder={placeholder}
         disabled={disabled}

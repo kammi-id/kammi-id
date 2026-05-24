@@ -1,6 +1,8 @@
 import Link from 'next/link'
 import { ArrowRight01Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
+import { fmt } from '~/lib/utils/format'
+import { Separator } from '~/components/shadcn/ui/separator'
 
 export type KaderStatsData = {
   total: number
@@ -14,7 +16,6 @@ export type KaderStatsData = {
   alumni: number
 }
 
-const fmt = (n: number) => n.toLocaleString('id-ID')
 const pct = (n: number, total: number) =>
   total === 0 ? 0 : Math.round((n / total) * 100)
 
@@ -89,19 +90,17 @@ export const KaderStats = ({ data }: { data: KaderStatsData }) => {
         <div
           className='flex h-2 w-full overflow-hidden rounded-full'
           aria-label={`AB1: ${ab1Pct}%, AB2: ${ab2Pct}%, AB3: ${ab3Pct}%`}
+          style={
+            {
+              '--w-ab1': `${ab1Pct}%`,
+              '--w-ab2': `${ab2Pct}%`,
+              '--w-ab3': `${ab3Pct}%`
+            } as React.CSSProperties
+          }
         >
-          <div
-            className='bg-primary h-full transition-all'
-            style={{ width: `${ab1Pct}%` }}
-          />
-          <div
-            className='bg-primary/50 h-full transition-all'
-            style={{ width: `${ab2Pct}%` }}
-          />
-          <div
-            className='bg-primary/20 h-full transition-all'
-            style={{ width: `${ab3Pct}%` }}
-          />
+          <div className='bg-primary h-full w-[var(--w-ab1)] transition-all' />
+          <div className='bg-primary/50 h-full w-[var(--w-ab2)] transition-all' />
+          <div className='bg-primary/20 h-full w-[var(--w-ab3)] transition-all' />
         </div>
         <div className='flex gap-5'>
           <div className='flex items-center gap-1.5'>
@@ -109,27 +108,41 @@ export const KaderStats = ({ data }: { data: KaderStatsData }) => {
             <span className='font-mono text-xs font-medium tabular-nums'>
               {fmt(ab1)}
             </span>
-            <span className='text-xs text-muted-foreground'>AB 1</span>
+            <abbr
+              title='Anggota Biasa Tingkat 1'
+              className='cursor-default text-xs text-muted-foreground no-underline'
+            >
+              AB 1
+            </abbr>
           </div>
           <div className='flex items-center gap-1.5'>
             <span className='inline-block size-2 rounded-full bg-primary/50' />
             <span className='font-mono text-xs font-medium tabular-nums'>
               {fmt(ab2)}
             </span>
-            <span className='text-xs text-muted-foreground'>AB 2</span>
+            <abbr
+              title='Anggota Biasa Tingkat 2'
+              className='cursor-default text-xs text-muted-foreground no-underline'
+            >
+              AB 2
+            </abbr>
           </div>
           <div className='flex items-center gap-1.5'>
             <span className='inline-block size-2 rounded-full bg-primary/20' />
             <span className='font-mono text-xs font-medium tabular-nums'>
               {fmt(ab3)}
             </span>
-            <span className='text-xs text-muted-foreground'>AB 3</span>
+            <abbr
+              title='Anggota Biasa Tingkat 3'
+              className='cursor-default text-xs text-muted-foreground no-underline'
+            >
+              AB 3
+            </abbr>
           </div>
         </div>
       </div>
 
-      {/* Separator */}
-      <div className='border-t' />
+      <Separator />
 
       {/* Secondary stats */}
       <div className='grid grid-cols-3 gap-4'>

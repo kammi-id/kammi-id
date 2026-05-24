@@ -40,9 +40,11 @@ export const getColumns = (
     {
       accessorKey: 'registerNumber',
       header: () => (
-        <div
+        <button
+          type='button'
           className='hover:text-primary flex cursor-pointer items-center gap-1 transition-colors'
           onClick={() => onSortChange?.('registerNumber')}
+          aria-label='Urutkan berdasarkan NIK'
         >
           <TooltipProvider>
             <Tooltip>
@@ -50,7 +52,7 @@ export const getColumns = (
               <TooltipContent>Nomor Induk Kader</TooltipContent>
             </Tooltip>
           </TooltipProvider>
-        </div>
+        </button>
       ),
       cell: ({ row }) => (
         <span className='font-mono text-xs'>{row.original.registerNumber}</span>
@@ -59,12 +61,14 @@ export const getColumns = (
     {
       accessorKey: 'name',
       header: () => (
-        <div
+        <button
+          type='button'
           className='hover:text-primary cursor-pointer transition-colors'
           onClick={() => onSortChange?.('name')}
+          aria-label='Urutkan berdasarkan Nama'
         >
           Nama
-        </div>
+        </button>
       ),
       cell: ({ row }) => {
         const member = row.original
@@ -151,14 +155,20 @@ export const getColumns = (
           }
         }
         return (
-          <Badge
-            variant='outline'
-            className={cn('cursor-pointer font-bold transition-opacity hover:opacity-80')}
-            style={badgeStyles[status]}
+          <button
+            type='button'
             onClick={() => onFilterChange?.('status', status)}
+            aria-label={`Filter status: ${status.toUpperCase()}`}
+            className='cursor-pointer transition-opacity hover:opacity-80'
           >
-            {status.toUpperCase()}
-          </Badge>
+            <Badge
+              variant='outline'
+              className={cn('pointer-events-none font-bold')}
+              style={badgeStyles[status]}
+            >
+              {status.toUpperCase()}
+            </Badge>
+          </button>
         )
       }
     },
@@ -189,16 +199,20 @@ export const getColumns = (
           }
         }
         return (
-          <Badge
-            variant='outline'
-            className={cn(
-              'cursor-pointer font-bold capitalize transition-opacity hover:opacity-80'
-            )}
-            style={badgeStyles[gender]}
+          <button
+            type='button'
             onClick={() => onFilterChange?.('gender', gender)}
+            aria-label={`Filter gender: ${gender}`}
+            className='cursor-pointer transition-opacity hover:opacity-80'
           >
-            {gender}
-          </Badge>
+            <Badge
+              variant='outline'
+              className={cn('pointer-events-none font-bold capitalize')}
+              style={badgeStyles[gender]}
+            >
+              {gender}
+            </Badge>
+          </button>
         )
       }
     },
@@ -223,11 +237,12 @@ export const getColumns = (
               href={`https://wa.me/${cleanPhone}`}
               target='_blank'
               rel='noopener noreferrer'
-              className='text-green-600 hover:text-green-700'
+              aria-label={`WhatsApp ${phone}`}
+              className='[color:var(--status-pass-text)] hover:opacity-80 transition-opacity'
             >
               <HugeiconsIcon
                 icon={Chat01Icon}
-                className='size-3.5 text-green-600'
+                className='size-3.5'
               />
             </a>
           </div>
@@ -237,12 +252,14 @@ export const getColumns = (
     {
       accessorKey: 'yearOfEntry',
       header: () => (
-        <div
+        <button
+          type='button'
           className='hover:text-primary cursor-pointer transition-colors'
           onClick={() => onSortChange?.('yearOfEntry')}
+          aria-label='Urutkan berdasarkan Tahun Masuk'
         >
           Tahun Masuk
-        </div>
+        </button>
       ),
       cell: ({ row }) => (
         <div className='text-center'>{row.original.yearOfEntry}</div>

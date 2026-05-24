@@ -110,7 +110,7 @@ export const TrainingForm = ({
           <Field>
             <FieldLabel htmlFor='organizationId'>Penyelenggara</FieldLabel>
             <input type='hidden' name='organizationId' value={orgId || ''} />
-            <Combobox value={orgId || ''} onValueChange={setOrgId}>
+            <Combobox value={orgId || ''} onValueChange={(val) => setOrgId(val ?? '')}>
               <ComboboxInput
                 placeholder='Pilih Penyelenggara'
                 value={(selectedOrg?.name ?? orgSearchQuery) || ''}

@@ -1,3 +1,4 @@
+/// <reference types="@testing-library/jest-dom" />
 import { expect, test, describe, mock } from "bun:test";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { Button } from "./button";

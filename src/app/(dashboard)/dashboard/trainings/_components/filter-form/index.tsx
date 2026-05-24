@@ -49,7 +49,7 @@ export const FilterForm = ({
         <Label>Organisasi</Label>
         <Select
           value={initialOrganizationId}
-          onValueChange={(val) => updateFilter('organizationId', val)}
+          onValueChange={(val) => updateFilter('organizationId', val ?? '')}
         >
           <SelectTrigger>
             <SelectValue placeholder='Semua Organisasi' />
@@ -68,7 +68,7 @@ export const FilterForm = ({
         <Label>Tahun</Label>
         <Select
           value={initialYear}
-          onValueChange={(val) => updateFilter('year', val)}
+          onValueChange={(val) => updateFilter('year', val ?? '')}
         >
           <SelectTrigger>
             <SelectValue placeholder='Semua Tahun' />

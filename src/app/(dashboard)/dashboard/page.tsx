@@ -99,7 +99,7 @@ const Page = async () => {
   ) : null
 
   return (
-    <div className='flex flex-col gap-6 px-4 py-6 lg:px-6'>
+    <div className='flex flex-col gap-6 px-4 py-6 md:px-6 md:py-8 lg:px-8'>
       <div>
         <h1 className='text-2xl font-bold tracking-tight'>Ringkasan</h1>
         <p className='mt-0.5 text-sm text-muted-foreground'>

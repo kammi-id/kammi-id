@@ -1,9 +1,13 @@
 'use client'
 
-import { Organization } from '../_data/organizations'
+import { type Organization } from '~/app/(dashboard)/dashboard/_data/organizations'
 import { MemberBranchCard } from './member-branch-card'
 import { MembersPagination } from './members-pagination'
 import { EmptyState } from '~/components/shadcn/ui/empty-state'
+import {
+  MembersGridControls,
+  getFilterOptionsForParent
+} from './members-grid-controls'
 
 interface MembersGridProps {
   data: (Organization & {
@@ -18,6 +22,9 @@ interface MembersGridProps {
   pageCount: number
   totalCount: number
   type?: string
+  currentSearch?: string
+  currentOrgTypes?: string[]
+  parentOrgType?: string
 }
 
 export const MembersGrid = ({
@@ -25,17 +32,27 @@ export const MembersGrid = ({
   basePath,
   pageCount,
   totalCount,
-  type
+  type,
+  currentSearch = '',
+  currentOrgTypes = [],
+  parentOrgType
 }: MembersGridProps) => {
+  const filterOptions = getFilterOptionsForParent(parentOrgType)
+
   return (
-    <div className='space-y-8'>
-      <div className='flex items-center justify-between'>
-        <div className='text-muted-foreground text-sm'>
-          Menampilkan{' '}
-          <span className='text-foreground font-medium'>{data.length}</span>{' '}
-          dari <span className='text-foreground font-medium'>{totalCount}</span>{' '}
-          organisasi
-        </div>
+    <div className='space-y-6'>
+      <MembersGridControls
+        currentSearch={currentSearch}
+        currentOrgTypes={currentOrgTypes}
+        filterOptions={filterOptions}
+      />
+
+      <div className='text-sm text-muted-foreground'>
+        Menampilkan{' '}
+        <span className='font-medium text-foreground'>{data.length}</span>{' '}
+        dari{' '}
+        <span className='font-medium text-foreground'>{totalCount}</span>{' '}
+        organisasi
       </div>
 
       <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'>
@@ -51,8 +68,8 @@ export const MembersGrid = ({
         ) : (
           <div className='col-span-full'>
             <EmptyState
-              title='Tidak ada data ditemukan'
-              description='Coba gunakan kata kunci pencarian yang berbeda.'
+              title='Tidak ada organisasi ditemukan'
+              description='Coba ubah kata kunci pencarian atau filter yang digunakan.'
             />
           </div>
         )}

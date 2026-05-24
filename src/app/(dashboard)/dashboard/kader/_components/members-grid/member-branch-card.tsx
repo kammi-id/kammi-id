@@ -1,6 +1,6 @@
 'use client'
 
-import { Organization } from '../_data/organizations'
+import { type Organization } from '~/app/(dashboard)/dashboard/_data/organizations'
 import { Button } from '~/components/shadcn/ui/button'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Edit01Icon, ChevronRight } from '@hugeicons/core-free-icons'
@@ -72,6 +72,7 @@ export const MemberBranchCard = ({
             <Button
               variant='ghost'
               size='sm'
+              aria-label={`Edit ${org.name}`}
               className='h-8 w-8 p-0 opacity-30 transition-opacity group-hover:opacity-100 focus-visible:opacity-100'
               onClick={() => onEdit(org)}
             >

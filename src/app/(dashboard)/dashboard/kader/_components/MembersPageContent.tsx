@@ -90,8 +90,8 @@ export const MembersPageContent = async ({
   }
 
   const { pageTitle, subTitle, nameHeader } = getMembersPageLabels(
-    activeType,
-    currentOrg
+    currentOrg,
+    activeType
   )
   const { summary, individuals } = parseMembersSearchParams(sParams)
 
@@ -135,9 +135,9 @@ export const MembersPageContent = async ({
     limit: individuals.mLimit,
     offset: individuals.mOffset,
     sort: individuals.sort,
-    order: individuals.order,
-    status: individuals.status,
-    gender: individuals.gender,
+    order: individuals.order as 'asc' | 'desc',
+    status: individuals.status as ('ab1' | 'ab2' | 'ab3')[] | undefined,
+    gender: individuals.gender as 'ikhwan' | 'akhwat' | undefined,
     isCertifiedMentor:
       type === 'pemandu' || pageType === 'pemandu' ? true : undefined,
     isCertifiedInstructor:
@@ -153,12 +153,12 @@ export const MembersPageContent = async ({
           : undefined
   }
 
-  const summaryPromise = showSummary
+  const summaryPromise: Promise<[Organization[], number]> = showSummary
     ? Promise.all([
         getCachedOrganizations(orgFilters),
         getCachedOrganizationCount(orgFilters)
       ])
-    : Promise.resolve([[], 0])
+    : Promise.resolve([[], 0] as [Organization[], number])
 
   const aggregatesPromise = getCachedMemberAggregates({
     organizationId: currentOrg.id,
@@ -172,9 +172,9 @@ export const MembersPageContent = async ({
           : undefined
   })
 
-  const individualsPromise = showIndividuals
+  const individualsPromise: Promise<[import('~/db/query/member').Member[], number]> = showIndividuals
     ? getCachedDescendantMembers(currentOrg.id, mFilters)
-    : Promise.resolve([[], 0])
+    : Promise.resolve([[], 0] as [import('~/db/query/member').Member[], number])
 
   const [
     [organizations, totalCount],
@@ -239,14 +239,8 @@ export const MembersPageContent = async ({
       ikhwan: agg?.ikhwan || 0,
       akhwat: agg?.akhwat || 0,
       total: agg?.total || 0,
-      pemandu:
-        memberAggregates.find(
-          (a) => a.organizationId === org.id && a.isCertifiedMentor
-        )?.total || 0,
-      instruktur:
-        memberAggregates.find(
-          (a) => a.organizationId === org.id && a.isCertifiedInstructor
-        )?.total || 0
+      pemandu: 0,
+      instruktur: 0
     }
   })
 

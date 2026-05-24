@@ -86,6 +86,7 @@ export const AddMemberForm = ({
   const [selectedOrgId, setSelectedOrgId] = React.useState(
     editData?.organizationId || organizationId
   )
+  const [orgSearchQuery, setOrgSearchQuery] = React.useState('')
   // 4. State Synchronization (Render Phase)
   const [prevSyncKey, setPrevSyncKey] = React.useState('')
   const currentSyncKey =
@@ -157,16 +158,22 @@ export const AddMemberForm = ({
     >
       <div className='flex-1 space-y-8 overflow-y-auto p-6'>
         {/* Stepper Indicator */}
-        <div className='mb-8 flex items-center justify-center gap-2'>
+        <div
+          className='mb-8 flex items-center justify-center gap-2'
+          role='list'
+          aria-label='Langkah pengisian formulir'
+        >
           {[1, 2, 3].map((step) => (
-            <div key={step} className='flex items-center gap-2'>
+            <div key={step} className='flex items-center gap-2' role='listitem'>
               <div
+                aria-label={`Langkah ${step} dari 3`}
+                aria-current={currentStep === step ? 'step' : undefined}
                 className={cn(
                   'flex size-8 items-center justify-center rounded-full text-xs font-bold transition-all',
                   currentStep === step
                     ? 'bg-primary text-primary-foreground scale-110 shadow-md'
                     : currentStep > step
-                      ? 'bg-green-500 text-white'
+                      ? 'bg-primary/70 text-primary-foreground'
                       : 'bg-muted text-muted-foreground'
                 )}
               >
@@ -176,7 +183,7 @@ export const AddMemberForm = ({
                 <div
                   className={cn(
                     'h-1 w-8 rounded-full transition-all',
-                    currentStep > step ? 'bg-green-500' : 'bg-muted'
+                    currentStep > step ? 'bg-primary/50' : 'bg-muted'
                   )}
                 />
               )}
@@ -190,14 +197,14 @@ export const AddMemberForm = ({
         {currentStep === 1 && (
           <div className='animate-in slide-in-from-right-4 duration-300'>
             <PersonalInfoSection
-              editData={editData}
+              editData={editData ?? undefined}
               state={state}
               photo={photo}
               setPhoto={setPhoto}
               selectedGender={selectedGender}
-              setSelectedGender={setSelectedGender}
+              setSelectedGender={(val) => setSelectedGender(val as 'ikhwan' | 'akhwat')}
               selectedStatus={selectedStatus}
-              setSelectedStatus={setSelectedStatus}
+              setSelectedStatus={(val) => setSelectedStatus(val as 'ab1' | 'ab2' | 'ab3')}
               currentYear={currentYear}
               handleInputChange={handleInputChange}
               organizations={organizations}
@@ -223,7 +230,6 @@ export const AddMemberForm = ({
               subdistrict={subdistrict}
               setSubdistrict={setSubdistrict}
               getRegionName={getRegionName}
-              isInitializing={isInitializing}
               handleInputChange={handleInputChange}
               state={state}
             />

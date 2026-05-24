@@ -23,7 +23,7 @@ const TrainingPage = async ({ params }: PageProps) => {
     notFound()
   }
 
-  return <TrainingDetailView training={training} />
+  return <TrainingDetailView training={training!} />
 }
 
 export default TrainingPage

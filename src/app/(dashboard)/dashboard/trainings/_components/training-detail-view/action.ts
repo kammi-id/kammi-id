@@ -34,7 +34,7 @@ const InstructorAssignmentSchema = MemberAssignmentSchema.extend({
 })
 
 const AttendantStatusSchema = MemberAssignmentSchema.extend({
-  isPassing: z.boolean()
+  isPassing: z.union([z.boolean(), z.string().transform((v) => v === 'true')])
 })
 
 type ActionResponse<T = any> = {
@@ -138,9 +138,11 @@ export const addAttendantAction = async (
 
     const { trainingId, memberId } = validated.data
 
-    const memberExists = await db.query.member.findFirst({
-      where: eq(member.id, memberId)
-    })
+    const [memberExists] = await db
+      .select({ id: member.id })
+      .from(member)
+      .where(eq(member.id, memberId))
+      .limit(1)
 
     if (!memberExists) {
       return { success: false, message: 'Member not found' }
@@ -177,7 +179,7 @@ export const updateAttendantStatusAction = async (
     const data = await trainingQuery.updateAttendantStatus(
       trainingId,
       memberId,
-      isPassing === 'true'
+      isPassing as boolean
     )
     revalidatePath('/dashboard/trainings')
     return {
@@ -227,9 +229,11 @@ export const addInstructorAction = async (
 
     const { trainingId, memberId, role } = validated.data
 
-    const memberExists = await db.query.member.findFirst({
-      where: eq(member.id, memberId)
-    })
+    const [memberExists] = await db
+      .select({ id: member.id })
+      .from(member)
+      .where(eq(member.id, memberId))
+      .limit(1)
 
     if (!memberExists) {
       return { success: false, message: 'Member not found' }

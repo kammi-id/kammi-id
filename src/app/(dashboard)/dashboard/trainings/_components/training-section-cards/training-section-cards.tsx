@@ -1,7 +1,13 @@
 'use client'
 
-import { Card, CardDescription, CardTitle } from '~/components/shadcn/ui/card'
-import { cn } from '~/lib/shadcn/utils'
+import { fmt } from '~/lib/utils/format'
+
+const StatSplit = ({ label, value }: { label: string; value: number }) => (
+  <div>
+    <div className='font-mono text-base font-semibold tabular-nums'>{fmt(value)}</div>
+    <div className='text-xs uppercase tracking-wider text-muted-foreground'>{label}</div>
+  </div>
+)
 
 interface TrainingSectionCardsProps {
   data: {
@@ -13,72 +19,63 @@ interface TrainingSectionCardsProps {
 }
 
 export const TrainingSectionCards = ({ data }: TrainingSectionCardsProps) => {
-  // Sort types by count to show top ones
   const sortedTypes = Object.entries(data.typesCount)
     .sort(([, a], [, b]) => b - a)
-    .slice(0, 4)
+    .slice(0, 6)
+
+  const maxCount = Math.max(...sortedTypes.map(([, c]) => c), 1)
+
+  if (data.total === 0) {
+    return (
+      <div className='flex flex-col gap-3 rounded-xl border bg-card p-6'>
+        <div className='text-xs font-medium uppercase tracking-tight text-muted-foreground'>
+          Statistik Dauroh
+        </div>
+        <p className='text-sm text-muted-foreground'>Belum ada dauroh yang tercatat.</p>
+      </div>
+    )
+  }
 
   return (
-    <div className='flex flex-col gap-8 px-0'>
-      <div className='grid grid-cols-1 gap-6 lg:grid-cols-4'>
-        <Card
-          className={cn(
-            'border-border bg-primary/5 relative col-span-1 overflow-hidden border p-5 transition-all duration-300 hover:scale-[1.02] hover:shadow-md lg:col-span-1'
-          )}
-        >
-          <CardDescription className='text-primary text-xs font-bold tracking-widest uppercase opacity-80'>
+    <div className='flex flex-col gap-5 rounded-xl border bg-card p-6'>
+      <div className='flex items-start justify-between gap-4'>
+        <div>
+          <div className='text-xs font-medium uppercase tracking-wider text-muted-foreground'>
             Total Dauroh
-          </CardDescription>
-          <CardTitle className='font-heading text-primary mt-2 text-5xl font-black tracking-tighter tabular-nums sm:text-6xl'>
-            {data.total.toLocaleString('id-ID')}
-          </CardTitle>
-          <div className='bg-primary absolute top-4 right-4 size-2 animate-pulse rounded-full' />
-        </Card>
-
-        <div className='grid grid-cols-2 gap-4 sm:grid-cols-3 lg:col-span-3'>
-          <Card
-            className={cn(
-              'border-border bg-primary/5 relative overflow-hidden border p-5 transition-all duration-300 hover:scale-[1.02] hover:shadow-sm'
-            )}
-          >
-            <CardDescription className='text-primary text-[10px] font-bold tracking-widest uppercase opacity-70'>
-              Tahun Ini
-            </CardDescription>
-            <CardTitle className='font-heading text-primary mt-1 text-2xl font-extrabold tracking-tight tabular-nums sm:text-3xl'>
-              {data.thisYear.toLocaleString('id-ID')}
-            </CardTitle>
-          </Card>
-
-          <Card
-            className={cn(
-              'border-border bg-primary/5 relative overflow-hidden border p-5 transition-all duration-300 hover:scale-[1.02] hover:shadow-sm'
-            )}
-          >
-            <CardDescription className='text-primary text-[10px] font-bold tracking-widest uppercase opacity-70'>
-              Organisasi
-            </CardDescription>
-            <CardTitle className='font-heading text-primary mt-1 text-2xl font-extrabold tracking-tight tabular-nums sm:text-3xl'>
-              {data.orgsWithTraining.toLocaleString('id-ID')}
-            </CardTitle>
-          </Card>
-
-          {sortedTypes.map(([type, count]) => (
-            <Card
-              key={type}
-              className={cn(
-                'border-border bg-primary/5 relative overflow-hidden border p-5 transition-all duration-300 hover:scale-[1.02] hover:shadow-sm'
-              )}
-            >
-              <CardDescription className='text-primary text-[10px] font-bold tracking-widest uppercase opacity-70'>
-                {type.toUpperCase()}
-              </CardDescription>
-              <CardTitle className='font-heading text-primary mt-1 text-2xl font-extrabold tracking-tight tabular-nums sm:text-3xl'>
-                {count.toLocaleString('id-ID')}
-              </CardTitle>
-            </Card>
-          ))}
+          </div>
+          <div className='mt-1 font-mono text-4xl font-bold tabular-nums tracking-tight text-foreground'>
+            {fmt(data.total)}
+          </div>
+        </div>
+        <div className='flex gap-6 pt-1'>
+          <StatSplit label='Tahun Ini' value={data.thisYear} />
+          <StatSplit label='Organisasi' value={data.orgsWithTraining} />
         </div>
       </div>
+
+      {sortedTypes.length > 0 && (
+        <>
+          <div className='border-t' />
+          <div className='flex flex-col gap-2.5'>
+            {sortedTypes.map(([type, count]) => (
+              <div key={type} className='flex items-center gap-3'>
+                <span className='w-12 font-mono text-xs font-medium uppercase text-muted-foreground'>
+                  {type}
+                </span>
+                <div className='flex h-1.5 flex-1 overflow-hidden rounded-full bg-muted'>
+                  <div
+                    className='h-full bg-primary transition-all'
+                    style={{ width: `${(count / maxCount) * 100}%` }}
+                  />
+                </div>
+                <span className='w-8 text-right font-mono text-xs font-medium tabular-nums'>
+                  {fmt(count)}
+                </span>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
     </div>
   )
 }

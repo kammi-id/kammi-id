@@ -1,26 +1,25 @@
-import type { Organization } from '../../_data/organizations'
+import type { Organization } from '../../../_data/organizations'
+
+const VALID_ORG_TYPES: Organization['type'][] = ['pp', 'pw', 'pdln', 'pd', 'pk']
+
+const TYPE_LABEL: Record<string, string> = {
+  pemandu: 'Data Pemandu',
+  instruktur: 'Data Instruktur',
+  alumni: 'Data Alumni'
+}
+
+const TYPE_SUB_LABEL: Record<string, string> = {
+  pemandu: 'pemandu',
+  instruktur: 'instruktur',
+  alumni: 'alumni'
+}
 
 export const getMembersPageLabels = (
-  activeType?: string,
-  currentOrg: Organization
+  currentOrg: Organization,
+  activeType?: string
 ) => {
-  const typeLabel =
-    activeType === 'pemandu'
-      ? 'Data Pemandu'
-      : activeType === 'instruktur'
-        ? 'Data Instruktur'
-        : activeType === 'alumni'
-          ? 'Data Alumni'
-          : 'Data Kader'
-
-  const typeSubLabel =
-    activeType === 'pemandu'
-      ? 'pemandu'
-      : activeType === 'instruktur'
-        ? 'instruktur'
-        : activeType === 'alumni'
-          ? 'alumni'
-          : 'anggota'
+  const typeLabel = (activeType && TYPE_LABEL[activeType]) || 'Data Kader'
+  const typeSubLabel = (activeType && TYPE_SUB_LABEL[activeType]) || 'anggota'
 
   let pageTitle = `${typeLabel} ${currentOrg.name}`
   let subTitle = `Menampilkan jumlah ${typeSubLabel} di bawah ${currentOrg.name}.`
@@ -60,11 +59,20 @@ export const parseMembersSearchParams = (sParams: {
   const status =
     typeof sParams.status === 'string'
       ? sParams.status.split(',')
-      : typeof sParams.status === 'string[]'
+      : Array.isArray(sParams.status)
         ? sParams.status
         : undefined
 
   const gender = typeof sParams.gender === 'string' ? sParams.gender : undefined
+
+  const orgType =
+    typeof sParams.orgType === 'string'
+      ? (sParams.orgType
+          .split(',')
+          .filter((t) =>
+            VALID_ORG_TYPES.includes(t as Organization['type'])
+          ) as Organization['type'][])
+      : undefined
 
   const mQuery = typeof sParams.mq === 'string' ? sParams.mq : undefined
   const mPage =
@@ -74,7 +82,7 @@ export const parseMembersSearchParams = (sParams: {
   const mOffset = (mPage - 1) * mLimit
 
   return {
-    summary: { query, page, limit, offset, orderBy: [{ column: 'name', direction: order }] },
+    summary: { query, page, limit, offset, orgType },
     individuals: {
       mQuery,
       mPage,

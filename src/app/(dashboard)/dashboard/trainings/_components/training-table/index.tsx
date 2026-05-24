@@ -10,7 +10,6 @@ import {
 } from '@tanstack/react-table'
 import { DataTable } from '~/app/(dashboard)/dashboard/_components/data-table/data-table'
 import { getColumns, type Training } from './columns'
-import { useTransition } from 'react'
 import { toast } from 'sonner'
 
 interface TrainingTableProps {
@@ -24,8 +23,7 @@ export const TrainingTable = ({
   onEdit,
   onDelete
 }: TrainingTableProps) => {
-  const [isPending, startTransition] = useTransition()
   const columns = getColumns(onEdit, onDelete)
 
-  return <DataTable data={data} columns={columns} isPending={isPending} />
+  return <DataTable data={data} columns={columns} />
 }

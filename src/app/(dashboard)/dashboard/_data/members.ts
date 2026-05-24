@@ -7,6 +7,8 @@ import {
   type MemberAggregatesFilters
 } from '~/db/query/member'
 
+type DescendantMemberFilters = MemberFilters & { limit?: number; offset?: number }
+
 export async function getCachedMemberAggregates(
   filters: MemberAggregatesFilters
 ) {
@@ -29,7 +31,7 @@ export async function getCachedMemberYearDistribution(
 
 export async function getCachedDescendantMembers(
   parentId: string,
-  filters: MemberFilters
+  filters: DescendantMemberFilters
 ) {
   'use cache'
   cacheLife('minutes')

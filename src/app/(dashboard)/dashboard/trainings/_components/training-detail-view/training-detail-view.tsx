@@ -17,6 +17,14 @@ import {
 import { Button } from '~/components/shadcn/ui/button'
 import { Checkbox } from '~/components/shadcn/ui/checkbox'
 import { Input } from '~/components/shadcn/ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '~/components/shadcn/ui/select'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
   UserGroupIcon,
@@ -24,7 +32,7 @@ import {
   Delete01Icon,
   Add01Icon,
   Calendar01Icon,
-  Info01Icon
+  InformationCircleIcon
 } from '@hugeicons/core-free-icons'
 import { cn } from '~/lib/shadcn/utils'
 import { TrainingWithDetails } from './types'
@@ -144,7 +152,7 @@ export const TrainingDetailView = ({ training }: TrainingDetailViewProps) => {
               <div className='text-primary flex items-center gap-2'>
                 <HugeiconsIcon icon={UserGroupIcon} className='size-5' />
                 <CardTitle>
-                  Peserta ({training._attendants?.length ?? 0})
+                  Peserta ({training.attendants?.length ?? 0})
                 </CardTitle>
               </div>
               <CardDescription>
@@ -155,7 +163,11 @@ export const TrainingDetailView = ({ training }: TrainingDetailViewProps) => {
           <CardContent className='space-y-4'>
             <form action={addAttendantActionWrapper} className='flex gap-2'>
               <input type='hidden' name='trainingId' value={training.id} />
+              <label htmlFor='attendant-member-id' className='sr-only'>
+                Member ID Peserta
+              </label>
               <Input
+                id='attendant-member-id'
                 name='memberId'
                 placeholder='Member ID (UUID)'
                 className='h-8 text-xs'
@@ -165,6 +177,7 @@ export const TrainingDetailView = ({ training }: TrainingDetailViewProps) => {
                 type='submit'
                 size='sm'
                 disabled={isAttendantPending}
+                aria-label='Tambah peserta'
                 className='h-8'
               >
                 <HugeiconsIcon icon={Add01Icon} className='size-4' />
@@ -177,7 +190,7 @@ export const TrainingDetailView = ({ training }: TrainingDetailViewProps) => {
             )}
 
             <div className='space-y-2'>
-              {training._attendants?.map((att) => (
+              {training.attendants?.map((att) => (
                 <div
                   key={att.memberId}
                   className='bg-card hover:bg-muted/50 flex items-center justify-between rounded-lg border p-2 transition-colors'
@@ -189,6 +202,7 @@ export const TrainingDetailView = ({ training }: TrainingDetailViewProps) => {
                         handleTogglePassing(att.memberId, att.isPassing)
                       }
                       disabled={isAttendantPending}
+                      aria-label={`${att.member?.name ?? att.memberId} — lulus`}
                     />
                     <span className='text-sm font-medium'>
                       {att.member?.name}
@@ -212,7 +226,7 @@ export const TrainingDetailView = ({ training }: TrainingDetailViewProps) => {
                   </div>
                 </div>
               ))}
-              {!training._attendants || training._attendants.length === 0 ? (
+              {!training.attendants || training.attendants.length === 0 ? (
                 <p className='text-muted-foreground py-4 text-center text-xs'>
                   Belum ada peserta.
                 </p>
@@ -228,7 +242,7 @@ export const TrainingDetailView = ({ training }: TrainingDetailViewProps) => {
               <div className='text-primary flex items-center gap-2'>
                 <HugeiconsIcon icon={UserCheckIcon} className='size-5' />
                 <CardTitle>
-                  Instruktur ({training._instructors?.length ?? 0})
+                  Instruktur ({training.instructors?.length ?? 0})
                 </CardTitle>
               </div>
               <CardDescription>
@@ -239,29 +253,37 @@ export const TrainingDetailView = ({ training }: TrainingDetailViewProps) => {
           <CardContent className='space-y-4'>
             <form action={addInstructorActionWrapper} className='flex gap-2'>
               <input type='hidden' name='trainingId' value={training.id} />
+              <label htmlFor='instructor-member-id' className='sr-only'>
+                Member ID Instruktur
+              </label>
               <Input
+                id='instructor-member-id'
                 name='memberId'
                 placeholder='Member ID'
                 className='h-8 text-xs'
                 required
               />
-              <select
-                name='role'
-                className='bg-background text-foreground ring-offset-background focus-visible:ring-ring h-8 rounded-md border px-2 text-xs focus-visible:ring-2 focus-visible:outline-none'
-                defaultValue='master'
-              >
-                <option value='master'>Master</option>
-                <option value='assistant_master'>Assistant Master</option>
-                <option value='administrator'>Administrator</option>
-                <option value='classroom_master'>Classroom Master</option>
-                <option value='lecturer'>Lecturer</option>
-                <option value='observer'>Observer</option>
-                <option value='ustadz_of_training'>Ustadz of Training</option>
-              </select>
+              <Select name='role' defaultValue='master'>
+                <SelectTrigger size='sm' className='h-8 text-xs'>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectItem value='master'>Master</SelectItem>
+                    <SelectItem value='assistant_master'>Assistant Master</SelectItem>
+                    <SelectItem value='administrator'>Administrator</SelectItem>
+                    <SelectItem value='classroom_master'>Classroom Master</SelectItem>
+                    <SelectItem value='lecturer'>Lecturer</SelectItem>
+                    <SelectItem value='observer'>Observer</SelectItem>
+                    <SelectItem value='ustadz_of_training'>Ustadz of Training</SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
               <Button
                 type='submit'
                 size='sm'
                 disabled={isInstructorPending}
+                aria-label='Tambah instruktur'
                 className='h-8'
               >
                 <HugeiconsIcon icon={Add01Icon} className='size-4' />
@@ -274,7 +296,7 @@ export const TrainingDetailView = ({ training }: TrainingDetailViewProps) => {
             )}
 
             <div className='space-y-2'>
-              {training._instructors?.map((ins) => (
+              {training.instructors?.map((ins) => (
                 <div
                   key={ins.memberId}
                   className='bg-card hover:bg-muted/50 flex items-center justify-between rounded-lg border p-2 transition-colors'
@@ -292,13 +314,14 @@ export const TrainingDetailView = ({ training }: TrainingDetailViewProps) => {
                     size='sm'
                     onClick={() => handleRemoveInstructor(ins.memberId)}
                     disabled={isInstructorPending}
+                    aria-label={`Hapus instruktur ${ins.member?.name ?? ins.memberId}`}
                     className='text-destructive hover:bg-destructive/10 size-8 p-0'
                   >
                     <HugeiconsIcon icon={Delete01Icon} className='size-4' />
                   </Button>
                 </div>
               ))}
-              {!training._instructors || training._instructors.length === 0 ? (
+              {!training.instructors || training.instructors.length === 0 ? (
                 <p className='text-muted-foreground py-4 text-center text-xs'>
                   Belum ada instruktur.
                 </p>
