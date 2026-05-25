@@ -36,6 +36,7 @@ export const LoginForm = ({
   ...props
 }: React.ComponentProps<'div'> & { message?: string }) => {
   const [showPassword, setShowPassword] = React.useState(false)
+  const [username, setUsername] = React.useState('')
   const [state, action, isPending] = React.useActionState(loginFormAction, {})
 
   React.useEffect(() => {
@@ -49,6 +50,12 @@ export const LoginForm = ({
       toast.success('Antum berhasil keluar.')
     }
   }, [message])
+
+  React.useEffect(() => {
+    if (state.values?.username) {
+      setUsername(state.values.username)
+    }
+  }, [state.values])
 
   return (
     <div className={cn('flex flex-col gap-6', className)} {...props}>
@@ -75,6 +82,8 @@ export const LoginForm = ({
               placeholder='Contoh: bpk-kalteng, bph-kota-jogja, bph-uny'
               required
               aria-invalid={!!state.fieldErrors?.username || undefined}
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
             />
             <FieldError
               errors={state.fieldErrors?.username?.map((m) => ({ message: m }))}

@@ -18,6 +18,7 @@ export type LoginFormState = {
   error?: string
   fieldErrors?: Record<string, string[]>
   issues?: Array<{ message: string; path: PropertyKey[] }>
+  values?: { username?: string }
 }
 
 const loginFormAction = async (
@@ -33,7 +34,8 @@ const loginFormAction = async (
       issues: validatedFields.error.issues.map((issue) => ({
         message: issue.message,
         path: issue.path
-      }))
+      })),
+      values: { username: typeof rawFormData.username === 'string' ? rawFormData.username : '' }
     }
   }
 
