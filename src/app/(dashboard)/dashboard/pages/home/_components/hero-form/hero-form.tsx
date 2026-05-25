@@ -24,11 +24,43 @@ export const HeroForm = ({ initialData }: Props) => {
     FormData
   >(saveHeroAction, {})
   const [heroImageUrl, setHeroImageUrl] = useState(initialData.heroImageUrl)
+  const [badgeText, setBadgeText] = useState(initialData.badgeText)
+  const [title, setTitle] = useState(initialData.title)
+  const [titleAccent, setTitleAccent] = useState(initialData.titleAccent)
+  const [subtitle, setSubtitle] = useState(initialData.subtitle)
+  const [heroImageAlt, setHeroImageAlt] = useState(initialData.heroImageAlt)
+  const [quoteText, setQuoteText] = useState(initialData.quoteText)
+  const [quoteAttribution, setQuoteAttribution] = useState(
+    initialData.quoteAttribution
+  )
+  const [cta1Label, setCta1Label] = useState(initialData.cta1Label)
+  const [cta1Href, setCta1Href] = useState(initialData.cta1Href)
+  const [cta2Label, setCta2Label] = useState(initialData.cta2Label)
+  const [cta2Href, setCta2Href] = useState(initialData.cta2Href)
 
   useEffect(() => {
     if (state.success) toast.success('Pengaturan hero berhasil disimpan.')
     if (state.error) toast.error(state.error)
   }, [state])
+
+  useEffect(() => {
+    if (state.values && !state.success) {
+      const v = state.values
+      if (v.badgeText !== undefined) setBadgeText(v.badgeText)
+      if (v.title !== undefined) setTitle(v.title)
+      if (v.titleAccent !== undefined) setTitleAccent(v.titleAccent)
+      if (v.subtitle !== undefined) setSubtitle(v.subtitle)
+      if (v.heroImageUrl !== undefined) setHeroImageUrl(v.heroImageUrl)
+      if (v.heroImageAlt !== undefined) setHeroImageAlt(v.heroImageAlt)
+      if (v.quoteText !== undefined) setQuoteText(v.quoteText)
+      if (v.quoteAttribution !== undefined)
+        setQuoteAttribution(v.quoteAttribution)
+      if (v.cta1Label !== undefined) setCta1Label(v.cta1Label)
+      if (v.cta1Href !== undefined) setCta1Href(v.cta1Href)
+      if (v.cta2Label !== undefined) setCta2Label(v.cta2Label)
+      if (v.cta2Href !== undefined) setCta2Href(v.cta2Href)
+    }
+  }, [state.values, state.success])
 
   const fe = state.fieldErrors ?? {}
 
@@ -47,7 +79,8 @@ export const HeroForm = ({ initialData }: Props) => {
             <Input
               id='badgeText'
               name='badgeText'
-              defaultValue={initialData.badgeText}
+              value={badgeText}
+              onChange={(e) => setBadgeText(e.target.value)}
               placeholder='Kesatuan Aksi Mahasiswa Muslim Indonesia'
             />
           </FieldContent>
@@ -61,7 +94,8 @@ export const HeroForm = ({ initialData }: Props) => {
               <Input
                 id='title'
                 name='title'
-                defaultValue={initialData.title}
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
                 placeholder='Pelopor Kebaikan'
               />
             </FieldContent>
@@ -73,7 +107,8 @@ export const HeroForm = ({ initialData }: Props) => {
               <Input
                 id='titleAccent'
                 name='titleAccent'
-                defaultValue={initialData.titleAccent}
+                value={titleAccent}
+                onChange={(e) => setTitleAccent(e.target.value)}
                 placeholder='untuk'
               />
             </FieldContent>
@@ -87,7 +122,8 @@ export const HeroForm = ({ initialData }: Props) => {
             <Textarea
               id='subtitle'
               name='subtitle'
-              defaultValue={initialData.subtitle}
+              value={subtitle}
+              onChange={(e) => setSubtitle(e.target.value)}
               rows={3}
               placeholder='Membangun peradaban dengan...'
             />
@@ -115,7 +151,8 @@ export const HeroForm = ({ initialData }: Props) => {
               <Input
                 id='heroImageAlt'
                 name='heroImageAlt'
-                defaultValue={initialData.heroImageAlt}
+                value={heroImageAlt}
+                onChange={(e) => setHeroImageAlt(e.target.value)}
                 placeholder='Deskripsi foto untuk aksesibilitas'
               />
             </FieldContent>
@@ -132,7 +169,8 @@ export const HeroForm = ({ initialData }: Props) => {
               <Textarea
                 id='quoteText'
                 name='quoteText'
-                defaultValue={initialData.quoteText}
+                value={quoteText}
+                onChange={(e) => setQuoteText(e.target.value)}
                 rows={2}
                 placeholder='Seperti akar yang menancap dalam...'
               />
@@ -145,7 +183,8 @@ export const HeroForm = ({ initialData }: Props) => {
               <Input
                 id='quoteAttribution'
                 name='quoteAttribution'
-                defaultValue={initialData.quoteAttribution}
+                value={quoteAttribution}
+                onChange={(e) => setQuoteAttribution(e.target.value)}
                 placeholder='Semangat KAMMI'
               />
             </FieldContent>
@@ -166,7 +205,8 @@ export const HeroForm = ({ initialData }: Props) => {
                 <Input
                   id='cta1Label'
                   name='cta1Label'
-                  defaultValue={initialData.cta1Label}
+                  value={cta1Label}
+                  onChange={(e) => setCta1Label(e.target.value)}
                   placeholder='Mulai Bergabung'
                 />
               </FieldContent>
@@ -178,7 +218,8 @@ export const HeroForm = ({ initialData }: Props) => {
                 <Input
                   id='cta1Href'
                   name='cta1Href'
-                  defaultValue={initialData.cta1Href}
+                  value={cta1Href}
+                  onChange={(e) => setCta1Href(e.target.value)}
                   placeholder='#bergabung'
                 />
               </FieldContent>
@@ -192,7 +233,8 @@ export const HeroForm = ({ initialData }: Props) => {
                 <Input
                   id='cta2Label'
                   name='cta2Label'
-                  defaultValue={initialData.cta2Label}
+                  value={cta2Label}
+                  onChange={(e) => setCta2Label(e.target.value)}
                   placeholder='Pelajari Visi'
                 />
               </FieldContent>
@@ -204,7 +246,8 @@ export const HeroForm = ({ initialData }: Props) => {
                 <Input
                   id='cta2Href'
                   name='cta2Href'
-                  defaultValue={initialData.cta2Href}
+                  value={cta2Href}
+                  onChange={(e) => setCta2Href(e.target.value)}
                   placeholder='#tentang'
                 />
               </FieldContent>
