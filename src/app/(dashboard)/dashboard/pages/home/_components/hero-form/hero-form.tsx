@@ -1,6 +1,6 @@
 'use client'
 
-import { useActionState, useEffect, useState } from 'react'
+import { useActionState, useCallback, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { Button } from '~/components/shadcn/ui/button'
 import { Input } from '~/components/shadcn/ui/input'
@@ -8,6 +8,7 @@ import { Textarea } from '~/components/shadcn/ui/textarea'
 import {
   Field,
   FieldContent,
+  FieldDescription,
   FieldError,
   FieldGroup,
   FieldLabel
@@ -15,6 +16,8 @@ import {
 import { ImageUpload } from '~/components/image-upload'
 import { saveHeroAction, type SettingsActionState } from '../action'
 import type { HeroSettings } from '~/db/query/site-settings'
+import { useUnsavedChanges } from '~/hooks/use-unsaved-changes'
+import { UnsavedChangesBanner } from '~/components/unsaved-changes-banner'
 
 type Props = { initialData: HeroSettings }
 
@@ -38,9 +41,18 @@ export const HeroForm = ({ initialData }: Props) => {
   const [cta2Label, setCta2Label] = useState(initialData.cta2Label)
   const [cta2Href, setCta2Href] = useState(initialData.cta2Href)
 
+  const { isDirty, markClean } = useUnsavedChanges({
+    badgeText, title, titleAccent, subtitle, heroImageUrl, heroImageAlt,
+    quoteText, quoteAttribution, cta1Label, cta1Href, cta2Label, cta2Href
+  })
+
   useEffect(() => {
-    if (state.success) toast.success('Pengaturan hero berhasil disimpan.')
+    if (state.success) {
+      toast.success('Pengaturan hero berhasil disimpan.')
+      markClean()
+    }
     if (state.error) toast.error(state.error)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state])
 
   useEffect(() => {
@@ -64,14 +76,16 @@ export const HeroForm = ({ initialData }: Props) => {
 
   const fe = state.fieldErrors ?? {}
 
+  const handleAction = useCallback(
+    (fd: FormData) => {
+      fd.set('heroImageUrl', heroImageUrl)
+      formAction(fd)
+    },
+    [heroImageUrl, formAction]
+  )
+
   return (
-    <form
-      action={(fd) => {
-        fd.set('heroImageUrl', heroImageUrl)
-        formAction(fd)
-      }}
-      className='space-y-8'
-    >
+    <form action={handleAction} className='space-y-8'>
       <FieldGroup>
         <Field>
           <FieldLabel htmlFor='badgeText'>Teks Badge</FieldLabel>
@@ -156,6 +170,9 @@ export const HeroForm = ({ initialData }: Props) => {
                 placeholder='Deskripsi foto untuk aksesibilitas'
               />
             </FieldContent>
+            <FieldDescription>
+              Deskripsi foto untuk pembaca layar dan Google. Contoh: Kader KAMMI berdiskusi.
+            </FieldDescription>
             <FieldError
               errors={fe.heroImageAlt?.map((m) => ({ message: m }))}
             />
@@ -257,10 +274,11 @@ export const HeroForm = ({ initialData }: Props) => {
         </div>
       </FieldGroup>
 
-      <div className='flex justify-end'>
+      <div className='flex items-center justify-end gap-3'>
+        <UnsavedChangesBanner isDirty={isDirty} />
         <Button
           type='submit'
-          className='rounded-full px-8'
+          className='px-6'
           disabled={isPending}
         >
           {isPending ? 'Menyimpan...' : 'Simpan Pengaturan Hero'}

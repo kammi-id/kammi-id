@@ -14,6 +14,8 @@ import {
 } from '~/components/shadcn/ui/field'
 import { saveAboutAction, type SettingsActionState } from '../action'
 import type { AboutSettings } from '~/db/query/site-settings'
+import { useUnsavedChanges } from '~/hooks/use-unsaved-changes'
+import { UnsavedChangesBanner } from '~/components/unsaved-changes-banner'
 
 type Props = { initialData: AboutSettings }
 
@@ -32,9 +34,18 @@ export const AboutForm = ({ initialData }: Props) => {
   const [miniStrategiLinkLabel, setMiniStrategiLinkLabel] = useState(initialData.miniStrategiLinkLabel)
   const [miniStrategiLinkHref, setMiniStrategiLinkHref] = useState(initialData.miniStrategiLinkHref)
 
+  const { isDirty, markClean } = useUnsavedChanges({
+    paragraph1, paragraph2, readMoreLabel, readMoreHref,
+    miniStrategiTitle, miniStrategiDescription, miniStrategiLinkLabel, miniStrategiLinkHref
+  })
+
   useEffect(() => {
-    if (state.success) toast.success('Pengaturan tentang berhasil disimpan.')
+    if (state.success) {
+      toast.success('Pengaturan tentang berhasil disimpan.')
+      markClean()
+    }
     if (state.error) toast.error(state.error)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state])
 
   useEffect(() => {
@@ -194,10 +205,11 @@ export const AboutForm = ({ initialData }: Props) => {
         </div>
       </FieldGroup>
 
-      <div className='flex justify-end'>
+      <div className='flex items-center justify-end gap-3'>
+        <UnsavedChangesBanner isDirty={isDirty} />
         <Button
           type='submit'
-          className='rounded-full px-8'
+          className='px-6'
           disabled={isPending}
         >
           {isPending ? 'Menyimpan...' : 'Simpan Pengaturan Tentang'}

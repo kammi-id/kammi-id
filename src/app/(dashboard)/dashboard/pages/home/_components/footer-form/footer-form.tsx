@@ -1,6 +1,6 @@
 'use client'
 
-import { useActionState, useEffect, useState } from 'react'
+import { useActionState, useCallback, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { Button } from '~/components/shadcn/ui/button'
 import { Input } from '~/components/shadcn/ui/input'
@@ -13,105 +13,46 @@ import {
 } from '~/components/shadcn/ui/field'
 import { saveFooterAction, type SettingsActionState } from '../action'
 import type { FooterSettings } from '~/db/query/site-settings'
-import { HugeiconsIcon } from '@hugeicons/react'
-import { Add01Icon, Delete02Icon } from '@hugeicons/core-free-icons'
+import { useUnsavedChanges } from '~/hooks/use-unsaved-changes'
+import { UnsavedChangesBanner } from '~/components/unsaved-changes-banner'
+import { LinkListEditor, type LinkItem } from '~/components/ui/link-list-editor'
 
-type FooterLink = { label: string; href: string }
 type Props = { initialData: FooterSettings }
 
-const LinkListEditor = ({
-  links,
-  onChange,
-  label
-}: {
-  links: FooterLink[]
-  onChange: (next: FooterLink[]) => void
-  label: string
-}) => {
-  const update = (i: number, field: keyof FooterLink, value: string) => {
-    onChange(links.map((l, idx) => (idx === i ? { ...l, [field]: value } : l)))
-  }
-  const add = () => onChange([...links, { label: '', href: '' }])
-  const remove = (i: number) => onChange(links.filter((_, idx) => idx !== i))
-
-  return (
-    <div className='space-y-2'>
-      <p className='text-foreground text-sm font-medium'>{label}</p>
-      {links.map((link, i) => (
-        <div key={i} className='flex items-end gap-2'>
-          <Field className='flex-1'>
-            <FieldLabel htmlFor={`${label}-label-${i}`} className='sr-only'>
-              Label
-            </FieldLabel>
-            <FieldContent>
-              <Input
-                id={`${label}-label-${i}`}
-                value={link.label}
-                onChange={(e) => update(i, 'label', e.target.value)}
-                placeholder='Label'
-              />
-            </FieldContent>
-          </Field>
-          <Field className='flex-1'>
-            <FieldLabel htmlFor={`${label}-href-${i}`} className='sr-only'>
-              Link
-            </FieldLabel>
-            <FieldContent>
-              <Input
-                id={`${label}-href-${i}`}
-                value={link.href}
-                onChange={(e) => update(i, 'href', e.target.value)}
-                placeholder='#atau/path'
-              />
-            </FieldContent>
-          </Field>
-          <button
-            type='button'
-            onClick={() => remove(i)}
-            disabled={links.length <= 1}
-            className='text-muted-foreground hover:bg-destructive/10 hover:text-destructive mb-0.5 flex size-9 shrink-0 items-center justify-center rounded-lg transition-colors disabled:opacity-30'
-            aria-label='Hapus link'
-          >
-            <HugeiconsIcon
-              icon={Delete02Icon}
-              className='size-4'
-              strokeWidth={2}
-            />
-          </button>
-        </div>
-      ))}
-      <button
-        type='button'
-        onClick={add}
-        className='border-border text-muted-foreground hover:border-primary/40 hover:text-primary flex w-full items-center justify-center gap-2 rounded-xl border border-dashed py-2.5 text-sm transition-colors'
-      >
-        <HugeiconsIcon icon={Add01Icon} className='size-4' strokeWidth={2} />
-        Tambah Link
-      </button>
-    </div>
-  )
-}
+const toLinksWithId = (links: { label: string; href: string }[], prefix: string): LinkItem[] =>
+  links.map((l, i) => ({ ...l, id: `${prefix}-${i}-${Date.now()}` }))
 
 export const FooterForm = ({ initialData }: Props) => {
   const [state, formAction, isPending] = useActionState<
     SettingsActionState,
     FormData
   >(saveFooterAction, {})
-  const [footerKAMMI, setFooterKAMMI] = useState(initialData.footerKAMMI)
-  const [footerBeritaData, setFooterBeritaData] = useState(
-    initialData.footerBeritaData
+  const [footerKAMMI, setFooterKAMMI] = useState<LinkItem[]>(() =>
+    toLinksWithId(initialData.footerKAMMI, 'kammi')
   )
-  const [footerIkutiKami, setFooterIkutiKami] = useState(
-    initialData.footerIkutiKami
+  const [footerBeritaData, setFooterBeritaData] = useState<LinkItem[]>(() =>
+    toLinksWithId(initialData.footerBeritaData, 'berita')
+  )
+  const [footerIkutiKami, setFooterIkutiKami] = useState<LinkItem[]>(() =>
+    toLinksWithId(initialData.footerIkutiKami, 'ikuti')
   )
   const [socialIG, setSocialIG] = useState(initialData.socialIG)
   const [socialTwitter, setSocialTwitter] = useState(initialData.socialTwitter)
   const [socialYoutube, setSocialYoutube] = useState(initialData.socialYoutube)
   const [socialTelegram, setSocialTelegram] = useState(initialData.socialTelegram)
 
+  const { isDirty, markClean } = useUnsavedChanges({
+    footerKAMMI, footerBeritaData, footerIkutiKami,
+    socialIG, socialTwitter, socialYoutube, socialTelegram
+  })
+
   useEffect(() => {
-    if (state.success) toast.success('Pengaturan footer berhasil disimpan.')
+    if (state.success) {
+      toast.success('Pengaturan footer berhasil disimpan.')
+      markClean()
+    }
     if (state.error) toast.error(state.error)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state])
 
   useEffect(() => {
@@ -126,16 +67,23 @@ export const FooterForm = ({ initialData }: Props) => {
     }
   }, [state.values, state.success])
 
+  const stripId = useCallback(
+    (links: LinkItem[]) => links.map(({ label, href }) => ({ label, href })),
+    []
+  )
+
+  const handleAction = useCallback(
+    (fd: FormData) => {
+      fd.set('footerKAMMI', JSON.stringify(stripId(footerKAMMI)))
+      fd.set('footerBeritaData', JSON.stringify(stripId(footerBeritaData)))
+      fd.set('footerIkutiKami', JSON.stringify(stripId(footerIkutiKami)))
+      formAction(fd)
+    },
+    [footerKAMMI, footerBeritaData, footerIkutiKami, stripId, formAction]
+  )
+
   return (
-    <form
-      action={(fd) => {
-        fd.set('footerKAMMI', JSON.stringify(footerKAMMI))
-        fd.set('footerBeritaData', JSON.stringify(footerBeritaData))
-        fd.set('footerIkutiKami', JSON.stringify(footerIkutiKami))
-        formAction(fd)
-      }}
-      className='space-y-8'
-    >
+    <form action={handleAction} className='space-y-8'>
       <FieldGroup>
         <div className='border-border bg-muted/40 rounded-2xl border p-5'>
           <p className='text-foreground mb-4 text-sm font-medium'>
@@ -190,26 +138,23 @@ export const FooterForm = ({ initialData }: Props) => {
         <LinkListEditor
           links={footerKAMMI}
           onChange={setFooterKAMMI}
-          label='Kolom Footer: KAMMI'
+          sectionLabel='Kolom Footer: KAMMI'
         />
         <LinkListEditor
           links={footerBeritaData}
           onChange={setFooterBeritaData}
-          label='Kolom Footer: Berita & Data'
+          sectionLabel='Kolom Footer: Berita & Data'
         />
         <LinkListEditor
           links={footerIkutiKami}
           onChange={setFooterIkutiKami}
-          label='Kolom Footer: Ikuti Kami'
+          sectionLabel='Kolom Footer: Ikuti Kami'
         />
       </FieldGroup>
 
-      <div className='flex justify-end'>
-        <Button
-          type='submit'
-          className='rounded-full px-8'
-          disabled={isPending}
-        >
+      <div className='flex items-center justify-end gap-3'>
+        <UnsavedChangesBanner isDirty={isDirty} />
+        <Button type='submit' className='px-6' disabled={isPending}>
           {isPending ? 'Menyimpan...' : 'Simpan Pengaturan Footer'}
         </Button>
       </div>

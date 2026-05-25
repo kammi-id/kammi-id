@@ -15,11 +15,10 @@ import {
 import { RadioGroup, RadioGroupItem } from '~/components/shadcn/ui/radio-group'
 import {
   Field,
+  FieldDescription,
   FieldError,
   FieldGroup,
-  FieldLabel,
-  FieldContent,
-  FieldTitle
+  FieldLabel
 } from '~/components/shadcn/ui/field'
 import { createTrainingAction, searchMasterCandidatesAction } from './action'
 import type { EligibleMember } from '~/db/query/training'
@@ -127,10 +126,13 @@ export const TrainingForm = ({
     return Object.keys(TRAINING_TYPE_LABELS)
   }, [selectedOrgType])
 
-  // Synchronize type if it's no longer available
-  if (availableTypes.length > 0 && !availableTypes.includes(type)) {
-    setType(availableTypes[0])
-  }
+  useEffect(() => {
+    if (availableTypes.length > 0 && !availableTypes.includes(type)) {
+      setType(availableTypes[0])
+    }
+    // type intentionally omitted — only sync when availableTypes changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [availableTypes])
 
   return (
     <form
@@ -189,34 +191,28 @@ export const TrainingForm = ({
               {availableTypes.map((val) => {
                 const label = TRAINING_TYPE_LABELS[val]
                 return (
-                  <FieldLabel
+                  <label
                     key={val}
                     htmlFor={`type-${val}`}
                     className={cn(
-                      'cursor-pointer rounded-xl border-2 p-3 transition-all',
+                      'flex cursor-pointer items-center justify-center gap-2 rounded-xl border-2 p-3 font-semibold transition-all',
                       type === val
                         ? 'border-primary bg-primary/10 text-primary'
                         : 'border-muted-foreground/20 bg-background hover:border-primary/50'
                     )}
                   >
-                    <Field orientation='horizontal'>
-                      <FieldContent className='flex-1'>
-                        <FieldTitle className='flex items-center justify-center gap-2 text-center font-semibold'>
-                          <HugeiconsIcon
-                            icon={Award01Icon}
-                            strokeWidth={2}
-                            className='size-4'
-                          />
-                          {label}
-                        </FieldTitle>
-                      </FieldContent>
-                      <RadioGroupItem
-                        value={val}
-                        id={`type-${val}`}
-                        className='sr-only'
-                      />
-                    </Field>
-                  </FieldLabel>
+                    <HugeiconsIcon
+                      icon={Award01Icon}
+                      strokeWidth={2}
+                      className='size-4'
+                    />
+                    {label}
+                    <RadioGroupItem
+                      value={val}
+                      id={`type-${val}`}
+                      className='sr-only'
+                    />
+                  </label>
                 )
               })}
             </RadioGroup>
@@ -352,9 +348,9 @@ export const TrainingForm = ({
             <FieldError
               errors={state.errors?.masterId?.map((m) => ({ message: m }))}
             />
-            <p className='text-muted-foreground text-xs'>
-              Hanya kader bersertifikat instruktur yang dapat dipilih
-            </p>
+            <FieldDescription>
+              Hanya kader yang sudah lulus dan bersertifikat sebagai instruktur dauroh yang bisa dipilih.
+            </FieldDescription>
           </Field>
         </FieldGroup>
       </div>

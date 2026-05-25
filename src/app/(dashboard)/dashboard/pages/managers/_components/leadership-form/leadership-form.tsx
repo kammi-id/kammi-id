@@ -14,6 +14,8 @@ import {
 import { ImageUpload } from '~/components/image-upload'
 import { saveLeadershipAction, type SettingsActionState } from '../action'
 import type { LeadershipSettings } from '~/db/query/site-settings'
+import { useUnsavedChanges } from '~/hooks/use-unsaved-changes'
+import { UnsavedChangesBanner } from '~/components/unsaved-changes-banner'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Add01Icon, Delete02Icon } from '@hugeicons/core-free-icons'
 
@@ -29,10 +31,15 @@ export const LeadershipForm = ({ initialData }: Props) => {
   const [periodLabel, setPeriodLabel] = useState(initialData.periodLabel)
   const [heading, setHeading] = useState(initialData.heading)
 
+  const { isDirty, markClean } = useUnsavedChanges({ leaders, periodLabel, heading })
+
   useEffect(() => {
-    if (state.success)
+    if (state.success) {
       toast.success('Pengaturan kepemimpinan berhasil disimpan.')
+      markClean()
+    }
     if (state.error) toast.error(state.error)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state])
 
   useEffect(() => {
@@ -111,7 +118,7 @@ export const LeadershipForm = ({ initialData }: Props) => {
                   <button
                     type='button'
                     onClick={() => removeLeader(i)}
-                    className='text-muted-foreground hover:bg-destructive/10 hover:text-destructive flex size-7 items-center justify-center rounded-lg transition-colors'
+                    className='text-muted-foreground hover:bg-destructive/10 hover:text-destructive flex size-9 items-center justify-center rounded-lg transition-colors'
                     aria-label={`Hapus pengurus ${i + 1}`}
                   >
                     <HugeiconsIcon
@@ -180,10 +187,11 @@ export const LeadershipForm = ({ initialData }: Props) => {
         </div>
       </FieldGroup>
 
-      <div className='flex justify-end'>
+      <div className='flex items-center justify-end gap-3'>
+        <UnsavedChangesBanner isDirty={isDirty} />
         <Button
           type='submit'
-          className='rounded-full px-8'
+          className='px-6'
           disabled={isPending}
         >
           {isPending ? 'Menyimpan...' : 'Simpan Pengaturan Kepemimpinan'}

@@ -4,6 +4,7 @@ import * as React from 'react'
 import { toast } from 'sonner'
 import {
   Field,
+  FieldDescription,
   FieldError,
   FieldGroup,
   FieldLabel
@@ -127,6 +128,9 @@ export const AddOrganizationForm = ({
             required
             aria-invalid={!!state.errors?.code || undefined}
           />
+          <FieldDescription>
+            Singkatan unik organisasi, contoh: PD-JKT, PK-UNY.
+          </FieldDescription>
           <FieldError
             errors={state.errors?.code?.map((m) => ({ message: m }))}
           />
@@ -134,8 +138,8 @@ export const AddOrganizationForm = ({
 
         <Field data-invalid={!!state.errors?.type || undefined}>
           <FieldLabel htmlFor='type'>Tipe Organisasi</FieldLabel>
-          <Select name='type' value={type} onValueChange={setType}>
-            <SelectTrigger className='w-full'>
+          <Select name='type' value={type} onValueChange={(val) => { if (val) setType(val) }}>
+            <SelectTrigger id='type' className='w-full'>
               <SelectValue placeholder='Pilih tipe' />
             </SelectTrigger>
             <SelectContent>
@@ -162,6 +166,9 @@ export const AddOrganizationForm = ({
             required
             aria-invalid={!!state.errors?.slug || undefined}
           />
+          <FieldDescription>
+            Huruf kecil dan tanda-hubung saja, contoh: pengurus-daerah-jakarta.
+          </FieldDescription>
           <FieldError
             errors={state.errors?.slug?.map((m) => ({ message: m }))}
           />

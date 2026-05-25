@@ -15,6 +15,8 @@ import {
 } from '~/components/shadcn/ui/field'
 import { saveMetadataAction, type SettingsActionState } from '../action'
 import type { MetadataSettings } from '~/db/query/site-settings'
+import { useUnsavedChanges } from '~/hooks/use-unsaved-changes'
+import { UnsavedChangesBanner } from '~/components/unsaved-changes-banner'
 
 type Props = { initialData: MetadataSettings }
 
@@ -29,9 +31,15 @@ export const MetadataForm = ({ initialData }: Props) => {
   )
   const [ogImageUrl, setOgImageUrl] = useState(initialData.ogImageUrl)
 
+  const { isDirty, markClean } = useUnsavedChanges({ pageTitle, metaDescription, ogImageUrl })
+
   useEffect(() => {
-    if (state.success) toast.success('Metadata halaman berhasil disimpan.')
+    if (state.success) {
+      toast.success('Metadata halaman berhasil disimpan.')
+      markClean()
+    }
     if (state.error) toast.error(state.error)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state])
 
   useEffect(() => {
@@ -107,10 +115,11 @@ export const MetadataForm = ({ initialData }: Props) => {
         </Field>
       </FieldGroup>
 
-      <div className='flex justify-end'>
+      <div className='flex items-center justify-end gap-3'>
+        <UnsavedChangesBanner isDirty={isDirty} />
         <Button
           type='submit'
-          className='rounded-full px-8'
+          className='px-6'
           disabled={isPending}
         >
           {isPending ? 'Menyimpan...' : 'Simpan Metadata'}

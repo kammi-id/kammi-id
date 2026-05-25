@@ -1,6 +1,6 @@
 'use client'
 
-import { useActionState, useEffect, useState } from 'react'
+import { useActionState, useCallback, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { Button } from '~/components/shadcn/ui/button'
 import { Input } from '~/components/shadcn/ui/input'
@@ -15,6 +15,8 @@ import {
 import { ImageUpload } from '~/components/image-upload'
 import { saveActionsAction, type SettingsActionState } from '../action'
 import type { ActionsSettings } from '~/db/query/site-settings'
+import { useUnsavedChanges } from '~/hooks/use-unsaved-changes'
+import { UnsavedChangesBanner } from '~/components/unsaved-changes-banner'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Add01Icon, Delete02Icon, StarIcon } from '@hugeicons/core-free-icons'
 
@@ -30,9 +32,15 @@ export const ActionsForm = ({ initialData }: Props) => {
   const [heading, setHeading] = useState(initialData.heading)
   const [subheading, setSubheading] = useState(initialData.subheading)
 
+  const { isDirty, markClean } = useUnsavedChanges({ programs, heading, subheading })
+
   useEffect(() => {
-    if (state.success) toast.success('Pengaturan aksi berhasil disimpan.')
+    if (state.success) {
+      toast.success('Pengaturan aksi berhasil disimpan.')
+      markClean()
+    }
     if (state.error) toast.error(state.error)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state])
 
   useEffect(() => {
@@ -78,16 +86,18 @@ export const ActionsForm = ({ initialData }: Props) => {
     setPrograms((prev) => prev.filter((_, idx) => idx !== i))
   }
 
+  const handleAction = useCallback(
+    (fd: FormData) => {
+      fd.set('heading', heading)
+      fd.set('subheading', subheading)
+      fd.set('programs', JSON.stringify(programs))
+      formAction(fd)
+    },
+    [heading, subheading, programs, formAction]
+  )
+
   return (
-    <form
-      action={(fd) => {
-        fd.set('heading', heading)
-        fd.set('subheading', subheading)
-        fd.set('programs', JSON.stringify(programs))
-        formAction(fd)
-      }}
-      className='space-y-8'
-    >
+    <form action={handleAction} className='space-y-8'>
       <FieldGroup>
         <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
           <Field>
@@ -136,7 +146,7 @@ export const ActionsForm = ({ initialData }: Props) => {
                     onClick={() =>
                       updateProgram(i, 'featured', !program.featured)
                     }
-                    className={`flex size-7 items-center justify-center rounded-lg transition-colors ${program.featured ? 'bg-primary/15 text-primary' : 'text-muted-foreground hover:text-primary'}`}
+                    className={`flex size-9 items-center justify-center rounded-lg transition-colors ${program.featured ? 'bg-primary/15 text-primary' : 'text-muted-foreground hover:text-primary'}`}
                     aria-label={
                       program.featured ? 'Hapus featured' : 'Jadikan featured'
                     }
@@ -165,7 +175,7 @@ export const ActionsForm = ({ initialData }: Props) => {
                   <button
                     type='button'
                     onClick={() => removeProgram(i)}
-                    className='text-muted-foreground hover:bg-destructive/10 hover:text-destructive flex size-7 items-center justify-center rounded-lg transition-colors'
+                    className='text-muted-foreground hover:bg-destructive/10 hover:text-destructive flex size-9 items-center justify-center rounded-lg transition-colors'
                     aria-label={`Hapus program ${i + 1}`}
                   >
                     <HugeiconsIcon
@@ -252,10 +262,11 @@ export const ActionsForm = ({ initialData }: Props) => {
         </div>
       </FieldGroup>
 
-      <div className='flex justify-end'>
+      <div className='flex items-center justify-end gap-3'>
+        <UnsavedChangesBanner isDirty={isDirty} />
         <Button
           type='submit'
-          className='rounded-full px-8'
+          className='px-6'
           disabled={isPending}
         >
           {isPending ? 'Menyimpan...' : 'Simpan Pengaturan Aksi'}

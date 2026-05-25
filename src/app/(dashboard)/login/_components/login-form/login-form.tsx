@@ -93,12 +93,12 @@ export const LoginForm = ({
           <Field data-invalid={!!state.fieldErrors?.password || undefined}>
             <div className='flex items-center'>
               <FieldLabel htmlFor='password'>Password</FieldLabel>
-              <a
-                href='#'
-                className='ml-auto inline-block text-sm underline-offset-4 hover:underline'
+              <span
+                className='text-muted-foreground ml-auto inline-block cursor-not-allowed text-sm'
+                title='Hubungi administrator untuk reset password.'
               >
                 Lupa password?
-              </a>
+              </span>
             </div>
             <InputGroup>
               <InputGroupInput

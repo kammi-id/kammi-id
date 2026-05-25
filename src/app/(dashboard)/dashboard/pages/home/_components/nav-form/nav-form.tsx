@@ -1,6 +1,6 @@
 'use client'
 
-import { useActionState, useEffect, useState } from 'react'
+import { useActionState, useCallback, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { Button } from '~/components/shadcn/ui/button'
 import { Input } from '~/components/shadcn/ui/input'
@@ -13,91 +13,23 @@ import {
 } from '~/components/shadcn/ui/field'
 import { saveNavAction, type SettingsActionState } from '../action'
 import type { NavSettings } from '~/db/query/site-settings'
-import { HugeiconsIcon } from '@hugeicons/react'
-import { Add01Icon, Delete02Icon } from '@hugeicons/core-free-icons'
+import { useUnsavedChanges } from '~/hooks/use-unsaved-changes'
+import { UnsavedChangesBanner } from '~/components/unsaved-changes-banner'
+import { LinkListEditor, type LinkItem } from '~/components/ui/link-list-editor'
 
-type NavLink = NavSettings['navLinks'][number]
 type Props = { initialData: NavSettings }
 
-const LinkListEditor = ({
-  links,
-  onChange,
-  label
-}: {
-  links: NavLink[]
-  onChange: (next: NavLink[]) => void
-  label: string
-}) => {
-  const update = (i: number, field: keyof NavLink, value: string) => {
-    onChange(links.map((l, idx) => (idx === i ? { ...l, [field]: value } : l)))
-  }
-  const add = () => onChange([...links, { label: '', href: '' }])
-  const remove = (i: number) => onChange(links.filter((_, idx) => idx !== i))
-
-  return (
-    <div className='space-y-2'>
-      <p className='text-foreground text-sm font-medium'>{label}</p>
-      {links.map((link, i) => (
-        <div key={i} className='flex items-end gap-2'>
-          <Field className='flex-1'>
-            <FieldLabel htmlFor={`${label}-label-${i}`} className='sr-only'>
-              Label {i + 1}
-            </FieldLabel>
-            <FieldContent>
-              <Input
-                id={`${label}-label-${i}`}
-                value={link.label}
-                onChange={(e) => update(i, 'label', e.target.value)}
-                placeholder='Label'
-              />
-            </FieldContent>
-          </Field>
-          <Field className='flex-1'>
-            <FieldLabel htmlFor={`${label}-href-${i}`} className='sr-only'>
-              Link {i + 1}
-            </FieldLabel>
-            <FieldContent>
-              <Input
-                id={`${label}-href-${i}`}
-                value={link.href}
-                onChange={(e) => update(i, 'href', e.target.value)}
-                placeholder='/halaman atau #seksi'
-              />
-            </FieldContent>
-          </Field>
-          <button
-            type='button'
-            onClick={() => remove(i)}
-            disabled={links.length <= 1}
-            className='text-muted-foreground hover:bg-destructive/10 hover:text-destructive mb-0.5 flex size-9 shrink-0 items-center justify-center rounded-lg transition-colors disabled:opacity-30'
-            aria-label={`Hapus link ${i + 1}`}
-          >
-            <HugeiconsIcon
-              icon={Delete02Icon}
-              className='size-4'
-              strokeWidth={2}
-            />
-          </button>
-        </div>
-      ))}
-      <button
-        type='button'
-        onClick={add}
-        className='border-border text-muted-foreground hover:border-primary/40 hover:text-primary flex w-full items-center justify-center gap-2 rounded-xl border border-dashed py-2.5 text-sm transition-colors'
-      >
-        <HugeiconsIcon icon={Add01Icon} className='size-4' strokeWidth={2} />
-        Tambah Link
-      </button>
-    </div>
-  )
-}
+const toLinksWithId = (links: { label: string; href: string }[]): LinkItem[] =>
+  links.map((l, i) => ({ ...l, id: `link-${i}-${Date.now()}` }))
 
 export const NavForm = ({ initialData }: Props) => {
   const [state, formAction, isPending] = useActionState<
     SettingsActionState,
     FormData
   >(saveNavAction, {})
-  const [navLinks, setNavLinks] = useState<NavLink[]>(initialData.navLinks)
+  const [navLinks, setNavLinks] = useState<LinkItem[]>(() =>
+    toLinksWithId(initialData.navLinks)
+  )
   const [ctaBergabungLabel, setCtaBergabungLabel] = useState(
     initialData.ctaBergabungLabel
   )
@@ -105,9 +37,15 @@ export const NavForm = ({ initialData }: Props) => {
     initialData.ctaBergabungHref
   )
 
+  const { isDirty, markClean } = useUnsavedChanges({ navLinks, ctaBergabungLabel, ctaBergabungHref })
+
   useEffect(() => {
-    if (state.success) toast.success('Pengaturan navigasi berhasil disimpan.')
+    if (state.success) {
+      toast.success('Pengaturan navigasi berhasil disimpan.')
+      markClean()
+    }
     if (state.error) toast.error(state.error)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state])
 
   useEffect(() => {
@@ -121,19 +59,21 @@ export const NavForm = ({ initialData }: Props) => {
 
   const fe = state.fieldErrors ?? {}
 
+  const handleAction = useCallback(
+    (fd: FormData) => {
+      fd.set('navLinks', JSON.stringify(navLinks.map(({ label, href }) => ({ label, href }))))
+      formAction(fd)
+    },
+    [navLinks, formAction]
+  )
+
   return (
-    <form
-      action={(fd) => {
-        fd.set('navLinks', JSON.stringify(navLinks))
-        formAction(fd)
-      }}
-      className='space-y-8'
-    >
+    <form action={handleAction} className='space-y-8'>
       <FieldGroup>
         <LinkListEditor
           links={navLinks}
           onChange={setNavLinks}
-          label='Menu Navigasi Utama'
+          sectionLabel='Menu Navigasi Utama'
         />
 
         <div className='border-border bg-muted/40 rounded-2xl border p-5'>
@@ -175,12 +115,9 @@ export const NavForm = ({ initialData }: Props) => {
         </div>
       </FieldGroup>
 
-      <div className='flex justify-end'>
-        <Button
-          type='submit'
-          className='rounded-full px-8'
-          disabled={isPending}
-        >
+      <div className='flex items-center justify-end gap-3'>
+        <UnsavedChangesBanner isDirty={isDirty} />
+        <Button type='submit' className='px-6' disabled={isPending}>
           {isPending ? 'Menyimpan...' : 'Simpan Pengaturan Navigasi'}
         </Button>
       </div>
