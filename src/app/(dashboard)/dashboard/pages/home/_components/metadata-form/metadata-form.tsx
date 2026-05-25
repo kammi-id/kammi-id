@@ -1,6 +1,6 @@
 'use client'
 
-import { useActionState, useEffect } from 'react'
+import { useActionState, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { Button } from '~/components/shadcn/ui/button'
 import { Input } from '~/components/shadcn/ui/input'
@@ -23,11 +23,26 @@ export const MetadataForm = ({ initialData }: Props) => {
     SettingsActionState,
     FormData
   >(saveMetadataAction, {})
+  const [pageTitle, setPageTitle] = useState(initialData.pageTitle)
+  const [metaDescription, setMetaDescription] = useState(
+    initialData.metaDescription
+  )
+  const [ogImageUrl, setOgImageUrl] = useState(initialData.ogImageUrl)
 
   useEffect(() => {
     if (state.success) toast.success('Metadata halaman berhasil disimpan.')
     if (state.error) toast.error(state.error)
   }, [state])
+
+  useEffect(() => {
+    if (state.values && !state.success) {
+      if (state.values.pageTitle !== undefined) setPageTitle(state.values.pageTitle)
+      if (state.values.metaDescription !== undefined)
+        setMetaDescription(state.values.metaDescription)
+      if (state.values.ogImageUrl !== undefined)
+        setOgImageUrl(state.values.ogImageUrl)
+    }
+  }, [state.values, state.success])
 
   const fe = state.fieldErrors ?? {}
 
@@ -40,7 +55,8 @@ export const MetadataForm = ({ initialData }: Props) => {
             <Input
               id='pageTitle'
               name='pageTitle'
-              defaultValue={initialData.pageTitle}
+              value={pageTitle}
+              onChange={(e) => setPageTitle(e.target.value)}
               placeholder='KAMMI.id — Pelopor Kebaikan untuk Indonesia'
             />
           </FieldContent>
@@ -56,7 +72,8 @@ export const MetadataForm = ({ initialData }: Props) => {
             <Textarea
               id='metaDescription'
               name='metaDescription'
-              defaultValue={initialData.metaDescription}
+              value={metaDescription}
+              onChange={(e) => setMetaDescription(e.target.value)}
               rows={3}
               placeholder='Kesatuan Aksi Mahasiswa Muslim Indonesia...'
             />
@@ -77,7 +94,8 @@ export const MetadataForm = ({ initialData }: Props) => {
             <Input
               id='ogImageUrl'
               name='ogImageUrl'
-              defaultValue={initialData.ogImageUrl}
+              value={ogImageUrl}
+              onChange={(e) => setOgImageUrl(e.target.value)}
               placeholder='/assets/logo.png atau https://...'
             />
           </FieldContent>
