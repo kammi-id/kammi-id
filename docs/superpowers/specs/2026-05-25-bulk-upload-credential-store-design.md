@@ -135,7 +135,7 @@ Lokasi: `src/components/credential-store/credential-panel.tsx`
 Halaman detail kader (individual member view) — tombol "Reset Password".  
 Hanya visible bila: user yang login adalah BPK **dan** kader dalam scope org-nya.
 
-> **Catatan implementasi:** Route `/dashboard/kader/[memberSlug]` belum exist. Halaman detail kader perlu dibuat sebagai bagian dari implementasi ini. Tombol "Reset Password" diletakkan di halaman detail tersebut.
+> **Catatan implementasi:** Route halaman detail kader adalah `/dashboard/profile/[nik]` (sudah exist). Tombol "Reset Password" diletakkan di halaman tersebut.
 
 ### Flow
 
@@ -171,7 +171,7 @@ type RegenerateOutput = {
 - `generatePassword()` → `hashPassword()` → update `user.passwordHash`
 - Return plaintext — tidak di-persist di server
 
-**Lokasi:** `src/app/(dashboard)/dashboard/kader/_components/member-detail/action.ts` (atau file action yang sudah ada di halaman detail kader)
+**Lokasi:** `src/app/(dashboard)/dashboard/profile/_components/reset-password/action.ts`
 
 ---
 
@@ -179,26 +179,33 @@ type RegenerateOutput = {
 
 ```
 src/
-├── components/
-│   └── credential-store/
-│       ├── store.ts              # nanostores persistent store
-│       ├── credential-panel.tsx  # panel UI (drawer/popover)
-│       └── index.ts
-├── app/(dashboard)/dashboard/
-│   ├── kader/
-│   │   └── _components/
-│   │       ├── bulk-upload/
-│   │       │   ├── bulk-upload-button.tsx    # trigger button + dialog
-│   │       │   ├── bulk-upload-preview.tsx   # editable preview table
-│   │       │   ├── bulk-upload-utils.ts      # SheetJS parse + Zod validate
-│   │       │   ├── action.ts                 # bulkCreateMembersAction
-│   │       │   └── index.ts
-│   │       └── member-detail/
-│   │           └── action.ts                 # regenerateCredentialAction
-│   └── trainings/
-│       └── _components/
-│           └── training-detail-view/
-│               └── dm1-bulk-upload-button.tsx  # entry point dari DM1 context
+  components/
+    credential-store/
+      store.ts               # nanostores persistent store
+      credential-panel.tsx   # panel UI (drawer/popover)
+      index.ts
+
+  app/(dashboard)/dashboard/
+    kader/
+      _components/
+        bulk-upload/
+          bulk-upload-button.tsx    # trigger button + dialog
+          bulk-upload-preview.tsx   # editable preview table
+          bulk-upload-utils.ts      # SheetJS parse + Zod validate
+          action.ts                 # bulkCreateMembersAction
+          index.ts
+
+    profile/
+      _components/
+        reset-password/
+          reset-password-button.tsx  # trigger + confirmation dialog
+          action.ts                  # regenerateCredentialAction
+          index.ts
+
+    trainings/
+      _components/
+        training-detail-view/
+          dm1-bulk-upload-button.tsx  # entry point dari DM1 context
 ```
 
 ---
