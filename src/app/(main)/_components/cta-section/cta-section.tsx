@@ -10,11 +10,11 @@ export const CtaSection = () => {
       <div className='mx-auto max-w-3xl px-6 text-center lg:px-8'>
         <h2
           id='cta-heading'
-          className='font-heading text-[clamp(2rem,5vw,3.5rem)] font-bold leading-tight text-primary-foreground'
+          className='font-heading text-primary-foreground text-[clamp(2rem,5vw,3.5rem)] leading-tight font-bold'
         >
           Siap Menjadi Pelopor?
         </h2>
-        <p className='mt-4 font-sans text-base leading-relaxed text-primary-foreground/80 md:text-lg'>
+        <p className='text-primary-foreground/80 mt-4 font-sans text-base leading-relaxed md:text-lg'>
           Bergabunglah dengan ribuan mahasiswa muslim Indonesia. Mari
           bersama-sama mewujudkan Indonesia yang lebih baik, lebih adil, dan
           lebih sejahtera.
@@ -22,13 +22,13 @@ export const CtaSection = () => {
         <div className='mt-10 flex flex-wrap justify-center gap-4'>
           <Link
             href='#'
-            className='inline-flex h-11 items-center justify-center rounded-full bg-primary-foreground px-6 font-sans text-sm font-semibold text-primary transition-all hover:bg-primary-foreground/90'
+            className='bg-primary-foreground text-primary hover:bg-primary-foreground/90 inline-flex h-11 items-center justify-center rounded-full px-6 font-sans text-sm font-semibold transition-all'
           >
             Daftar Sekarang
           </Link>
           <Link
             href='#tentang'
-            className='inline-flex h-11 items-center justify-center rounded-full border border-primary-foreground/40 px-6 font-sans text-sm font-semibold text-primary-foreground transition-all hover:bg-primary-foreground/10'
+            className='border-primary-foreground/40 text-primary-foreground hover:bg-primary-foreground/10 inline-flex h-11 items-center justify-center rounded-full border px-6 font-sans text-sm font-semibold transition-all'
           >
             Tentara Aktif
           </Link>

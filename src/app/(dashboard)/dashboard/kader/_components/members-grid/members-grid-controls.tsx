@@ -148,7 +148,9 @@ export const MembersGridControls = ({
           {filterOptions.map((opt) => (
             <Button
               key={opt.value}
-              variant={currentOrgTypes.includes(opt.value) ? 'default' : 'outline'}
+              variant={
+                currentOrgTypes.includes(opt.value) ? 'default' : 'outline'
+              }
               size='sm'
               onClick={() => toggleType(opt.value)}
             >

@@ -18,10 +18,10 @@ import type { AboutSettings } from '~/db/query/site-settings'
 type Props = { initialData: AboutSettings }
 
 export const AboutForm = ({ initialData }: Props) => {
-  const [state, formAction, isPending] = useActionState<SettingsActionState, FormData>(
-    saveAboutAction,
-    {}
-  )
+  const [state, formAction, isPending] = useActionState<
+    SettingsActionState,
+    FormData
+  >(saveAboutAction, {})
 
   useEffect(() => {
     if (state.success) toast.success('Pengaturan tentang berhasil disimpan.')
@@ -63,7 +63,9 @@ export const AboutForm = ({ initialData }: Props) => {
 
         <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
           <Field>
-            <FieldLabel htmlFor='readMoreLabel'>Label Tautan &quot;Lebih Jauh&quot;</FieldLabel>
+            <FieldLabel htmlFor='readMoreLabel'>
+              Label Tautan &quot;Lebih Jauh&quot;
+            </FieldLabel>
             <FieldContent>
               <Input
                 id='readMoreLabel'
@@ -72,7 +74,9 @@ export const AboutForm = ({ initialData }: Props) => {
                 placeholder='Lebih jauh tentang kami'
               />
             </FieldContent>
-            <FieldError errors={fe.readMoreLabel?.map((m) => ({ message: m }))} />
+            <FieldError
+              errors={fe.readMoreLabel?.map((m) => ({ message: m }))}
+            />
           </Field>
           <Field>
             <FieldLabel htmlFor='readMoreHref'>Link Tautan</FieldLabel>
@@ -84,12 +88,16 @@ export const AboutForm = ({ initialData }: Props) => {
                 placeholder='#organisasi'
               />
             </FieldContent>
-            <FieldError errors={fe.readMoreHref?.map((m) => ({ message: m }))} />
+            <FieldError
+              errors={fe.readMoreHref?.map((m) => ({ message: m }))}
+            />
           </Field>
         </div>
 
-        <div className='rounded-2xl border border-border bg-muted/40 p-5'>
-          <p className='mb-4 text-sm font-medium text-foreground'>Card Mini Strategi</p>
+        <div className='border-border bg-muted/40 rounded-2xl border p-5'>
+          <p className='text-foreground mb-4 text-sm font-medium'>
+            Card Mini Strategi
+          </p>
           <div className='space-y-4'>
             <Field>
               <FieldLabel htmlFor='miniStrategiTitle'>Judul Card</FieldLabel>
@@ -101,10 +109,14 @@ export const AboutForm = ({ initialData }: Props) => {
                   placeholder='Mini Strategi'
                 />
               </FieldContent>
-              <FieldError errors={fe.miniStrategiTitle?.map((m) => ({ message: m }))} />
+              <FieldError
+                errors={fe.miniStrategiTitle?.map((m) => ({ message: m }))}
+              />
             </Field>
             <Field>
-              <FieldLabel htmlFor='miniStrategiDescription'>Deskripsi Card</FieldLabel>
+              <FieldLabel htmlFor='miniStrategiDescription'>
+                Deskripsi Card
+              </FieldLabel>
               <FieldContent>
                 <Textarea
                   id='miniStrategiDescription'
@@ -114,11 +126,17 @@ export const AboutForm = ({ initialData }: Props) => {
                   placeholder='Membangun kader yang memiliki...'
                 />
               </FieldContent>
-              <FieldError errors={fe.miniStrategiDescription?.map((m) => ({ message: m }))} />
+              <FieldError
+                errors={fe.miniStrategiDescription?.map((m) => ({
+                  message: m
+                }))}
+              />
             </Field>
             <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
               <Field>
-                <FieldLabel htmlFor='miniStrategiLinkLabel'>Label Link Card</FieldLabel>
+                <FieldLabel htmlFor='miniStrategiLinkLabel'>
+                  Label Link Card
+                </FieldLabel>
                 <FieldContent>
                   <Input
                     id='miniStrategiLinkLabel'
@@ -129,7 +147,9 @@ export const AboutForm = ({ initialData }: Props) => {
                 </FieldContent>
               </Field>
               <Field>
-                <FieldLabel htmlFor='miniStrategiLinkHref'>Link Card</FieldLabel>
+                <FieldLabel htmlFor='miniStrategiLinkHref'>
+                  Link Card
+                </FieldLabel>
                 <FieldContent>
                   <Input
                     id='miniStrategiLinkHref'
@@ -145,7 +165,11 @@ export const AboutForm = ({ initialData }: Props) => {
       </FieldGroup>
 
       <div className='flex justify-end'>
-        <Button type='submit' className='rounded-full px-8' disabled={isPending}>
+        <Button
+          type='submit'
+          className='rounded-full px-8'
+          disabled={isPending}
+        >
           {isPending ? 'Menyimpan...' : 'Simpan Pengaturan Tentang'}
         </Button>
       </div>

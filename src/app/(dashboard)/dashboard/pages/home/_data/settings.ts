@@ -45,9 +45,13 @@ export const getCachedFooterSettings = async (): Promise<FooterSettings> => {
   return readSiteSettings<FooterSettings>('footer', SETTINGS_DEFAULTS.footer)
 }
 
-export const getCachedMetadataSettings = async (): Promise<MetadataSettings> => {
-  'use cache'
-  cacheLife('days')
-  cacheTag('site-settings', 'site-settings-metadata')
-  return readSiteSettings<MetadataSettings>('metadata', SETTINGS_DEFAULTS.metadata)
-}
+export const getCachedMetadataSettings =
+  async (): Promise<MetadataSettings> => {
+    'use cache'
+    cacheLife('days')
+    cacheTag('site-settings', 'site-settings-metadata')
+    return readSiteSettings<MetadataSettings>(
+      'metadata',
+      SETTINGS_DEFAULTS.metadata
+    )
+  }

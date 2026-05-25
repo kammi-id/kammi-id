@@ -30,7 +30,11 @@ export const BranchesHeader = ({
       </div>
       {canManage && (
         <Button size='sm' onClick={onAdd}>
-          <HugeiconsIcon icon={Add01Icon} strokeWidth={2} data-icon='inline-start' />
+          <HugeiconsIcon
+            icon={Add01Icon}
+            strokeWidth={2}
+            data-icon='inline-start'
+          />
           Tambah {addButtonLabel}
         </Button>
       )}

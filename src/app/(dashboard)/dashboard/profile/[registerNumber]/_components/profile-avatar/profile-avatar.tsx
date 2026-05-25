@@ -93,9 +93,9 @@ export const ProfileAvatar = ({
         className={cn(
           'relative flex size-20 items-center justify-center overflow-hidden rounded-full',
           'bg-border text-muted-foreground',
-          'ring-2 ring-border ring-offset-2',
+          'ring-border ring-2 ring-offset-2',
           canEdit &&
-            'cursor-pointer transition-all hover:ring-primary focus-visible:outline-none focus-visible:ring-primary',
+            'hover:ring-primary focus-visible:ring-primary cursor-pointer transition-all focus-visible:outline-none',
           !canEdit && 'cursor-default',
           'md:size-24'
         )}
@@ -107,19 +107,19 @@ export const ProfileAvatar = ({
             className='h-full w-full object-cover'
           />
         ) : (
-          <span className='font-heading select-none text-xl font-bold md:text-2xl'>
+          <span className='font-heading text-xl font-bold select-none md:text-2xl'>
             {initials}
           </span>
         )}
 
         {isUploading && (
-          <div className='absolute inset-0 flex items-center justify-center bg-foreground/40'>
+          <div className='bg-foreground/40 absolute inset-0 flex items-center justify-center'>
             <span className='border-primary h-5 w-5 animate-spin rounded-full border-2 border-t-transparent' />
           </div>
         )}
 
         {canEdit && !isUploading && (
-          <div className='absolute inset-0 flex items-center justify-center rounded-full bg-foreground/0 opacity-0 transition-opacity hover:bg-foreground/25 hover:opacity-100'>
+          <div className='bg-foreground/0 hover:bg-foreground/25 absolute inset-0 flex items-center justify-center rounded-full opacity-0 transition-opacity hover:opacity-100'>
             <HugeiconsIcon
               icon={Camera01Icon}
               strokeWidth={1.5}

@@ -217,7 +217,11 @@ export const PersonalInfoSection = ({
           id='phone'
           name='phone'
           placeholder='Contoh: 08123456789'
-          defaultValue={editData?.phone ?? (state?.values?.phone as string | undefined) ?? ''}
+          defaultValue={
+            editData?.phone ??
+            (state?.values?.phone as string | undefined) ??
+            ''
+          }
           onChange={handleInputChange}
         />
         <FieldError
@@ -234,7 +238,9 @@ export const PersonalInfoSection = ({
           min='1998'
           max={currentYear}
           defaultValue={
-            editData?.yearOfEntry ?? (state?.values?.yearOfEntry as number | string | undefined) ?? currentYear
+            editData?.yearOfEntry ??
+            (state?.values?.yearOfEntry as number | string | undefined) ??
+            currentYear
           }
           onChange={handleInputChange}
           required

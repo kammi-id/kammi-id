@@ -17,7 +17,10 @@ interface WarningTooltipProps {
 export const WarningTooltip = ({ message }: WarningTooltipProps) => (
   <TooltipProvider>
     <Tooltip>
-      <TooltipTrigger className='inline-flex cursor-default' aria-label={message}>
+      <TooltipTrigger
+        className='inline-flex cursor-default'
+        aria-label={message}
+      >
         <HugeiconsIcon
           icon={Alert01Icon}
           className='size-3.5 text-[oklch(0.60_0.18_75)]'

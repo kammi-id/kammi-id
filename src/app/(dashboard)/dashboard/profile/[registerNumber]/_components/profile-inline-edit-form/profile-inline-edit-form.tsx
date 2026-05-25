@@ -4,7 +4,11 @@ import React, { useActionState, useEffect, useState, useCallback } from 'react'
 import { toast } from 'sonner'
 import { Button } from '~/components/shadcn/ui/button'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { PencilEdit01Icon, FloppyDiskIcon, Cancel01Icon } from '@hugeicons/core-free-icons'
+import {
+  PencilEdit01Icon,
+  FloppyDiskIcon,
+  Cancel01Icon
+} from '@hugeicons/core-free-icons'
 import { updateMemberProfileAction } from '../action'
 import { ProfileHeader } from '../profile-header'
 import { ProfileInfo } from '../profile-info'

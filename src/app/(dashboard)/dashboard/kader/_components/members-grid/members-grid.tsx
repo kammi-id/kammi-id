@@ -47,11 +47,10 @@ export const MembersGrid = ({
         filterOptions={filterOptions}
       />
 
-      <div className='text-sm text-muted-foreground'>
+      <div className='text-muted-foreground text-sm'>
         Menampilkan{' '}
-        <span className='font-medium text-foreground'>{data.length}</span>{' '}
-        dari{' '}
-        <span className='font-medium text-foreground'>{totalCount}</span>{' '}
+        <span className='text-foreground font-medium'>{data.length}</span> dari{' '}
+        <span className='text-foreground font-medium'>{totalCount}</span>{' '}
         organisasi
       </div>
 

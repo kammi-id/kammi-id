@@ -3,11 +3,15 @@ import {
   readMemberAggregates,
   readDescendantMembers,
   readMemberYearDistribution,
+  readMemberDistributionByOrgType,
   type MemberFilters,
   type MemberAggregatesFilters
 } from '~/db/query/member'
 
-type DescendantMemberFilters = MemberFilters & { limit?: number; offset?: number }
+type DescendantMemberFilters = MemberFilters & {
+  limit?: number
+  offset?: number
+}
 
 export async function getCachedMemberAggregates(
   filters: MemberAggregatesFilters
@@ -38,4 +42,15 @@ export async function getCachedDescendantMembers(
   cacheTag('kader')
 
   return readDescendantMembers(parentId, filters)
+}
+
+export async function getCachedMemberDistributionByOrgType(
+  orgType: 'pw' | 'pd' | 'pdln' | 'pk',
+  allowedOrgIds: string[]
+) {
+  'use cache'
+  cacheLife('minutes')
+  cacheTag('kader')
+
+  return readMemberDistributionByOrgType(orgType, allowedOrgIds)
 }

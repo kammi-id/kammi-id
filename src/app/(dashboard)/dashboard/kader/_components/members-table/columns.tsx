@@ -69,7 +69,8 @@ export const getColumns = (
           variant='outline'
           className={cn(
             'font-bold',
-            colors[type] || '[background:var(--org-pp-bg)] [color:var(--org-pp-text)] [border-color:var(--org-pp-border)]'
+            colors[type] ||
+              '[border-color:var(--org-pp-border)] [color:var(--org-pp-text)] [background:var(--org-pp-bg)]'
           )}
         >
           {(labels[type] || type).toUpperCase()}

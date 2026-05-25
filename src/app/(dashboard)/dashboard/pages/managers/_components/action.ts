@@ -60,7 +60,12 @@ export const saveLeadershipAction = async (
 
   const result = leadershipSchema.safeParse({ ...raw, leaders })
   if (!result.success) {
-    return { fieldErrors: result.error.flatten().fieldErrors as Record<string, string[]> }
+    return {
+      fieldErrors: result.error.flatten().fieldErrors as Record<
+        string,
+        string[]
+      >
+    }
   }
 
   try {

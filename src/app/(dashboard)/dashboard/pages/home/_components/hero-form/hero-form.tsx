@@ -19,10 +19,10 @@ import type { HeroSettings } from '~/db/query/site-settings'
 type Props = { initialData: HeroSettings }
 
 export const HeroForm = ({ initialData }: Props) => {
-  const [state, formAction, isPending] = useActionState<SettingsActionState, FormData>(
-    saveHeroAction,
-    {}
-  )
+  const [state, formAction, isPending] = useActionState<
+    SettingsActionState,
+    FormData
+  >(saveHeroAction, {})
   const [heroImageUrl, setHeroImageUrl] = useState(initialData.heroImageUrl)
 
   useEffect(() => {
@@ -105,7 +105,9 @@ export const HeroForm = ({ initialData }: Props) => {
                 folder='site-settings/hero'
               />
             </FieldContent>
-            <FieldError errors={fe.heroImageUrl?.map((m) => ({ message: m }))} />
+            <FieldError
+              errors={fe.heroImageUrl?.map((m) => ({ message: m }))}
+            />
           </Field>
           <Field>
             <FieldLabel htmlFor='heroImageAlt'>Alt Text Foto</FieldLabel>
@@ -117,7 +119,9 @@ export const HeroForm = ({ initialData }: Props) => {
                 placeholder='Deskripsi foto untuk aksesibilitas'
               />
             </FieldContent>
-            <FieldError errors={fe.heroImageAlt?.map((m) => ({ message: m }))} />
+            <FieldError
+              errors={fe.heroImageAlt?.map((m) => ({ message: m }))}
+            />
           </Field>
         </div>
 
@@ -145,38 +149,64 @@ export const HeroForm = ({ initialData }: Props) => {
                 placeholder='Semangat KAMMI'
               />
             </FieldContent>
-            <FieldError errors={fe.quoteAttribution?.map((m) => ({ message: m }))} />
+            <FieldError
+              errors={fe.quoteAttribution?.map((m) => ({ message: m }))}
+            />
           </Field>
         </div>
 
-        <div className='rounded-2xl border border-border bg-muted/40 p-5'>
-          <p className='mb-4 text-sm font-medium text-foreground'>Tombol CTA</p>
+        <div className='border-border bg-muted/40 rounded-2xl border p-5'>
+          <p className='text-foreground mb-4 text-sm font-medium'>Tombol CTA</p>
           <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
             <Field>
-              <FieldLabel htmlFor='cta1Label'>Label Tombol 1 (Utama)</FieldLabel>
+              <FieldLabel htmlFor='cta1Label'>
+                Label Tombol 1 (Utama)
+              </FieldLabel>
               <FieldContent>
-                <Input id='cta1Label' name='cta1Label' defaultValue={initialData.cta1Label} placeholder='Mulai Bergabung' />
+                <Input
+                  id='cta1Label'
+                  name='cta1Label'
+                  defaultValue={initialData.cta1Label}
+                  placeholder='Mulai Bergabung'
+                />
               </FieldContent>
               <FieldError errors={fe.cta1Label?.map((m) => ({ message: m }))} />
             </Field>
             <Field>
               <FieldLabel htmlFor='cta1Href'>Link Tombol 1</FieldLabel>
               <FieldContent>
-                <Input id='cta1Href' name='cta1Href' defaultValue={initialData.cta1Href} placeholder='#bergabung' />
+                <Input
+                  id='cta1Href'
+                  name='cta1Href'
+                  defaultValue={initialData.cta1Href}
+                  placeholder='#bergabung'
+                />
               </FieldContent>
               <FieldError errors={fe.cta1Href?.map((m) => ({ message: m }))} />
             </Field>
             <Field>
-              <FieldLabel htmlFor='cta2Label'>Label Tombol 2 (Outline)</FieldLabel>
+              <FieldLabel htmlFor='cta2Label'>
+                Label Tombol 2 (Outline)
+              </FieldLabel>
               <FieldContent>
-                <Input id='cta2Label' name='cta2Label' defaultValue={initialData.cta2Label} placeholder='Pelajari Visi' />
+                <Input
+                  id='cta2Label'
+                  name='cta2Label'
+                  defaultValue={initialData.cta2Label}
+                  placeholder='Pelajari Visi'
+                />
               </FieldContent>
               <FieldError errors={fe.cta2Label?.map((m) => ({ message: m }))} />
             </Field>
             <Field>
               <FieldLabel htmlFor='cta2Href'>Link Tombol 2</FieldLabel>
               <FieldContent>
-                <Input id='cta2Href' name='cta2Href' defaultValue={initialData.cta2Href} placeholder='#tentang' />
+                <Input
+                  id='cta2Href'
+                  name='cta2Href'
+                  defaultValue={initialData.cta2Href}
+                  placeholder='#tentang'
+                />
               </FieldContent>
               <FieldError errors={fe.cta2Href?.map((m) => ({ message: m }))} />
             </Field>
@@ -185,7 +215,11 @@ export const HeroForm = ({ initialData }: Props) => {
       </FieldGroup>
 
       <div className='flex justify-end'>
-        <Button type='submit' className='rounded-full px-8' disabled={isPending}>
+        <Button
+          type='submit'
+          className='rounded-full px-8'
+          disabled={isPending}
+        >
           {isPending ? 'Menyimpan...' : 'Simpan Pengaturan Hero'}
         </Button>
       </div>

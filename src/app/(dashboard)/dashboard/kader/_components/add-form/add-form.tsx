@@ -202,9 +202,13 @@ export const AddMemberForm = ({
               photo={photo}
               setPhoto={setPhoto}
               selectedGender={selectedGender}
-              setSelectedGender={(val) => setSelectedGender(val as 'ikhwan' | 'akhwat')}
+              setSelectedGender={(val) =>
+                setSelectedGender(val as 'ikhwan' | 'akhwat')
+              }
               selectedStatus={selectedStatus}
-              setSelectedStatus={(val) => setSelectedStatus(val as 'ab1' | 'ab2' | 'ab3')}
+              setSelectedStatus={(val) =>
+                setSelectedStatus(val as 'ab1' | 'ab2' | 'ab3')
+              }
               currentYear={currentYear}
               handleInputChange={handleInputChange}
               organizations={organizations}

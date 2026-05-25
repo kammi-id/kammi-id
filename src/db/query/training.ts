@@ -1,5 +1,17 @@
 import { db } from '~/db/db'
-import { eq, and, inArray, gte, sql, desc } from 'drizzle-orm'
+import {
+  eq,
+  and,
+  inArray,
+  gte,
+  sql,
+  desc,
+  ilike,
+  or,
+  notInArray,
+  count,
+  like
+} from 'drizzle-orm'
 import {
   training,
   trainingAttendants,
@@ -105,6 +117,10 @@ export const readMemberTrainingHistory = async (
 export type TrainingFilters = {
   organizationId?: string
   year?: number
+  search?: string
+  types?: string[]
+  page?: number
+  pageSize?: number
 }
 
 export type UpcomingTraining = {
@@ -124,19 +140,26 @@ export type UpcomingTraining = {
   }
 }
 
-export type TrainingCreateInput = Omit<typeof training.$inferInsert, 'identifier'> & { identifier?: number }
+export type TrainingCreateInput = Omit<
+  typeof training.$inferInsert,
+  'identifier'
+> & { identifier?: number }
 export type TrainingUpdateInput = Partial<typeof training.$inferInsert>
 
 export const trainingQuery = {
   getAll: async (filters: TrainingFilters = {}) => {
-    const { organizationId, year } = filters
+    const { organizationId, year, search, types, page = 1, pageSize } = filters
 
     const where = [
       organizationId ? eq(training.organizationId, organizationId) : undefined,
-      year ? eq(training.year, year) : undefined
+      year ? eq(training.year, year) : undefined,
+      search ? ilike(training.name, `%${search}%`) : undefined,
+      types && types.length > 0
+        ? inArray(training.type, types as any)
+        : undefined
     ].filter(Boolean) as any[]
 
-    const rows = await db
+    const baseQuery = db
       .select({
         training: training,
         organization: organization
@@ -144,14 +167,69 @@ export const trainingQuery = {
       .from(training)
       .leftJoin(organization, eq(training.organizationId, organization.id))
       .where(and(...where))
+      .orderBy(desc(training.startDate))
 
-    return rows.map((row) => ({
-      ...row.training,
-      organization: row.organization
-    }))
+    const rows = pageSize
+      ? await baseQuery.limit(pageSize).offset((page - 1) * pageSize)
+      : await baseQuery
+
+    const trainingIds = rows.map((r) => r.training.id)
+
+    if (trainingIds.length === 0) {
+      return { rows: [], totalCount: 0 }
+    }
+
+    // Attendant counts
+    const attendantCounts = await db
+      .select({ trainingId: trainingAttendants.trainingId, cnt: count() })
+      .from(trainingAttendants)
+      .where(inArray(trainingAttendants.trainingId, trainingIds))
+      .groupBy(trainingAttendants.trainingId)
+
+    const countMap = Object.fromEntries(
+      attendantCounts.map((a) => [a.trainingId, a.cnt])
+    )
+
+    // Master names
+    const masters = await db
+      .select({
+        trainingId: trainingInstructors.trainingId,
+        memberName: member.name
+      })
+      .from(trainingInstructors)
+      .leftJoin(member, eq(trainingInstructors.memberId, member.id))
+      .where(
+        and(
+          inArray(trainingInstructors.trainingId, trainingIds),
+          eq(trainingInstructors.role, 'master')
+        )
+      )
+
+    const masterMap = Object.fromEntries(
+      masters.map((m) => [m.trainingId, m.memberName])
+    )
+
+    // Total count
+    const [{ total }] = await db
+      .select({ total: count() })
+      .from(training)
+      .leftJoin(organization, eq(training.organizationId, organization.id))
+      .where(and(...where))
+
+    return {
+      rows: rows.map((row) => ({
+        ...row.training,
+        organization: row.organization,
+        attendantCount: countMap[row.training.id] ?? 0,
+        masterName: masterMap[row.training.id] ?? null
+      })),
+      totalCount: total
+    }
   },
 
-  getByIdentifier: async (orgId: string, year: number, identifier: number) => {
+  getByIdentifier: async (orgId: string, fullIdentifier: string) => {
+    const year = parseInt(fullIdentifier.slice(0, 4), 10)
+    const identifier = parseInt(fullIdentifier.slice(4), 10)
     const [t] = await db
       .select()
       .from(training)
@@ -249,10 +327,22 @@ export const trainingQuery = {
     }))
   },
 
-  // identifier assigned by DB trigger
+  // identifier assigned by DB trigger — use raw SQL to exclude the column so trigger can set it
   create: async (data: TrainingCreateInput) => {
-    const [inserted] = await db.insert(training).values(data as typeof training.$inferInsert).returning()
-    return inserted
+    const { identifier: _omitted, id: _id, ...fields } = data
+    const rows = await db.execute(sql`
+      INSERT INTO training (organization_id, name, start_date, end_date, registration_deadline, type)
+      VALUES (
+        ${fields.organizationId},
+        ${fields.name},
+        ${fields.startDate},
+        ${fields.endDate},
+        ${fields.registrationDeadline ?? null},
+        ${fields.type}
+      )
+      RETURNING *
+    `)
+    return (rows as any[])[0] as typeof training.$inferSelect
   },
 
   update: async (id: string, data: TrainingUpdateInput) => {
@@ -349,4 +439,142 @@ export const trainingQuery = {
       .returning()
     return deleted
   }
+}
+
+export type EligibleMember = {
+  id: string
+  name: string
+  registerNumber: string
+  status: 'ab1' | 'ab2' | 'ab3'
+  isCertifiedMentor: boolean
+  isCertifiedInstructor: boolean
+}
+
+export const searchEligibleAttendants = async (
+  trainingId: string,
+  trainingType: TrainingType,
+  query: string
+): Promise<EligibleMember[]> => {
+  const baseFilters = [
+    eq(member.isSuspended, false),
+    eq(member.isNonActive, false),
+    or(
+      ilike(member.name, `%${query}%`),
+      ilike(member.registerNumber, `%${query}%`)
+    )
+  ]
+
+  const typeFilter = (() => {
+    switch (trainingType) {
+      case 'dm1':
+        return []
+      case 'dm2':
+        return [eq(member.status, 'ab1')]
+      case 'dm3':
+        return [eq(member.status, 'ab2'), eq(member.isCertifiedMentor, true)]
+      case 'dpmk':
+        return [eq(member.status, 'ab2'), eq(member.isCertifiedMentor, false)]
+      case 'tfi':
+        return [
+          sql`${member.status} IN ('ab2', 'ab3')`,
+          eq(member.isCertifiedInstructor, false)
+        ]
+      default:
+        return []
+    }
+  })()
+
+  // Exclude members already registered
+  const existingAttendants = await db
+    .select({ memberId: trainingAttendants.memberId })
+    .from(trainingAttendants)
+    .where(eq(trainingAttendants.trainingId, trainingId))
+
+  const existingIds = existingAttendants.map((a) => a.memberId)
+  const excludeFilter =
+    existingIds.length > 0 ? [notInArray(member.id, existingIds)] : []
+
+  const results = await db
+    .select({
+      id: member.id,
+      name: member.name,
+      registerNumber: member.registerNumber,
+      status: member.status,
+      isCertifiedMentor: member.isCertifiedMentor,
+      isCertifiedInstructor: member.isCertifiedInstructor
+    })
+    .from(member)
+    .where(and(...baseFilters, ...typeFilter, ...excludeFilter))
+    .limit(10)
+
+  return results as EligibleMember[]
+}
+
+export const searchEligibleInstructorsGlobal = async (
+  query: string
+): Promise<EligibleMember[]> => {
+  const results = await db
+    .select({
+      id: member.id,
+      name: member.name,
+      registerNumber: member.registerNumber,
+      status: member.status,
+      isCertifiedMentor: member.isCertifiedMentor,
+      isCertifiedInstructor: member.isCertifiedInstructor
+    })
+    .from(member)
+    .where(
+      and(
+        eq(member.isCertifiedInstructor, true),
+        eq(member.isSuspended, false),
+        eq(member.isNonActive, false),
+        or(
+          ilike(member.name, `%${query}%`),
+          ilike(member.registerNumber, `%${query}%`)
+        )
+      )
+    )
+    .limit(10)
+
+  return results as EligibleMember[]
+}
+
+export const searchEligibleInstructors = async (
+  trainingId: string,
+  query: string
+): Promise<EligibleMember[]> => {
+  const existingInstructors = await db
+    .select({ memberId: trainingInstructors.memberId })
+    .from(trainingInstructors)
+    .where(eq(trainingInstructors.trainingId, trainingId))
+
+  const existingIds = existingInstructors.map((i) => i.memberId)
+  const excludeFilter =
+    existingIds.length > 0 ? [notInArray(member.id, existingIds)] : []
+
+  const results = await db
+    .select({
+      id: member.id,
+      name: member.name,
+      registerNumber: member.registerNumber,
+      status: member.status,
+      isCertifiedMentor: member.isCertifiedMentor,
+      isCertifiedInstructor: member.isCertifiedInstructor
+    })
+    .from(member)
+    .where(
+      and(
+        eq(member.isCertifiedInstructor, true),
+        eq(member.isSuspended, false),
+        eq(member.isNonActive, false),
+        or(
+          ilike(member.name, `%${query}%`),
+          ilike(member.registerNumber, `%${query}%`)
+        ),
+        ...excludeFilter
+      )
+    )
+    .limit(10)
+
+  return results as EligibleMember[]
 }

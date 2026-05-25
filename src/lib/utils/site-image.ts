@@ -7,7 +7,11 @@ import { storage } from '~/lib/api/storage'
  */
 export const resolveSiteImage = async (path: string): Promise<string> => {
   if (!path) return ''
-  if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('/')) {
+  if (
+    path.startsWith('http://') ||
+    path.startsWith('https://') ||
+    path.startsWith('/')
+  ) {
     return path
   }
   try {

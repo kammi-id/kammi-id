@@ -33,7 +33,9 @@ const NotificationsPage = () => {
               />
             </div>
           </div>
-          <h2 className='font-heading text-lg font-bold'>Belum ada notifikasi</h2>
+          <h2 className='font-heading text-lg font-bold'>
+            Belum ada notifikasi
+          </h2>
           <p className='text-muted-foreground max-w-xs text-sm'>
             Notifikasi Anda akan muncul di sini ketika ada update terbaru
             mengenai organisasi.

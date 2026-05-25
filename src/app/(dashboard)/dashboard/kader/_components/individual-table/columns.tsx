@@ -30,15 +30,31 @@ const getInitials = (name: string) => {
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
 }
 
-const MemberAvatar = ({ name, photo }: { name: string; photo: string | null }) => {
+const MemberAvatar = ({
+  name,
+  photo
+}: {
+  name: string
+  photo: string | null
+}) => {
   const [src, setSrc] = useState<string | null>(null)
 
   useEffect(() => {
-    if (!photo) { setSrc(null); return }
-    if (photo.startsWith('http://') || photo.startsWith('https://') || photo.startsWith('/')) {
-      setSrc(photo); return
+    if (!photo) {
+      setSrc(null)
+      return
     }
-    getSignedUrlAction(photo).then(setSrc).catch(() => setSrc(null))
+    if (
+      photo.startsWith('http://') ||
+      photo.startsWith('https://') ||
+      photo.startsWith('/')
+    ) {
+      setSrc(photo)
+      return
+    }
+    getSignedUrlAction(photo)
+      .then(setSrc)
+      .catch(() => setSrc(null))
   }, [photo])
 
   return (
@@ -139,7 +155,10 @@ export const getColumns = (
           } as ColumnDef<IndividualMember>
         ]
       : []),
-    ...(orgType === 'pp' || orgType === 'pw' || orgType === 'pd' || orgType === 'pdln'
+    ...(orgType === 'pp' ||
+    orgType === 'pw' ||
+    orgType === 'pd' ||
+    orgType === 'pdln'
       ? [
           {
             id: 'orgKomisariat',
@@ -166,19 +185,19 @@ export const getColumns = (
         const status = row.original.status
         const badgeStyles: Record<string, React.CSSProperties> = {
           ab1: {
-            backgroundColor: 'oklch(0.65 0.18 145 / 0.12)',
-            borderColor: 'oklch(0.55 0.16 145 / 0.40)',
-            color: 'oklch(0.40 0.16 145)'
+            backgroundColor: 'var(--status-ab1-bg)',
+            borderColor: 'var(--status-ab1-border)',
+            color: 'var(--status-ab1-text)'
           },
           ab2: {
-            backgroundColor: 'oklch(0.58 0.20 25 / 0.12)',
-            borderColor: 'oklch(0.48 0.18 25 / 0.40)',
-            color: 'oklch(0.42 0.18 25)'
+            backgroundColor: 'var(--status-ab2-bg)',
+            borderColor: 'var(--status-ab2-border)',
+            color: 'var(--status-ab2-text)'
           },
           ab3: {
-            backgroundColor: 'oklch(0.55 0.18 265 / 0.12)',
-            borderColor: 'oklch(0.42 0.17 265 / 0.40)',
-            color: 'oklch(0.38 0.17 265)'
+            backgroundColor: 'var(--status-ab3-bg)',
+            borderColor: 'var(--status-ab3-border)',
+            color: 'var(--status-ab3-text)'
           }
         }
         return (
@@ -215,14 +234,14 @@ export const getColumns = (
         const gender = row.original.gender
         const badgeStyles: Record<string, React.CSSProperties> = {
           ikhwan: {
-            backgroundColor: 'oklch(0.72 0.14 225 / 0.12)',
-            borderColor: 'oklch(0.55 0.13 225 / 0.40)',
-            color: 'oklch(0.40 0.13 225)'
+            backgroundColor: 'var(--gender-ikhwan-bg)',
+            borderColor: 'var(--gender-ikhwan-border)',
+            color: 'var(--gender-ikhwan-text)'
           },
           akhwat: {
-            backgroundColor: 'oklch(0.74 0.14 350 / 0.12)',
-            borderColor: 'oklch(0.58 0.13 350 / 0.40)',
-            color: 'oklch(0.46 0.14 350)'
+            backgroundColor: 'var(--gender-akhwat-bg)',
+            borderColor: 'var(--gender-akhwat-border)',
+            color: 'var(--gender-akhwat-text)'
           }
         }
         return (
@@ -265,12 +284,9 @@ export const getColumns = (
               target='_blank'
               rel='noopener noreferrer'
               aria-label={`WhatsApp ${phone}`}
-              className='[color:var(--status-pass-text)] hover:opacity-80 transition-opacity'
+              className='[color:var(--status-pass-text)] transition-opacity hover:opacity-80'
             >
-              <HugeiconsIcon
-                icon={Chat01Icon}
-                className='size-3.5'
-              />
+              <HugeiconsIcon icon={Chat01Icon} className='size-3.5' />
             </a>
           </div>
         )

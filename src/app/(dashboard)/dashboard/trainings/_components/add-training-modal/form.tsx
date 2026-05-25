@@ -21,7 +21,8 @@ import {
   FieldContent,
   FieldTitle
 } from '~/components/shadcn/ui/field'
-import { createTrainingAction } from './action'
+import { createTrainingAction, searchMasterCandidatesAction } from './action'
+import type { EligibleMember } from '~/db/query/training'
 import { toast } from 'sonner'
 import { closeAddTrainingSheet } from './store'
 import { cn } from '~/lib/shadcn/utils'
@@ -56,6 +57,15 @@ export const TrainingForm = ({
   const [orgId, setOrgId] = useState(organizations[0]?.id || '')
   const [type, setType] = useState('dm1')
   const [orgSearchQuery, setOrgSearchQuery] = useState('')
+  const today = new Date().toISOString().split('T')[0]
+  const [startDate, setStartDate] = useState(today)
+  const [endDate, setEndDate] = useState(today)
+  const [masterId, setMasterId] = useState('')
+  const [masterName, setMasterName] = useState('')
+  const [masterQuery, setMasterQuery] = useState('')
+  const [masterResults, setMasterResults] = useState<EligibleMember[]>([])
+  const [masterLoading, setMasterLoading] = useState(false)
+  const masterDebounceRef = React.useRef<ReturnType<typeof setTimeout>>(null)
 
   useEffect(() => {
     if (state.success) {
@@ -66,6 +76,23 @@ export const TrainingForm = ({
       toast.error(state.message)
     }
   }, [state, onSuccess])
+
+  useEffect(() => {
+    if (masterDebounceRef.current) clearTimeout(masterDebounceRef.current)
+    masterDebounceRef.current = setTimeout(async () => {
+      if (masterQuery.length < 2) {
+        setMasterResults([])
+        return
+      }
+      setMasterLoading(true)
+      try {
+        const res = await searchMasterCandidatesAction(masterQuery)
+        if (res.success) setMasterResults(res.data)
+      } finally {
+        setMasterLoading(false)
+      }
+    }, 300)
+  }, [masterQuery])
 
   const selectedOrg = organizations.find((org) => org.id === orgId)
   const selectedOrgType = selectedOrg?.type
@@ -110,7 +137,10 @@ export const TrainingForm = ({
           <Field>
             <FieldLabel htmlFor='organizationId'>Penyelenggara</FieldLabel>
             <input type='hidden' name='organizationId' value={orgId || ''} />
-            <Combobox value={orgId || ''} onValueChange={(val) => setOrgId(val ?? '')}>
+            <Combobox
+              value={orgId || ''}
+              onValueChange={(val) => setOrgId(val ?? '')}
+            >
               <ComboboxInput
                 placeholder='Pilih Penyelenggara'
                 value={(selectedOrg?.name ?? orgSearchQuery) || ''}
@@ -206,7 +236,12 @@ export const TrainingForm = ({
                 id='startDate'
                 name='startDate'
                 type='date'
-                defaultValue={new Date().toISOString().split('T')[0]}
+                value={startDate}
+                onChange={(e) => {
+                  const val = e.target.value
+                  setStartDate(val)
+                  if (endDate < val) setEndDate(val)
+                }}
                 required
               />
               <FieldError
@@ -219,7 +254,9 @@ export const TrainingForm = ({
                 id='endDate'
                 name='endDate'
                 type='date'
-                defaultValue={new Date().toISOString().split('T')[0]}
+                value={endDate}
+                min={startDate}
+                onChange={(e) => setEndDate(e.target.value)}
                 required
               />
               <FieldError
@@ -236,12 +273,72 @@ export const TrainingForm = ({
               id='registrationDeadline'
               name='registrationDeadline'
               type='date'
+              max={startDate}
             />
             <FieldError
               errors={state.errors?.registrationDeadline?.map((m) => ({
                 message: m
               }))}
             />
+          </Field>
+
+          <Field className='mt-4'>
+            <FieldLabel>Pemimpin Majelis (Opsional)</FieldLabel>
+            <input type='hidden' name='masterId' value={masterId} />
+            <Combobox
+              value={masterId}
+              onValueChange={(val) => {
+                const selected = masterResults.find((m) => m.id === val)
+                if (selected) {
+                  setMasterId(selected.id)
+                  setMasterName(selected.name)
+                  setMasterQuery(selected.name)
+                } else if (!val) {
+                  setMasterId('')
+                  setMasterName('')
+                  setMasterQuery('')
+                }
+              }}
+            >
+              <ComboboxInput
+                placeholder='Cari instruktur bersertifikat...'
+                value={masterName || masterQuery}
+                onChange={(e) => {
+                  setMasterQuery(e.target.value)
+                  if (!e.target.value) {
+                    setMasterId('')
+                    setMasterName('')
+                  }
+                }}
+              />
+              <ComboboxContent>
+                <ComboboxList>
+                  {masterLoading ? (
+                    <div className='text-muted-foreground p-4 text-center text-xs'>
+                      Mencari...
+                    </div>
+                  ) : masterResults.length === 0 && masterQuery.length >= 2 ? (
+                    <ComboboxEmpty>Instruktur tidak ditemukan.</ComboboxEmpty>
+                  ) : (
+                    <ComboboxGroup>
+                      {masterResults.map((m) => (
+                        <ComboboxItem key={m.id} value={m.id}>
+                          <div className='flex flex-col'>
+                            <span className='font-medium'>{m.name}</span>
+                            <span className='text-muted-foreground text-[10px]'>
+                              {m.registerNumber}
+                            </span>
+                          </div>
+                        </ComboboxItem>
+                      ))}
+                    </ComboboxGroup>
+                  )}
+                </ComboboxList>
+              </ComboboxContent>
+            </Combobox>
+            <p className='text-muted-foreground text-xs'>
+              Hanya kader bersertifikat instruktur yang dapat dipilih
+            </p>
           </Field>
         </FieldGroup>
       </div>

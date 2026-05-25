@@ -32,7 +32,7 @@ const StatSplit = ({
     <div className='font-mono text-base font-semibold tabular-nums'>
       {fmt(value)}
     </div>
-    <div className='text-muted-foreground text-xs uppercase tracking-wider'>
+    <div className='text-muted-foreground text-xs tracking-wider uppercase'>
       {label}
     </div>
   </div>
@@ -49,16 +49,16 @@ export const KaderStats = ({ data }: { data: KaderStatsData }) => {
 
   if (isEmpty) {
     return (
-      <div className='flex flex-col gap-3 rounded-xl border bg-card p-6'>
-        <div className='text-sm font-medium tracking-tight text-muted-foreground uppercase'>
+      <div className='bg-card flex flex-col gap-3 rounded-xl border p-6'>
+        <h2 className='text-muted-foreground text-sm font-medium tracking-tight uppercase'>
           Kader Aktif
-        </div>
+        </h2>
         <p className='text-muted-foreground text-sm'>
           Belum ada kader terdaftar dalam scope organisasi ini.
         </p>
         <Link
           href='/dashboard/kader'
-          className='inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline'
+          className='text-primary focus-visible:ring-ring inline-flex min-h-11 items-center gap-1 text-sm font-medium hover:underline focus-visible:rounded-sm focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:outline-none'
         >
           Tambah kader pertama
           <HugeiconsIcon icon={ArrowRight01Icon} className='size-3.5' />
@@ -68,14 +68,14 @@ export const KaderStats = ({ data }: { data: KaderStatsData }) => {
   }
 
   return (
-    <div className='flex flex-col gap-5 rounded-xl border bg-card p-6'>
+    <div className='bg-card flex flex-col gap-5 rounded-xl border p-6'>
       {/* Header */}
       <div className='flex items-start justify-between gap-4'>
         <div>
-          <div className='text-xs font-medium tracking-wider text-muted-foreground uppercase'>
+          <h2 className='text-muted-foreground text-xs font-medium tracking-wider uppercase'>
             Kader Aktif
-          </div>
-          <div className='mt-1 font-mono text-4xl font-bold tabular-nums tracking-tight text-foreground'>
+          </h2>
+          <div className='text-foreground mt-1 font-mono text-4xl font-bold tracking-tight tabular-nums'>
             {fmt(total)}
           </div>
         </div>
@@ -104,37 +104,37 @@ export const KaderStats = ({ data }: { data: KaderStatsData }) => {
         </div>
         <div className='flex gap-5'>
           <div className='flex items-center gap-1.5'>
-            <span className='inline-block size-2 rounded-full bg-primary' />
+            <span className='bg-primary inline-block size-2 rounded-full' />
             <span className='font-mono text-xs font-medium tabular-nums'>
               {fmt(ab1)}
             </span>
             <abbr
               title='Anggota Biasa Tingkat 1'
-              className='cursor-default text-xs text-muted-foreground no-underline'
+              className='text-muted-foreground cursor-default text-xs no-underline'
             >
               AB 1
             </abbr>
           </div>
           <div className='flex items-center gap-1.5'>
-            <span className='inline-block size-2 rounded-full bg-primary/50' />
+            <span className='bg-primary/50 inline-block size-2 rounded-full' />
             <span className='font-mono text-xs font-medium tabular-nums'>
               {fmt(ab2)}
             </span>
             <abbr
               title='Anggota Biasa Tingkat 2'
-              className='cursor-default text-xs text-muted-foreground no-underline'
+              className='text-muted-foreground cursor-default text-xs no-underline'
             >
               AB 2
             </abbr>
           </div>
           <div className='flex items-center gap-1.5'>
-            <span className='inline-block size-2 rounded-full bg-primary/20' />
+            <span className='bg-primary/20 inline-block size-2 rounded-full' />
             <span className='font-mono text-xs font-medium tabular-nums'>
               {fmt(ab3)}
             </span>
             <abbr
               title='Anggota Biasa Tingkat 3'
-              className='cursor-default text-xs text-muted-foreground no-underline'
+              className='text-muted-foreground cursor-default text-xs no-underline'
             >
               AB 3
             </abbr>
@@ -147,7 +147,11 @@ export const KaderStats = ({ data }: { data: KaderStatsData }) => {
       {/* Secondary stats */}
       <div className='grid grid-cols-3 gap-4'>
         <StatSplit label='Pemandu' value={pemandu} dim={pemandu === 0} />
-        <StatSplit label='Instruktur' value={instruktur} dim={instruktur === 0} />
+        <StatSplit
+          label='Instruktur'
+          value={instruktur}
+          dim={instruktur === 0}
+        />
         <StatSplit label='Alumni' value={alumni} dim={alumni === 0} />
       </div>
     </div>

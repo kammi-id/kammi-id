@@ -21,7 +21,7 @@ export const Footer = async () => {
   ].filter((s) => s.href && s.href !== '#')
 
   return (
-    <footer className='border-t border-border bg-muted'>
+    <footer className='border-border bg-muted border-t'>
       <div className='mx-auto max-w-7xl px-6 py-16 lg:px-8'>
         <div className='grid grid-cols-2 gap-10 lg:grid-cols-[1.5fr_1fr_1fr_1fr]'>
           {/* Brand column */}
@@ -32,7 +32,7 @@ export const Footer = async () => {
               className='h-10 w-auto object-contain'
               style={{ height: '40px', width: 'auto' }}
             />
-            <p className='mt-4 max-w-xs font-sans text-sm leading-relaxed text-muted-foreground'>
+            <p className='text-muted-foreground mt-4 max-w-xs font-sans text-sm leading-relaxed'>
               Kesatuan Aksi Mahasiswa Muslim Indonesia. Organisasi mahasiswa
               yang berkomitmen membangun bangsa lewat intelektualitas dan
               integritas.
@@ -43,12 +43,17 @@ export const Footer = async () => {
                   <Link
                     key={s.id}
                     href={s.href}
-                    className='flex size-9 items-center justify-center rounded-full border border-border text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground'
+                    className='border-border text-muted-foreground hover:border-foreground/30 hover:text-foreground flex size-9 items-center justify-center rounded-full border transition-colors'
                     aria-label={`Ikuti di ${s.label}`}
                     target='_blank'
                     rel='noopener noreferrer'
                   >
-                    <svg className='size-4' viewBox='0 0 16 16' fill='currentColor' aria-hidden='true'>
+                    <svg
+                      className='size-4'
+                      viewBox='0 0 16 16'
+                      fill='currentColor'
+                      aria-hidden='true'
+                    >
                       <rect width='16' height='16' rx='3' fillOpacity='0.2' />
                       <path d='M8 5a3 3 0 1 0 0 6A3 3 0 0 0 8 5zm0 5a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm3.5-5.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0z' />
                     </svg>
@@ -61,7 +66,7 @@ export const Footer = async () => {
           {/* Link columns */}
           {Object.entries(FOOTER_LINKS).map(([title, links]) => (
             <div key={title}>
-              <h3 className='font-sans text-xs font-semibold tracking-widest text-foreground/40 uppercase'>
+              <h3 className='text-foreground/40 font-sans text-xs font-semibold tracking-widest uppercase'>
                 {title}
               </h3>
               <ul className='mt-4 space-y-2.5' role='list'>
@@ -69,7 +74,7 @@ export const Footer = async () => {
                   <li key={link.label}>
                     <Link
                       href={link.href}
-                      className='font-sans text-sm text-muted-foreground transition-colors hover:text-foreground'
+                      className='text-muted-foreground hover:text-foreground font-sans text-sm transition-colors'
                     >
                       {link.label}
                     </Link>
@@ -80,13 +85,13 @@ export const Footer = async () => {
           ))}
         </div>
 
-        <div className='mt-12 flex flex-col items-center justify-between gap-4 border-t border-border pt-8 sm:flex-row'>
-          <p className='font-sans text-xs text-foreground/40'>
+        <div className='border-border mt-12 flex flex-col items-center justify-between gap-4 border-t pt-8 sm:flex-row'>
+          <p className='text-foreground/40 font-sans text-xs'>
             &copy; {new Date().getFullYear()} KAMMI.id. Hak Cipta Dilindungi.
           </p>
           <Link
             href='#'
-            className='rounded-full border border-border px-4 py-1.5 font-sans text-xs font-semibold text-muted-foreground transition-colors hover:text-foreground'
+            className='border-border text-muted-foreground hover:text-foreground rounded-full border px-4 py-1.5 font-sans text-xs font-semibold transition-colors'
           >
             Hubungi Kami
           </Link>

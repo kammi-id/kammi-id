@@ -174,7 +174,9 @@ export const MembersPageContent = async ({
           : undefined
   })
 
-  const individualsPromise: Promise<[import('~/db/query/member').Member[], number]> = showIndividuals
+  const individualsPromise: Promise<
+    [import('~/db/query/member').Member[], number]
+  > = showIndividuals
     ? getCachedDescendantMembers(currentOrg.id, mFilters)
     : Promise.resolve([[], 0] as [import('~/db/query/member').Member[], number])
 
@@ -280,7 +282,9 @@ export const MembersPageContent = async ({
 
   return (
     <AccessGuard allowedRoles={['root', 'bph', 'bpk']} levelRequirement={4}>
-      <div className={`flex min-h-screen flex-col space-y-10 ${noPadding ? '' : 'px-4 py-6 md:px-6 md:py-8 lg:px-8'}`}>
+      <div
+        className={`flex min-h-screen flex-col space-y-10 ${noPadding ? '' : 'px-4 py-6 md:px-6 md:py-8 lg:px-8'}`}
+      >
         {showHeader && (
           <MembersPageHeader
             slug={slug}
@@ -299,7 +303,7 @@ export const MembersPageContent = async ({
 
           {showIndividuals && (
             <section aria-label={individualsHeading} className='space-y-3'>
-              <h2 className='font-heading text-base font-semibold text-foreground'>
+              <h2 className='font-heading text-foreground text-base font-semibold'>
                 {individualsHeading}
               </h2>
               <div className='bg-card rounded-xl border p-4 shadow-xs'>
@@ -323,7 +327,7 @@ export const MembersPageContent = async ({
           )}
           {showSummary && (
             <section aria-label={summaryHeading} className='space-y-3'>
-              <h2 className='font-heading text-base font-semibold text-foreground'>
+              <h2 className='font-heading text-foreground text-base font-semibold'>
                 {summaryHeading}
               </h2>
               <MembersGrid

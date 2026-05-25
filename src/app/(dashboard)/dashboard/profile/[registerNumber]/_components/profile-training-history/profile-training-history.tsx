@@ -1,7 +1,11 @@
 import React from 'react'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Tick01Icon, Cancel01Icon } from '@hugeicons/core-free-icons'
-import type { MemberTrainingHistory, TrainingType, InstructorRole } from '~/db/query/training'
+import type {
+  MemberTrainingHistory,
+  TrainingType,
+  InstructorRole
+} from '~/db/query/training'
 import { Separator } from '~/components/shadcn/ui/separator'
 
 interface ProfileTrainingHistoryProps {
@@ -29,7 +33,7 @@ const instructorRoleLabel: Record<InstructorRole, string> = {
 
 const SectionDivider = ({ title }: { title: string }) => (
   <div className='mt-6 mb-1 first:mt-0'>
-    <h2 className='text-foreground/60 font-geist-mono text-[11px] font-medium uppercase tracking-widest'>
+    <h2 className='text-foreground/60 font-geist-mono text-[11px] font-medium tracking-widest uppercase'>
       {title}
     </h2>
     <Separator className='mt-2' />
@@ -40,13 +44,15 @@ const EmptyState = ({ text }: { text: string }) => (
   <p className='text-muted-foreground py-4 text-sm'>{text}</p>
 )
 
-export const ProfileTrainingHistory = ({ history }: ProfileTrainingHistoryProps) => {
+export const ProfileTrainingHistory = ({
+  history
+}: ProfileTrainingHistoryProps) => {
   return (
     <section>
       <SectionDivider title='Riwayat Dauroh' />
 
       <div className='mt-1 mb-3 flex items-center gap-2'>
-        <span className='font-geist-mono text-muted-foreground text-xs uppercase tracking-wide'>
+        <span className='font-geist-mono text-muted-foreground text-xs tracking-wide uppercase'>
           Sebagai Peserta
         </span>
         {history.asAttendant.length > 0 && (
@@ -67,23 +73,38 @@ export const ProfileTrainingHistory = ({ history }: ProfileTrainingHistoryProps)
           <table className='w-full min-w-[480px] text-sm'>
             <thead>
               <tr className='border-border border-b'>
-                <th scope='col' className='text-muted-foreground font-geist-mono px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wide'>
+                <th
+                  scope='col'
+                  className='text-muted-foreground font-geist-mono px-4 py-2.5 text-left text-xs font-medium tracking-wide uppercase'
+                >
                   Pelatihan
                 </th>
-                <th scope='col' className='text-muted-foreground font-geist-mono px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wide'>
+                <th
+                  scope='col'
+                  className='text-muted-foreground font-geist-mono px-4 py-2.5 text-left text-xs font-medium tracking-wide uppercase'
+                >
                   Tipe
                 </th>
-                <th scope='col' className='text-muted-foreground font-geist-mono px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wide'>
+                <th
+                  scope='col'
+                  className='text-muted-foreground font-geist-mono px-4 py-2.5 text-left text-xs font-medium tracking-wide uppercase'
+                >
                   Tahun
                 </th>
-                <th scope='col' className='text-muted-foreground font-geist-mono px-4 py-2.5 text-center text-xs font-medium uppercase tracking-wide'>
+                <th
+                  scope='col'
+                  className='text-muted-foreground font-geist-mono px-4 py-2.5 text-center text-xs font-medium tracking-wide uppercase'
+                >
                   Lulus
                 </th>
               </tr>
             </thead>
             <tbody className='divide-border/60 divide-y'>
               {history.asAttendant.map((record) => (
-                <tr key={record.id} className='hover:bg-muted/30 transition-colors'>
+                <tr
+                  key={record.id}
+                  className='hover:bg-muted/30 transition-colors'
+                >
                   <td className='text-foreground px-4 py-3 font-medium'>
                     {record.name}
                     {record.organizationName && (
@@ -121,7 +142,7 @@ export const ProfileTrainingHistory = ({ history }: ProfileTrainingHistoryProps)
       )}
 
       <div className='mt-6 mb-3 flex items-center gap-2'>
-        <span className='font-geist-mono text-muted-foreground text-xs uppercase tracking-wide'>
+        <span className='font-geist-mono text-muted-foreground text-xs tracking-wide uppercase'>
           Sebagai Instruktur
         </span>
         {history.asInstructor.length > 0 && (
@@ -142,23 +163,38 @@ export const ProfileTrainingHistory = ({ history }: ProfileTrainingHistoryProps)
           <table className='w-full min-w-[480px] text-sm'>
             <thead>
               <tr className='border-border border-b'>
-                <th scope='col' className='text-muted-foreground font-geist-mono px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wide'>
+                <th
+                  scope='col'
+                  className='text-muted-foreground font-geist-mono px-4 py-2.5 text-left text-xs font-medium tracking-wide uppercase'
+                >
                   Pelatihan
                 </th>
-                <th scope='col' className='text-muted-foreground font-geist-mono px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wide'>
+                <th
+                  scope='col'
+                  className='text-muted-foreground font-geist-mono px-4 py-2.5 text-left text-xs font-medium tracking-wide uppercase'
+                >
                   Tipe
                 </th>
-                <th scope='col' className='text-muted-foreground font-geist-mono px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wide'>
+                <th
+                  scope='col'
+                  className='text-muted-foreground font-geist-mono px-4 py-2.5 text-left text-xs font-medium tracking-wide uppercase'
+                >
                   Tahun
                 </th>
-                <th scope='col' className='text-muted-foreground font-geist-mono px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wide'>
+                <th
+                  scope='col'
+                  className='text-muted-foreground font-geist-mono px-4 py-2.5 text-left text-xs font-medium tracking-wide uppercase'
+                >
                   Peran
                 </th>
               </tr>
             </thead>
             <tbody className='divide-border/60 divide-y'>
               {history.asInstructor.map((record) => (
-                <tr key={`${record.id}-instructor`} className='hover:bg-muted/30 transition-colors'>
+                <tr
+                  key={`${record.id}-instructor`}
+                  className='hover:bg-muted/30 transition-colors'
+                >
                   <td className='text-foreground px-4 py-3 font-medium'>
                     {record.name}
                     {record.organizationName && (

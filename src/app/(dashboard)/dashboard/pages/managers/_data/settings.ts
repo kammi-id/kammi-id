@@ -9,5 +9,8 @@ export const getLeadershipSettings = async (): Promise<LeadershipSettings> => {
   'use cache'
   cacheLife('minutes')
   cacheTag('site-settings', 'site-settings-leadership')
-  return readSiteSettings<LeadershipSettings>('leadership', SETTINGS_DEFAULTS.leadership)
+  return readSiteSettings<LeadershipSettings>(
+    'leadership',
+    SETTINGS_DEFAULTS.leadership
+  )
 }

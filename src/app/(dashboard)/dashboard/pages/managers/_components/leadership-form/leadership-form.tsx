@@ -21,21 +21,24 @@ type Leader = LeadershipSettings['leaders'][number]
 type Props = { initialData: LeadershipSettings }
 
 export const LeadershipForm = ({ initialData }: Props) => {
-  const [state, formAction, isPending] = useActionState<SettingsActionState, FormData>(
-    saveLeadershipAction,
-    {}
-  )
+  const [state, formAction, isPending] = useActionState<
+    SettingsActionState,
+    FormData
+  >(saveLeadershipAction, {})
   const [leaders, setLeaders] = useState<Leader[]>(initialData.leaders)
 
   useEffect(() => {
-    if (state.success) toast.success('Pengaturan kepemimpinan berhasil disimpan.')
+    if (state.success)
+      toast.success('Pengaturan kepemimpinan berhasil disimpan.')
     if (state.error) toast.error(state.error)
   }, [state])
 
   const fe = state.fieldErrors ?? {}
 
   const updateLeader = (i: number, field: keyof Leader, value: string) => {
-    setLeaders((prev) => prev.map((l, idx) => (idx === i ? { ...l, [field]: value } : l)))
+    setLeaders((prev) =>
+      prev.map((l, idx) => (idx === i ? { ...l, [field]: value } : l))
+    )
   }
 
   const addLeader = () => {
@@ -82,19 +85,28 @@ export const LeadershipForm = ({ initialData }: Props) => {
         </div>
 
         <div className='space-y-3'>
-          <p className='text-sm font-medium text-foreground'>Daftar Pengurus</p>
+          <p className='text-foreground text-sm font-medium'>Daftar Pengurus</p>
           {leaders.map((leader, i) => (
-            <div key={i} className='rounded-2xl border border-border bg-muted/30 p-4'>
+            <div
+              key={i}
+              className='border-border bg-muted/30 rounded-2xl border p-4'
+            >
               <div className='mb-4 flex items-center justify-between'>
-                <span className='font-mono text-xs text-muted-foreground'>Pengurus {i + 1}</span>
+                <span className='text-muted-foreground font-mono text-xs'>
+                  Pengurus {i + 1}
+                </span>
                 {leaders.length > 1 && (
                   <button
                     type='button'
                     onClick={() => removeLeader(i)}
-                    className='flex size-7 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive'
+                    className='text-muted-foreground hover:bg-destructive/10 hover:text-destructive flex size-7 items-center justify-center rounded-lg transition-colors'
                     aria-label={`Hapus pengurus ${i + 1}`}
                   >
-                    <HugeiconsIcon icon={Delete02Icon} className='size-4' strokeWidth={2} />
+                    <HugeiconsIcon
+                      icon={Delete02Icon}
+                      className='size-4'
+                      strokeWidth={2}
+                    />
                   </button>
                 )}
               </div>
@@ -114,18 +126,24 @@ export const LeadershipForm = ({ initialData }: Props) => {
                       <Input
                         id={`leader-name-${i}`}
                         value={leader.name}
-                        onChange={(e) => updateLeader(i, 'name', e.target.value)}
+                        onChange={(e) =>
+                          updateLeader(i, 'name', e.target.value)
+                        }
                         placeholder='Nama Lengkap'
                       />
                     </FieldContent>
                   </Field>
                   <Field>
-                    <FieldLabel htmlFor={`leader-role-${i}`}>Jabatan</FieldLabel>
+                    <FieldLabel htmlFor={`leader-role-${i}`}>
+                      Jabatan
+                    </FieldLabel>
                     <FieldContent>
                       <Input
                         id={`leader-role-${i}`}
                         value={leader.role}
-                        onChange={(e) => updateLeader(i, 'role', e.target.value)}
+                        onChange={(e) =>
+                          updateLeader(i, 'role', e.target.value)
+                        }
                         placeholder='Ketua Umum'
                       />
                     </FieldContent>
@@ -138,16 +156,24 @@ export const LeadershipForm = ({ initialData }: Props) => {
           <button
             type='button'
             onClick={addLeader}
-            className='flex w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-border py-3 text-sm text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary'
+            className='border-border text-muted-foreground hover:border-primary/40 hover:text-primary flex w-full items-center justify-center gap-2 rounded-2xl border border-dashed py-3 text-sm transition-colors'
           >
-            <HugeiconsIcon icon={Add01Icon} className='size-4' strokeWidth={2} />
+            <HugeiconsIcon
+              icon={Add01Icon}
+              className='size-4'
+              strokeWidth={2}
+            />
             Tambah Pengurus
           </button>
         </div>
       </FieldGroup>
 
       <div className='flex justify-end'>
-        <Button type='submit' className='rounded-full px-8' disabled={isPending}>
+        <Button
+          type='submit'
+          className='rounded-full px-8'
+          disabled={isPending}
+        >
           {isPending ? 'Menyimpan...' : 'Simpan Pengaturan Kepemimpinan'}
         </Button>
       </div>

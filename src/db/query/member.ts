@@ -85,9 +85,30 @@ export const readMemberAggregates = async (
     if (allowedOrgIds.length === 0) return []
   }
 
-  // 1. Fetch the entire subtree and direct member counts in one go
-  // We use a recursive CTE to find all organizations in the subtree
-  const results = await db
+  // Determine the single anchor org for the recursive CTE.
+  // When organizationId is given, we expand from that org downward.
+  // When user-scoped (no organizationId), we find the top of the user's
+  // connected subtree (their connectedOrganizationId, or the PP root for root/bph).
+  // We NEVER use multiple anchors — that's what caused double-counting before.
+  let anchorId: string | null = organizationId || null
+
+  if (!anchorId && user) {
+    const connectedOrgId =
+      user.connectedOrganizationId ??
+      (await db
+        .select({ id: organization.id })
+        .from(organization)
+        .where(eq(organization.type, 'pp' as any))
+        .limit(1)
+        .then((r) => r[0]?.id ?? null))
+    anchorId = connectedOrgId
+  }
+
+  if (!anchorId) return []
+
+  // 1. Recursive CTE starting from a single anchor, expanding the entire subtree.
+  //    Each org appears exactly once.  We then LEFT JOIN member to get direct counts.
+  const directRows = await db
     .execute(
       sql`
     WITH RECURSIVE org_tree AS (
@@ -98,10 +119,9 @@ export const readMemberAggregates = async (
                WHEN type IN ('pd', 'pdln') THEN 3
                WHEN type = 'pk' THEN 4
                ELSE 5
-             END as level
+             END AS level
       FROM organization
-      WHERE ${organizationId ? sql`id = ${organizationId}` : sql`true`}
-      ${user ? sql`AND id IN ${allowedOrgIds}` : sql``}
+      WHERE id = ${anchorId}
       UNION ALL
       SELECT o.id, o.parent_id,
              CASE
@@ -110,27 +130,35 @@ export const readMemberAggregates = async (
                WHEN o.type IN ('pd', 'pdln') THEN 3
                WHEN o.type = 'pk' THEN 4
                ELSE 5
-             END as level
+             END AS level
       FROM organization o
       JOIN org_tree ot ON o.parent_id = ot.id
     )
     SELECT
-      ot.id as "organizationId",
-      ot.parent_id as "parentId",
-      ot.level as "level",
-      count(*) FILTER (WHERE m.status = 'ab1')::int as "ab1",
-      count(*) FILTER (WHERE m.status = 'ab2')::int as "ab2",
-      count(*) FILTER (WHERE m.status = 'ab3')::int as "ab3",
-      count(*) FILTER (WHERE m.gender = 'ikhwan')::int as "ikhwan",
-      count(*) FILTER (WHERE m.gender = 'akhwat')::int as "akhwat",
-      count(m.id)::int as "total"
+      ot.id AS "organizationId",
+      ot.parent_id AS "parentId",
+      ot.level AS "level",
+      count(*) FILTER (WHERE m.status = 'ab1')::int AS "ab1",
+      count(*) FILTER (WHERE m.status = 'ab2')::int AS "ab2",
+      count(*) FILTER (WHERE m.status = 'ab3')::int AS "ab3",
+      count(*) FILTER (WHERE m.gender = 'ikhwan')::int AS "ikhwan",
+      count(*) FILTER (WHERE m.gender = 'akhwat')::int AS "akhwat",
+      count(m.id)::int AS "total"
     FROM org_tree ot
     LEFT JOIN member m ON m.organization_id = ot.id
       ${isAlumn !== undefined ? sql`AND m.is_alumn = ${isAlumn}` : sql``}
       ${isCertifiedMentor !== undefined ? sql`AND m.is_certified_mentor = ${isCertifiedMentor}` : sql``}
       ${isCertifiedInstructor !== undefined ? sql`AND m.is_certified_instructor = ${isCertifiedInstructor}` : sql``}
       ${isAlumn === false ? sql`AND m.is_non_active = false` : sql``}
-      ${sql`AND m.is_suspended = false`}
+      AND m.is_suspended = false
+    ${
+      allowedOrgIds.length > 0
+        ? sql`WHERE ot.id IN (${sql.join(
+            allowedOrgIds.map((id) => sql`${id}`),
+            sql`, `
+          )})`
+        : sql``
+    }
     GROUP BY ot.id, ot.parent_id, ot.level
   `
     )
@@ -149,27 +177,18 @@ export const readMemberAggregates = async (
       }))
     })
 
-  // 2. Bottom-up aggregation in TypeScript
-  // Map to store accumulated results: { [orgId: string]: MemberAggregatesResult }
+  // 2. Bottom-up aggregation in TypeScript.
+  //    Each org starts with only its direct member counts (from the JOIN above).
+  //    Then we roll up children into parents, deepest-first.
+  //    Because the CTE has a single anchor, every org appears exactly once — no
+  //    double-counting is possible.
   const accumulated: Record<string, MemberAggregatesResult> = {}
 
-  // Initialize with direct counts
-  for (const row of results) {
-    accumulated[row.organizationId] = {
-      organizationId: row.organizationId,
-      parentId: row.parentId,
-      level: row.level,
-      ab1: row.ab1 || 0,
-      ab2: row.ab2 || 0,
-      ab3: row.ab3 || 0,
-      ikhwan: row.ikhwan || 0,
-      akhwat: row.akhwat || 0,
-      total: row.total || 0
-    }
+  for (const row of directRows) {
+    accumulated[row.organizationId] = { ...row }
   }
 
-  // Sort organizations by level descending (PK -> PP) to ensure children are processed before parents
-  const sortedOrgs = results.sort((a, b) => b.level - a.level)
+  const sortedOrgs = [...directRows].sort((a, b) => b.level - a.level)
 
   for (const org of sortedOrgs) {
     const current = accumulated[org.organizationId]
@@ -186,7 +205,6 @@ export const readMemberAggregates = async (
     }
   }
 
-  // Return only those that were requested or all in subtree
   return Object.values(accumulated)
 }
 
@@ -583,5 +601,81 @@ export const readMemberYearDistribution = async (
   return results.map((row) => ({
     year: row.year,
     count: Number(row.count)
+  }))
+}
+
+export type MemberOrgDistributionResult = {
+  organizationId: string
+  organizationName: string
+  total: number
+  ikhwan: number
+  akhwat: number
+  ab1: number
+  ab2: number
+  ab3: number
+}
+
+export const readMemberDistributionByOrgType = async (
+  orgType: 'pw' | 'pd' | 'pdln' | 'pk',
+  allowedOrgIds: string[]
+): Promise<MemberOrgDistributionResult[]> => {
+  if (allowedOrgIds.length === 0) return []
+
+  // Recursive CTE: for each org of the target type, expand its entire subtree
+  // so members in child orgs (PD, PK under a PW) are counted toward the parent.
+  const results = await db.execute(sql`
+    WITH RECURSIVE subtree AS (
+      SELECT id, id AS root_id
+      FROM organization
+      WHERE type = ${orgType}
+        AND id IN (${sql.join(
+          allowedOrgIds.map((id) => sql`${id}`),
+          sql`, `
+        )})
+      UNION ALL
+      SELECT o.id, s.root_id
+      FROM organization o
+      JOIN subtree s ON o.parent_id = s.id
+    )
+    SELECT
+      root_org.id as "organizationId",
+      root_org.name as "organizationName",
+      count(*) FILTER (WHERE m.status = 'ab1')::int as "ab1",
+      count(*) FILTER (WHERE m.status = 'ab2')::int as "ab2",
+      count(*) FILTER (WHERE m.status = 'ab3')::int as "ab3",
+      count(*) FILTER (WHERE m.gender = 'ikhwan')::int as "ikhwan",
+      count(*) FILTER (WHERE m.gender = 'akhwat')::int as "akhwat",
+      count(m.id)::int as "total"
+    FROM subtree s
+    JOIN organization root_org ON root_org.id = s.root_id
+    LEFT JOIN member m ON m.organization_id = s.id
+      AND m.is_alumn = false
+      AND m.is_suspended = false
+      AND m.is_non_active = false
+    GROUP BY root_org.id, root_org.name
+    HAVING count(m.id) > 0
+    ORDER BY count(m.id) DESC
+  `)
+
+  return (
+    results as unknown as Array<{
+      organizationId: string
+      organizationName: string
+      ab1: number | null
+      ab2: number | null
+      ab3: number | null
+      ikhwan: number | null
+      akhwat: number | null
+      total: number | null
+    }>
+  ).map((row) => ({
+    organizationId: row.organizationId,
+    organizationName: row.organizationName,
+    ab1: row.ab1 || 0,
+    ab2: row.ab2 || 0,
+    ab3: row.ab3 || 0,
+    ikhwan: row.ikhwan || 0,
+    akhwat: row.akhwat || 0,
+    total: row.total || 0
   }))
 }

@@ -5,10 +5,20 @@ import { cn } from '~/lib/shadcn/utils'
 import { getLeadershipSettings } from '~/app/(main)/_data/site-settings'
 import { resolveSiteImage } from '~/lib/utils/site-image'
 
-type Leader = { name: string; role: string; photoUrl: string; photoSrc: string | null }
+type Leader = {
+  name: string
+  role: string
+  photoUrl: string
+  photoSrc: string | null
+}
 
-const findByRole = (leaders: Leader[], keyword: string, fallback: Leader | undefined) =>
-  leaders.find((l) => l.role.toLowerCase().includes(keyword.toLowerCase())) ?? fallback
+const findByRole = (
+  leaders: Leader[],
+  keyword: string,
+  fallback: Leader | undefined
+) =>
+  leaders.find((l) => l.role.toLowerCase().includes(keyword.toLowerCase())) ??
+  fallback
 
 export const LeadershipSection = async () => {
   const { periodLabel, heading, leaders } = await getLeadershipSettings()
@@ -37,21 +47,30 @@ export const LeadershipSection = async () => {
   const trio = [secretary, chairman, treasurer].filter(Boolean) as Leader[]
 
   return (
-    <section className='relative bg-background overflow-hidden min-h-screen flex flex-col' aria-labelledby='leadership-heading'>
+    <section
+      className='bg-background relative flex min-h-screen flex-col overflow-hidden'
+      aria-labelledby='leadership-heading'
+    >
       {/* Header */}
-      <div className='pt-14 sm:pt-16 lg:pt-20 pb-8 text-center px-6 lg:px-8'>
-        <p className='font-sans text-xs font-semibold tracking-widest text-primary uppercase'>
+      <div className='px-6 pt-14 pb-8 text-center sm:pt-16 lg:px-8 lg:pt-20'>
+        <p className='text-primary font-sans text-xs font-semibold tracking-widest uppercase'>
           {periodLabel}
         </p>
         <h2
           id='leadership-heading'
-          className='mt-2 font-heading text-[clamp(1.5rem,3vw,2rem)] font-bold text-foreground'
+          className='font-heading text-foreground mt-2 text-[clamp(1.5rem,3vw,2rem)] font-bold'
         >
           {heading}
         </h2>
-        <div className='mx-auto mt-1 h-1 w-12 rounded-full bg-primary' aria-hidden='true' />
+        <div
+          className='bg-primary mx-auto mt-1 h-1 w-12 rounded-full'
+          aria-hidden='true'
+        />
         <div className='mt-6'>
-          <Link href='/pengurus' className={cn(buttonVariants({ variant: 'outline' }))}>
+          <Link
+            href='/pengurus'
+            className={cn(buttonVariants({ variant: 'outline' }))}
+          >
             Pengurus Lengkap
           </Link>
         </div>
@@ -69,8 +88,8 @@ export const LeadershipSection = async () => {
 
           // Ketum = 65vh, sekjend + bendum = 95% tinggi ketum
           const vhFactor = isChairman ? 65 : 65 * 0.95
-          const minPx    = isChairman ? 220 : 209
-          const maxPx    = isChairman ? 650 : 618
+          const minPx = isChairman ? 220 : 209
+          const maxPx = isChairman ? 650 : 618
 
           // Overlap ~30% dari lebar estimasi foto
           const overlapClass = isSecretary
@@ -84,10 +103,14 @@ export const LeadershipSection = async () => {
           return (
             <div
               key={leader.name}
-              className={`relative shrink-0 flex flex-col items-center ${overlapClass} ${zClass}`}
+              className={`relative flex shrink-0 flex-col items-center ${overlapClass} ${zClass}`}
             >
               {/* Photo — height-controlled, width auto (rasio asli foto) */}
-              <div style={{ height: `clamp(${minPx}px, ${vhFactor}vh, ${maxPx}px)` }}>
+              <div
+                style={{
+                  height: `clamp(${minPx}px, ${vhFactor}vh, ${maxPx}px)`
+                }}
+              >
                 {leader.photoSrc ? (
                   <Image
                     src={leader.photoSrc}
@@ -99,16 +122,16 @@ export const LeadershipSection = async () => {
                     unoptimized={leader.photoSrc.includes('?')}
                   />
                 ) : (
-                  <div className='h-full w-24 bg-muted' />
+                  <div className='bg-muted h-full w-24' />
                 )}
               </div>
 
               {/* Name plate — below photo, flush to section bottom */}
-              <div className='pt-3 pb-0 text-center px-1'>
-                <p className='font-sans text-[9px] font-semibold tracking-[0.18em] text-primary uppercase leading-none'>
+              <div className='px-1 pt-3 pb-0 text-center'>
+                <p className='text-primary font-sans text-[9px] leading-none font-semibold tracking-[0.18em] uppercase'>
                   {leader.role}
                 </p>
-                <p className='font-heading text-sm font-bold text-foreground leading-tight mt-1'>
+                <p className='font-heading text-foreground mt-1 text-sm leading-tight font-bold'>
                   {leader.name}
                 </p>
               </div>
@@ -116,7 +139,6 @@ export const LeadershipSection = async () => {
           )
         })}
       </div>
-
     </section>
   )
 }

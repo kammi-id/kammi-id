@@ -52,15 +52,18 @@ export const PublicationsSection = () => {
           <div>
             <h2
               id='publications-heading'
-              className='font-heading text-[clamp(1.5rem,3vw,2rem)] font-bold text-foreground'
+              className='font-heading text-foreground text-[clamp(1.5rem,3vw,2rem)] font-bold'
             >
               Berita Organisasi
             </h2>
-            <div className='mt-1 h-1 w-12 rounded-full bg-primary' aria-hidden='true' />
+            <div
+              className='bg-primary mt-1 h-1 w-12 rounded-full'
+              aria-hidden='true'
+            />
           </div>
           <Link
             href='/berita'
-            className='hidden font-sans text-sm font-semibold text-primary hover:underline sm:block'
+            className='text-primary hidden font-sans text-sm font-semibold hover:underline sm:block'
           >
             Lihat Semua &rarr;
           </Link>
@@ -68,7 +71,10 @@ export const PublicationsSection = () => {
 
         <div className='grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3'>
           {PUBLICATIONS.map((pub) => (
-            <article key={pub.id} className='group flex flex-col overflow-hidden rounded-2xl border border-border bg-background'>
+            <article
+              key={pub.id}
+              className='group border-border bg-background flex flex-col overflow-hidden rounded-2xl border'
+            >
               <div className='relative overflow-hidden'>
                 <Image
                   src={`https://picsum.photos/seed/${pub.seed}/600/340`}
@@ -87,17 +93,20 @@ export const PublicationsSection = () => {
                   </span>
                   <time
                     dateTime={pub.date}
-                    className='font-sans text-xs text-muted-foreground'
+                    className='text-muted-foreground font-sans text-xs'
                   >
                     {pub.date}
                   </time>
                 </div>
-                <h3 className='mt-3 font-heading text-base font-bold leading-snug text-foreground'>
-                  <Link href={pub.href} className='hover:text-primary transition-colors'>
+                <h3 className='font-heading text-foreground mt-3 text-base leading-snug font-bold'>
+                  <Link
+                    href={pub.href}
+                    className='hover:text-primary transition-colors'
+                  >
                     {pub.title}
                   </Link>
                 </h3>
-                <p className='mt-2 flex-1 font-sans text-sm leading-relaxed text-muted-foreground line-clamp-3'>
+                <p className='text-muted-foreground mt-2 line-clamp-3 flex-1 font-sans text-sm leading-relaxed'>
                   {pub.excerpt}
                 </p>
               </div>
@@ -108,7 +117,7 @@ export const PublicationsSection = () => {
         <div className='mt-6 flex justify-center sm:hidden'>
           <Link
             href='/berita'
-            className='font-sans text-sm font-semibold text-primary hover:underline'
+            className='text-primary font-sans text-sm font-semibold hover:underline'
           >
             Lihat Semua Publikasi &rarr;
           </Link>

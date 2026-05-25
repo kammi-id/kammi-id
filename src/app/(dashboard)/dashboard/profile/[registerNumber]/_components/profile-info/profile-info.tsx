@@ -5,11 +5,7 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { WhatsappIcon } from '@hugeicons/core-free-icons'
 import { Input } from '~/components/shadcn/ui/input'
 import { Separator } from '~/components/shadcn/ui/separator'
-import {
-  Field,
-  FieldError,
-  FieldLabel
-} from '~/components/shadcn/ui/field'
+import { Field, FieldError, FieldLabel } from '~/components/shadcn/ui/field'
 import { RadioGroup, RadioGroupItem } from '~/components/shadcn/ui/radio-group'
 import { cn } from '~/lib/shadcn/utils'
 import { RegionCombobox } from '~/app/(dashboard)/dashboard/kader/_components/region-combobox'
@@ -38,7 +34,7 @@ const InfoRow = ({
   mono?: boolean
 }) => (
   <div className='flex min-h-[2rem] items-start gap-3 py-2'>
-    <span className='text-muted-foreground font-geist-mono w-36 shrink-0 pt-0.5 text-xs uppercase tracking-wide'>
+    <span className='text-muted-foreground font-geist-mono w-36 shrink-0 pt-0.5 text-xs tracking-wide uppercase'>
       {label}
     </span>
     <span
@@ -55,7 +51,7 @@ const InfoRow = ({
 
 const SectionDivider = ({ title }: { title: string }) => (
   <div className='mt-6 mb-1 first:mt-0'>
-    <h2 className='text-foreground/60 font-geist-mono text-[11px] font-medium uppercase tracking-widest'>
+    <h2 className='text-foreground/60 font-geist-mono text-[11px] font-medium tracking-widest uppercase'>
       {title}
     </h2>
     <Separator className='mt-2' />
@@ -99,7 +95,9 @@ export const ProfileInfo = ({
   const [province, setProvince] = useState(member.addressProvinceCode ?? '')
   const [city, setCity] = useState(member.addressCityCode ?? '')
   const [district, setDistrict] = useState(member.addressDistrictCode ?? '')
-  const [subdistrict, setSubdistrict] = useState(member.addressSubdistrictCode ?? '')
+  const [subdistrict, setSubdistrict] = useState(
+    member.addressSubdistrictCode ?? ''
+  )
   const [provinces, setProvinces] = useState<RegionItem[]>([])
   const [cities, setCities] = useState<RegionItem[]>([])
   const [districts, setDistricts] = useState<RegionItem[]>([])
@@ -119,7 +117,12 @@ export const ProfileInfo = ({
   }, [isEditing])
 
   useEffect(() => {
-    if (!province) { setCities([]); setDistricts([]); setSubdistricts([]); return }
+    if (!province) {
+      setCities([])
+      setDistricts([])
+      setSubdistricts([])
+      return
+    }
     setLoadingCity(true)
     fetchCitiesAction(province).then((res) => {
       setLoadingCity(false)
@@ -128,7 +131,11 @@ export const ProfileInfo = ({
   }, [province])
 
   useEffect(() => {
-    if (!city) { setDistricts([]); setSubdistricts([]); return }
+    if (!city) {
+      setDistricts([])
+      setSubdistricts([])
+      return
+    }
     setLoadingDistrict(true)
     fetchDistrictsAction(city).then((res) => {
       setLoadingDistrict(false)
@@ -137,7 +144,10 @@ export const ProfileInfo = ({
   }, [city])
 
   useEffect(() => {
-    if (!district) { setSubdistricts([]); return }
+    if (!district) {
+      setSubdistricts([])
+      return
+    }
     setLoadingSubdistrict(true)
     fetchVillagesAction(district).then((res) => {
       setLoadingSubdistrict(false)
@@ -148,9 +158,7 @@ export const ProfileInfo = ({
   const getRegionName = (options: RegionItem[], code: string) =>
     options.find((o) => o.code === code)?.name ?? ''
 
-  const cleanPhone = member.phone
-    ?.replace(/\D/g, '')
-    .replace(/^0/, '62')
+  const cleanPhone = member.phone?.replace(/\D/g, '').replace(/^0/, '62')
 
   const addressParts = [
     member.addressLine,
@@ -167,20 +175,20 @@ export const ProfileInfo = ({
 
         <div className='flex flex-col gap-4'>
           <Field>
-            <FieldLabel htmlFor='name' className='font-geist-mono text-xs uppercase tracking-wide'>
+            <FieldLabel
+              htmlFor='name'
+              className='font-geist-mono text-xs tracking-wide uppercase'
+            >
               Nama Lengkap
             </FieldLabel>
-            <Input
-              id='name'
-              name='name'
-              defaultValue={member.name}
-              required
+            <Input id='name' name='name' defaultValue={member.name} required />
+            <FieldError
+              errors={fieldErrors?.name?.map((m) => ({ message: m }))}
             />
-            <FieldError errors={fieldErrors?.name?.map((m) => ({ message: m }))} />
           </Field>
 
           <Field>
-            <FieldLabel className='font-geist-mono text-xs uppercase tracking-wide'>
+            <FieldLabel className='font-geist-mono text-xs tracking-wide uppercase'>
               Gender
             </FieldLabel>
             <RadioGroup
@@ -200,15 +208,24 @@ export const ProfileInfo = ({
                       : 'border-border text-foreground hover:border-[oklch(0.52_0.20_17/0.40)]'
                   )}
                 >
-                  <RadioGroupItem value={val} id={`gender-${val}`} className='sr-only' />
-                  <span className='font-medium capitalize'>{genderEditLabel[val]}</span>
+                  <RadioGroupItem
+                    value={val}
+                    id={`gender-${val}`}
+                    className='sr-only'
+                  />
+                  <span className='font-medium capitalize'>
+                    {genderEditLabel[val]}
+                  </span>
                 </label>
               ))}
             </RadioGroup>
           </Field>
 
           <Field>
-            <FieldLabel htmlFor='yearOfEntry' className='font-geist-mono text-xs uppercase tracking-wide'>
+            <FieldLabel
+              htmlFor='yearOfEntry'
+              className='font-geist-mono text-xs tracking-wide uppercase'
+            >
               Tahun Masuk
             </FieldLabel>
             <Input
@@ -220,11 +237,16 @@ export const ProfileInfo = ({
               defaultValue={member.yearOfEntry ?? ''}
               required
             />
-            <FieldError errors={fieldErrors?.yearOfEntry?.map((m) => ({ message: m }))} />
+            <FieldError
+              errors={fieldErrors?.yearOfEntry?.map((m) => ({ message: m }))}
+            />
           </Field>
 
           <Field>
-            <FieldLabel htmlFor='phone' className='font-geist-mono text-xs uppercase tracking-wide'>
+            <FieldLabel
+              htmlFor='phone'
+              className='font-geist-mono text-xs tracking-wide uppercase'
+            >
               No. HP / WhatsApp
             </FieldLabel>
             <Input
@@ -240,7 +262,7 @@ export const ProfileInfo = ({
 
         <div className='flex flex-col gap-4'>
           <Field>
-            <FieldLabel className='font-geist-mono text-xs uppercase tracking-wide'>
+            <FieldLabel className='font-geist-mono text-xs tracking-wide uppercase'>
               Provinsi
             </FieldLabel>
             <RegionCombobox
@@ -255,12 +277,16 @@ export const ProfileInfo = ({
                 setSubdistrict('')
               }}
             />
-            <input type='hidden' name='addressProvince' value={getRegionName(provinces, province)} />
+            <input
+              type='hidden'
+              name='addressProvince'
+              value={getRegionName(provinces, province)}
+            />
             <input type='hidden' name='addressProvinceCode' value={province} />
           </Field>
 
           <Field>
-            <FieldLabel className='font-geist-mono text-xs uppercase tracking-wide'>
+            <FieldLabel className='font-geist-mono text-xs tracking-wide uppercase'>
               Kota/Kabupaten
             </FieldLabel>
             <RegionCombobox
@@ -275,12 +301,16 @@ export const ProfileInfo = ({
               }}
               disabled={!province}
             />
-            <input type='hidden' name='addressCity' value={getRegionName(cities, city)} />
+            <input
+              type='hidden'
+              name='addressCity'
+              value={getRegionName(cities, city)}
+            />
             <input type='hidden' name='addressCityCode' value={city} />
           </Field>
 
           <Field>
-            <FieldLabel className='font-geist-mono text-xs uppercase tracking-wide'>
+            <FieldLabel className='font-geist-mono text-xs tracking-wide uppercase'>
               Kecamatan
             </FieldLabel>
             <RegionCombobox
@@ -294,12 +324,16 @@ export const ProfileInfo = ({
               }}
               disabled={!city}
             />
-            <input type='hidden' name='addressDistrict' value={getRegionName(districts, district)} />
+            <input
+              type='hidden'
+              name='addressDistrict'
+              value={getRegionName(districts, district)}
+            />
             <input type='hidden' name='addressDistrictCode' value={district} />
           </Field>
 
           <Field>
-            <FieldLabel className='font-geist-mono text-xs uppercase tracking-wide'>
+            <FieldLabel className='font-geist-mono text-xs tracking-wide uppercase'>
               Kelurahan/Desa
             </FieldLabel>
             <RegionCombobox
@@ -310,12 +344,23 @@ export const ProfileInfo = ({
               onValueChange={setSubdistrict}
               disabled={!district}
             />
-            <input type='hidden' name='addressSubdistrict' value={getRegionName(subdistricts, subdistrict)} />
-            <input type='hidden' name='addressSubdistrictCode' value={subdistrict} />
+            <input
+              type='hidden'
+              name='addressSubdistrict'
+              value={getRegionName(subdistricts, subdistrict)}
+            />
+            <input
+              type='hidden'
+              name='addressSubdistrictCode'
+              value={subdistrict}
+            />
           </Field>
 
           <Field>
-            <FieldLabel htmlFor='addressLine' className='font-geist-mono text-xs uppercase tracking-wide'>
+            <FieldLabel
+              htmlFor='addressLine'
+              className='font-geist-mono text-xs tracking-wide uppercase'
+            >
               Alamat Lengkap
             </FieldLabel>
             <Input
@@ -334,8 +379,14 @@ export const ProfileInfo = ({
     <section>
       <SectionDivider title='Data Diri' />
       <div className='divide-border/60 divide-y'>
-        <InfoRow label='Gender' value={genderLabel[member.gender] ?? member.gender} />
-        <InfoRow label='Tahun Masuk' value={member.yearOfEntry ?? <Placeholder />} />
+        <InfoRow
+          label='Gender'
+          value={genderLabel[member.gender] ?? member.gender}
+        />
+        <InfoRow
+          label='Tahun Masuk'
+          value={member.yearOfEntry ?? <Placeholder />}
+        />
         <InfoRow
           label='Status'
           value={
@@ -364,7 +415,7 @@ export const ProfileInfo = ({
                   target='_blank'
                   rel='noopener noreferrer'
                   aria-label='Hubungi via WhatsApp'
-                  className='flex items-center gap-1 [color:var(--status-pass-text)] hover:opacity-80 transition-opacity'
+                  className='flex items-center gap-1 [color:var(--status-pass-text)] transition-opacity hover:opacity-80'
                 >
                   <HugeiconsIcon icon={WhatsappIcon} className='size-3.5' />
                   <span className='text-xs'>WhatsApp</span>
@@ -395,7 +446,9 @@ export const ProfileInfo = ({
           label='Alamat'
           value={
             addressParts.length > 0 ? (
-              <span className='leading-relaxed'>{member.addressLine ?? addressParts.join(', ')}</span>
+              <span className='leading-relaxed'>
+                {member.addressLine ?? addressParts.join(', ')}
+              </span>
             ) : (
               <Placeholder />
             )

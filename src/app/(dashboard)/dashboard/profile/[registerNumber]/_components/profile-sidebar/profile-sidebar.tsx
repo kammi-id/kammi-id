@@ -48,10 +48,8 @@ const Toggle = ({
         aria-label={label}
         onClick={() => setChecked(!checked)}
         className={cn(
-          'relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[oklch(0.52_0.20_17)] focus-visible:ring-offset-2',
-          checked
-            ? 'bg-[oklch(0.52_0.20_17)]'
-            : 'bg-[oklch(0.85_0.004_286)]'
+          'focus-visible:ring-primary relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none',
+          checked ? 'bg-primary' : 'bg-input'
         )}
       >
         <span
@@ -72,11 +70,15 @@ export const ProfileSidebar = ({
   isEditing = false,
   orgHierarchySlot
 }: ProfileSidebarProps) => {
-  const hasCertifications = member.isCertifiedMentor || member.isCertifiedInstructor
-  const hasSpecialStatus = member.isAlumn || member.isSuspended || member.isNonActive
+  const hasCertifications =
+    member.isCertifiedMentor || member.isCertifiedInstructor
+  const hasSpecialStatus =
+    member.isAlumn || member.isSuspended || member.isNonActive
 
-  const hasDpmk = trainingHistory?.asAttendant.some((r) => r.type === 'dpmk') ?? false
-  const hasTfi = trainingHistory?.asAttendant.some((r) => r.type === 'tfi') ?? false
+  const hasDpmk =
+    trainingHistory?.asAttendant.some((r) => r.type === 'dpmk') ?? false
+  const hasTfi =
+    trainingHistory?.asAttendant.some((r) => r.type === 'tfi') ?? false
 
   const [selectedStatus, setSelectedStatus] = useState(member.status)
 
@@ -84,7 +86,7 @@ export const ProfileSidebar = ({
     return (
       <aside className='flex flex-col gap-6'>
         <div>
-          <h2 className='text-muted-foreground font-geist-mono mb-3 text-[11px] font-medium uppercase tracking-widest'>
+          <h2 className='text-muted-foreground font-geist-mono mb-3 text-[11px] font-medium tracking-widest uppercase'>
             Status Kaderisasi
           </h2>
           <Field>
@@ -101,20 +103,30 @@ export const ProfileSidebar = ({
                   className={cn(
                     'flex cursor-pointer items-center justify-between rounded-lg border px-3 py-2 transition-colors',
                     selectedStatus === val
-                      ? 'border-[oklch(0.52_0.20_17)] bg-[oklch(0.52_0.20_17/0.08)]'
-                      : 'border-border hover:border-[oklch(0.52_0.20_17/0.40)]'
+                      ? 'border-primary bg-primary/8'
+                      : 'border-border hover:border-primary/40'
                   )}
                 >
                   <div>
-                    <p className={cn(
-                      'font-geist-mono text-xs font-semibold uppercase',
-                      selectedStatus === val ? 'text-[oklch(0.42_0.18_17)]' : 'text-foreground'
-                    )}>
+                    <p
+                      className={cn(
+                        'font-geist-mono text-xs font-semibold uppercase',
+                        selectedStatus === val
+                          ? 'text-primary'
+                          : 'text-foreground'
+                      )}
+                    >
                       {val.toUpperCase()}
                     </p>
-                    <p className='text-muted-foreground text-xs'>{statusLabel[val]}</p>
+                    <p className='text-muted-foreground text-xs'>
+                      {statusLabel[val]}
+                    </p>
                   </div>
-                  <RadioGroupItem value={val} id={`status-${val}`} className='sr-only' />
+                  <RadioGroupItem
+                    value={val}
+                    id={`status-${val}`}
+                    className='sr-only'
+                  />
                 </label>
               ))}
             </RadioGroup>
@@ -122,7 +134,7 @@ export const ProfileSidebar = ({
         </div>
 
         <div>
-          <h2 className='text-muted-foreground font-geist-mono mb-3 text-[11px] font-medium uppercase tracking-widest'>
+          <h2 className='text-muted-foreground font-geist-mono mb-3 text-[11px] font-medium tracking-widest uppercase'>
             Status Keanggotaan
           </h2>
           <div className='divide-border/60 divide-y rounded-lg border px-3'>
@@ -148,7 +160,7 @@ export const ProfileSidebar = ({
         </div>
 
         <div>
-          <h2 className='text-muted-foreground font-geist-mono mb-3 text-[11px] font-medium uppercase tracking-widest'>
+          <h2 className='text-muted-foreground font-geist-mono mb-3 text-[11px] font-medium tracking-widest uppercase'>
             Sertifikasi
           </h2>
           <div className='divide-border/60 divide-y rounded-lg border px-3'>
@@ -175,7 +187,7 @@ export const ProfileSidebar = ({
   return (
     <aside className='flex flex-col gap-6'>
       <div>
-        <h2 className='text-muted-foreground font-geist-mono mb-3 text-[11px] font-medium uppercase tracking-widest'>
+        <h2 className='text-muted-foreground font-geist-mono mb-3 text-[11px] font-medium tracking-widest uppercase'>
           Sertifikasi
         </h2>
         {hasCertifications ? (
@@ -184,7 +196,9 @@ export const ProfileSidebar = ({
               <div className='border-border rounded-lg border px-3 py-2.5'>
                 <p className='text-foreground text-sm font-semibold'>Pemandu</p>
                 <div className='mt-0.5 flex items-center gap-1.5'>
-                  <p className='text-muted-foreground text-xs'>Telah mengikuti DPMK</p>
+                  <p className='text-muted-foreground text-xs'>
+                    Telah mengikuti DPMK
+                  </p>
                   {!hasDpmk && (
                     <WarningTooltip message='Belum ada entry DPMK di riwayat dauroh' />
                   )}
@@ -193,9 +207,13 @@ export const ProfileSidebar = ({
             )}
             {member.isCertifiedInstructor && (
               <div className='border-border rounded-lg border px-3 py-2.5'>
-                <p className='text-foreground text-sm font-semibold'>Instruktur</p>
+                <p className='text-foreground text-sm font-semibold'>
+                  Instruktur
+                </p>
                 <div className='mt-0.5 flex items-center gap-1.5'>
-                  <p className='text-muted-foreground text-xs'>Telah mengikuti TFI</p>
+                  <p className='text-muted-foreground text-xs'>
+                    Telah mengikuti TFI
+                  </p>
                   {!hasTfi && (
                     <WarningTooltip message='Belum ada entry TFI di riwayat dauroh' />
                   )}
@@ -205,8 +223,12 @@ export const ProfileSidebar = ({
           </div>
         ) : (
           <div>
-            <p className='text-muted-foreground text-sm'>Belum ada sertifikasi.</p>
-            <p className='text-muted-foreground/60 mt-1 text-xs'>Diperoleh setelah lulus DM atau TFI.</p>
+            <p className='text-muted-foreground text-sm'>
+              Belum ada sertifikasi.
+            </p>
+            <p className='text-muted-foreground/60 mt-1 text-xs'>
+              Diperoleh setelah lulus DM atau TFI.
+            </p>
           </div>
         )}
       </div>
@@ -215,26 +237,38 @@ export const ProfileSidebar = ({
 
       {hasSpecialStatus && (
         <div>
-          <h2 className='text-muted-foreground font-geist-mono mb-3 text-[11px] font-medium uppercase tracking-widest'>
+          <h2 className='text-muted-foreground font-geist-mono mb-3 text-[11px] font-medium tracking-widest uppercase'>
             Status Khusus
           </h2>
           <div className='flex flex-col gap-2'>
             {member.isSuspended && (
-              <div className='rounded-lg border border-[oklch(0.52_0.20_17/0.25)] bg-[oklch(0.58_0.20_17/0.08)] px-3 py-2.5'>
-                <p className='text-[oklch(0.42_0.18_17)] text-sm font-semibold'>Dipecat / Diskorsing</p>
-                <p className='text-[oklch(0.52_0.14_17)] text-xs'>Keanggotaan ditangguhkan</p>
+              <div className='rounded-lg border [border-color:var(--status-suspended-border)] [background-color:var(--status-suspended-bg)] px-3 py-2.5'>
+                <p className='text-sm font-semibold [color:var(--status-suspended-text)]'>
+                  Dipecat / Diskorsing
+                </p>
+                <p className='text-xs [color:var(--status-suspended-subtext)]'>
+                  Keanggotaan ditangguhkan
+                </p>
               </div>
             )}
             {member.isNonActive && !member.isSuspended && (
-              <div className='rounded-lg border border-[oklch(0.55_0.01_285/0.25)] bg-[oklch(0.55_0.01_285/0.08)] px-3 py-2.5'>
-                <p className='text-[oklch(0.35_0.008_285)] text-sm font-semibold'>Non-Aktif</p>
-                <p className='text-[oklch(0.50_0.008_285)] text-xs'>Tidak aktif berorganisasi</p>
+              <div className='rounded-lg border [border-color:var(--status-nonactive-border)] [background-color:var(--status-nonactive-bg)] px-3 py-2.5'>
+                <p className='text-sm font-semibold [color:var(--status-nonactive-text)]'>
+                  Non-Aktif
+                </p>
+                <p className='text-xs [color:var(--status-nonactive-subtext)]'>
+                  Tidak aktif berorganisasi
+                </p>
               </div>
             )}
             {member.isAlumn && (
-              <div className='rounded-lg border border-[oklch(0.42_0.17_265/0.25)] bg-[oklch(0.55_0.18_265/0.08)] px-3 py-2.5'>
-                <p className='text-[oklch(0.38_0.17_265)] text-sm font-semibold'>Alumni</p>
-                <p className='text-[oklch(0.48_0.14_265)] text-xs'>Telah menyelesaikan kaderisasi</p>
+              <div className='rounded-lg border [border-color:var(--status-alumn-border)] [background-color:var(--status-alumn-bg)] px-3 py-2.5'>
+                <p className='text-sm font-semibold [color:var(--status-alumn-text)]'>
+                  Alumni
+                </p>
+                <p className='text-xs [color:var(--status-alumn-subtext)]'>
+                  Telah menyelesaikan kaderisasi
+                </p>
               </div>
             )}
           </div>

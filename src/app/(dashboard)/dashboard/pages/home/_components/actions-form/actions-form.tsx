@@ -22,10 +22,10 @@ type Program = ActionsSettings['programs'][number]
 type Props = { initialData: ActionsSettings }
 
 export const ActionsForm = ({ initialData }: Props) => {
-  const [state, formAction, isPending] = useActionState<SettingsActionState, FormData>(
-    saveActionsAction,
-    {}
-  )
+  const [state, formAction, isPending] = useActionState<
+    SettingsActionState,
+    FormData
+  >(saveActionsAction, {})
   const [programs, setPrograms] = useState<Program[]>(initialData.programs)
 
   useEffect(() => {
@@ -35,9 +35,15 @@ export const ActionsForm = ({ initialData }: Props) => {
 
   const fe = state.fieldErrors ?? {}
 
-  const updateProgram = (i: number, field: keyof Program, value: string | boolean) => {
+  const updateProgram = (
+    i: number,
+    field: keyof Program,
+    value: string | boolean
+  ) => {
     setPrograms((prev) => {
-      const next = prev.map((p, idx) => (idx === i ? { ...p, [field]: value } : p))
+      const next = prev.map((p, idx) =>
+        idx === i ? { ...p, [field]: value } : p
+      )
       if (field === 'featured' && value === true) {
         return next.map((p, idx) => (idx !== i ? { ...p, featured: false } : p))
       }
@@ -48,7 +54,14 @@ export const ActionsForm = ({ initialData }: Props) => {
   const addProgram = () => {
     setPrograms((prev) => [
       ...prev,
-      { id: `program-${Date.now()}`, label: '', sublabel: '', description: '', imageUrl: '', featured: false }
+      {
+        id: `program-${Date.now()}`,
+        label: '',
+        sublabel: '',
+        description: '',
+        imageUrl: '',
+        featured: false
+      }
     ])
   }
 
@@ -92,9 +105,11 @@ export const ActionsForm = ({ initialData }: Props) => {
         </div>
 
         <div className='space-y-3'>
-          <p className='text-sm font-medium text-foreground'>
+          <p className='text-foreground text-sm font-medium'>
             Program Aksi{' '}
-            <span className='font-normal text-muted-foreground'>(bintang = ditampilkan besar)</span>
+            <span className='text-muted-foreground font-normal'>
+              (bintang = ditampilkan besar)
+            </span>
           </p>
           {programs.map((program, i) => (
             <div
@@ -105,16 +120,30 @@ export const ActionsForm = ({ initialData }: Props) => {
                 <div className='flex items-center gap-2'>
                   <button
                     type='button'
-                    onClick={() => updateProgram(i, 'featured', !program.featured)}
+                    onClick={() =>
+                      updateProgram(i, 'featured', !program.featured)
+                    }
                     className={`flex size-7 items-center justify-center rounded-lg transition-colors ${program.featured ? 'bg-primary/15 text-primary' : 'text-muted-foreground hover:text-primary'}`}
-                    aria-label={program.featured ? 'Hapus featured' : 'Jadikan featured'}
-                    title={program.featured ? 'Featured (klik untuk hapus)' : 'Jadikan featured'}
+                    aria-label={
+                      program.featured ? 'Hapus featured' : 'Jadikan featured'
+                    }
+                    title={
+                      program.featured
+                        ? 'Featured (klik untuk hapus)'
+                        : 'Jadikan featured'
+                    }
                   >
-                    <HugeiconsIcon icon={StarIcon} className='size-4' strokeWidth={2} />
+                    <HugeiconsIcon
+                      icon={StarIcon}
+                      className='size-4'
+                      strokeWidth={2}
+                    />
                   </button>
-                  <span className='font-mono text-xs text-muted-foreground'>Program {i + 1}</span>
+                  <span className='text-muted-foreground font-mono text-xs'>
+                    Program {i + 1}
+                  </span>
                   {program.featured && (
-                    <span className='rounded-full bg-primary/10 px-2 py-0.5 font-mono text-xs font-semibold text-primary'>
+                    <span className='bg-primary/10 text-primary rounded-full px-2 py-0.5 font-mono text-xs font-semibold'>
                       Featured
                     </span>
                   )}
@@ -123,10 +152,14 @@ export const ActionsForm = ({ initialData }: Props) => {
                   <button
                     type='button'
                     onClick={() => removeProgram(i)}
-                    className='flex size-7 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive'
+                    className='text-muted-foreground hover:bg-destructive/10 hover:text-destructive flex size-7 items-center justify-center rounded-lg transition-colors'
                     aria-label={`Hapus program ${i + 1}`}
                   >
-                    <HugeiconsIcon icon={Delete02Icon} className='size-4' strokeWidth={2} />
+                    <HugeiconsIcon
+                      icon={Delete02Icon}
+                      className='size-4'
+                      strokeWidth={2}
+                    />
                   </button>
                 )}
               </div>
@@ -141,34 +174,46 @@ export const ActionsForm = ({ initialData }: Props) => {
 
                 <div className='grid grid-cols-1 gap-3 sm:grid-cols-2'>
                   <Field>
-                    <FieldLabel htmlFor={`prog-label-${i}`}>Label Program</FieldLabel>
+                    <FieldLabel htmlFor={`prog-label-${i}`}>
+                      Label Program
+                    </FieldLabel>
                     <FieldContent>
                       <Input
                         id={`prog-label-${i}`}
                         value={program.label}
-                        onChange={(e) => updateProgram(i, 'label', e.target.value)}
+                        onChange={(e) =>
+                          updateProgram(i, 'label', e.target.value)
+                        }
                         placeholder='Community Service Action'
                       />
                     </FieldContent>
                   </Field>
                   <Field>
-                    <FieldLabel htmlFor={`prog-sublabel-${i}`}>Sub-label</FieldLabel>
+                    <FieldLabel htmlFor={`prog-sublabel-${i}`}>
+                      Sub-label
+                    </FieldLabel>
                     <FieldContent>
                       <Input
                         id={`prog-sublabel-${i}`}
                         value={program.sublabel}
-                        onChange={(e) => updateProgram(i, 'sublabel', e.target.value)}
+                        onChange={(e) =>
+                          updateProgram(i, 'sublabel', e.target.value)
+                        }
                         placeholder='Ekspedisi Bakti Nusantara 2024'
                       />
                     </FieldContent>
                   </Field>
                   <Field className='sm:col-span-2'>
-                    <FieldLabel htmlFor={`prog-desc-${i}`}>Deskripsi</FieldLabel>
+                    <FieldLabel htmlFor={`prog-desc-${i}`}>
+                      Deskripsi
+                    </FieldLabel>
                     <FieldContent>
                       <Textarea
                         id={`prog-desc-${i}`}
                         value={program.description}
-                        onChange={(e) => updateProgram(i, 'description', e.target.value)}
+                        onChange={(e) =>
+                          updateProgram(i, 'description', e.target.value)
+                        }
                         rows={2}
                         placeholder='Deskripsi singkat program...'
                       />
@@ -182,16 +227,24 @@ export const ActionsForm = ({ initialData }: Props) => {
           <button
             type='button'
             onClick={addProgram}
-            className='flex w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-border py-3 text-sm text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary'
+            className='border-border text-muted-foreground hover:border-primary/40 hover:text-primary flex w-full items-center justify-center gap-2 rounded-2xl border border-dashed py-3 text-sm transition-colors'
           >
-            <HugeiconsIcon icon={Add01Icon} className='size-4' strokeWidth={2} />
+            <HugeiconsIcon
+              icon={Add01Icon}
+              className='size-4'
+              strokeWidth={2}
+            />
             Tambah Program
           </button>
         </div>
       </FieldGroup>
 
       <div className='flex justify-end'>
-        <Button type='submit' className='rounded-full px-8' disabled={isPending}>
+        <Button
+          type='submit'
+          className='rounded-full px-8'
+          disabled={isPending}
+        >
           {isPending ? 'Menyimpan...' : 'Simpan Pengaturan Aksi'}
         </Button>
       </div>

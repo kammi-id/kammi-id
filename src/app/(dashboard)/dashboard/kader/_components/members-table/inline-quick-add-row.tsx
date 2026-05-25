@@ -66,13 +66,21 @@ const getDescendantIds = (
   return descendants
 }
 
-const InlineRow = ({ member, index, filteredOrganizations, currentYear, orgColCount }: InlineRowProps) => {
+const InlineRow = ({
+  member,
+  index,
+  filteredOrganizations,
+  currentYear,
+  orgColCount
+}: InlineRowProps) => {
   const [searchQuery, setSearchQuery] = React.useState('')
 
   const isEmpty = !member.name?.trim() || !member.organizationId
 
   const selectedOrg = React.useMemo(
-    () => filteredOrganizations.find((org) => org.id === member.organizationId) ?? null,
+    () =>
+      filteredOrganizations.find((org) => org.id === member.organizationId) ??
+      null,
     [filteredOrganizations, member.organizationId]
   )
 
@@ -86,7 +94,7 @@ const InlineRow = ({ member, index, filteredOrganizations, currentYear, orgColCo
   return (
     <TableRow
       data-empty={isEmpty || undefined}
-      className='group bg-primary/5 transition-colors hover:bg-primary/10 data-[empty]:bg-destructive/5 data-[empty]:hover:bg-destructive/8'
+      className='group bg-primary/5 hover:bg-primary/10 data-[empty]:bg-destructive/5 data-[empty]:hover:bg-destructive/8 transition-colors'
     >
       <TableCell className='p-2'>
         <div className='text-muted-foreground text-center text-xs italic'>
@@ -136,7 +144,9 @@ const InlineRow = ({ member, index, filteredOrganizations, currentYear, orgColCo
       <TableCell className='p-2'>
         <Select
           value={member.status ?? undefined}
-          onValueChange={(val) => updateInlineRow(index, { status: val as 'ab1' | 'ab2' | 'ab3' })}
+          onValueChange={(val) =>
+            updateInlineRow(index, { status: val as 'ab1' | 'ab2' | 'ab3' })
+          }
         >
           <SelectTrigger className='h-8 text-xs'>
             <SelectValue placeholder='Status'>
@@ -155,7 +165,9 @@ const InlineRow = ({ member, index, filteredOrganizations, currentYear, orgColCo
       <TableCell className='p-2'>
         <Select
           value={member.gender ?? undefined}
-          onValueChange={(val) => updateInlineRow(index, { gender: val as 'ikhwan' | 'akhwat' })}
+          onValueChange={(val) =>
+            updateInlineRow(index, { gender: val as 'ikhwan' | 'akhwat' })
+          }
         >
           <SelectTrigger className='h-8 text-xs'>
             <SelectValue placeholder='Gender'>
@@ -230,7 +242,8 @@ export const InlineQuickAddRow = ({
     const descendants = getDescendantIds(parentOrgId, organizations)
     return organizations.filter((org) => {
       const isCorrectType = org.type === 'pd' || org.type === 'pk'
-      const isDescendant = descendants.includes(org.id) || org.id === parentOrgId
+      const isDescendant =
+        descendants.includes(org.id) || org.id === parentOrgId
       return isCorrectType && isDescendant
     })
   }, [organizations, parentOrgId, isPk])
@@ -262,7 +275,9 @@ export const InlineQuickAddRow = ({
           onClick={addRow}
         >
           <HugeiconsIcon icon={AddIcon} className='mr-2 size-3' />
-          {inlineMembers.length === 0 ? 'Tambah Data Kader' : 'Tambah Baris Lagi'}
+          {inlineMembers.length === 0
+            ? 'Tambah Data Kader'
+            : 'Tambah Baris Lagi'}
         </Button>
       </TableCell>
     </TableRow>

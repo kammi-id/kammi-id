@@ -3090,9 +3090,27 @@
     code: '27.PD-1',
     parent_code: 'PW27'
   },
-  { name: 'PK KAMMI UNCEN', slug: 'uncen', type: 'pk', code: '27.PD-1.UNCEN', parent_code: '27.PD-1' },
-  { name: 'PK KAMMI IAIN Fattahul Muluk', slug: 'iain-fattahul-muluk', type: 'pk', code: '27.PD-1.IAIN', parent_code: '27.PD-1' },
-  { name: 'PK KAMMI UNIYAP', slug: 'uniyap', type: 'pk', code: '27.PD-1.UNIYAP', parent_code: '27.PD-1' },
+  {
+    name: 'PK KAMMI UNCEN',
+    slug: 'uncen',
+    type: 'pk',
+    code: '27.PD-1.UNCEN',
+    parent_code: '27.PD-1'
+  },
+  {
+    name: 'PK KAMMI IAIN Fattahul Muluk',
+    slug: 'iain-fattahul-muluk',
+    type: 'pk',
+    code: '27.PD-1.IAIN',
+    parent_code: '27.PD-1'
+  },
+  {
+    name: 'PK KAMMI UNIYAP',
+    slug: 'uniyap',
+    type: 'pk',
+    code: '27.PD-1.UNIYAP',
+    parent_code: '27.PD-1'
+  },
   {
     name: 'PD KAMMI Papua Barat',
     slug: 'papua-barat',

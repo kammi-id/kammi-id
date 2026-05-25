@@ -4,8 +4,12 @@ import { fmt } from '~/lib/utils/format'
 
 const StatSplit = ({ label, value }: { label: string; value: number }) => (
   <div>
-    <div className='font-mono text-base font-semibold tabular-nums'>{fmt(value)}</div>
-    <div className='text-xs uppercase tracking-wider text-muted-foreground'>{label}</div>
+    <div className='font-mono text-base font-semibold tabular-nums'>
+      {fmt(value)}
+    </div>
+    <div className='text-muted-foreground text-xs tracking-wider uppercase'>
+      {label}
+    </div>
   </div>
 )
 
@@ -27,23 +31,25 @@ export const TrainingSectionCards = ({ data }: TrainingSectionCardsProps) => {
 
   if (data.total === 0) {
     return (
-      <div className='flex flex-col gap-3 rounded-xl border bg-card p-6'>
-        <div className='text-xs font-medium uppercase tracking-tight text-muted-foreground'>
+      <div className='bg-card flex flex-col gap-3 rounded-xl border p-6'>
+        <h2 className='text-muted-foreground text-xs font-medium tracking-tight uppercase'>
           Statistik Dauroh
-        </div>
-        <p className='text-sm text-muted-foreground'>Belum ada dauroh yang tercatat.</p>
+        </h2>
+        <p className='text-muted-foreground text-sm'>
+          Belum ada dauroh yang tercatat.
+        </p>
       </div>
     )
   }
 
   return (
-    <div className='flex flex-col gap-5 rounded-xl border bg-card p-6'>
+    <div className='bg-card flex flex-col gap-5 rounded-xl border p-6'>
       <div className='flex items-start justify-between gap-4'>
         <div>
-          <div className='text-xs font-medium uppercase tracking-wider text-muted-foreground'>
+          <h2 className='text-muted-foreground text-xs font-medium tracking-wider uppercase'>
             Total Dauroh
-          </div>
-          <div className='mt-1 font-mono text-4xl font-bold tabular-nums tracking-tight text-foreground'>
+          </h2>
+          <div className='text-foreground mt-1 font-mono text-4xl font-bold tracking-tight tabular-nums'>
             {fmt(data.total)}
           </div>
         </div>
@@ -59,12 +65,18 @@ export const TrainingSectionCards = ({ data }: TrainingSectionCardsProps) => {
           <div className='flex flex-col gap-2.5'>
             {sortedTypes.map(([type, count]) => (
               <div key={type} className='flex items-center gap-3'>
-                <span className='w-12 font-mono text-xs font-medium uppercase text-muted-foreground'>
+                <span className='text-muted-foreground w-12 font-mono text-xs font-medium uppercase'>
                   {type}
                 </span>
-                <div className='flex h-1.5 flex-1 overflow-hidden rounded-full bg-muted'>
+                <div
+                  role='progressbar'
+                  aria-valuenow={Number(count)}
+                  aria-valuemax={Number(maxCount)}
+                  aria-label={`${type}: ${count}`}
+                  className='bg-muted flex h-1.5 flex-1 overflow-hidden rounded-full'
+                >
                   <div
-                    className='h-full bg-primary transition-all'
+                    className='bg-primary h-full transition-all'
                     style={{ width: `${(count / maxCount) * 100}%` }}
                   />
                 </div>

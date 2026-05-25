@@ -19,7 +19,6 @@ export const closeMemberSheet = () => {
   setTimeout(() => memberEditData.set(null), 300) // Clear after transition
 }
 
-
 export const updateInlineRow = (
   index: number,
   data: Partial<IndividualMember>

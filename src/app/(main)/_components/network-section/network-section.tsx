@@ -19,12 +19,15 @@ export const NetworkSection = () => {
         <div className='mb-12 text-center'>
           <h2
             id='network-heading'
-            className='font-heading text-[clamp(1.5rem,3vw,2rem)] font-bold text-foreground'
+            className='font-heading text-foreground text-[clamp(1.5rem,3vw,2rem)] font-bold'
           >
             Peta Jaringan Nasional
           </h2>
-          <div className='mx-auto mt-1 h-1 w-12 rounded-full bg-primary' aria-hidden='true' />
-          <p className='mt-4 font-sans text-sm text-muted-foreground'>
+          <div
+            className='bg-primary mx-auto mt-1 h-1 w-12 rounded-full'
+            aria-hidden='true'
+          />
+          <p className='text-muted-foreground mt-4 font-sans text-sm'>
             Dari Sabang sampai Merauke, jaringan KAMMI hadir untuk mendukung
             agenda kebangsaan dari level kampus.
           </p>
@@ -34,13 +37,13 @@ export const NetworkSection = () => {
           {STATS.map((stat) => (
             <div
               key={stat.label}
-              className='rounded-2xl border border-border bg-background p-6 text-center'
+              className='border-border bg-background rounded-2xl border p-6 text-center'
             >
-              <p className='font-heading text-[clamp(2rem,5vw,3rem)] font-bold leading-none text-foreground'>
+              <p className='font-heading text-foreground text-[clamp(2rem,5vw,3rem)] leading-none font-bold'>
                 {stat.value}
                 <span className='text-primary'>{stat.suffix}</span>
               </p>
-              <p className='mt-2 font-sans text-xs font-medium text-muted-foreground'>
+              <p className='text-muted-foreground mt-2 font-sans text-xs font-medium'>
                 {stat.label}
               </p>
             </div>

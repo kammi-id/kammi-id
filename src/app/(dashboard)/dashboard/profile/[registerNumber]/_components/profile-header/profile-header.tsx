@@ -17,19 +17,19 @@ interface ProfileHeaderProps {
 
 const statusStyles: Record<string, React.CSSProperties> = {
   ab1: {
-    backgroundColor: 'oklch(0.65 0.18 145 / 0.12)',
-    borderColor: 'oklch(0.55 0.16 145 / 0.40)',
-    color: 'oklch(0.40 0.16 145)'
+    backgroundColor: 'var(--status-ab1-bg)',
+    borderColor: 'var(--status-ab1-border)',
+    color: 'var(--status-ab1-text)'
   },
   ab2: {
-    backgroundColor: 'oklch(0.58 0.20 25 / 0.12)',
-    borderColor: 'oklch(0.48 0.18 25 / 0.40)',
-    color: 'oklch(0.42 0.18 25)'
+    backgroundColor: 'var(--status-ab2-bg)',
+    borderColor: 'var(--status-ab2-border)',
+    color: 'var(--status-ab2-text)'
   },
   ab3: {
-    backgroundColor: 'oklch(0.55 0.18 265 / 0.12)',
-    borderColor: 'oklch(0.42 0.17 265 / 0.40)',
-    color: 'oklch(0.38 0.17 265)'
+    backgroundColor: 'var(--status-ab3-bg)',
+    borderColor: 'var(--status-ab3-border)',
+    color: 'var(--status-ab3-text)'
   }
 }
 
@@ -76,12 +76,10 @@ export const ProfileHeader = ({
 
           <div className='min-w-0 flex-1'>
             <div className='flex flex-wrap items-start justify-between gap-3'>
-              <h1 className='font-heading text-foreground text-2xl font-bold leading-tight md:text-3xl'>
+              <h1 className='font-heading text-foreground text-2xl leading-tight font-bold md:text-3xl'>
                 {member.name}
               </h1>
-              <div className='shrink-0'>
-                {editActionsSlot ?? editSlot}
-              </div>
+              <div className='shrink-0'>{editActionsSlot ?? editSlot}</div>
             </div>
 
             <div className='mt-1 flex items-center gap-2'>

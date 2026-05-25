@@ -13,7 +13,11 @@ const canEdit = (
   if (!session) return false
   const { role, connectedMember } = session.user
   if (role === 'root' || role === 'bpk') return true
-  if (role === 'member' && (connectedMember as { id: string } | null)?.id === memberId) return true
+  if (
+    role === 'member' &&
+    (connectedMember as { id: string } | null)?.id === memberId
+  )
+    return true
   return false
 }
 
@@ -33,7 +37,9 @@ const ProfilePage = async ({
 
   const [trainingHistory, orgChain] = await Promise.all([
     readMemberTrainingHistory(member.id),
-    member.organization?.id ? readOrgHierarchyChain(member.organization.id) : Promise.resolve([])
+    member.organization?.id
+      ? readOrgHierarchyChain(member.organization.id)
+      : Promise.resolve([])
   ])
 
   const userCanEdit = canEdit(session, member.id)

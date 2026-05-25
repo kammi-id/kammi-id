@@ -28,7 +28,10 @@ const checkAccess = async () => {
   return session
 }
 
-const linkSchema = z.object({ label: z.string().min(1), href: z.string().min(1) })
+const linkSchema = z.object({
+  label: z.string().min(1),
+  href: z.string().min(1)
+})
 
 // ─── Hero ────────────────────────────────────────────────────────────────────
 
@@ -55,7 +58,12 @@ export const saveHeroAction = async (
 
   const result = heroSchema.safeParse(Object.fromEntries(formData))
   if (!result.success) {
-    return { fieldErrors: result.error.flatten().fieldErrors as Record<string, string[]> }
+    return {
+      fieldErrors: result.error.flatten().fieldErrors as Record<
+        string,
+        string[]
+      >
+    }
   }
 
   try {
@@ -75,7 +83,9 @@ const aboutSchema = z.object({
   readMoreLabel: z.string().min(1),
   readMoreHref: z.string().min(1),
   miniStrategiTitle: z.string().min(1, 'Judul mini strategi wajib diisi.'),
-  miniStrategiDescription: z.string().min(1, 'Deskripsi mini strategi wajib diisi.'),
+  miniStrategiDescription: z
+    .string()
+    .min(1, 'Deskripsi mini strategi wajib diisi.'),
   miniStrategiLinkLabel: z.string().min(1),
   miniStrategiLinkHref: z.string().min(1)
 })
@@ -88,7 +98,12 @@ export const saveAboutAction = async (
 
   const result = aboutSchema.safeParse(Object.fromEntries(formData))
   if (!result.success) {
-    return { fieldErrors: result.error.flatten().fieldErrors as Record<string, string[]> }
+    return {
+      fieldErrors: result.error.flatten().fieldErrors as Record<
+        string,
+        string[]
+      >
+    }
   }
 
   try {
@@ -135,7 +150,12 @@ export const saveActionsAction = async (
 
   const result = actionsSchema.safeParse({ ...raw, programs })
   if (!result.success) {
-    return { fieldErrors: result.error.flatten().fieldErrors as Record<string, string[]> }
+    return {
+      fieldErrors: result.error.flatten().fieldErrors as Record<
+        string,
+        string[]
+      >
+    }
   }
 
   try {
@@ -171,7 +191,12 @@ export const saveNavAction = async (
 
   const result = navSchema.safeParse({ ...raw, navLinks })
   if (!result.success) {
-    return { fieldErrors: result.error.flatten().fieldErrors as Record<string, string[]> }
+    return {
+      fieldErrors: result.error.flatten().fieldErrors as Record<
+        string,
+        string[]
+      >
+    }
   }
 
   try {
@@ -211,9 +236,19 @@ export const saveFooterAction = async (
     return { error: 'Data footer tidak valid.' }
   }
 
-  const result = footerSchema.safeParse({ ...raw, footerKAMMI, footerBeritaData, footerIkutiKami })
+  const result = footerSchema.safeParse({
+    ...raw,
+    footerKAMMI,
+    footerBeritaData,
+    footerIkutiKami
+  })
   if (!result.success) {
-    return { fieldErrors: result.error.flatten().fieldErrors as Record<string, string[]> }
+    return {
+      fieldErrors: result.error.flatten().fieldErrors as Record<
+        string,
+        string[]
+      >
+    }
   }
 
   try {
@@ -241,7 +276,12 @@ export const saveMetadataAction = async (
 
   const result = metadataSchema.safeParse(Object.fromEntries(formData))
   if (!result.success) {
-    return { fieldErrors: result.error.flatten().fieldErrors as Record<string, string[]> }
+    return {
+      fieldErrors: result.error.flatten().fieldErrors as Record<
+        string,
+        string[]
+      >
+    }
   }
 
   try {

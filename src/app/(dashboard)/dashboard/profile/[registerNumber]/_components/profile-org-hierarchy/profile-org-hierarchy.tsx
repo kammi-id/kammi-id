@@ -38,7 +38,7 @@ export const ProfileOrgHierarchy = ({
 
   return (
     <div>
-      <h2 className='text-muted-foreground font-geist-mono mb-3 text-[11px] font-medium uppercase tracking-widest'>
+      <h2 className='text-muted-foreground font-geist-mono mb-3 text-[11px] font-medium tracking-widest uppercase'>
         Struktur Organisasi
       </h2>
       <div className='flex flex-col gap-1.5'>
@@ -46,17 +46,21 @@ export const ProfileOrgHierarchy = ({
           const isCurrent = node.id === currentOrgId
 
           return (
-            <div key={node.id} className='grid grid-cols-[5.5rem_1fr] items-start gap-2'>
+            <div
+              key={node.id}
+              className='grid grid-cols-[5.5rem_1fr] items-start gap-2'
+            >
               <span
                 className={cn(
                   'font-geist-mono shrink-0 rounded border px-1 py-0.5 text-center text-[10px] font-medium',
-                  orgTypeBadgeClass[node.type] ?? 'border-border text-muted-foreground'
+                  orgTypeBadgeClass[node.type] ??
+                    'border-border text-muted-foreground'
                 )}
               >
                 {orgTypeLabel[node.type] ?? node.type.toUpperCase()}
               </span>
               {isCurrent ? (
-                <span className='text-foreground text-xs font-semibold leading-5'>
+                <span className='text-foreground text-xs leading-5 font-semibold'>
                   {node.name}
                 </span>
               ) : (

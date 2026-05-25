@@ -43,7 +43,10 @@ export const KaderChart = ({
         </CardDescription>
       </CardHeader>
       <CardContent className='px-2 pb-4 sm:px-6'>
-        <ChartContainer config={chartConfig} className='aspect-auto h-[180px] w-full'>
+        <ChartContainer
+          config={chartConfig}
+          className='aspect-auto h-[180px] w-full'
+        >
           <AreaChart
             data={data}
             margin={{ top: 8, right: 8, left: -16, bottom: 0 }}

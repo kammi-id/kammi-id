@@ -13,12 +13,14 @@
 ## File Map
 
 **Create:**
+
 - `src/app/(dashboard)/dashboard/_components/dashboard-header/dashboard-header.tsx` — Greeting + org name + tanggal
 - `src/app/(dashboard)/dashboard/_components/dashboard-header/index.ts` — barrel export
 - `src/app/(dashboard)/dashboard/_components/dashboard-stats/dashboard-stats.tsx` — Role-adaptive stats container (tabs untuk bph/root, direct untuk bpk/bpw)
 - `src/app/(dashboard)/dashboard/_components/dashboard-stats/index.ts` — barrel export
 
 **Modify:**
+
 - `src/app/(dashboard)/dashboard/page.tsx` — Gunakan tiga zona baru, hapus DashboardTabs import
 - `src/app/(dashboard)/dashboard/_components/upcoming-trainings/upcoming-trainings.tsx` — Ubah dari tabel ke list dengan urgency awareness
 - `src/app/(dashboard)/dashboard/_components/dashboard-tabs/dashboard-tabs.tsx` — Akan dihapus setelah diganti
@@ -28,6 +30,7 @@
 ## Task 1: `DashboardHeader` component
 
 **Files:**
+
 - Create: `src/app/(dashboard)/dashboard/_components/dashboard-header/dashboard-header.tsx`
 - Create: `src/app/(dashboard)/dashboard/_components/dashboard-header/index.ts`
 
@@ -75,11 +78,11 @@ export const DashboardHeader = ({
 
   return (
     <div className='flex flex-col gap-0.5'>
-      <p className='text-xs text-muted-foreground'>{formattedDate}</p>
+      <p className='text-muted-foreground text-xs'>{formattedDate}</p>
       <h1 className='font-heading text-2xl font-bold tracking-tight'>
         {greeting}, {name}.
       </h1>
-      <p className='text-sm text-muted-foreground'>
+      <p className='text-muted-foreground text-sm'>
         {orgName}{' '}
         <span className='text-muted-foreground/60'>
           &middot; {roleLabels[role] ?? role}
@@ -110,6 +113,7 @@ git commit -m "feat(dashboard): tambah DashboardHeader komponen kontekstual"
 ## Task 2: `DashboardStats` component (role-adaptive container)
 
 **Files:**
+
 - Create: `src/app/(dashboard)/dashboard/_components/dashboard-stats/dashboard-stats.tsx`
 - Create: `src/app/(dashboard)/dashboard/_components/dashboard-stats/index.ts`
 
@@ -121,7 +125,12 @@ Buat file `src/app/(dashboard)/dashboard/_components/dashboard-stats/dashboard-s
 'use client'
 
 import type { ReactNode } from 'react'
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '~/components/shadcn/ui/tabs'
+import {
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent
+} from '~/components/shadcn/ui/tabs'
 
 export const DashboardStats = ({
   role,
@@ -177,6 +186,7 @@ git commit -m "feat(dashboard): tambah DashboardStats role-adaptive container"
 ## Task 3: Redesign `UpcomingTrainings` dengan urgency awareness
 
 **Files:**
+
 - Modify: `src/app/(dashboard)/dashboard/_components/upcoming-trainings/upcoming-trainings.tsx`
 
 Ubah dari tabel ke list sederhana. Dauroh dalam 7 hari mendapat treatment visual berbeda.
@@ -189,7 +199,11 @@ Baca `src/app/(dashboard)/dashboard/_components/upcoming-trainings/upcoming-trai
 
 ```tsx
 import Link from 'next/link'
-import { ArrowRight01Icon, Calendar03Icon, AlertCircleIcon } from '@hugeicons/core-free-icons'
+import {
+  ArrowRight01Icon,
+  Calendar03Icon,
+  AlertCircleIcon
+} from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { cn } from '~/lib/shadcn/utils'
 import type { UpcomingTraining } from '~/app/(dashboard)/dashboard/_data/trainings'
@@ -218,12 +232,7 @@ const getDaysUntil = (dateStr: string) => {
   return Math.ceil((start.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
 }
 
-
-export const UpcomingTrainings = ({
-  data
-}: {
-  data: UpcomingTraining[]
-}) => {
+export const UpcomingTrainings = ({ data }: { data: UpcomingTraining[] }) => {
   return (
     <div className='flex flex-col gap-3'>
       <div className='flex items-center justify-between'>
@@ -231,13 +240,13 @@ export const UpcomingTrainings = ({
           <h2 className='text-base font-semibold tracking-tight'>
             Dauroh Terdekat
           </h2>
-          <p className='text-xs text-muted-foreground'>
+          <p className='text-muted-foreground text-xs'>
             Yang akan datang dalam scope organisasi
           </p>
         </div>
         <Link
           href='/dashboard/trainings'
-          className='inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline'
+          className='text-primary inline-flex items-center gap-1 text-xs font-medium hover:underline'
         >
           Semua dauroh
           <HugeiconsIcon icon={ArrowRight01Icon} className='size-3' />
@@ -245,21 +254,24 @@ export const UpcomingTrainings = ({
       </div>
 
       {data.length === 0 ? (
-        <div className='flex flex-col items-center justify-center gap-2 rounded-xl border bg-card py-12 text-center'>
-          <HugeiconsIcon icon={Calendar03Icon} className='size-8 text-muted-foreground/30' />
-          <p className='text-sm font-medium text-muted-foreground'>
+        <div className='bg-card flex flex-col items-center justify-center gap-2 rounded-xl border py-12 text-center'>
+          <HugeiconsIcon
+            icon={Calendar03Icon}
+            className='text-muted-foreground/30 size-8'
+          />
+          <p className='text-muted-foreground text-sm font-medium'>
             Tidak ada dauroh yang akan datang.
           </p>
           <Link
             href='/dashboard/trainings'
-            className='inline-flex items-center gap-1 text-xs text-primary hover:underline'
+            className='text-primary inline-flex items-center gap-1 text-xs hover:underline'
           >
             Tambah dauroh baru
             <HugeiconsIcon icon={ArrowRight01Icon} className='size-3' />
           </Link>
         </div>
       ) : (
-        <div className='flex flex-col divide-y rounded-xl border bg-card overflow-hidden'>
+        <div className='bg-card flex flex-col divide-y overflow-hidden rounded-xl border'>
           {data.map((training) => {
             const days = getDaysUntil(training.startDate)
             const isUrgent = days >= 0 && days <= 7
@@ -269,7 +281,7 @@ export const UpcomingTrainings = ({
               <div
                 key={training.id}
                 className={cn(
-                  'flex items-center justify-between gap-4 px-4 py-3 transition-colors hover:bg-muted/40',
+                  'hover:bg-muted/40 flex items-center justify-between gap-4 px-4 py-3 transition-colors',
                   isUrgent && 'bg-primary/[0.03]'
                 )}
               >
@@ -278,24 +290,25 @@ export const UpcomingTrainings = ({
                     {isUrgent && (
                       <HugeiconsIcon
                         icon={AlertCircleIcon}
-                        className='size-3.5 shrink-0 text-primary'
+                        className='text-primary size-3.5 shrink-0'
                       />
                     )}
                     <Link
                       href={href}
-                      className='truncate text-sm font-medium hover:text-primary hover:underline transition-colors'
+                      className='hover:text-primary truncate text-sm font-medium transition-colors hover:underline'
                     >
                       {training.name}
                     </Link>
                   </div>
-                  <div className='flex items-center gap-2 text-xs text-muted-foreground'>
-                    <span className='font-mono text-muted-foreground/60'>
-                      {training.year}{String(training.identifier).padStart(3, '0')}
+                  <div className='text-muted-foreground flex items-center gap-2 text-xs'>
+                    <span className='text-muted-foreground/60 font-mono'>
+                      {training.year}
+                      {String(training.identifier).padStart(3, '0')}
                     </span>
                     <span>&middot;</span>
                     <span>{training.organization.name}</span>
                     <span>&middot;</span>
-                    <span className='rounded bg-primary/10 px-1.5 py-0.5 font-mono text-[10px] font-bold text-primary'>
+                    <span className='bg-primary/10 text-primary rounded px-1.5 py-0.5 font-mono text-[10px] font-bold'>
                       {typeLabels[training.type] ?? training.type}
                     </span>
                   </div>
@@ -303,11 +316,15 @@ export const UpcomingTrainings = ({
 
                 <div className='shrink-0 text-right'>
                   {days >= 0 && days <= 7 ? (
-                    <span className='font-mono text-xs font-semibold text-primary'>
-                      {days === 0 ? 'Hari ini' : days === 1 ? 'Besok' : `${days} hari lagi`}
+                    <span className='text-primary font-mono text-xs font-semibold'>
+                      {days === 0
+                        ? 'Hari ini'
+                        : days === 1
+                          ? 'Besok'
+                          : `${days} hari lagi`}
                     </span>
                   ) : (
-                    <span className='font-mono text-xs text-muted-foreground/60'>
+                    <span className='text-muted-foreground/60 font-mono text-xs'>
                       {formatDate(training.startDate)}
                     </span>
                   )}
@@ -334,6 +351,7 @@ git commit -m "feat(dashboard): redesign UpcomingTrainings jadi list dengan urge
 ## Task 4: Refactor `page.tsx` untuk tiga-zona layout
 
 **Files:**
+
 - Modify: `src/app/(dashboard)/dashboard/page.tsx`
 
 - [ ] **Step 1: Baca file existing**
@@ -403,7 +421,10 @@ const Page = async () => {
       ? readMemberAggregates({ user: userForScope, isCertifiedMentor: true })
       : Promise.resolve([]),
     showKader
-      ? readMemberAggregates({ user: userForScope, isCertifiedInstructor: true })
+      ? readMemberAggregates({
+          user: userForScope,
+          isCertifiedInstructor: true
+        })
       : Promise.resolve([]),
     showKader
       ? readMemberAggregates({ user: userForScope, isAlumn: true })
@@ -412,13 +433,22 @@ const Page = async () => {
       ? getCachedMemberYearDistribution(allowedOrgIds)
       : Promise.resolve([]),
     showWilayah
-      ? getCachedOrganizationCount({ type: ['pw', 'pdln'], id: allowedOrgIds.length ? allowedOrgIds : undefined })
+      ? getCachedOrganizationCount({
+          type: ['pw', 'pdln'],
+          id: allowedOrgIds.length ? allowedOrgIds : undefined
+        })
       : Promise.resolve(0),
     showWilayah
-      ? getCachedOrganizationCount({ type: ['pd'], id: allowedOrgIds.length ? allowedOrgIds : undefined })
+      ? getCachedOrganizationCount({
+          type: ['pd'],
+          id: allowedOrgIds.length ? allowedOrgIds : undefined
+        })
       : Promise.resolve(0),
     showWilayah
-      ? getCachedOrganizationCount({ type: ['pk'], id: allowedOrgIds.length ? allowedOrgIds : undefined })
+      ? getCachedOrganizationCount({
+          type: ['pk'],
+          id: allowedOrgIds.length ? allowedOrgIds : undefined
+        })
       : Promise.resolve(0),
     getCachedUpcomingTrainings(allowedOrgIds.length ? allowedOrgIds : undefined)
   ])
@@ -485,6 +515,7 @@ git commit -m "feat(dashboard): refactor page.tsx ke three-zone Morning Briefing
 ## Task 5: Cleanup `DashboardTabs` yang sudah tidak dipakai
 
 **Files:**
+
 - Modify/Delete: `src/app/(dashboard)/dashboard/_components/dashboard-tabs/dashboard-tabs.tsx`
 - Modify/Delete: `src/app/(dashboard)/dashboard/_components/dashboard-tabs/index.ts`
 

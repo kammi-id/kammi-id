@@ -48,16 +48,24 @@ export const MembersPageHeader = ({
           href={backHref}
           className={cn(
             buttonVariants({ variant: 'outline', size: 'icon' }),
-            'size-8 shrink-0 transition-all hover:bg-primary hover:text-primary-foreground'
+            'hover:bg-primary hover:text-primary-foreground size-8 shrink-0 transition-all'
           )}
           aria-label='Kembali'
         >
-          <HugeiconsIcon icon={ArrowLeft02Icon} strokeWidth={2} className='size-4' />
+          <HugeiconsIcon
+            icon={ArrowLeft02Icon}
+            strokeWidth={2}
+            className='size-4'
+          />
         </Link>
       )}
       <div className='flex items-start gap-5'>
         <div className='bg-primary/10 text-primary ring-primary/5 flex size-14 shrink-0 items-center justify-center rounded-full ring-4'>
-          <HugeiconsIcon icon={IconComponent} strokeWidth={2} className='size-7' />
+          <HugeiconsIcon
+            icon={IconComponent}
+            strokeWidth={2}
+            className='size-7'
+          />
         </div>
         <div>
           <h1 className='font-heading text-3xl font-extrabold tracking-tight sm:text-4xl'>

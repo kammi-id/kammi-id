@@ -1,18 +1,9 @@
 'use client'
 
 import { ColumnDef } from '@tanstack/react-table'
-import { Edit01Icon, Delete01Icon } from '@hugeicons/core-free-icons'
-import { HugeiconsIcon } from '@hugeicons/react'
 import Link from 'next/link'
 import { Badge } from '~/components/shadcn/ui/badge'
-import { Button } from '~/components/shadcn/ui/button'
 import { cn } from '~/lib/shadcn/utils'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger
-} from '~/components/shadcn/ui/tooltip'
 import { buttonVariants } from '~/components/shadcn/ui/button'
 
 export interface Training {
@@ -49,19 +40,17 @@ const typeColors: Record<string, string> = {
   other: 'bg-slate-100 text-slate-700 border-slate-200'
 }
 
-export const getColumns = (
-  onEdit?: (training: Training) => void,
-  onDelete?: (id: string) => void
-): ColumnDef<Training>[] => [
+export const getColumns = (): ColumnDef<Training>[] => [
   {
     accessorKey: 'name',
     header: 'Nama Dauroh',
     cell: ({ row }) => {
       const training = row.original
       const orgSlug = training.organization.slug
+      const fullId = `${training.year}${String(training.identifier).padStart(3, '0')}`
       return (
         <Link
-          href={`/dashboard/trainings/${orgSlug}/${training.year}/${training.identifier}`}
+          href={`/dashboard/trainings/${orgSlug}/${fullId}`}
           className={cn(
             buttonVariants({ variant: 'ghost', size: 'sm' }),
             'text-foreground -ml-2 h-8 px-2 font-medium'
@@ -98,18 +87,6 @@ export const getColumns = (
     }
   },
   {
-    id: 'identifier',
-    header: 'ID',
-    cell: ({ row }) => {
-      const { year, identifier } = row.original
-      return (
-        <div className='-ml-2 h-8 px-2 font-mono text-xs font-medium opacity-80'>
-          {year}-${identifier}
-        </div>
-      )
-    }
-  },
-  {
     accessorKey: 'startDate',
     header: 'Tanggal',
     cell: ({ row }) => {
@@ -130,56 +107,5 @@ export const getColumns = (
         </div>
       )
     }
-  },
-  {
-    id: 'actions',
-    header: () => <div className='text-right'>Aksi</div>,
-    cell: ({ row }) => (
-      <div className='text-right'>
-        <TooltipProvider>
-          <div className='flex justify-end gap-1'>
-            <Tooltip>
-              <TooltipTrigger
-                render={
-                  <Button
-                    variant='ghost'
-                    size='sm'
-                    className='size-8 p-0'
-                    onClick={() => onEdit?.(row.original)}
-                  >
-                    <HugeiconsIcon
-                      icon={Edit01Icon}
-                      strokeWidth={2}
-                      className='size-4'
-                    />
-                  </Button>
-                }
-              />
-              <TooltipContent>Edit {row.original.name}</TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger
-                render={
-                  <Button
-                    variant='ghost'
-                    size='sm'
-                    className='text-destructive hover:text-destructive size-8 p-0'
-                    onClick={() => onDelete?.(row.original.id)}
-                  >
-                    <HugeiconsIcon
-                      icon={Delete01Icon}
-                      strokeWidth={2}
-                      className='size-4'
-                    />
-                  </Button>
-                }
-              />
-
-              <TooltipContent>Hapus {row.original.name}</TooltipContent>
-            </Tooltip>
-          </div>
-        </TooltipProvider>
-      </div>
-    )
   }
 ]

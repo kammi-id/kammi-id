@@ -1,7 +1,10 @@
 'use server'
 
 import { z } from 'zod'
-import { trainingQuery } from '~/db/query/training'
+import {
+  trainingQuery,
+  searchEligibleInstructorsGlobal
+} from '~/db/query/training'
 import { revalidatePath } from 'next/cache'
 import { readActiveSession } from '~/lib/auth/cookies'
 
@@ -18,7 +21,10 @@ const TrainingSchema = z.object({
     { message: 'Start date must be in the future or today' }
   ),
   endDate: z.string(),
-  registrationDeadline: z.string().optional(),
+  registrationDeadline: z
+    .string()
+    .transform((v) => v || undefined)
+    .optional(),
   type: z.enum(['dm1', 'dm2', 'dpmk', 'tfi', 'dm3', 'other'])
 })
 
@@ -27,6 +33,16 @@ type ActionResponse<T = unknown> = {
   message: string
   errors?: Record<string, string[]>
   data?: T
+}
+
+export const searchMasterCandidatesAction = async (query: string) => {
+  if (query.length < 2) return { data: [], success: true }
+  try {
+    const data = await searchEligibleInstructorsGlobal(query)
+    return { data, success: true }
+  } catch {
+    return { data: [], success: false }
+  }
 }
 
 export const createTrainingAction = async (
@@ -85,6 +101,12 @@ export const createTrainingAction = async (
     }
 
     const created = await trainingQuery.create(data)
+
+    const masterId = formData.get('masterId') as string | null
+    if (masterId) {
+      await trainingQuery.addInstructor(created.id, masterId, 'master')
+    }
+
     revalidatePath('/dashboard/trainings')
     return {
       success: true,
@@ -92,6 +114,7 @@ export const createTrainingAction = async (
       data: created
     }
   } catch (error) {
+    console.error('[createTrainingAction]', error)
     return {
       success: false,
       message: 'An unexpected error occurred while creating training'

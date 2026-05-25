@@ -78,7 +78,8 @@ export const SETTINGS_DEFAULTS = {
       'Membangun peradaban dengan intelektualitas, integritas, dan amal nyata. Membawa mahasiswa muslim untuk berani, membentuk Indonesia dengan semangat keislaman, kebangsaan, dan intelektualitas.',
     heroImageUrl: 'https://picsum.photos/seed/kammi-hero/480/580',
     heroImageAlt: 'Pengurus KAMMI berbicara dalam forum nasional',
-    quoteText: 'Seperti akar yang menancap dalam, perubahan besar dimulai dari sini.',
+    quoteText:
+      'Seperti akar yang menancap dalam, perubahan besar dimulai dari sini.',
     quoteAttribution: 'Semangat KAMMI',
     cta1Label: 'Mulai Bergabung',
     cta1Href: '#bergabung',
@@ -115,7 +116,8 @@ export const SETTINGS_DEFAULTS = {
         id: 'csa-2024',
         label: 'Community Service Action',
         sublabel: 'Ekspedisi Bakti Nusantara 2024',
-        description: 'Aksi bersama di seluruh wilayah untuk memperkuat Indonesia Timur.',
+        description:
+          'Aksi bersama di seluruh wilayah untuk memperkuat Indonesia Timur.',
         imageUrl: 'https://picsum.photos/seed/aksi-1/600/700',
         featured: true
       },
@@ -190,7 +192,10 @@ export const SETTINGS_DEFAULTS = {
   } satisfies MetadataSettings
 } as const
 
-export const readSiteSettings = async <T>(key: string, fallback: T): Promise<T> => {
+export const readSiteSettings = async <T>(
+  key: string,
+  fallback: T
+): Promise<T> => {
   try {
     const rows = await db
       .select({ data: siteSettings.data })
@@ -205,7 +210,10 @@ export const readSiteSettings = async <T>(key: string, fallback: T): Promise<T> 
   }
 }
 
-export const upsertSiteSettings = async (key: string, data: unknown): Promise<void> => {
+export const upsertSiteSettings = async (
+  key: string,
+  data: unknown
+): Promise<void> => {
   await db
     .insert(siteSettings)
     .values({ key, data: data as Record<string, unknown> })

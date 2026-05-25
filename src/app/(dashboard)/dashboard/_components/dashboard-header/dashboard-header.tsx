@@ -37,11 +37,11 @@ export const DashboardHeader = ({
 
   return (
     <div className='flex flex-col gap-0.5'>
-      <p className='text-xs text-muted-foreground'>{formattedDate}</p>
+      <p className='text-muted-foreground text-xs'>{formattedDate}</p>
       <h1 className='font-heading text-2xl font-bold tracking-tight'>
         {greeting}, {name}.
       </h1>
-      <p className='text-sm text-muted-foreground'>
+      <p className='text-muted-foreground text-sm'>
         {orgName}{' '}
         <span className='text-muted-foreground/60'>
           &middot; {roleLabels[role] ?? role}

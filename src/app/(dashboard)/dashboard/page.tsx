@@ -1,30 +1,35 @@
 import { readActiveSession } from '~/lib/auth/cookies'
 import { fetchAllowedOrgIds } from '~/db/query/organization'
 import { readMemberAggregates } from '~/db/query/member'
-import { getCachedMemberYearDistribution } from './_data/members'
+import { getCachedMemberDistributionByOrgType } from './_data/members'
 import { getCachedOrganizationCount } from './_data/organizations'
 import { getCachedUpcomingTrainings } from './_data/trainings'
 import { DashboardHeader } from './_components/dashboard-header'
 import { DashboardStats } from './_components/dashboard-stats'
-import { KaderStats, type KaderStatsData } from './_components/kader-stats'
-import { KaderChart } from './_components/kader-chart'
+import { KaderBentoStats } from './_components/kader-bento-stats'
 import { WilayahStats } from './_components/wilayah-stats'
 import { UpcomingTrainings } from './_components/upcoming-trainings'
 
+// readMemberAggregates returns accumulated rows per org (children rolled up into parents).
+// The anchor (root) row has the minimum level and already contains the grand total.
+// Summing all rows would double-count every member.
 const sumAggregates = (
   rows: Awaited<ReturnType<typeof readMemberAggregates>>
-) =>
-  rows.reduce(
-    (acc, r) => ({
-      ab1: acc.ab1 + r.ab1,
-      ab2: acc.ab2 + r.ab2,
-      ab3: acc.ab3 + r.ab3,
-      ikhwan: acc.ikhwan + r.ikhwan,
-      akhwat: acc.akhwat + r.akhwat,
-      total: acc.total + r.total
-    }),
-    { ab1: 0, ab2: 0, ab3: 0, ikhwan: 0, akhwat: 0, total: 0 }
-  )
+) => {
+  const empty = { ab1: 0, ab2: 0, ab3: 0, ikhwan: 0, akhwat: 0, total: 0 }
+  if (rows.length === 0) return empty
+  const minLevel = Math.min(...rows.map((r) => r.level))
+  const anchorRow = rows.find((r) => r.level === minLevel)
+  if (!anchorRow) return empty
+  return {
+    ab1: anchorRow.ab1,
+    ab2: anchorRow.ab2,
+    ab3: anchorRow.ab3,
+    ikhwan: anchorRow.ikhwan,
+    akhwat: anchorRow.akhwat,
+    total: anchorRow.total
+  }
+}
 
 const Page = async () => {
   const session = await readActiveSession()
@@ -44,27 +49,24 @@ const Page = async () => {
     kaderAgg,
     pemandoAgg,
     instrukturAgg,
-    alumniAgg,
-    yearDist,
     pwCount,
     pdCount,
     pkCount,
-    upcomingTrainings
+    upcomingTrainings,
+    pwDistribution,
+    pdDistribution
   ] = await Promise.all([
     showKader
-      ? readMemberAggregates({ user: userForScope })
+      ? readMemberAggregates({ user: userForScope, isAlumn: false })
       : Promise.resolve([]),
     showKader
       ? readMemberAggregates({ user: userForScope, isCertifiedMentor: true })
       : Promise.resolve([]),
     showKader
-      ? readMemberAggregates({ user: userForScope, isCertifiedInstructor: true })
-      : Promise.resolve([]),
-    showKader
-      ? readMemberAggregates({ user: userForScope, isAlumn: true })
-      : Promise.resolve([]),
-    showKader
-      ? getCachedMemberYearDistribution(allowedOrgIds)
+      ? readMemberAggregates({
+          user: userForScope,
+          isCertifiedInstructor: true
+        })
       : Promise.resolve([]),
     showWilayah
       ? getCachedOrganizationCount({
@@ -86,23 +88,27 @@ const Page = async () => {
       : Promise.resolve(0),
     getCachedUpcomingTrainings(
       allowedOrgIds.length ? allowedOrgIds : undefined
-    )
+    ),
+    showKader
+      ? getCachedMemberDistributionByOrgType('pw', allowedOrgIds)
+      : Promise.resolve([]),
+    showKader
+      ? getCachedMemberDistributionByOrgType('pd', allowedOrgIds)
+      : Promise.resolve([])
   ])
-
-  const kaderData: KaderStatsData = {
-    ...sumAggregates(kaderAgg),
-    pemandu: sumAggregates(pemandoAgg).total,
-    instruktur: sumAggregates(instrukturAgg).total,
-    alumni: sumAggregates(alumniAgg).total
-  }
 
   const wilayahData = { pw: pwCount, pd: pdCount, pk: pkCount }
 
   const kaderContent = showKader ? (
-    <div className='flex flex-col gap-4'>
-      <KaderStats data={kaderData} />
-      <KaderChart data={yearDist} />
-    </div>
+    <KaderBentoStats
+      data={{
+        ...sumAggregates(kaderAgg),
+        pemandu: sumAggregates(pemandoAgg).total,
+        instruktur: sumAggregates(instrukturAgg).total
+      }}
+      pwDistribution={pwDistribution}
+      pdDistribution={pdDistribution}
+    />
   ) : null
 
   const wilayahContent = showWilayah ? (

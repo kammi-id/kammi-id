@@ -29,7 +29,10 @@ export const getLeadershipSettings = async (): Promise<LeadershipSettings> => {
   'use cache'
   cacheLife('days')
   cacheTag('site-settings', 'site-settings-leadership')
-  return readSiteSettings<LeadershipSettings>('leadership', SETTINGS_DEFAULTS.leadership)
+  return readSiteSettings<LeadershipSettings>(
+    'leadership',
+    SETTINGS_DEFAULTS.leadership
+  )
 }
 
 export const getActionsSettings = async (): Promise<ActionsSettings> => {
@@ -57,5 +60,8 @@ export const getMetadataSettings = async (): Promise<MetadataSettings> => {
   'use cache'
   cacheLife('days')
   cacheTag('site-settings', 'site-settings-metadata')
-  return readSiteSettings<MetadataSettings>('metadata', SETTINGS_DEFAULTS.metadata)
+  return readSiteSettings<MetadataSettings>(
+    'metadata',
+    SETTINGS_DEFAULTS.metadata
+  )
 }

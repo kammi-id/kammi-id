@@ -18,7 +18,10 @@ import { InlineQuickAddRow } from '../members-table/inline-quick-add-row'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { CopyCheckIcon, Cancel01Icon } from '@hugeicons/core-free-icons'
 import { Spinner } from '~/components/shadcn/ui/spinner'
-import { createMemberAction, type MemberFormState } from '~/app/(dashboard)/dashboard/kader/_components/add-form/action'
+import {
+  createMemberAction,
+  type MemberFormState
+} from '~/app/(dashboard)/dashboard/kader/_components/add-form/action'
 import { toast } from 'sonner'
 
 interface IndividualMemberTableProps {
@@ -198,6 +201,7 @@ export const IndividualMemberTable = ({
           canManage &&
           type !== 'pemandu' &&
           type !== 'instruktur' &&
+          type !== 'perangkat' &&
           !isSaving ? (
             <InlineQuickAddRow
               organizations={organizations}
@@ -211,6 +215,7 @@ export const IndividualMemberTable = ({
           canManage &&
           type !== 'pemandu' &&
           type !== 'instruktur' &&
+          type !== 'perangkat' &&
           inlineMembers.length > 0 && (
             <div className='flex items-center gap-2'>
               <Button

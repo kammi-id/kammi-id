@@ -253,7 +253,9 @@ export const readOrganization = async (
       if (column === 'childrenCount') {
         return orderFn(sql`children_count`)
       }
-      return orderFn(withOrganizationCTE[column as keyof typeof withOrganizationCTE] as any)
+      return orderFn(
+        withOrganizationCTE[column as keyof typeof withOrganizationCTE] as any
+      )
     })
     query.orderBy(...orderClauses)
   } else {
@@ -309,6 +311,20 @@ type OrgChainNode = {
   code: string | null
   slug: string
   parentId: string | null
+}
+
+export const isOrgInScope = async (
+  user: {
+    role: string
+    connectedOrganization?: { id: string } | null
+    connectedOrganizationId?: string | null
+  },
+  targetOrgId: string
+): Promise<boolean> => {
+  if (user.role === 'root') return true
+  if (user.role !== 'bpk') return false
+  const allowedIds = await fetchAllowedOrgIds(user)
+  return allowedIds.includes(targetOrgId)
 }
 
 export const readOrgHierarchyChain = async (

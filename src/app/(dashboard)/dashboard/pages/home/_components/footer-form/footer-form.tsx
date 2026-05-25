@@ -36,11 +36,13 @@ const LinkListEditor = ({
 
   return (
     <div className='space-y-2'>
-      <p className='text-sm font-medium text-foreground'>{label}</p>
+      <p className='text-foreground text-sm font-medium'>{label}</p>
       {links.map((link, i) => (
         <div key={i} className='flex items-end gap-2'>
           <Field className='flex-1'>
-            <FieldLabel htmlFor={`${label}-label-${i}`} className='sr-only'>Label</FieldLabel>
+            <FieldLabel htmlFor={`${label}-label-${i}`} className='sr-only'>
+              Label
+            </FieldLabel>
             <FieldContent>
               <Input
                 id={`${label}-label-${i}`}
@@ -51,7 +53,9 @@ const LinkListEditor = ({
             </FieldContent>
           </Field>
           <Field className='flex-1'>
-            <FieldLabel htmlFor={`${label}-href-${i}`} className='sr-only'>Link</FieldLabel>
+            <FieldLabel htmlFor={`${label}-href-${i}`} className='sr-only'>
+              Link
+            </FieldLabel>
             <FieldContent>
               <Input
                 id={`${label}-href-${i}`}
@@ -65,17 +69,21 @@ const LinkListEditor = ({
             type='button'
             onClick={() => remove(i)}
             disabled={links.length <= 1}
-            className='mb-0.5 flex size-9 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive disabled:opacity-30'
+            className='text-muted-foreground hover:bg-destructive/10 hover:text-destructive mb-0.5 flex size-9 shrink-0 items-center justify-center rounded-lg transition-colors disabled:opacity-30'
             aria-label='Hapus link'
           >
-            <HugeiconsIcon icon={Delete02Icon} className='size-4' strokeWidth={2} />
+            <HugeiconsIcon
+              icon={Delete02Icon}
+              className='size-4'
+              strokeWidth={2}
+            />
           </button>
         </div>
       ))}
       <button
         type='button'
         onClick={add}
-        className='flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-border py-2.5 text-sm text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary'
+        className='border-border text-muted-foreground hover:border-primary/40 hover:text-primary flex w-full items-center justify-center gap-2 rounded-xl border border-dashed py-2.5 text-sm transition-colors'
       >
         <HugeiconsIcon icon={Add01Icon} className='size-4' strokeWidth={2} />
         Tambah Link
@@ -85,13 +93,17 @@ const LinkListEditor = ({
 }
 
 export const FooterForm = ({ initialData }: Props) => {
-  const [state, formAction, isPending] = useActionState<SettingsActionState, FormData>(
-    saveFooterAction,
-    {}
-  )
+  const [state, formAction, isPending] = useActionState<
+    SettingsActionState,
+    FormData
+  >(saveFooterAction, {})
   const [footerKAMMI, setFooterKAMMI] = useState(initialData.footerKAMMI)
-  const [footerBeritaData, setFooterBeritaData] = useState(initialData.footerBeritaData)
-  const [footerIkutiKami, setFooterIkutiKami] = useState(initialData.footerIkutiKami)
+  const [footerBeritaData, setFooterBeritaData] = useState(
+    initialData.footerBeritaData
+  )
+  const [footerIkutiKami, setFooterIkutiKami] = useState(
+    initialData.footerIkutiKami
+  )
 
   useEffect(() => {
     if (state.success) toast.success('Pengaturan footer berhasil disimpan.')
@@ -109,17 +121,35 @@ export const FooterForm = ({ initialData }: Props) => {
       className='space-y-8'
     >
       <FieldGroup>
-        <div className='rounded-2xl border border-border bg-muted/40 p-5'>
-          <p className='mb-4 text-sm font-medium text-foreground'>Tautan Media Sosial</p>
+        <div className='border-border bg-muted/40 rounded-2xl border p-5'>
+          <p className='text-foreground mb-4 text-sm font-medium'>
+            Tautan Media Sosial
+          </p>
           <FieldDescription className='mb-4'>
             Isi URL lengkap atau biarkan kosong untuk menyembunyikan ikon.
           </FieldDescription>
           <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
             {[
-              { name: 'socialIG', label: 'Instagram', defaultValue: initialData.socialIG },
-              { name: 'socialTwitter', label: 'Twitter / X', defaultValue: initialData.socialTwitter },
-              { name: 'socialYoutube', label: 'YouTube', defaultValue: initialData.socialYoutube },
-              { name: 'socialTelegram', label: 'Telegram', defaultValue: initialData.socialTelegram }
+              {
+                name: 'socialIG',
+                label: 'Instagram',
+                defaultValue: initialData.socialIG
+              },
+              {
+                name: 'socialTwitter',
+                label: 'Twitter / X',
+                defaultValue: initialData.socialTwitter
+              },
+              {
+                name: 'socialYoutube',
+                label: 'YouTube',
+                defaultValue: initialData.socialYoutube
+              },
+              {
+                name: 'socialTelegram',
+                label: 'Telegram',
+                defaultValue: initialData.socialTelegram
+              }
             ].map(({ name, label, defaultValue }) => (
               <Field key={name}>
                 <FieldLabel htmlFor={name}>{label}</FieldLabel>
@@ -136,13 +166,29 @@ export const FooterForm = ({ initialData }: Props) => {
           </div>
         </div>
 
-        <LinkListEditor links={footerKAMMI} onChange={setFooterKAMMI} label='Kolom Footer: KAMMI' />
-        <LinkListEditor links={footerBeritaData} onChange={setFooterBeritaData} label='Kolom Footer: Berita & Data' />
-        <LinkListEditor links={footerIkutiKami} onChange={setFooterIkutiKami} label='Kolom Footer: Ikuti Kami' />
+        <LinkListEditor
+          links={footerKAMMI}
+          onChange={setFooterKAMMI}
+          label='Kolom Footer: KAMMI'
+        />
+        <LinkListEditor
+          links={footerBeritaData}
+          onChange={setFooterBeritaData}
+          label='Kolom Footer: Berita & Data'
+        />
+        <LinkListEditor
+          links={footerIkutiKami}
+          onChange={setFooterIkutiKami}
+          label='Kolom Footer: Ikuti Kami'
+        />
       </FieldGroup>
 
       <div className='flex justify-end'>
-        <Button type='submit' className='rounded-full px-8' disabled={isPending}>
+        <Button
+          type='submit'
+          className='rounded-full px-8'
+          disabled={isPending}
+        >
           {isPending ? 'Menyimpan...' : 'Simpan Pengaturan Footer'}
         </Button>
       </div>

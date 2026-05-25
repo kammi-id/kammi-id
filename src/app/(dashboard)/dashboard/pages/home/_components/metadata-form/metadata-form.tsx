@@ -19,10 +19,10 @@ import type { MetadataSettings } from '~/db/query/site-settings'
 type Props = { initialData: MetadataSettings }
 
 export const MetadataForm = ({ initialData }: Props) => {
-  const [state, formAction, isPending] = useActionState<SettingsActionState, FormData>(
-    saveMetadataAction,
-    {}
-  )
+  const [state, formAction, isPending] = useActionState<
+    SettingsActionState,
+    FormData
+  >(saveMetadataAction, {})
 
   useEffect(() => {
     if (state.success) toast.success('Metadata halaman berhasil disimpan.')
@@ -44,7 +44,9 @@ export const MetadataForm = ({ initialData }: Props) => {
               placeholder='KAMMI.id — Pelopor Kebaikan untuk Indonesia'
             />
           </FieldContent>
-          <FieldDescription>Muncul di tab browser dan hasil pencarian Google.</FieldDescription>
+          <FieldDescription>
+            Muncul di tab browser dan hasil pencarian Google.
+          </FieldDescription>
           <FieldError errors={fe.pageTitle?.map((m) => ({ message: m }))} />
         </Field>
 
@@ -59,12 +61,18 @@ export const MetadataForm = ({ initialData }: Props) => {
               placeholder='Kesatuan Aksi Mahasiswa Muslim Indonesia...'
             />
           </FieldContent>
-          <FieldDescription>Ideal 150-160 karakter. Ditampilkan di hasil pencarian.</FieldDescription>
-          <FieldError errors={fe.metaDescription?.map((m) => ({ message: m }))} />
+          <FieldDescription>
+            Ideal 150-160 karakter. Ditampilkan di hasil pencarian.
+          </FieldDescription>
+          <FieldError
+            errors={fe.metaDescription?.map((m) => ({ message: m }))}
+          />
         </Field>
 
         <Field>
-          <FieldLabel htmlFor='ogImageUrl'>URL Gambar OG (Open Graph)</FieldLabel>
+          <FieldLabel htmlFor='ogImageUrl'>
+            URL Gambar OG (Open Graph)
+          </FieldLabel>
           <FieldContent>
             <Input
               id='ogImageUrl'
@@ -74,14 +82,19 @@ export const MetadataForm = ({ initialData }: Props) => {
             />
           </FieldContent>
           <FieldDescription>
-            Gambar yang muncul saat halaman dibagikan di WhatsApp, Twitter, dll. Ukuran ideal 1200x630px.
+            Gambar yang muncul saat halaman dibagikan di WhatsApp, Twitter, dll.
+            Ukuran ideal 1200x630px.
           </FieldDescription>
           <FieldError errors={fe.ogImageUrl?.map((m) => ({ message: m }))} />
         </Field>
       </FieldGroup>
 
       <div className='flex justify-end'>
-        <Button type='submit' className='rounded-full px-8' disabled={isPending}>
+        <Button
+          type='submit'
+          className='rounded-full px-8'
+          disabled={isPending}
+        >
           {isPending ? 'Menyimpan...' : 'Simpan Metadata'}
         </Button>
       </div>

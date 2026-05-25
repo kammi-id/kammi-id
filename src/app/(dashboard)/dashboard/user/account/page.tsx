@@ -68,7 +68,9 @@ const AccountPage = async () => {
         <div className='bg-card rounded-3xl border p-6 shadow-xs md:p-8 lg:p-10'>
           <div className='space-y-8'>
             <div className='space-y-1'>
-              <h2 className='font-heading text-xl font-bold tracking-tight'>Keamanan</h2>
+              <h2 className='font-heading text-xl font-bold tracking-tight'>
+                Keamanan
+              </h2>
               <p className='text-muted-foreground text-sm'>
                 Perbarui kata sandi Anda untuk menjaga keamanan akun.
               </p>

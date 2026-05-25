@@ -158,7 +158,9 @@ export const AddressSection = ({
           id='addressLine'
           name='addressLine'
           placeholder='Nama jalan, No. Rumah, RT/RW, dll'
-          defaultValue={(state?.values?.addressLine as string | undefined) ?? undefined}
+          defaultValue={
+            (state?.values?.addressLine as string | undefined) ?? undefined
+          }
           onChange={handleInputChange}
         />
         <FieldError

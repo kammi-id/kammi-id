@@ -36,7 +36,7 @@ const LinkListEditor = ({
 
   return (
     <div className='space-y-2'>
-      <p className='text-sm font-medium text-foreground'>{label}</p>
+      <p className='text-foreground text-sm font-medium'>{label}</p>
       {links.map((link, i) => (
         <div key={i} className='flex items-end gap-2'>
           <Field className='flex-1'>
@@ -69,17 +69,21 @@ const LinkListEditor = ({
             type='button'
             onClick={() => remove(i)}
             disabled={links.length <= 1}
-            className='mb-0.5 flex size-9 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive disabled:opacity-30'
+            className='text-muted-foreground hover:bg-destructive/10 hover:text-destructive mb-0.5 flex size-9 shrink-0 items-center justify-center rounded-lg transition-colors disabled:opacity-30'
             aria-label={`Hapus link ${i + 1}`}
           >
-            <HugeiconsIcon icon={Delete02Icon} className='size-4' strokeWidth={2} />
+            <HugeiconsIcon
+              icon={Delete02Icon}
+              className='size-4'
+              strokeWidth={2}
+            />
           </button>
         </div>
       ))}
       <button
         type='button'
         onClick={add}
-        className='flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-border py-2.5 text-sm text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary'
+        className='border-border text-muted-foreground hover:border-primary/40 hover:text-primary flex w-full items-center justify-center gap-2 rounded-xl border border-dashed py-2.5 text-sm transition-colors'
       >
         <HugeiconsIcon icon={Add01Icon} className='size-4' strokeWidth={2} />
         Tambah Link
@@ -89,10 +93,10 @@ const LinkListEditor = ({
 }
 
 export const NavForm = ({ initialData }: Props) => {
-  const [state, formAction, isPending] = useActionState<SettingsActionState, FormData>(
-    saveNavAction,
-    {}
-  )
+  const [state, formAction, isPending] = useActionState<
+    SettingsActionState,
+    FormData
+  >(saveNavAction, {})
   const [navLinks, setNavLinks] = useState<NavLink[]>(initialData.navLinks)
 
   useEffect(() => {
@@ -111,10 +115,16 @@ export const NavForm = ({ initialData }: Props) => {
       className='space-y-8'
     >
       <FieldGroup>
-        <LinkListEditor links={navLinks} onChange={setNavLinks} label='Menu Navigasi Utama' />
+        <LinkListEditor
+          links={navLinks}
+          onChange={setNavLinks}
+          label='Menu Navigasi Utama'
+        />
 
-        <div className='rounded-2xl border border-border bg-muted/40 p-5'>
-          <p className='mb-4 text-sm font-medium text-foreground'>Tombol CTA Navbar</p>
+        <div className='border-border bg-muted/40 rounded-2xl border p-5'>
+          <p className='text-foreground mb-4 text-sm font-medium'>
+            Tombol CTA Navbar
+          </p>
           <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
             <Field>
               <FieldLabel htmlFor='ctaBergabungLabel'>Label Tombol</FieldLabel>
@@ -126,7 +136,9 @@ export const NavForm = ({ initialData }: Props) => {
                   placeholder='Bergabung di KAMMI'
                 />
               </FieldContent>
-              <FieldError errors={fe.ctaBergabungLabel?.map((m) => ({ message: m }))} />
+              <FieldError
+                errors={fe.ctaBergabungLabel?.map((m) => ({ message: m }))}
+              />
             </Field>
             <Field>
               <FieldLabel htmlFor='ctaBergabungHref'>Link Tombol</FieldLabel>
@@ -138,14 +150,20 @@ export const NavForm = ({ initialData }: Props) => {
                   placeholder='#bergabung'
                 />
               </FieldContent>
-              <FieldError errors={fe.ctaBergabungHref?.map((m) => ({ message: m }))} />
+              <FieldError
+                errors={fe.ctaBergabungHref?.map((m) => ({ message: m }))}
+              />
             </Field>
           </div>
         </div>
       </FieldGroup>
 
       <div className='flex justify-end'>
-        <Button type='submit' className='rounded-full px-8' disabled={isPending}>
+        <Button
+          type='submit'
+          className='rounded-full px-8'
+          disabled={isPending}
+        >
           {isPending ? 'Menyimpan...' : 'Simpan Pengaturan Navigasi'}
         </Button>
       </div>

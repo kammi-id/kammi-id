@@ -9,6 +9,13 @@ colors:
   muted-foreground: 'oklch(0.552 0.016 285.938)'
   destructive: 'oklch(0.577 0.245 27.325)'
   border: 'oklch(0.92 0.004 286.32)'
+  chart-ab1: 'oklch(0.52 0.20 17)'
+  chart-ab2: 'oklch(0.65 0.14 17)'
+  chart-ab3: 'oklch(0.80 0.07 17)'
+  chart-ikhwan: 'oklch(0.55 0.15 240)'
+  chart-akhwat: 'oklch(0.60 0.15 350)'
+  chart-pemandu: 'oklch(0.55 0.16 150)'
+  chart-instruktur: 'oklch(0.55 0.16 280)'
 typography:
   display:
     fontFamily: 'var(--font-heading)'
@@ -75,6 +82,18 @@ A high-contrast palette that balances the energy of youth with the stability of 
 - **Siren Red** (oklch(0.577 0.245 27.325)): Reserved strictly for destructive actions and critical errors.
 
 **The Rare Accent Rule.** Vanguard Crimson is the sole high-chroma accent. Its usage is focused on intent; when a user sees Crimson, they know it is the primary path forward.
+
+### Chart / Data Visualization
+
+Intentional palette for data clarity in cadre dashboards. Each role is semantically distinct.
+
+- **AB1** (`--status-ab1-solid`, oklch(0.65 0.18 145)): Hijau — identitas AB1 konsisten lintas halaman kader dan dashboard.
+- **AB2** (`--status-ab2-solid`, oklch(0.58 0.20 25)): Oranye/merah — identitas AB2, kontras dari AB1 dan AB3.
+- **AB3** (`--status-ab3-solid`, oklch(0.55 0.18 265)): Ungu — identitas AB3, semantik berbeda dari jenjang lain.
+- **Ikhwan** (`--gender-ikhwan-solid`, oklch(0.72 0.14 225)): Biru — identitas gender ikhwan konsisten lintas halaman.
+- **Akhwat** (`--gender-akhwat-solid`, oklch(0.74 0.14 350)): Rose — identitas gender akhwat.
+- **Pemandu** (oklch(0.55 0.16 150)): Green — semantically "guide/mentor," distinct from jenjang and gender palettes.
+- **Instruktur** (oklch(0.55 0.16 280)): Purple — distinct from all other chart roles.
 
 ## 3. Typography
 

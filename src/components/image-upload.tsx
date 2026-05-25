@@ -33,7 +33,11 @@ const ImageUpload = ({
         setPreview(null)
         return
       }
-      if (value.startsWith('http://') || value.startsWith('https://') || value.startsWith('/')) {
+      if (
+        value.startsWith('http://') ||
+        value.startsWith('https://') ||
+        value.startsWith('/')
+      ) {
         setPreview(value)
         return
       }
@@ -63,7 +67,12 @@ const ImageUpload = ({
       const formData = new FormData()
       formData.append('file', file)
       formData.append('folder', folder)
-      if (value && !value.startsWith('http://') && !value.startsWith('https://') && !value.startsWith('/')) {
+      if (
+        value &&
+        !value.startsWith('http://') &&
+        !value.startsWith('https://') &&
+        !value.startsWith('/')
+      ) {
         formData.append('existingPath', value)
       }
 

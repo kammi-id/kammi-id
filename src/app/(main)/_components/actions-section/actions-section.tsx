@@ -24,11 +24,11 @@ export const ActionsSection = async () => {
         <div className='mb-12 text-center'>
           <h2
             id='actions-heading'
-            className='font-heading text-[clamp(1.8rem,3.5vw,2.5rem)] font-bold text-background'
+            className='font-heading text-background text-[clamp(1.8rem,3.5vw,2.5rem)] font-bold'
           >
             {heading}
           </h2>
-          <p className='mt-3 font-sans text-sm text-background/60'>
+          <p className='text-background/60 mt-3 font-sans text-sm'>
             {subheading}
           </p>
         </div>
@@ -47,15 +47,20 @@ export const ActionsSection = async () => {
                   unoptimized={featured.imageSrc.includes('?')}
                 />
               )}
-              <div className='absolute inset-0 bg-gradient-to-t from-foreground/90 via-foreground/20 to-transparent' aria-hidden='true' />
+              <div
+                className='from-foreground/90 via-foreground/20 absolute inset-0 bg-gradient-to-t to-transparent'
+                aria-hidden='true'
+              />
               <div className='absolute inset-x-0 bottom-0 p-5'>
-                <span className='inline-block rounded-full bg-primary px-3 py-1 font-sans text-xs font-bold text-primary-foreground'>
+                <span className='bg-primary text-primary-foreground inline-block rounded-full px-3 py-1 font-sans text-xs font-bold'>
                   {featured.label}
                 </span>
-                <p className='mt-2 font-heading text-base font-bold leading-snug text-background'>
+                <p className='font-heading text-background mt-2 text-base leading-snug font-bold'>
                   {featured.sublabel}
                 </p>
-                <p className='mt-1 font-sans text-xs text-background/70'>{featured.description}</p>
+                <p className='text-background/70 mt-1 font-sans text-xs'>
+                  {featured.description}
+                </p>
               </div>
             </article>
           )}
@@ -76,12 +81,17 @@ export const ActionsSection = async () => {
                   unoptimized={program.imageSrc.includes('?')}
                 />
               )}
-              <div className='absolute inset-0 bg-gradient-to-t from-foreground/85 via-foreground/10 to-transparent' aria-hidden='true' />
+              <div
+                className='from-foreground/85 via-foreground/10 absolute inset-0 bg-gradient-to-t to-transparent'
+                aria-hidden='true'
+              />
               <div className='absolute inset-x-0 bottom-0 p-4'>
-                <p className='font-heading text-sm font-bold leading-tight text-background'>
+                <p className='font-heading text-background text-sm leading-tight font-bold'>
                   {program.sublabel}
                 </p>
-                <p className='mt-0.5 font-sans text-xs text-background/60'>{program.label}</p>
+                <p className='text-background/60 mt-0.5 font-sans text-xs'>
+                  {program.label}
+                </p>
               </div>
             </article>
           ))}

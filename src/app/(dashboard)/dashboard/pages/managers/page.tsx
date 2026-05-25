@@ -28,14 +28,20 @@ const ManagersSettingsPage = async () => {
   return (
     <div className='space-y-8 px-4 py-4 md:py-6 lg:px-6'>
       <div className='flex items-center gap-4'>
-        <div className='flex size-12 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary ring-4 ring-primary/5'>
-          <HugeiconsIcon icon={UserGroupIcon} strokeWidth={2} className='size-6' />
+        <div className='bg-primary/10 text-primary ring-primary/5 flex size-12 shrink-0 items-center justify-center rounded-full ring-4'>
+          <HugeiconsIcon
+            icon={UserGroupIcon}
+            strokeWidth={2}
+            className='size-6'
+          />
         </div>
         <div>
-          <h1 className='font-heading text-3xl font-bold tracking-tight'>Pengurus Pusat</h1>
-          <p className='text-sm text-muted-foreground leading-relaxed'>
+          <h1 className='font-heading text-3xl font-bold tracking-tight'>
+            Pengurus Pusat
+          </h1>
+          <p className='text-muted-foreground text-sm leading-relaxed'>
             Kelola data pengurus yang ditampilkan di{' '}
-            <span className='font-medium text-foreground'>kammi.id</span>.
+            <span className='text-foreground font-medium'>kammi.id</span>.
           </p>
         </div>
       </div>
@@ -45,12 +51,17 @@ const ManagersSettingsPage = async () => {
           <div className='flex items-start justify-between gap-4'>
             <div className='space-y-1'>
               <div className='flex items-center gap-2'>
-                <span className='font-mono text-xs text-muted-foreground'>01</span>
+                <span className='text-muted-foreground font-mono text-xs'>
+                  01
+                </span>
                 <Separator orientation='vertical' className='h-3' />
-                <CardTitle className='text-base font-semibold'>Pengurus Pusat</CardTitle>
+                <CardTitle className='text-base font-semibold'>
+                  Pengurus Pusat
+                </CardTitle>
               </div>
               <CardDescription>
-                Nama, jabatan, dan foto pengurus yang ditampilkan di halaman utama.
+                Nama, jabatan, dan foto pengurus yang ditampilkan di halaman
+                utama.
               </CardDescription>
             </div>
           </div>
