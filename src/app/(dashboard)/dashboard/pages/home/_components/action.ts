@@ -10,6 +10,7 @@ export type SettingsActionState = {
   success?: boolean
   error?: string
   fieldErrors?: Record<string, string[]>
+  values?: Record<string, string>
 }
 
 const checkAccess = async () => {
@@ -56,13 +57,17 @@ export const saveHeroAction = async (
 ): Promise<SettingsActionState> => {
   if (!(await checkAccess())) return { error: 'Akses ditolak.' }
 
-  const result = heroSchema.safeParse(Object.fromEntries(formData))
+  const raw = Object.fromEntries(formData)
+  const result = heroSchema.safeParse(raw)
   if (!result.success) {
     return {
       fieldErrors: result.error.flatten().fieldErrors as Record<
         string,
         string[]
-      >
+      >,
+      values: Object.fromEntries(
+        Object.entries(raw).filter(([, v]) => v != null && typeof v === 'string')
+      ) as Record<string, string>
     }
   }
 
@@ -96,13 +101,17 @@ export const saveAboutAction = async (
 ): Promise<SettingsActionState> => {
   if (!(await checkAccess())) return { error: 'Akses ditolak.' }
 
-  const result = aboutSchema.safeParse(Object.fromEntries(formData))
+  const raw = Object.fromEntries(formData)
+  const result = aboutSchema.safeParse(raw)
   if (!result.success) {
     return {
       fieldErrors: result.error.flatten().fieldErrors as Record<
         string,
         string[]
-      >
+      >,
+      values: Object.fromEntries(
+        Object.entries(raw).filter(([, v]) => v != null && typeof v === 'string')
+      ) as Record<string, string>
     }
   }
 
@@ -154,7 +163,10 @@ export const saveActionsAction = async (
       fieldErrors: result.error.flatten().fieldErrors as Record<
         string,
         string[]
-      >
+      >,
+      values: Object.fromEntries(
+        Object.entries(raw).filter(([, v]) => v != null && typeof v === 'string')
+      ) as Record<string, string>
     }
   }
 
@@ -195,7 +207,10 @@ export const saveNavAction = async (
       fieldErrors: result.error.flatten().fieldErrors as Record<
         string,
         string[]
-      >
+      >,
+      values: Object.fromEntries(
+        Object.entries(raw).filter(([, v]) => v != null && typeof v === 'string')
+      ) as Record<string, string>
     }
   }
 
@@ -247,7 +262,10 @@ export const saveFooterAction = async (
       fieldErrors: result.error.flatten().fieldErrors as Record<
         string,
         string[]
-      >
+      >,
+      values: Object.fromEntries(
+        Object.entries(raw).filter(([, v]) => v != null && typeof v === 'string')
+      ) as Record<string, string>
     }
   }
 
@@ -274,13 +292,17 @@ export const saveMetadataAction = async (
 ): Promise<SettingsActionState> => {
   if (!(await checkAccess())) return { error: 'Akses ditolak.' }
 
-  const result = metadataSchema.safeParse(Object.fromEntries(formData))
+  const raw = Object.fromEntries(formData)
+  const result = metadataSchema.safeParse(raw)
   if (!result.success) {
     return {
       fieldErrors: result.error.flatten().fieldErrors as Record<
         string,
         string[]
-      >
+      >,
+      values: Object.fromEntries(
+        Object.entries(raw).filter(([, v]) => v != null && typeof v === 'string')
+      ) as Record<string, string>
     }
   }
 
