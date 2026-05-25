@@ -25,7 +25,8 @@ const TrainingSchema = z.object({
     .string()
     .transform((v) => v || undefined)
     .optional(),
-  type: z.enum(['dm1', 'dm2', 'dpmk', 'tfi', 'dm3', 'other'])
+  type: z.enum(['dm1', 'dm2', 'dpmk', 'tfi', 'dm3', 'other']),
+  masterId: z.string().min(1, 'Master of Training wajib diisi')
 })
 
 type ActionResponse<T = unknown> = {
@@ -33,6 +34,7 @@ type ActionResponse<T = unknown> = {
   message: string
   errors?: Record<string, string[]>
   data?: T
+  values?: Record<string, string>
 }
 
 export const searchMasterCandidatesAction = async (query: string) => {
@@ -71,7 +73,10 @@ export const createTrainingAction = async (
       return {
         success: false,
         message: 'Validation failed',
-        errors: validated.error.flatten().fieldErrors
+        errors: validated.error.flatten().fieldErrors,
+        values: Object.fromEntries(
+          Object.entries(rawData).filter(([, v]) => v != null)
+        ) as Record<string, string>
       }
     }
 
@@ -102,10 +107,7 @@ export const createTrainingAction = async (
 
     const created = await trainingQuery.create(data)
 
-    const masterId = formData.get('masterId') as string | null
-    if (masterId) {
-      await trainingQuery.addInstructor(created.id, masterId, 'master')
-    }
+    await trainingQuery.addInstructor(created.id, data.masterId, 'master')
 
     revalidatePath('/dashboard/trainings')
     return {

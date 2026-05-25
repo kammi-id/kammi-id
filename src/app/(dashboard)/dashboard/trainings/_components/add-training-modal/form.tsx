@@ -65,6 +65,8 @@ export const TrainingForm = ({
   const [masterQuery, setMasterQuery] = useState('')
   const [masterResults, setMasterResults] = useState<EligibleMember[]>([])
   const [masterLoading, setMasterLoading] = useState(false)
+  const [name, setName] = useState('')
+  const [registrationDeadline, setRegistrationDeadline] = useState('')
   const masterDebounceRef = React.useRef<ReturnType<typeof setTimeout>>(null)
 
   useEffect(() => {
@@ -93,6 +95,13 @@ export const TrainingForm = ({
       }
     }, 300)
   }, [masterQuery])
+
+  useEffect(() => {
+    if (state.values && !state.success) {
+      if (state.values.name) setName(state.values.name)
+      if (state.values.registrationDeadline) setRegistrationDeadline(state.values.registrationDeadline)
+    }
+  }, [state.values, state.success])
 
   const selectedOrg = organizations.find((org) => org.id === orgId)
   const selectedOrgType = selectedOrg?.type
@@ -222,6 +231,8 @@ export const TrainingForm = ({
               id='name'
               name='name'
               placeholder='Contoh: DM 1 Nasional'
+              value={name}
+              onChange={(e) => setName(e.target.value)}
               required
             />
             <FieldError
@@ -274,6 +285,8 @@ export const TrainingForm = ({
               name='registrationDeadline'
               type='date'
               max={startDate}
+              value={registrationDeadline}
+              onChange={(e) => setRegistrationDeadline(e.target.value)}
             />
             <FieldError
               errors={state.errors?.registrationDeadline?.map((m) => ({
@@ -283,7 +296,7 @@ export const TrainingForm = ({
           </Field>
 
           <Field className='mt-4'>
-            <FieldLabel>Pemimpin Majelis (Opsional)</FieldLabel>
+            <FieldLabel>Master of Training</FieldLabel>
             <input type='hidden' name='masterId' value={masterId} />
             <Combobox
               value={masterId}
@@ -336,6 +349,9 @@ export const TrainingForm = ({
                 </ComboboxList>
               </ComboboxContent>
             </Combobox>
+            <FieldError
+              errors={state.errors?.masterId?.map((m) => ({ message: m }))}
+            />
             <p className='text-muted-foreground text-xs'>
               Hanya kader bersertifikat instruktur yang dapat dipilih
             </p>
