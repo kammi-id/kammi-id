@@ -104,11 +104,27 @@ export const FooterForm = ({ initialData }: Props) => {
   const [footerIkutiKami, setFooterIkutiKami] = useState(
     initialData.footerIkutiKami
   )
+  const [socialIG, setSocialIG] = useState(initialData.socialIG)
+  const [socialTwitter, setSocialTwitter] = useState(initialData.socialTwitter)
+  const [socialYoutube, setSocialYoutube] = useState(initialData.socialYoutube)
+  const [socialTelegram, setSocialTelegram] = useState(initialData.socialTelegram)
 
   useEffect(() => {
     if (state.success) toast.success('Pengaturan footer berhasil disimpan.')
     if (state.error) toast.error(state.error)
   }, [state])
+
+  useEffect(() => {
+    if (state.values && !state.success) {
+      if (state.values.socialIG !== undefined) setSocialIG(state.values.socialIG)
+      if (state.values.socialTwitter !== undefined)
+        setSocialTwitter(state.values.socialTwitter)
+      if (state.values.socialYoutube !== undefined)
+        setSocialYoutube(state.values.socialYoutube)
+      if (state.values.socialTelegram !== undefined)
+        setSocialTelegram(state.values.socialTelegram)
+    }
+  }, [state.values, state.success])
 
   return (
     <form
@@ -133,31 +149,36 @@ export const FooterForm = ({ initialData }: Props) => {
               {
                 name: 'socialIG',
                 label: 'Instagram',
-                defaultValue: initialData.socialIG
+                value: socialIG,
+                onChange: setSocialIG
               },
               {
                 name: 'socialTwitter',
                 label: 'Twitter / X',
-                defaultValue: initialData.socialTwitter
+                value: socialTwitter,
+                onChange: setSocialTwitter
               },
               {
                 name: 'socialYoutube',
                 label: 'YouTube',
-                defaultValue: initialData.socialYoutube
+                value: socialYoutube,
+                onChange: setSocialYoutube
               },
               {
                 name: 'socialTelegram',
                 label: 'Telegram',
-                defaultValue: initialData.socialTelegram
+                value: socialTelegram,
+                onChange: setSocialTelegram
               }
-            ].map(({ name, label, defaultValue }) => (
+            ].map(({ name, label, value, onChange }) => (
               <Field key={name}>
                 <FieldLabel htmlFor={name}>{label}</FieldLabel>
                 <FieldContent>
                   <Input
                     id={name}
                     name={name}
-                    defaultValue={defaultValue}
+                    value={value}
+                    onChange={(e) => onChange(e.target.value)}
                     placeholder='https://...'
                   />
                 </FieldContent>
