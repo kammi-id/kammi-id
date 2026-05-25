@@ -1,6 +1,6 @@
 'use client'
 
-import { useActionState, useEffect } from 'react'
+import { useActionState, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { Button } from '~/components/shadcn/ui/button'
 import { Input } from '~/components/shadcn/ui/input'
@@ -23,10 +23,32 @@ export const AboutForm = ({ initialData }: Props) => {
     FormData
   >(saveAboutAction, {})
 
+  const [paragraph1, setParagraph1] = useState(initialData.paragraph1)
+  const [paragraph2, setParagraph2] = useState(initialData.paragraph2)
+  const [readMoreLabel, setReadMoreLabel] = useState(initialData.readMoreLabel)
+  const [readMoreHref, setReadMoreHref] = useState(initialData.readMoreHref)
+  const [miniStrategiTitle, setMiniStrategiTitle] = useState(initialData.miniStrategiTitle)
+  const [miniStrategiDescription, setMiniStrategiDescription] = useState(initialData.miniStrategiDescription)
+  const [miniStrategiLinkLabel, setMiniStrategiLinkLabel] = useState(initialData.miniStrategiLinkLabel)
+  const [miniStrategiLinkHref, setMiniStrategiLinkHref] = useState(initialData.miniStrategiLinkHref)
+
   useEffect(() => {
     if (state.success) toast.success('Pengaturan tentang berhasil disimpan.')
     if (state.error) toast.error(state.error)
   }, [state])
+
+  useEffect(() => {
+    if (state.values && !state.success) {
+      if (state.values.paragraph1 !== undefined) setParagraph1(state.values.paragraph1)
+      if (state.values.paragraph2 !== undefined) setParagraph2(state.values.paragraph2)
+      if (state.values.readMoreLabel !== undefined) setReadMoreLabel(state.values.readMoreLabel)
+      if (state.values.readMoreHref !== undefined) setReadMoreHref(state.values.readMoreHref)
+      if (state.values.miniStrategiTitle !== undefined) setMiniStrategiTitle(state.values.miniStrategiTitle)
+      if (state.values.miniStrategiDescription !== undefined) setMiniStrategiDescription(state.values.miniStrategiDescription)
+      if (state.values.miniStrategiLinkLabel !== undefined) setMiniStrategiLinkLabel(state.values.miniStrategiLinkLabel)
+      if (state.values.miniStrategiLinkHref !== undefined) setMiniStrategiLinkHref(state.values.miniStrategiLinkHref)
+    }
+  }, [state.values, state.success])
 
   const fe = state.fieldErrors ?? {}
 
@@ -39,7 +61,8 @@ export const AboutForm = ({ initialData }: Props) => {
             <Textarea
               id='paragraph1'
               name='paragraph1'
-              defaultValue={initialData.paragraph1}
+              value={paragraph1}
+              onChange={(e) => setParagraph1(e.target.value)}
               rows={4}
               placeholder='KAMMI adalah wadah perjuangan...'
             />
@@ -53,7 +76,8 @@ export const AboutForm = ({ initialData }: Props) => {
             <Textarea
               id='paragraph2'
               name='paragraph2'
-              defaultValue={initialData.paragraph2}
+              value={paragraph2}
+              onChange={(e) => setParagraph2(e.target.value)}
               rows={3}
               placeholder='Didirikan pada 1998...'
             />
@@ -70,7 +94,8 @@ export const AboutForm = ({ initialData }: Props) => {
               <Input
                 id='readMoreLabel'
                 name='readMoreLabel'
-                defaultValue={initialData.readMoreLabel}
+                value={readMoreLabel}
+                onChange={(e) => setReadMoreLabel(e.target.value)}
                 placeholder='Lebih jauh tentang kami'
               />
             </FieldContent>
@@ -84,7 +109,8 @@ export const AboutForm = ({ initialData }: Props) => {
               <Input
                 id='readMoreHref'
                 name='readMoreHref'
-                defaultValue={initialData.readMoreHref}
+                value={readMoreHref}
+                onChange={(e) => setReadMoreHref(e.target.value)}
                 placeholder='#organisasi'
               />
             </FieldContent>
@@ -105,7 +131,8 @@ export const AboutForm = ({ initialData }: Props) => {
                 <Input
                   id='miniStrategiTitle'
                   name='miniStrategiTitle'
-                  defaultValue={initialData.miniStrategiTitle}
+                  value={miniStrategiTitle}
+                  onChange={(e) => setMiniStrategiTitle(e.target.value)}
                   placeholder='Mini Strategi'
                 />
               </FieldContent>
@@ -121,7 +148,8 @@ export const AboutForm = ({ initialData }: Props) => {
                 <Textarea
                   id='miniStrategiDescription'
                   name='miniStrategiDescription'
-                  defaultValue={initialData.miniStrategiDescription}
+                  value={miniStrategiDescription}
+                  onChange={(e) => setMiniStrategiDescription(e.target.value)}
                   rows={3}
                   placeholder='Membangun kader yang memiliki...'
                 />
@@ -141,7 +169,8 @@ export const AboutForm = ({ initialData }: Props) => {
                   <Input
                     id='miniStrategiLinkLabel'
                     name='miniStrategiLinkLabel'
-                    defaultValue={initialData.miniStrategiLinkLabel}
+                    value={miniStrategiLinkLabel}
+                    onChange={(e) => setMiniStrategiLinkLabel(e.target.value)}
                     placeholder='Selengkapnya'
                   />
                 </FieldContent>
@@ -154,7 +183,8 @@ export const AboutForm = ({ initialData }: Props) => {
                   <Input
                     id='miniStrategiLinkHref'
                     name='miniStrategiLinkHref'
-                    defaultValue={initialData.miniStrategiLinkHref}
+                    value={miniStrategiLinkHref}
+                    onChange={(e) => setMiniStrategiLinkHref(e.target.value)}
                     placeholder='#strategi'
                   />
                 </FieldContent>
