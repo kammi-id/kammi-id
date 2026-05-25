@@ -330,30 +330,30 @@ const KaderOrgRankedList = ({
 
             return (
               <UITooltip key={org.organizationId}>
-                <TooltipTrigger render={<div className='flex cursor-default items-center gap-3' />}>
-                    <span className='text-muted-foreground/50 w-4 shrink-0 text-right font-mono text-[10px] tabular-nums'>
-                      {i + 1}
-                    </span>
-                    <span className='text-foreground w-28 shrink-0 truncate text-left text-xs'>
-                      {shortName(org.organizationName)}
-                    </span>
-                    <div className='bg-muted flex h-2 flex-1 overflow-hidden rounded-full'>
-                      <div
-                        className='h-full bg-[var(--chart-ab1)] transition-all'
-                        style={{ width: `${ab1W}%` }}
-                      />
-                      <div
-                        className='h-full bg-[var(--chart-ab2)] transition-all'
-                        style={{ width: `${ab2W}%` }}
-                      />
-                      <div
-                        className='h-full bg-[var(--chart-ab3)] transition-all'
-                        style={{ width: `${ab3W}%` }}
-                      />
-                    </div>
-                    <span className='text-foreground w-7 shrink-0 text-right font-mono text-xs font-semibold tabular-nums'>
-                      {fmt(org.total)}
-                    </span>
+                <TooltipTrigger className='flex cursor-default items-center gap-3'>
+                  <span className='text-muted-foreground/50 w-4 shrink-0 text-right font-mono text-[10px] tabular-nums'>
+                    {i + 1}
+                  </span>
+                  <span className='text-foreground w-28 shrink-0 truncate text-left text-xs'>
+                    {shortName(org.organizationName)}
+                  </span>
+                  <div className='bg-muted flex h-2 flex-1 overflow-hidden rounded-full'>
+                    <div
+                      className='h-full bg-[var(--chart-ab1)] transition-all'
+                      style={{ width: `${ab1W}%` }}
+                    />
+                    <div
+                      className='h-full bg-[var(--chart-ab2)] transition-all'
+                      style={{ width: `${ab2W}%` }}
+                    />
+                    <div
+                      className='h-full bg-[var(--chart-ab3)] transition-all'
+                      style={{ width: `${ab3W}%` }}
+                    />
+                  </div>
+                  <span className='text-foreground w-7 shrink-0 text-right font-mono text-xs font-semibold tabular-nums'>
+                    {fmt(org.total)}
+                  </span>
                 </TooltipTrigger>
                 <TooltipContent side='top'>
                   <p className='font-semibold'>{org.organizationName}</p>

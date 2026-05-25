@@ -3376,11 +3376,18 @@
 
   // Pengurus Luar Negeri KAMMI (PDLN)
   {
-    name: 'PDLN KAMMI Turki',
-    slug: 'turki',
+    name: 'PDLN KAMMI Türkiye',
+    slug: 'turkiye',
     type: 'pdln',
     code: 'PD.LN-1',
     parent_code: 'KAMMI'
+  },
+  {
+    name: 'PK KAMMI Sakarya',
+    slug: 'sakarya',
+    type: 'pk',
+    code: 'PD.LN-1.SAKARYA',
+    parent_code: 'PD.LN-1'
   },
   {
     name: 'PDLN KAMMI Malaysia',
