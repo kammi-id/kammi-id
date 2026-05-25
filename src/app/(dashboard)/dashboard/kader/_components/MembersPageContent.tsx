@@ -26,6 +26,7 @@ import {
   getMembersPageLabels,
   parseMembersSearchParams
 } from './members-page-utils'
+import { BulkUploadDialog } from './bulk-upload'
 
 interface MembersPageContentProps {
   params: { slug?: string[] }
@@ -292,6 +293,11 @@ export const MembersPageContent = async ({
             subTitle={subTitle}
             typePath={typePath}
           />
+        )}
+        {user.role === 'bpk' && currentOrg && (
+          <div className='flex justify-end'>
+            <BulkUploadDialog organizationId={currentOrg.id} />
+          </div>
         )}
 
         <div className='space-y-10'>

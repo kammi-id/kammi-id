@@ -53,6 +53,7 @@ import {
 import { TrainingAttendantCombobox } from './training-attendant-combobox'
 import { TrainingInstructorCombobox } from './training-instructor-combobox'
 import { DM1AddForm } from './dm1-add-form'
+import { DM1BulkUploadButton } from './dm1-bulk-upload-button'
 import type { EligibleMember, TrainingType } from '~/db/query/training'
 
 interface TrainingDetailViewProps {
@@ -521,15 +522,21 @@ export const TrainingDetailView = ({
             <div className='px-4 py-4 md:px-6 lg:px-8'>
               {isDM1 ? (
                 <div className='flex flex-col gap-3'>
-                  <Button
-                    variant='outline'
-                    size='sm'
-                    className='h-8 w-full gap-1.5 text-xs'
-                    onClick={() => setShowDM1Form(!showDM1Form)}
-                  >
-                    <HugeiconsIcon icon={Add01Icon} className='size-3.5' />
-                    {showDM1Form ? 'Tutup Form' : 'Daftarkan Kader Baru'}
-                  </Button>
+                  <div className='flex gap-2'>
+                    <Button
+                      variant='outline'
+                      size='sm'
+                      className='h-8 flex-1 gap-1.5 text-xs'
+                      onClick={() => setShowDM1Form(!showDM1Form)}
+                    >
+                      <HugeiconsIcon icon={Add01Icon} className='size-3.5' />
+                      {showDM1Form ? 'Tutup Form' : 'Daftarkan Kader Baru'}
+                    </Button>
+                    <DM1BulkUploadButton
+                      trainingId={training.id}
+                      organizationId={(training as any).organizationId}
+                    />
+                  </div>
                   {showDM1Form && (
                     <div className='bg-muted/30 rounded-lg border p-4'>
                       <p className='text-muted-foreground mb-3 text-xs font-medium'>
