@@ -27,11 +27,20 @@ export const ActionsForm = ({ initialData }: Props) => {
     FormData
   >(saveActionsAction, {})
   const [programs, setPrograms] = useState<Program[]>(initialData.programs)
+  const [heading, setHeading] = useState(initialData.heading)
+  const [subheading, setSubheading] = useState(initialData.subheading)
 
   useEffect(() => {
     if (state.success) toast.success('Pengaturan aksi berhasil disimpan.')
     if (state.error) toast.error(state.error)
   }, [state])
+
+  useEffect(() => {
+    if (state.values && !state.success) {
+      if (state.values.heading !== undefined) setHeading(state.values.heading)
+      if (state.values.subheading !== undefined) setSubheading(state.values.subheading)
+    }
+  }, [state.values, state.success])
 
   const fe = state.fieldErrors ?? {}
 
@@ -72,6 +81,8 @@ export const ActionsForm = ({ initialData }: Props) => {
   return (
     <form
       action={(fd) => {
+        fd.set('heading', heading)
+        fd.set('subheading', subheading)
         fd.set('programs', JSON.stringify(programs))
         formAction(fd)
       }}
@@ -85,7 +96,8 @@ export const ActionsForm = ({ initialData }: Props) => {
               <Input
                 id='heading'
                 name='heading'
-                defaultValue={initialData.heading}
+                value={heading}
+                onChange={(e) => setHeading(e.target.value)}
                 placeholder='Aksi Nyata KAMMI Untuk Indonesia'
               />
             </FieldContent>
@@ -97,7 +109,8 @@ export const ActionsForm = ({ initialData }: Props) => {
               <Input
                 id='subheading'
                 name='subheading'
-                defaultValue={initialData.subheading}
+                value={subheading}
+                onChange={(e) => setSubheading(e.target.value)}
                 placeholder='Manifestasi intelektualitas...'
               />
             </FieldContent>

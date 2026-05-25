@@ -86,7 +86,10 @@ export const createTrainingAction = async (
       return {
         success: false,
         message: 'End date cannot be before start date',
-        errors: { endDate: ['End date cannot be before start date'] }
+        errors: { endDate: ['End date cannot be before start date'] },
+        values: Object.fromEntries(
+          Object.entries(rawData).filter(([, v]) => v != null && typeof v === 'string')
+        ) as Record<string, string>
       }
     }
 
@@ -101,7 +104,10 @@ export const createTrainingAction = async (
           registrationDeadline: [
             'Registration deadline cannot be after start date'
           ]
-        }
+        },
+        values: Object.fromEntries(
+          Object.entries(rawData).filter(([, v]) => v != null && typeof v === 'string')
+        ) as Record<string, string>
       }
     }
 
