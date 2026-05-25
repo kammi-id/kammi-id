@@ -5,6 +5,7 @@ import { readMemberTrainingHistory } from '~/db/query/training'
 import { readOrgHierarchyChain } from '~/db/query/organization'
 import { ProfileInlineEditForm } from './_components/profile-inline-edit-form'
 import { ProfileOrgHierarchy } from './_components/profile-org-hierarchy'
+import { ResetPasswordButton } from './_components/reset-password'
 
 const canEdit = (
   session: Awaited<ReturnType<typeof readActiveSession>>,
@@ -59,6 +60,14 @@ const ProfilePage = async ({
           ) : null
         }
       />
+      {userCanEdit && session?.user.role === 'bpk' && (
+        <div className='px-4 py-2 md:px-6 md:py-4'>
+          <ResetPasswordButton
+            memberId={member.id}
+            organizationId={member.organizationId}
+          />
+        </div>
+      )}
     </div>
   )
 }
