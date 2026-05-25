@@ -98,11 +98,26 @@ export const NavForm = ({ initialData }: Props) => {
     FormData
   >(saveNavAction, {})
   const [navLinks, setNavLinks] = useState<NavLink[]>(initialData.navLinks)
+  const [ctaBergabungLabel, setCtaBergabungLabel] = useState(
+    initialData.ctaBergabungLabel
+  )
+  const [ctaBergabungHref, setCtaBergabungHref] = useState(
+    initialData.ctaBergabungHref
+  )
 
   useEffect(() => {
     if (state.success) toast.success('Pengaturan navigasi berhasil disimpan.')
     if (state.error) toast.error(state.error)
   }, [state])
+
+  useEffect(() => {
+    if (state.values && !state.success) {
+      if (state.values.ctaBergabungLabel !== undefined)
+        setCtaBergabungLabel(state.values.ctaBergabungLabel)
+      if (state.values.ctaBergabungHref !== undefined)
+        setCtaBergabungHref(state.values.ctaBergabungHref)
+    }
+  }, [state.values, state.success])
 
   const fe = state.fieldErrors ?? {}
 
@@ -132,7 +147,8 @@ export const NavForm = ({ initialData }: Props) => {
                 <Input
                   id='ctaBergabungLabel'
                   name='ctaBergabungLabel'
-                  defaultValue={initialData.ctaBergabungLabel}
+                  value={ctaBergabungLabel}
+                  onChange={(e) => setCtaBergabungLabel(e.target.value)}
                   placeholder='Bergabung di KAMMI'
                 />
               </FieldContent>
@@ -146,7 +162,8 @@ export const NavForm = ({ initialData }: Props) => {
                 <Input
                   id='ctaBergabungHref'
                   name='ctaBergabungHref'
-                  defaultValue={initialData.ctaBergabungHref}
+                  value={ctaBergabungHref}
+                  onChange={(e) => setCtaBergabungHref(e.target.value)}
                   placeholder='#bergabung'
                 />
               </FieldContent>
