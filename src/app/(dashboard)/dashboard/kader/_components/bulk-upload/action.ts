@@ -2,14 +2,15 @@
 
 import { z } from 'zod'
 import { db } from '~/db/db'
+import { eq, ilike, desc } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
 import { readActiveSession } from '~/lib/auth/cookies'
 import { isOrgInScope } from '~/db/query/organization'
-import { trainingQuery } from '~/db/query/training'
-import { generateRegisterNumber } from '~/lib/utils/member'
 import { generatePassword, hashPassword } from '~/lib/utils/user'
 import { member as memberTable } from '~/db/schema/member.sql'
 import { user as userTable } from '~/db/schema/user.sql'
+import { organization } from '~/db/schema/organization.sql'
+import { trainingAttendants } from '~/db/schema/training.sql'
 
 const BulkMemberInputSchema = z.object({
   name: z.string().min(1, 'Nama wajib diisi'),
@@ -82,11 +83,70 @@ export const bulkCreateMembersAction = async (
     const credentials = await db.transaction(async (tx) => {
       const results: CredentialResult[] = []
 
+      // Resolve organization codes once — same for all members in this batch
+      const [org] = await tx
+        .select()
+        .from(organization)
+        .where(eq(organization.id, organizationId))
+        .limit(1)
+
+      if (!org) throw new Error('Organization not found')
+      if (org.type === 'pp') throw new Error('Cannot register members under PP')
+
+      let pwCode = ''
+      let pdCode = ''
+
+      if (org.type === 'pw') {
+        const match = org.code.match(/PW\s*(\d+)/i)
+        pwCode = match ? match[1].padStart(2, '0') : '00'
+        pdCode = '00'
+      } else if (org.type === 'pdln') {
+        const match = org.code.match(/-\s*(\d+)/)
+        pwCode = '99'
+        pdCode = match ? match[1].padStart(2, '0') : '00'
+      } else {
+        const match = org.code.match(/(\d+)\s*\.\s*PD\s*-\s*(\d+)/i)
+        if (match) {
+          pwCode = match[1].padStart(2, '0')
+          pdCode = match[2].padStart(2, '0')
+        } else if (org.parentId) {
+          const [parent] = await tx
+            .select()
+            .from(organization)
+            .where(eq(organization.id, org.parentId))
+            .limit(1)
+          if (parent && parent.type === 'pd') {
+            const pMatch = parent.code.match(/(\d+)\s*\.\s*PD\s*-\s*(\d+)/i)
+            if (pMatch) {
+              pwCode = pMatch[1].padStart(2, '0')
+              pdCode = pMatch[2].padStart(2, '0')
+            }
+          }
+        }
+      }
+
+      if (!pwCode || !pdCode) throw new Error('Failed to parse organization codes')
+
       for (const memberInput of members) {
-        const registerNumber = await generateRegisterNumber(
-          organizationId,
-          memberInput.yearOfEntry
-        )
+        const prefix = `${pwCode}${pdCode}${memberInput.yearOfEntry}`
+
+        // tx-aware: reads the latest register number visible within this transaction,
+        // so members in the same batch don't collide on sequential numbers.
+        const [lastMember] = await tx
+          .select({ registerNumber: memberTable.registerNumber })
+          .from(memberTable)
+          .where(ilike(memberTable.registerNumber, `${prefix}%`))
+          .orderBy(desc(memberTable.registerNumber))
+          .limit(1)
+
+        let nextSeq = 1
+        if (lastMember) {
+          const seqStr = lastMember.registerNumber.slice(prefix.length)
+          const lastSeq = parseInt(seqStr)
+          if (!isNaN(lastSeq)) nextSeq = lastSeq + 1
+        }
+
+        const registerNumber = `${prefix}${nextSeq.toString().padStart(3, '0')}`
 
         const [newMember] = await tx
           .insert(memberTable)
@@ -129,15 +189,18 @@ export const bulkCreateMembersAction = async (
         })
       }
 
+      // Enroll in training inside the transaction — atomic with member creation
+      if (trainingId) {
+        for (const result of results) {
+          await tx.insert(trainingAttendants).values({
+            trainingId,
+            memberId: result.memberId
+          })
+        }
+      }
+
       return results
     })
-
-    // Enroll as training attendants OUTSIDE transaction (addAttendant has no tx param)
-    if (trainingId) {
-      for (const credential of credentials) {
-        await trainingQuery.addAttendant(trainingId, credential.memberId)
-      }
-    }
 
     revalidatePath('/dashboard/kader')
 
