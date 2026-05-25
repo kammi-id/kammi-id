@@ -20,6 +20,7 @@ export type OrgFormState = {
   success?: boolean
   message?: string
   errors?: Record<string, string[]>
+  values?: Record<string, string>
 }
 
 export async function createOrganizationAction(
@@ -53,7 +54,10 @@ export async function createOrganizationAction(
       return {
         success: false,
         errors: validated.error.flatten().fieldErrors,
-        message: 'Validasi gagal. Silakan periksa kembali inputan Anda.'
+        message: 'Validasi gagal. Silakan periksa kembali inputan Anda.',
+        values: Object.fromEntries(
+          Object.entries(rawData).filter(([, v]) => v != null)
+        ) as Record<string, string>
       }
     }
 
@@ -110,7 +114,10 @@ export async function updateOrganizationAction(
       return {
         success: false,
         errors: validated.error.flatten().fieldErrors,
-        message: 'Validasi gagal. Silakan periksa kembali inputan Anda.'
+        message: 'Validasi gagal. Silakan periksa kembali inputan Anda.',
+        values: Object.fromEntries(
+          Object.entries({ ...rawData, id }).filter(([, v]) => v != null)
+        ) as Record<string, string>
       }
     }
 

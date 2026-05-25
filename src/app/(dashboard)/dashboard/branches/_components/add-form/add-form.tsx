@@ -41,6 +41,10 @@ export const AddOrganizationForm = ({
   const [logoPath, setLogoPath] = React.useState<string | undefined>(
     editData?.logo ?? undefined
   )
+  const [name, setName] = React.useState(editData?.name ?? '')
+  const [code, setCode] = React.useState(editData?.code ?? '')
+  const [slug, setSlug] = React.useState(editData?.slug ?? '')
+  const [type, setType] = React.useState(editData?.type ?? '')
   const [state, action, isPending] = React.useActionState(
     async (prevState: OrgFormState, formData: FormData) => {
       if (editData) {
@@ -59,6 +63,15 @@ export const AddOrganizationForm = ({
       toast.error(state.message)
     }
   }, [state])
+
+  React.useEffect(() => {
+    if (state.values && !state.success) {
+      if (state.values.name) setName(state.values.name)
+      if (state.values.code) setCode(state.values.code)
+      if (state.values.slug) setSlug(state.values.slug)
+      if (state.values.type) setType(state.values.type)
+    }
+  }, [state.values, state.success])
 
   React.useEffect(() => {
     return () => {
@@ -93,7 +106,8 @@ export const AddOrganizationForm = ({
             id='name'
             name='name'
             placeholder='Contoh: Pengurus Daerah Jakarta'
-            defaultValue={editData?.name}
+            value={name}
+            onChange={(e) => setName(e.target.value)}
             required
             aria-invalid={!!state.errors?.name || undefined}
           />
@@ -108,7 +122,8 @@ export const AddOrganizationForm = ({
             id='code'
             name='code'
             placeholder='Contoh: PD-JKT'
-            defaultValue={editData?.code}
+            value={code}
+            onChange={(e) => setCode(e.target.value)}
             required
             aria-invalid={!!state.errors?.code || undefined}
           />
@@ -119,14 +134,14 @@ export const AddOrganizationForm = ({
 
         <Field data-invalid={!!state.errors?.type || undefined}>
           <FieldLabel htmlFor='type'>Tipe Organisasi</FieldLabel>
-          <Select name='type' defaultValue={editData?.type}>
+          <Select name='type' value={type} onValueChange={setType}>
             <SelectTrigger className='w-full'>
               <SelectValue placeholder='Pilih tipe' />
             </SelectTrigger>
             <SelectContent>
-              {availableTypes.map((type) => (
-                <SelectItem key={type.value} value={type.value}>
-                  {type.label}
+              {availableTypes.map((typeOption) => (
+                <SelectItem key={typeOption.value} value={typeOption.value}>
+                  {typeOption.label}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -142,7 +157,8 @@ export const AddOrganizationForm = ({
             id='slug'
             name='slug'
             placeholder='slug-organisasi'
-            defaultValue={editData?.slug}
+            value={slug}
+            onChange={(e) => setSlug(e.target.value)}
             required
             aria-invalid={!!state.errors?.slug || undefined}
           />
