@@ -2,6 +2,7 @@ import { type CSSProperties, type ReactNode } from 'react'
 
 import { AppSidebar } from './_components/app-sidebar'
 import { SiteHeader } from './_components/site-header'
+import { CredentialPanelServer } from './_components/site-header/credential-panel-server'
 import { LogoutDialog } from './_components/logout/logout'
 import { SidebarInset, SidebarProvider } from '~/components/shadcn/ui/sidebar'
 import { readActiveSession } from '~/lib/auth/cookies'
@@ -29,7 +30,7 @@ const DashboardLayout = async ({
     >
       <AppSidebar variant='inset' user={session.user} />
       <SidebarInset>
-        <SiteHeader />
+        <SiteHeader rightSlot={<CredentialPanelServer />} />
         <div className='flex flex-1 flex-col'>
           <div className='@container/main flex flex-1 flex-col gap-2'>
             {children}

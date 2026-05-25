@@ -1,5 +1,6 @@
 'use client'
 
+import { type ReactNode } from 'react'
 import { usePathname } from 'next/navigation'
 import { Separator } from '~/components/shadcn/ui/separator'
 import { SidebarTrigger } from '~/components/shadcn/ui/sidebar'
@@ -24,7 +25,11 @@ const getLabel = (pathname: string) => {
   return 'Dashboard'
 }
 
-export const SiteHeader = () => {
+type SiteHeaderProps = {
+  rightSlot?: ReactNode
+}
+
+export const SiteHeader = ({ rightSlot }: SiteHeaderProps) => {
   const pathname = usePathname()
 
   return (
@@ -35,7 +40,8 @@ export const SiteHeader = () => {
           orientation='vertical'
           className='mx-2 h-4 data-vertical:self-auto'
         />
-        <span className='text-base font-medium'>{getLabel(pathname)}</span>
+        <span className='flex-1 text-base font-medium'>{getLabel(pathname)}</span>
+        {rightSlot}
       </div>
     </header>
   )
