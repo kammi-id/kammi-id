@@ -26,12 +26,22 @@ export const LeadershipForm = ({ initialData }: Props) => {
     FormData
   >(saveLeadershipAction, {})
   const [leaders, setLeaders] = useState<Leader[]>(initialData.leaders)
+  const [periodLabel, setPeriodLabel] = useState(initialData.periodLabel)
+  const [heading, setHeading] = useState(initialData.heading)
 
   useEffect(() => {
     if (state.success)
       toast.success('Pengaturan kepemimpinan berhasil disimpan.')
     if (state.error) toast.error(state.error)
   }, [state])
+
+  useEffect(() => {
+    if (state.values && !state.success) {
+      if (state.values.periodLabel !== undefined)
+        setPeriodLabel(state.values.periodLabel)
+      if (state.values.heading !== undefined) setHeading(state.values.heading)
+    }
+  }, [state.values, state.success])
 
   const fe = state.fieldErrors ?? {}
 
@@ -65,7 +75,8 @@ export const LeadershipForm = ({ initialData }: Props) => {
               <Input
                 id='periodLabel'
                 name='periodLabel'
-                defaultValue={initialData.periodLabel}
+                value={periodLabel}
+                onChange={(e) => setPeriodLabel(e.target.value)}
                 placeholder='Masa Jabatan KAMMI'
               />
             </FieldContent>
@@ -76,7 +87,8 @@ export const LeadershipForm = ({ initialData }: Props) => {
               <Input
                 id='heading'
                 name='heading'
-                defaultValue={initialData.heading}
+                value={heading}
+                onChange={(e) => setHeading(e.target.value)}
                 placeholder='Mengenal Pengurus Pusat KAMMI'
               />
             </FieldContent>

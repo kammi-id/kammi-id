@@ -10,6 +10,7 @@ export type SettingsActionState = {
   success?: boolean
   error?: string
   fieldErrors?: Record<string, string[]>
+  values?: Record<string, string>
 }
 
 const checkAccess = async () => {
@@ -64,7 +65,11 @@ export const saveLeadershipAction = async (
       fieldErrors: result.error.flatten().fieldErrors as Record<
         string,
         string[]
-      >
+      >,
+      values: Object.fromEntries(
+        Object.entries({ periodLabel: raw.periodLabel, heading: raw.heading })
+          .filter(([, v]) => v != null && typeof v === 'string')
+      ) as Record<string, string>
     }
   }
 
