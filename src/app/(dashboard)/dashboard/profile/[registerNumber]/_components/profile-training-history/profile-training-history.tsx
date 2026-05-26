@@ -1,15 +1,10 @@
+'use client'
+
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Tick01Icon, Cancel01Icon } from '@hugeicons/core-free-icons'
-import type {
-  MemberTrainingHistory,
-  TrainingType,
-  InstructorRole
-} from '~/db/query/training'
+import type { TrainingType, InstructorRole } from '~/db/query/training'
 import { Separator } from '~/components/shadcn/ui/separator'
-
-interface ProfileTrainingHistoryProps {
-  history: MemberTrainingHistory
-}
+import { useProfileEdit } from '../profile-edit-context'
 
 const trainingTypeLabel: Record<TrainingType, string> = {
   dm1: 'DM 1',
@@ -43,9 +38,8 @@ const EmptyState = ({ text }: { text: string }) => (
   <p className='text-muted-foreground py-4 text-sm'>{text}</p>
 )
 
-export const ProfileTrainingHistory = ({
-  history
-}: ProfileTrainingHistoryProps) => {
+export const ProfileTrainingHistory = () => {
+  const { trainingHistory: history } = useProfileEdit()
   return (
     <section>
       <SectionDivider title='Riwayat Dauroh' />

@@ -1,6 +1,7 @@
 'use client'
 
-import React, { useActionState, useEffect, useState, useCallback } from 'react'
+import { useActionState, useEffect, useState, useCallback } from 'react'
+import type { ReactNode } from 'react'
 import { toast } from 'sonner'
 import { Button } from '~/components/shadcn/ui/button'
 import { HugeiconsIcon } from '@hugeicons/react'
@@ -10,6 +11,7 @@ import {
   Cancel01Icon
 } from '@hugeicons/core-free-icons'
 import { updateMemberProfileAction } from '../action'
+import { ProfileEditProvider } from '../profile-edit-context'
 import { ProfileHeader } from '../profile-header'
 import { ProfileInfo } from '../profile-info'
 import { ProfileSidebar } from '../profile-sidebar'
@@ -21,14 +23,16 @@ interface ProfileInlineEditFormProps {
   member: Member
   canEdit: boolean
   trainingHistory: MemberTrainingHistory
-  orgHierarchySlot?: React.ReactNode
+  orgHierarchySlot?: ReactNode
+  adminActionsSlot?: ReactNode
 }
 
 export const ProfileInlineEditForm = ({
   member,
   canEdit,
   trainingHistory,
-  orgHierarchySlot
+  orgHierarchySlot,
+  adminActionsSlot
 }: ProfileInlineEditFormProps) => {
   const [isEditing, setIsEditing] = useState(false)
   const [formKey, setFormKey] = useState(0)
@@ -89,43 +93,43 @@ export const ProfileInlineEditForm = ({
   ) : null
 
   return (
-    <form id='profile-edit-form' action={formAction}>
-      <ProfileHeader
-        member={member}
-        canEdit={canEdit}
-        trainingHistory={trainingHistory}
-        isEditing={isEditing}
-        editSlot={editSlot}
-        editActionsSlot={editActionsSlot}
-      />
+    <ProfileEditProvider
+      value={{
+        member,
+        trainingHistory,
+        canEdit,
+        isEditing,
+        isPending,
+        fieldErrors: state.errors
+      }}
+    >
+      <form id='profile-edit-form' action={formAction}>
+        <ProfileHeader
+          editSlot={editSlot}
+          editActionsSlot={editActionsSlot}
+          adminActionsSlot={adminActionsSlot}
+        />
 
-      <div className='px-6 py-8'>
-        <div className='mx-auto max-w-5xl'>
-          <div className='flex flex-col gap-8 lg:flex-row lg:gap-10'>
-            <main className='min-w-0 flex-1'>
-              <ProfileInfo
-                key={`info-${formKey}`}
-                member={member}
-                isEditing={isEditing}
-                fieldErrors={state.errors}
-              />
-              <div className='mt-8'>
-                <ProfileTrainingHistory history={trainingHistory} />
-              </div>
-            </main>
+        <div className='px-6 py-8'>
+          <div className='mx-auto max-w-5xl'>
+            <div className='flex flex-col gap-8 lg:flex-row lg:gap-10'>
+              <main className='min-w-0 flex-1'>
+                <ProfileInfo key={`info-${formKey}`} />
+                <div className='mt-8'>
+                  <ProfileTrainingHistory />
+                </div>
+              </main>
 
-            <aside className='w-full lg:w-64 lg:shrink-0'>
-              <ProfileSidebar
-                key={`sidebar-${formKey}`}
-                member={member}
-                trainingHistory={trainingHistory}
-                isEditing={isEditing}
-                orgHierarchySlot={orgHierarchySlot}
-              />
-            </aside>
+              <aside className='w-full lg:w-64 lg:shrink-0'>
+                <ProfileSidebar
+                  key={`sidebar-${formKey}`}
+                  orgHierarchySlot={orgHierarchySlot}
+                />
+              </aside>
+            </div>
           </div>
         </div>
-      </div>
-    </form>
+      </form>
+    </ProfileEditProvider>
   )
 }

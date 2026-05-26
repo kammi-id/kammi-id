@@ -1,6 +1,7 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
+import type { ReactNode } from 'react'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { WhatsappIcon } from '@hugeicons/core-free-icons'
 import { Input } from '~/components/shadcn/ui/input'
@@ -17,12 +18,7 @@ import {
 } from '~/app/(dashboard)/dashboard/kader/_components/add-form/action'
 import type { RegionItem } from '~/lib/api/region'
 import type { Member } from '~/db/query/member'
-
-interface ProfileInfoProps {
-  member: Member
-  isEditing?: boolean
-  fieldErrors?: Record<string, string[]>
-}
+import { useProfileEdit } from '../profile-edit-context'
 
 const InfoRow = ({
   label,
@@ -30,7 +26,7 @@ const InfoRow = ({
   mono = false
 }: {
   label: string
-  value: React.ReactNode
+  value: ReactNode
   mono?: boolean
 }) => (
   <div className='flex min-h-[2rem] items-start gap-3 py-2'>
@@ -86,11 +82,8 @@ const Placeholder = () => (
   <span className='text-muted-foreground/60 italic'>Tidak diisi</span>
 )
 
-export const ProfileInfo = ({
-  member,
-  isEditing = false,
-  fieldErrors
-}: ProfileInfoProps) => {
+export const ProfileInfo = () => {
+  const { member, isEditing, fieldErrors } = useProfileEdit()
   const [selectedGender, setSelectedGender] = useState(member.gender)
   const [province, setProvince] = useState(member.addressProvinceCode ?? '')
   const [city, setCity] = useState(member.addressCityCode ?? '')

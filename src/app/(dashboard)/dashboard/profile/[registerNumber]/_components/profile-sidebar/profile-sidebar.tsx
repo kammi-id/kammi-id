@@ -1,18 +1,15 @@
 'use client'
 
-import React, { useState } from 'react'
+import { useState } from 'react'
+import type { ReactNode } from 'react'
 import { cn } from '~/lib/shadcn/utils'
 import { RadioGroup, RadioGroupItem } from '~/components/shadcn/ui/radio-group'
 import { Field, FieldLabel } from '~/components/shadcn/ui/field'
 import { WarningTooltip } from '../warning-tooltip'
-import type { Member } from '~/db/query/member'
-import type { MemberTrainingHistory } from '~/db/query/training'
+import { useProfileEdit } from '../profile-edit-context'
 
 interface ProfileSidebarProps {
-  member: Member
-  trainingHistory?: MemberTrainingHistory
-  isEditing?: boolean
-  orgHierarchySlot?: React.ReactNode
+  orgHierarchySlot?: ReactNode
 }
 
 const statusLabel: Record<string, string> = {
@@ -44,7 +41,7 @@ const Toggle = ({
       <button
         type='button'
         role='switch'
-        aria-checked={checked}
+        aria-checked={checked ? 'true' : 'false'}
         aria-label={label}
         onClick={() => setChecked(!checked)}
         className={cn(
@@ -64,12 +61,9 @@ const Toggle = ({
   )
 }
 
-export const ProfileSidebar = ({
-  member,
-  trainingHistory,
-  isEditing = false,
-  orgHierarchySlot
-}: ProfileSidebarProps) => {
+export const ProfileSidebar = ({ orgHierarchySlot }: ProfileSidebarProps) => {
+  const { member, trainingHistory, isEditing } = useProfileEdit()
+
   const hasCertifications =
     member.isCertifiedMentor || member.isCertifiedInstructor
   const hasSpecialStatus =

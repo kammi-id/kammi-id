@@ -45,30 +45,29 @@ const ProfilePage = async ({
 
   const userCanEdit = canEdit(session, member.id)
 
-  return (
-    <div className='flex flex-col'>
-      <ProfileInlineEditForm
-        member={member}
-        canEdit={userCanEdit}
-        trainingHistory={trainingHistory}
-        orgHierarchySlot={
-          orgChain.length > 0 ? (
-            <ProfileOrgHierarchy
-              chain={orgChain}
-              currentOrgId={member.organization?.id ?? ''}
-            />
-          ) : null
-        }
+  const adminActionsSlot =
+    userCanEdit && session?.user.role === 'bpk' && session.user.connectedOrganization ? (
+      <ResetPasswordButton
+        memberId={member.id}
+        organizationId={session.user.connectedOrganization.id}
       />
-      {userCanEdit && session?.user.role === 'bpk' && (
-        <div className='px-4 py-2 md:px-6 md:py-4'>
-          <ResetPasswordButton
-            memberId={member.id}
-            organizationId={member.organizationId}
+    ) : null
+
+  return (
+    <ProfileInlineEditForm
+      member={member}
+      canEdit={userCanEdit}
+      trainingHistory={trainingHistory}
+      adminActionsSlot={adminActionsSlot}
+      orgHierarchySlot={
+        orgChain.length > 0 ? (
+          <ProfileOrgHierarchy
+            chain={orgChain}
+            currentOrgId={member.organization?.id ?? ''}
           />
-        </div>
-      )}
-    </div>
+        ) : null
+      }
+    />
   )
 }
 

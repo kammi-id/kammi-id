@@ -14,6 +14,7 @@
         "@hookform/resolvers": "^5.2.2",
         "@hugeicons/core-free-icons": "^4.1.1",
         "@hugeicons/react": "^1.1.6",
+        "@nanostores/persistent": "^1.3.4",
         "@nanostores/react": "^1.1.0",
         "@tanstack/react-table": "^8.21.3",
         "class-variance-authority": "^0.7.1",
@@ -21,7 +22,7 @@
         "cmdk": "^1.1.1",
         "drizzle-orm": "^1.0.0-beta.21",
         "gsap": "^3.15.0",
-        "nanostores": "^1.2.0",
+        "nanostores": "^1.3.0",
         "next": "16.2.2",
         "next-themes": "^0.4.6",
         "react": "19.2.4",
@@ -406,6 +407,8 @@
     "@modelcontextprotocol/sdk": ["@modelcontextprotocol/sdk@1.29.0", "", { "dependencies": { "@hono/node-server": "^1.19.9", "ajv": "^8.17.1", "ajv-formats": "^3.0.1", "content-type": "^1.0.5", "cors": "^2.8.5", "cross-spawn": "^7.0.5", "eventsource": "^3.0.2", "eventsource-parser": "^3.0.0", "express": "^5.2.1", "express-rate-limit": "^8.2.1", "hono": "^4.11.4", "jose": "^6.1.3", "json-schema-typed": "^8.0.2", "pkce-challenge": "^5.0.0", "raw-body": "^3.0.0", "zod": "^3.25 || ^4.0", "zod-to-json-schema": "^3.25.1" }, "peerDependencies": { "@cfworker/json-schema": "^4.1.1" }, "optionalPeers": ["@cfworker/json-schema"] }, "sha512-zo37mZA9hJWpULgkRpowewez1y6ML5GsXJPY8FI0tBBCd77HEvza4jDqRKOXgHNn867PVGCyTdzqpz0izu5ZjQ=="],
 
     "@mswjs/interceptors": ["@mswjs/interceptors@0.41.3", "", { "dependencies": { "@open-draft/deferred-promise": "^2.2.0", "@open-draft/logger": "^0.3.0", "@open-draft/until": "^2.0.0", "is-node-process": "^1.2.0", "outvariant": "^1.4.3", "strict-event-emitter": "^0.5.1" } }, "sha512-cXu86tF4VQVfwz8W1SPbhoRyHJkti6mjH/XJIxp40jhO4j2k1m4KYrEykxqWPkFF3vrK4rgQppBh//AwyGSXPA=="],
+
+    "@nanostores/persistent": ["@nanostores/persistent@1.3.4", "", { "peerDependencies": { "nanostores": "^0.9.0 || ^0.10.0 || ^0.11.0 || ^1.0.0" } }, "sha512-fZ42MOredSkqt450XrPxmQ94pSRPTas/rBUVCvEEMCR+rIp8bdo/xoaFFcG2cwpqAzA164PdD6p3D+MXLJYumw=="],
 
     "@nanostores/react": ["@nanostores/react@1.1.0", "", { "peerDependencies": { "nanostores": "^1.2.0", "react": ">=18.0.0" } }, "sha512-MbH35fjhcf7LAubYX5vhOChYUfTLzNLqH/mBGLVsHkcvjy0F8crO1WQwdmQ2xKbAmtpalDa2zBt3Hlg5kqr8iw=="],
 
@@ -1437,7 +1440,7 @@
 
     "nanoid": ["nanoid@3.3.11", "", { "bin": { "nanoid": "bin/nanoid.cjs" } }, "sha512-N8SpfPUnUp1bK+PMYW8qSWdl9U+wwNWI4QKxOYDy9JAro3WMX7p2OeVRF9v+347pnakNevPmiHhNmZ2HbFA76w=="],
 
-    "nanostores": ["nanostores@1.2.0", "", {}, "sha512-F0wCzbsH80G7XXo0Jd9/AVQC7ouWY6idUCTnMwW5t/Rv9W8qmO6endavDwg7TNp5GbugwSukFMVZqzPSrSMndg=="],
+    "nanostores": ["nanostores@1.3.0", "", {}, "sha512-XPUa/jz+P1oJvN9VBxw4L9MtdFfaH3DAryqPssqhb2kXjmb9npz0dly6rCsgFWOPr4Yg9mTfM3MDZgZZ+7A3lA=="],
 
     "napi-postinstall": ["napi-postinstall@0.3.4", "", { "bin": { "napi-postinstall": "lib/cli.js" } }, "sha512-PHI5f1O0EP5xJ9gQmFGMS6IZcrVvTjpXjz7Na41gTE7eE2hK11lg04CECCYEEjdc17EV4DO+fkGEtt7TpTaTiQ=="],
 

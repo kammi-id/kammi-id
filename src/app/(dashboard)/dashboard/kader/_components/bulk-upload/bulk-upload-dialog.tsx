@@ -64,11 +64,16 @@ export const BulkUploadDialog = ({ organizationId, trainingId }: BulkUploadDialo
           createdAt: new Date().toISOString()
         }))
         appendCredentials(organizationId, entries)
-        toast.success(result.message)
+        toast.success(result.message, {
+          description: `${entries.length} credential tersimpan. Buka ikon kunci di header untuk download CSV.`,
+          duration: 6000,
+        })
         setOpen(false)
         setRows([])
       } else {
-        toast.error(result.message ?? 'Terjadi kesalahan')
+        toast.error(result.message ?? 'Terjadi kesalahan', {
+          description: 'Periksa koneksi internet dan coba lagi.',
+        })
       }
     })
   }

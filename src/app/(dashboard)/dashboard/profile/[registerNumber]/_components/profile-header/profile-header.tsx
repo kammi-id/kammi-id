@@ -1,16 +1,13 @@
+'use client'
+
 import type { ReactNode, CSSProperties } from 'react'
 import Link from 'next/link'
 import { Badge } from '~/components/shadcn/ui/badge'
 import { ProfileAvatar } from '../profile-avatar'
 import { WarningTooltip } from '../warning-tooltip'
-import type { Member } from '~/db/query/member'
-import type { MemberTrainingHistory } from '~/db/query/training'
+import { useProfileEdit } from '../profile-edit-context'
 
 interface ProfileHeaderProps {
-  member: Member
-  canEdit: boolean
-  trainingHistory?: MemberTrainingHistory
-  isEditing?: boolean
   editSlot?: ReactNode
   editActionsSlot?: ReactNode
   adminActionsSlot?: ReactNode
@@ -41,14 +38,12 @@ const statusRequiredDm: Record<string, 'dm1' | 'dm2' | 'dm3'> = {
 }
 
 export const ProfileHeader = ({
-  member,
-  canEdit,
-  trainingHistory,
-  isEditing = false,
   editSlot,
   editActionsSlot,
   adminActionsSlot
 }: ProfileHeaderProps) => {
+  const { member, trainingHistory, canEdit, isEditing } = useProfileEdit()
+
   const requiredDm = statusRequiredDm[member.status]
   const hasDm = requiredDm
     ? (trainingHistory?.asAttendant.some((r) => r.type === requiredDm) ?? false)
@@ -98,7 +93,7 @@ export const ProfileHeader = ({
               >
                 {member.status.toUpperCase()}
               </Badge>
-              {trainingHistory && !hasDm && requiredDm && (
+              {!hasDm && requiredDm && (
                 <WarningTooltip
                   message={`Belum ada entry ${requiredDm.toUpperCase()} di riwayat dauroh`}
                 />
