@@ -101,11 +101,13 @@ export const HeroSection = async () => {
         </div>
       </div>
 
-      {/* Subtle background accent */}
+      {/* Subtle background accent — wrapper clips the overflowing blob */}
       <div
-        className='bg-primary/5 pointer-events-none absolute top-0 right-0 -z-10 h-[600px] w-[600px] translate-x-1/3 -translate-y-1/4 rounded-full blur-3xl'
+        className='pointer-events-none absolute inset-0 -z-10 overflow-hidden'
         aria-hidden='true'
-      />
+      >
+        <div className='bg-primary/5 absolute top-0 right-0 h-[600px] w-[600px] translate-x-1/3 -translate-y-1/4 rounded-full blur-3xl' />
+      </div>
     </section>
   )
 }

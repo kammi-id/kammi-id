@@ -31,17 +31,20 @@ const HomeSettingsPage = async () => {
 
   const { role, connectedOrganization } = session.user
   const isRoot = role === 'root'
-  const isHumasPP = role === 'humas' && connectedOrganization?.type === 'pp'
+  const isHumas = role === 'humas'
 
-  if (!isRoot && !isHumasPP) redirect('/dashboard')
+  if (!isRoot && !isHumas) redirect('/dashboard')
+
+  const orgId = connectedOrganization?.id
+  if (!orgId) redirect('/dashboard')
 
   const [hero, about, actions, nav, footer, metadata] = await Promise.all([
-    getCachedHeroSettings(),
-    getCachedAboutSettings(),
-    getCachedActionsSettings(),
-    getCachedNavSettings(),
-    getCachedFooterSettings(),
-    getCachedMetadataSettings()
+    getCachedHeroSettings(orgId),
+    getCachedAboutSettings(orgId),
+    getCachedActionsSettings(orgId),
+    getCachedNavSettings(orgId),
+    getCachedFooterSettings(orgId),
+    getCachedMetadataSettings(orgId)
   ])
 
   const sections = [
