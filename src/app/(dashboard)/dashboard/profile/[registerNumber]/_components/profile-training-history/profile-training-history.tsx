@@ -121,17 +121,27 @@ export const ProfileTrainingHistory = ({
                     {record.year}
                   </td>
                   <td className='px-4 py-3 text-center'>
-                    {record.isPassing ? (
-                      <HugeiconsIcon
-                        icon={Tick01Icon}
-                        className='mx-auto size-4 text-[var(--status-training-pass)]'
-                      />
-                    ) : (
-                      <HugeiconsIcon
-                        icon={Cancel01Icon}
-                        className='mx-auto size-4 text-[var(--status-training-fail)]'
-                      />
-                    )}
+                    <span className='inline-flex items-center justify-center'>
+                      {record.isPassing ? (
+                        <>
+                          <HugeiconsIcon
+                            icon={Tick01Icon}
+                            aria-hidden='true'
+                            className='size-4 text-[var(--status-training-pass)]'
+                          />
+                          <span className='sr-only'>Lulus</span>
+                        </>
+                      ) : (
+                        <>
+                          <HugeiconsIcon
+                            icon={Cancel01Icon}
+                            aria-hidden='true'
+                            className='size-4 text-[var(--status-training-fail)]'
+                          />
+                          <span className='sr-only'>Tidak Lulus</span>
+                        </>
+                      )}
+                    </span>
                   </td>
                 </tr>
               ))}
