@@ -25,6 +25,26 @@ import {
 import { appendCredentials, type CredentialEntry } from '~/components/credential-store/store'
 import { regenerateCredentialAction } from './action'
 
+const CopyButton = ({ value }: { value: string }) => {
+  const [copied, setCopied] = useState(false)
+  const handleCopy = () => {
+    navigator.clipboard.writeText(value).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    })
+  }
+  return (
+    <button
+      type='button'
+      onClick={handleCopy}
+      className='text-muted-foreground hover:text-foreground ml-auto shrink-0 transition-colors'
+      aria-label={copied ? 'Tersalin' : 'Salin ke clipboard'}
+    >
+      <span className='font-geist-mono text-xs'>{copied ? 'Tersalin!' : 'Salin'}</span>
+    </button>
+  )
+}
+
 interface ResetPasswordButtonProps {
   memberId: string
   organizationId: string
@@ -59,7 +79,9 @@ export const ResetPasswordButton = ({
         })
         toast.success(result.message)
       } else {
-        toast.error(result.message ?? 'Gagal mereset password')
+        toast.error(result.message ?? 'Gagal mereset password', {
+          description: 'Coba lagi atau hubungi administrator jika masalah berlanjut.',
+        })
       }
     })
   }
@@ -100,12 +122,18 @@ export const ResetPasswordButton = ({
             </DialogHeader>
             <div className='space-y-3 rounded-lg border p-4'>
               <div>
-                <p className='text-muted-foreground text-xs'>NIK (Username)</p>
-                <p className='font-mono font-medium'>{newCredential.registerNumber}</p>
+                <div className='flex items-center justify-between gap-2'>
+                  <p className='text-muted-foreground text-xs'>NIK (Username)</p>
+                  <CopyButton value={newCredential.registerNumber} />
+                </div>
+                <p className='font-geist-mono text-sm font-medium'>{newCredential.registerNumber}</p>
               </div>
               <div>
-                <p className='text-muted-foreground text-xs'>Password Baru</p>
-                <p className='font-mono font-medium'>{newCredential.password}</p>
+                <div className='flex items-center justify-between gap-2'>
+                  <p className='text-muted-foreground text-xs'>Password Baru</p>
+                  <CopyButton value={newCredential.password} />
+                </div>
+                <p className='font-geist-mono text-sm font-medium'>{newCredential.password}</p>
               </div>
               <p className='text-muted-foreground text-xs'>
                 Credential ini juga sudah tersimpan di Credential Panel.
