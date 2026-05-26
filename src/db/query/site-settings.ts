@@ -28,10 +28,30 @@ export type AboutSettings = {
   miniStrategiLinkHref: string
 }
 
+export type LeaderMember = {
+  id: string
+  name: string
+  role: string
+  photoUrl: string
+}
+
+export type LeaderBlock = {
+  id: string
+  title: string
+  members: LeaderMember[]
+}
+
 export type LeadershipSettings = {
   periodLabel: string
   heading: string
+  triumvirate: {
+    ketua: { name: string; photoUrl: string }
+    sekretaris: { name: string; photoUrl: string }
+    bendahara: { name: string; photoUrl: string }
+  }
+  /** @deprecated Use leaderBlocks instead */
   leaders: Array<{ name: string; role: string; photoUrl: string }>
+  leaderBlocks: LeaderBlock[]
 }
 
 export type ActionsSettings = {
@@ -104,7 +124,13 @@ export const SETTINGS_DEFAULTS = {
   leadership: {
     periodLabel: 'Masa Jabatan KAMMI',
     heading: 'Mengenal Pengurus Pusat KAMMI',
-    leaders: []
+    triumvirate: {
+      ketua: { name: '', photoUrl: '' },
+      sekretaris: { name: '', photoUrl: '' },
+      bendahara: { name: '', photoUrl: '' },
+    },
+    leaders: [],
+    leaderBlocks: []
   } satisfies LeadershipSettings,
 
   actions: {
@@ -194,13 +220,16 @@ export const SETTINGS_DEFAULTS = {
 
 export const readSiteSettings = async <T>(
   key: string,
-  fallback: T
+  fallback: T,
+  organizationId: string
 ): Promise<T> => {
   try {
     const rows = await db
       .select({ data: siteSettings.data })
       .from(siteSettings)
-      .where(eq(siteSettings.key, key))
+      .where(
+        sql`${siteSettings.key} = ${key} AND ${siteSettings.organizationId} = ${organizationId}`
+      )
       .limit(1)
 
     if (!rows.length) return fallback
@@ -212,13 +241,18 @@ export const readSiteSettings = async <T>(
 
 export const upsertSiteSettings = async (
   key: string,
-  data: unknown
+  data: unknown,
+  organizationId: string
 ): Promise<void> => {
   await db
     .insert(siteSettings)
-    .values({ key, data: data as Record<string, unknown> })
+    .values({
+      key,
+      organizationId,
+      data: data as Record<string, unknown>,
+    })
     .onConflictDoUpdate({
-      target: siteSettings.key,
-      set: { data: data as Record<string, unknown>, updatedAt: sql`now()` }
+      target: [siteSettings.key, siteSettings.organizationId],
+      set: { data: data as Record<string, unknown>, updatedAt: sql`now()` },
     })
 }

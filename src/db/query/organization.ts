@@ -327,6 +327,17 @@ export const isOrgInScope = async (
   return allowedIds.includes(targetOrgId)
 }
 
+export const readOrganizationIdByType = async (
+  type: 'pp' | 'pw' | 'pdln' | 'pd' | 'pk'
+): Promise<string | null> => {
+  const rows = await db
+    .select({ id: organization.id })
+    .from(organization)
+    .where(eq(organization.type, type))
+    .limit(1)
+  return rows[0]?.id ?? null
+}
+
 export const readOrgHierarchyChain = async (
   orgId: string
 ): Promise<OrgChainNode[]> => {
