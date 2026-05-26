@@ -124,12 +124,12 @@ export const ProfileTrainingHistory = ({
                     {record.isPassing ? (
                       <HugeiconsIcon
                         icon={Tick01Icon}
-                        className='mx-auto size-4 text-[oklch(0.45_0.16_145)]'
+                        className='mx-auto size-4 text-[var(--status-training-pass)]'
                       />
                     ) : (
                       <HugeiconsIcon
                         icon={Cancel01Icon}
-                        className='mx-auto size-4 text-[oklch(0.55_0.18_17)]'
+                        className='mx-auto size-4 text-[var(--status-training-fail)]'
                       />
                     )}
                   </td>

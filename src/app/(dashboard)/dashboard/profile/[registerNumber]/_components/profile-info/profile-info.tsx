@@ -76,10 +76,10 @@ const deriveMemberStatusLabel = (member: Member): string => {
 }
 
 const deriveMemberStatusStyle = (member: Member): string => {
-  if (member.isSuspended) return 'text-[oklch(0.50_0.18_17)]'
-  if (member.isNonActive) return 'text-[oklch(0.55_0.01_285)]'
-  if (member.isAlumn) return 'text-[oklch(0.52_0.14_265)]'
-  return 'text-[oklch(0.45_0.16_145)]'
+  if (member.isSuspended) return '[color:var(--status-suspended-text)]'
+  if (member.isNonActive) return '[color:var(--status-nonactive-text)]'
+  if (member.isAlumn) return '[color:var(--status-alumn-text)]'
+  return '[color:var(--status-active-text)]'
 }
 
 const Placeholder = () => (
@@ -109,11 +109,14 @@ export const ProfileInfo = ({
 
   useEffect(() => {
     if (!isEditing) return
+    let cancelled = false
     setLoadingProvince(true)
     fetchProvincesAction().then((res) => {
+      if (cancelled) return
       setLoadingProvince(false)
       if (res.success) setProvinces(res.data ?? [])
     })
+    return () => { cancelled = true }
   }, [isEditing])
 
   useEffect(() => {
@@ -123,11 +126,14 @@ export const ProfileInfo = ({
       setSubdistricts([])
       return
     }
+    let cancelled = false
     setLoadingCity(true)
     fetchCitiesAction(province).then((res) => {
+      if (cancelled) return
       setLoadingCity(false)
       if (res.success) setCities(res.data ?? [])
     })
+    return () => { cancelled = true }
   }, [province])
 
   useEffect(() => {
@@ -136,11 +142,14 @@ export const ProfileInfo = ({
       setSubdistricts([])
       return
     }
+    let cancelled = false
     setLoadingDistrict(true)
     fetchDistrictsAction(city).then((res) => {
+      if (cancelled) return
       setLoadingDistrict(false)
       if (res.success) setDistricts(res.data ?? [])
     })
+    return () => { cancelled = true }
   }, [city])
 
   useEffect(() => {
@@ -148,11 +157,14 @@ export const ProfileInfo = ({
       setSubdistricts([])
       return
     }
+    let cancelled = false
     setLoadingSubdistrict(true)
     fetchVillagesAction(district).then((res) => {
+      if (cancelled) return
       setLoadingSubdistrict(false)
       if (res.success) setSubdistricts(res.data ?? [])
     })
+    return () => { cancelled = true }
   }, [district])
 
   const getRegionName = (options: RegionItem[], code: string) =>
@@ -204,8 +216,8 @@ export const ProfileInfo = ({
                   className={cn(
                     'flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-sm transition-colors',
                     selectedGender === val
-                      ? 'border-[oklch(0.52_0.20_17)] bg-[oklch(0.52_0.20_17/0.08)] text-[oklch(0.42_0.18_17)]'
-                      : 'border-border text-foreground hover:border-[oklch(0.52_0.20_17/0.40)]'
+                      ? '[border-color:var(--form-gender-selected-border)] [background-color:var(--form-gender-selected-bg)] [color:var(--form-gender-selected-text)]'
+                      : 'border-border text-foreground hover:[border-color:var(--form-gender-hover-border)]'
                   )}
                 >
                   <RadioGroupItem

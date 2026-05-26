@@ -22,7 +22,7 @@ export const WarningTooltip = ({ message }: WarningTooltipProps) => (
       >
         <HugeiconsIcon
           icon={Alert01Icon}
-          className='size-3.5 text-[oklch(0.60_0.18_75)]'
+          className='size-3.5 text-[var(--status-warning-icon)]'
         />
       </TooltipTrigger>
       <TooltipContent>{message}</TooltipContent>
