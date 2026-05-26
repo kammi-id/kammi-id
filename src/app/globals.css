@@ -220,6 +220,22 @@
   --status-alumn-border: oklch(0.42 0.17 265 / 0.25);
   --status-alumn-text: oklch(0.38 0.17 265);
   --status-alumn-subtext: oklch(0.48 0.14 265);
+
+  /* Member active status */
+  --status-active-text: oklch(0.45 0.16 145);
+
+  /* Training history pass/fail icons */
+  --status-training-pass: oklch(0.45 0.16 145);
+  --status-training-fail: oklch(0.55 0.18 17);
+
+  /* Warning indicator icon */
+  --status-warning-icon: oklch(0.60 0.18 75);
+
+  /* Gender radio selected state in edit mode */
+  --form-gender-selected-bg: oklch(0.52 0.20 17 / 0.08);
+  --form-gender-selected-border: oklch(0.52 0.20 17);
+  --form-gender-selected-text: oklch(0.42 0.18 17);
+  --form-gender-hover-border: oklch(0.52 0.20 17 / 0.40);
 }
 
 .dark {
@@ -284,4 +300,20 @@
   --status-alumn-border: oklch(0.42 0.15 265 / 0.3);
   --status-alumn-text: oklch(0.7 0.16 265);
   --status-alumn-subtext: oklch(0.58 0.14 265);
+
+  /* Member active status */
+  --status-active-text: oklch(0.72 0.16 145);
+
+  /* Training history pass/fail icons */
+  --status-training-pass: oklch(0.70 0.16 145);
+  --status-training-fail: oklch(0.70 0.18 17);
+
+  /* Warning indicator icon */
+  --status-warning-icon: oklch(0.75 0.16 75);
+
+  /* Gender radio selected state in edit mode */
+  --form-gender-selected-bg: oklch(0.52 0.20 17 / 0.12);
+  --form-gender-selected-border: oklch(0.65 0.20 17);
+  --form-gender-selected-text: oklch(0.75 0.16 17);
+  --form-gender-hover-border: oklch(0.65 0.20 17 / 0.40);
 }
