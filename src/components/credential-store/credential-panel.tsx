@@ -1,14 +1,15 @@
 'use client'
 
 import { useStore } from '@nanostores/react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Key01Icon, Download04Icon, Delete02Icon } from '@hugeicons/core-free-icons'
+import { Key01Icon, Download04Icon, Delete02Icon, InformationCircleIcon } from '@hugeicons/core-free-icons'
 import { Button } from '~/components/shadcn/ui/button'
 import { Badge } from '~/components/shadcn/ui/badge'
 import {
   Sheet,
   SheetContent,
+  SheetDescription,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
@@ -24,6 +25,11 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '~/components/shadcn/ui/alert-dialog'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '~/components/shadcn/ui/tooltip'
 import { credentialStore, clearCredentials, type CredentialEntry } from './store'
 
 type CredentialPanelProps = {
@@ -56,6 +62,9 @@ const downloadCSV = (entries: CredentialEntry[], orgSlug: string) => {
 export const CredentialPanel = ({ organizationId, orgSlug }: CredentialPanelProps) => {
   const store = useStore(credentialStore)
   const [open, setOpen] = useState(false)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => { setMounted(true) }, [])
 
   const entries = store[organizationId] ?? []
   const count = entries.length
@@ -66,31 +75,41 @@ export const CredentialPanel = ({ organizationId, orgSlug }: CredentialPanelProp
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger
-        render={
-          <Button variant="ghost" size="icon-sm" className="relative" aria-label="Lihat credential tersimpan" />
-        }
-      >
-        <HugeiconsIcon icon={Key01Icon} strokeWidth={2} />
-        {count > 0 && (
-          <Badge
-            className="absolute -top-1 -right-1 h-4 min-w-4 px-1 text-[10px] leading-none"
-            variant="default"
+      <Tooltip>
+        <TooltipTrigger render={<span />}>
+          <SheetTrigger
+            render={
+              <Button variant="ghost" size="icon" className="relative" aria-label="Lihat credential tersimpan" />
+            }
           >
-            {count > 99 ? '99+' : count}
-          </Badge>
-        )}
-      </SheetTrigger>
+            <HugeiconsIcon icon={Key01Icon} strokeWidth={2} />
+            {mounted && count > 0 && (
+              <Badge
+                className="absolute -top-1 -right-1 h-4 min-w-4 px-1 text-[10px] leading-none"
+                variant="default"
+              >
+                {count > 99 ? '99+' : count}
+              </Badge>
+            )}
+          </SheetTrigger>
+        </TooltipTrigger>
+        <TooltipContent>Credential Tersimpan</TooltipContent>
+      </Tooltip>
 
       <SheetContent side="right" className="sm:max-w-lg w-full flex flex-col gap-0 p-0">
         <SheetHeader className="px-6 pt-6 pb-4 border-b">
           <SheetTitle>Credential Tersimpan</SheetTitle>
-          <p className="text-sm text-muted-foreground">
+          <SheetDescription>
             {count > 0
               ? `${count} credential tersimpan untuk organisasi ini`
               : 'Belum ada credential tersimpan'}
-          </p>
+          </SheetDescription>
         </SheetHeader>
+
+        <div className="flex items-start gap-2 px-6 py-3 border-b bg-muted/30 text-xs text-muted-foreground">
+          <HugeiconsIcon icon={InformationCircleIcon} strokeWidth={2} className="size-3.5 mt-0.5 shrink-0" />
+          <span>Data ini hanya tersimpan di browser ini. Download CSV untuk menyimpan secara permanen.</span>
+        </div>
 
         <div className="flex-1 overflow-auto">
           {count === 0 ? (
@@ -105,10 +124,10 @@ export const CredentialPanel = ({ organizationId, orgSlug }: CredentialPanelProp
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b bg-muted/40">
-                    <th className="px-4 py-3 text-left font-medium text-muted-foreground">Nama</th>
-                    <th className="px-4 py-3 text-left font-medium text-muted-foreground">NIK</th>
-                    <th className="px-4 py-3 text-left font-medium text-muted-foreground">Password</th>
-                    <th className="px-4 py-3 text-left font-medium text-muted-foreground whitespace-nowrap">Tgl. Generate</th>
+                    <th scope="col" className="px-4 py-3 text-left font-geist-mono text-xs font-medium tracking-wide text-muted-foreground uppercase">Nama</th>
+                    <th scope="col" className="px-4 py-3 text-left font-geist-mono text-xs font-medium tracking-wide text-muted-foreground uppercase">NIK</th>
+                    <th scope="col" className="px-4 py-3 text-left font-geist-mono text-xs font-medium tracking-wide text-muted-foreground uppercase">Password</th>
+                    <th scope="col" className="px-4 py-3 text-left font-geist-mono text-xs font-medium tracking-wide text-muted-foreground whitespace-nowrap uppercase">Tgl. Generate</th>
                   </tr>
                 </thead>
                 <tbody>
