@@ -4,7 +4,7 @@ import { fmt } from '~/lib/utils/format'
 
 const StatSplit = ({ label, value }: { label: string; value: number }) => (
   <div>
-    <div className='font-mono text-base font-semibold tabular-nums'>
+    <div className='font-geist-mono text-base font-semibold tabular-nums'>
       {fmt(value)}
     </div>
     <div className='text-muted-foreground text-xs tracking-wider uppercase'>
@@ -49,7 +49,7 @@ export const TrainingSectionCards = ({ data }: TrainingSectionCardsProps) => {
           <h2 className='text-muted-foreground text-xs font-medium tracking-wider uppercase'>
             Total Dauroh
           </h2>
-          <div className='text-foreground mt-1 font-mono text-4xl font-bold tracking-tight tabular-nums'>
+          <div className='text-foreground mt-1 font-geist-mono text-4xl font-bold tracking-tight tabular-nums'>
             {fmt(data.total)}
           </div>
         </div>
@@ -65,7 +65,7 @@ export const TrainingSectionCards = ({ data }: TrainingSectionCardsProps) => {
           <div className='flex flex-col gap-2.5'>
             {sortedTypes.map(([type, count]) => (
               <div key={type} className='flex items-center gap-3'>
-                <span className='text-muted-foreground w-12 font-mono text-xs font-medium uppercase'>
+                <span className='text-muted-foreground w-12 font-geist-mono text-xs font-medium uppercase'>
                   {type}
                 </span>
                 <div
@@ -80,7 +80,7 @@ export const TrainingSectionCards = ({ data }: TrainingSectionCardsProps) => {
                     style={{ width: `${(count / maxCount) * 100}%` }}
                   />
                 </div>
-                <span className='w-8 text-right font-mono text-xs font-medium tabular-nums'>
+                <span className='w-8 text-right font-geist-mono text-xs font-medium tabular-nums'>
                   {fmt(count)}
                 </span>
               </div>

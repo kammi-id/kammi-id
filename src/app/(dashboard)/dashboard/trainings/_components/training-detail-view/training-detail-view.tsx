@@ -122,7 +122,7 @@ const StatusBadge = ({
   const status = getTrainingStatus(startDate, endDate)
   if (status === 'scheduled') {
     return (
-      <span className='inline-flex items-center gap-1 rounded-full border border-[var(--color-status-warning-border)] bg-[var(--color-status-warning-bg)] px-2.5 py-0.5 font-mono text-[11px] font-medium tracking-wide text-[var(--color-status-warning-text)] uppercase'>
+      <span className='inline-flex items-center gap-1 rounded-full border border-[var(--color-status-warning-border)] bg-[var(--color-status-warning-bg)] px-2.5 py-0.5 font-geist-mono text-[11px] font-medium tracking-wide text-[var(--color-status-warning-text)] uppercase'>
         <HugeiconsIcon icon={Clock01Icon} className='size-3' />
         Terjadwal
       </span>
@@ -130,14 +130,14 @@ const StatusBadge = ({
   }
   if (status === 'ongoing') {
     return (
-      <span className='border-primary/20 bg-primary/8 text-primary inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 font-mono text-[11px] font-medium tracking-wide uppercase'>
+      <span className='border-primary/20 bg-primary/8 text-primary inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 font-geist-mono text-[11px] font-medium tracking-wide uppercase'>
         <span className='bg-primary size-1.5 animate-pulse rounded-full' />
         Berlangsung
       </span>
     )
   }
   return (
-    <span className='inline-flex items-center gap-1 rounded-full border border-[var(--color-status-success-border)] bg-[var(--color-status-success-bg)] px-2.5 py-0.5 font-mono text-[11px] font-medium tracking-wide text-[var(--color-status-success-text)] uppercase'>
+    <span className='inline-flex items-center gap-1 rounded-full border border-[var(--color-status-success-border)] bg-[var(--color-status-success-bg)] px-2.5 py-0.5 font-geist-mono text-[11px] font-medium tracking-wide text-[var(--color-status-success-text)] uppercase'>
       <HugeiconsIcon icon={CheckmarkCircle01Icon} className='size-3' />
       Selesai
     </span>
@@ -145,7 +145,7 @@ const StatusBadge = ({
 }
 
 const SectionLabel = ({ children }: { children: React.ReactNode }) => (
-  <span className='text-muted-foreground font-mono text-[11px] font-medium tracking-wider uppercase'>
+  <span className='text-muted-foreground font-geist-mono text-[11px] font-medium tracking-wider uppercase'>
     {children}
   </span>
 )
@@ -390,7 +390,7 @@ export const TrainingDetailView = ({
             <div className='flex flex-wrap items-center gap-2'>
               <Badge
                 variant='outline'
-                className='border-primary/20 bg-primary/5 text-primary font-mono text-[11px] font-bold uppercase'
+                className='border-primary/20 bg-primary/5 text-primary font-geist-mono text-[11px] font-bold uppercase'
               >
                 {typeLabels[trainingType] ?? trainingType}
               </Badge>
@@ -441,7 +441,7 @@ export const TrainingDetailView = ({
             )}
             <div className='flex items-center gap-3'>
               <div className='flex items-center gap-1'>
-                <span className='text-foreground font-mono text-xs font-semibold tabular-nums'>
+                <span className='text-foreground font-geist-mono text-xs font-semibold tabular-nums'>
                   {attendantCount}
                 </span>
                 <span className='text-xs'>peserta</span>
@@ -449,7 +449,7 @@ export const TrainingDetailView = ({
               <div className='flex items-center gap-1'>
                 <span
                   className={cn(
-                    'font-mono text-xs font-semibold tabular-nums',
+                    'font-geist-mono text-xs font-semibold tabular-nums',
                     passingCount > 0
                       ? 'text-[var(--color-status-success-text)]'
                       : 'text-muted-foreground'
@@ -478,7 +478,7 @@ export const TrainingDetailView = ({
                 Peserta
               </span>
               {attendantCount > 0 && (
-                <span className='text-muted-foreground font-mono text-xs tabular-nums'>
+                <span className='text-muted-foreground font-geist-mono text-xs tabular-nums'>
                   ({attendantCount})
                 </span>
               )}
@@ -606,7 +606,7 @@ export const TrainingDetailView = ({
                       )}
                     >
                       <div className='flex min-w-0 items-center gap-2.5'>
-                        <span className='text-muted-foreground/40 w-5 shrink-0 text-right font-mono text-[10px] tabular-nums'>
+                        <span className='text-muted-foreground/40 w-5 shrink-0 text-right font-geist-mono text-[10px] tabular-nums'>
                           {idx + 1}
                         </span>
                         <Tooltip>
@@ -649,7 +649,7 @@ export const TrainingDetailView = ({
                       </div>
                       <div className='flex shrink-0 items-center gap-1.5'>
                         {att.isPassing ? (
-                          <span className='flex items-center gap-1 font-mono text-xs font-bold tracking-wide text-[var(--color-status-success-text)] uppercase'>
+                          <span className='flex items-center gap-1 font-geist-mono text-xs font-bold tracking-wide text-[var(--color-status-success-text)] uppercase'>
                             <HugeiconsIcon
                               icon={Tick01Icon}
                               className='size-3'
@@ -657,7 +657,7 @@ export const TrainingDetailView = ({
                             Lulus
                           </span>
                         ) : (
-                          <span className='text-muted-foreground/40 font-mono text-xs tracking-wide uppercase'>
+                          <span className='text-muted-foreground/40 font-geist-mono text-xs tracking-wide uppercase'>
                             Belum
                           </span>
                         )}
@@ -693,7 +693,7 @@ export const TrainingDetailView = ({
               Instruktur
             </span>
             {instructorCount > 0 && (
-              <span className='text-muted-foreground font-mono text-xs tabular-nums'>
+              <span className='text-muted-foreground font-geist-mono text-xs tabular-nums'>
                 ({instructorCount})
               </span>
             )}
@@ -781,7 +781,7 @@ export const TrainingDetailView = ({
                         <p className='text-foreground truncate text-sm font-medium'>
                           {name}
                         </p>
-                        <p className='text-muted-foreground font-mono text-xs'>
+                        <p className='text-muted-foreground font-geist-mono text-xs'>
                           {instructorRoleLabels[ins.role] ?? ins.role}
                         </p>
                       </div>
