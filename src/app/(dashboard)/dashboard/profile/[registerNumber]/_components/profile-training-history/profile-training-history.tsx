@@ -1,4 +1,3 @@
-import React from 'react'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Tick01Icon, Cancel01Icon } from '@hugeicons/core-free-icons'
 import type {
@@ -22,13 +21,13 @@ const trainingTypeLabel: Record<TrainingType, string> = {
 }
 
 const instructorRoleLabel: Record<InstructorRole, string> = {
-  master: 'Pemimpin Majelis',
-  assistant_master: 'Wakil Pemimpin Majelis',
-  administrator: 'Sekretaris',
-  classroom_master: 'Pemimpin Kelas',
-  lecturer: 'Pemateri',
+  master: 'Master of Training',
+  assistant_master: 'Assistant Master of Training',
+  administrator: 'Admin Dauroh',
+  classroom_master: 'Master of Classroom',
+  lecturer: 'Instruktur Materi',
   observer: 'Observer',
-  ustadz_of_training: 'Ustadz Pembina'
+  ustadz_of_training: 'Ustadz Dauroh'
 }
 
 const SectionDivider = ({ title }: { title: string }) => (
@@ -63,12 +62,12 @@ export const ProfileTrainingHistory = ({
       </div>
 
       {history.asAttendant.length === 0 ? (
-        <EmptyState text='Belum ada riwayat pelatihan sebagai peserta.' />
+        <EmptyState text='Belum ada riwayat dauroh sebagai peserta.' />
       ) : (
         <div
           className='border-border overflow-x-auto rounded-lg border'
           role='region'
-          aria-label='Riwayat pelatihan sebagai peserta'
+          aria-label='Riwayat dauroh sebagai peserta'
         >
           <table className='w-full min-w-[480px] text-sm'>
             <thead>
@@ -77,7 +76,7 @@ export const ProfileTrainingHistory = ({
                   scope='col'
                   className='text-muted-foreground font-geist-mono px-4 py-2.5 text-left text-xs font-medium tracking-wide uppercase'
                 >
-                  Pelatihan
+                  Dauroh
                 </th>
                 <th
                   scope='col'
@@ -153,12 +152,12 @@ export const ProfileTrainingHistory = ({
       </div>
 
       {history.asInstructor.length === 0 ? (
-        <EmptyState text='Belum ada riwayat pelatihan sebagai instruktur.' />
+        <EmptyState text='Belum ada riwayat dauroh sebagai instruktur.' />
       ) : (
         <div
           className='border-border overflow-x-auto rounded-lg border'
           role='region'
-          aria-label='Riwayat pelatihan sebagai instruktur'
+          aria-label='Riwayat dauroh sebagai instruktur'
         >
           <table className='w-full min-w-[480px] text-sm'>
             <thead>
@@ -167,7 +166,7 @@ export const ProfileTrainingHistory = ({
                   scope='col'
                   className='text-muted-foreground font-geist-mono px-4 py-2.5 text-left text-xs font-medium tracking-wide uppercase'
                 >
-                  Pelatihan
+                  Dauroh
                 </th>
                 <th
                   scope='col'

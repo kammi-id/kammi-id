@@ -1,4 +1,4 @@
-import React from 'react'
+import type { ReactNode, CSSProperties } from 'react'
 import Link from 'next/link'
 import { Badge } from '~/components/shadcn/ui/badge'
 import { ProfileAvatar } from '../profile-avatar'
@@ -11,11 +11,12 @@ interface ProfileHeaderProps {
   canEdit: boolean
   trainingHistory?: MemberTrainingHistory
   isEditing?: boolean
-  editSlot?: React.ReactNode
-  editActionsSlot?: React.ReactNode
+  editSlot?: ReactNode
+  editActionsSlot?: ReactNode
+  adminActionsSlot?: ReactNode
 }
 
-const statusStyles: Record<string, React.CSSProperties> = {
+const statusStyles: Record<string, CSSProperties> = {
   ab1: {
     backgroundColor: 'var(--status-ab1-bg)',
     borderColor: 'var(--status-ab1-border)',
@@ -45,7 +46,8 @@ export const ProfileHeader = ({
   trainingHistory,
   isEditing = false,
   editSlot,
-  editActionsSlot
+  editActionsSlot,
+  adminActionsSlot
 }: ProfileHeaderProps) => {
   const requiredDm = statusRequiredDm[member.status]
   const hasDm = requiredDm
@@ -79,7 +81,10 @@ export const ProfileHeader = ({
               <h1 className='font-heading text-foreground text-2xl leading-tight font-bold md:text-3xl'>
                 {member.name}
               </h1>
-              <div className='shrink-0'>{editActionsSlot ?? editSlot}</div>
+              <div className='flex shrink-0 items-center gap-2'>
+                {adminActionsSlot}
+                {editActionsSlot ?? editSlot}
+              </div>
             </div>
 
             <div className='mt-1 flex items-center gap-2'>
@@ -95,7 +100,7 @@ export const ProfileHeader = ({
               </Badge>
               {trainingHistory && !hasDm && requiredDm && (
                 <WarningTooltip
-                  message={`Belum ada entry ${requiredDm.toUpperCase()} di riwayat pelatihan`}
+                  message={`Belum ada entry ${requiredDm.toUpperCase()} di riwayat dauroh`}
                 />
               )}
             </div>
