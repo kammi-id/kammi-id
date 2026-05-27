@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import Image from 'next/image'
 import { cn } from '~/lib/shadcn/utils'
 import { getLeadershipSettings } from '~/app/(main)/_data/site-settings'
@@ -11,7 +12,11 @@ type TrioMember = {
   position: 'left' | 'center' | 'right'
 }
 
-export const LeadershipSection = async () => {
+interface LeadershipSectionProps {
+  showMoreLink?: boolean
+}
+
+export const LeadershipSection = async ({ showMoreLink = false }: LeadershipSectionProps) => {
   const { periodLabel, heading, triumvirate } = await getLeadershipSettings()
 
   const hasContent = [triumvirate.ketua, triumvirate.sekretaris, triumvirate.bendahara]
@@ -34,41 +39,61 @@ export const LeadershipSection = async () => {
 
   return (
     <section
-      className='bg-background relative flex min-h-screen flex-col overflow-hidden'
+      className='bg-background relative flex flex-col overflow-hidden border-b border-border'
       aria-labelledby='leadership-heading'
     >
       {/* Header */}
-      <div className='px-6 pt-14 pb-8 text-center sm:pt-16 lg:px-8 lg:pt-20'>
+      <div className='px-6 pt-14 pb-4 text-center sm:pt-16 lg:px-8 lg:pt-20'>
         <p className='text-primary font-sans text-xs font-semibold tracking-widest uppercase'>
           {periodLabel}
         </p>
         <h2
           id='leadership-heading'
-          className='font-heading text-foreground mt-2 text-[clamp(1.5rem,3vw,2rem)] font-bold'
+          className='font-heading text-foreground mt-2 text-[clamp(1.5rem,3vw,2.25rem)] font-bold'
         >
           {heading}
         </h2>
+
+        {showMoreLink && (
+          <div className='mt-6 mb-12 flex justify-center'>
+            <Link
+              href='/tentang/pengurus'
+              className='text-primary hover:text-primary/80 group flex items-center gap-2 font-sans text-sm font-semibold transition-colors'
+            >
+              Lihat Seluruh Pengurus Pusat
+              <svg
+                className='size-4 transition-transform group-hover:translate-x-1'
+                viewBox='0 0 16 16'
+                fill='none'
+                aria-hidden='true'
+              >
+                <path
+                  d='M6 12l4-4-4-4'
+                  stroke='currentColor'
+                  strokeWidth='1.5'
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                />
+              </svg>
+            </Link>
+          </div>
+        )}
       </div>
 
-      {/* Spacer */}
-      <div className='flex-1' />
-
       {/* Photo + name trio */}
-      {/* Mobile: single-column vertical stack, ketua on top via CSS order, each card has background */}
-      {/* Desktop (md+): horizontal trio with overlapping negative margins, transparent photos */}
-      <div className='flex flex-col items-center gap-3 px-4 pb-8 sm:px-6 md:flex-row md:items-end md:justify-center md:gap-0 md:px-0 md:pb-0'>
+      {/* Mobile: stack without heavy card background to avoid AI-slop look, slight scale-down */}
+      {/* Desktop (md+): horizontal trio with overlapping negative margins, flush to bottom */}
+      <div className='mt-auto flex flex-col items-start gap-10 px-6 sm:px-8 md:flex-row md:items-end md:justify-center md:gap-0 lg:px-12'>
         {trio.map((member) => {
           const isCenter = member.position === 'center'
           const isLeft = member.position === 'left'
 
-          // Desktop overlap margins (only applied at md+)
           const overlapClass = isLeft
-            ? 'md:-mr-[45px] lg:-mr-[90px]'
+            ? 'md:-mr-[12vw] lg:-mr-[15vw]'
             : !isCenter
-              ? 'md:-ml-[45px] lg:-ml-[90px]'
+              ? 'md:-ml-[12vw] lg:-ml-[15vw]'
               : ''
 
-          // Mobile: ketua first (order-1), then sekretaris (order-2), bendahara (order-3)
           const orderClass = isCenter
             ? 'order-1 md:order-none'
             : isLeft
@@ -77,19 +102,19 @@ export const LeadershipSection = async () => {
 
           const zClass = isCenter ? 'z-10' : 'z-0'
 
-          // Heights: mobile shorter (card view), desktop taller (floating photo)
           const heightClass = isCenter
-            ? 'h-[clamp(220px,48vh,400px)] md:h-[clamp(220px,65vh,650px)]'
-            : 'h-[clamp(200px,43vh,360px)] md:h-[clamp(209px,61.75vh,618px)]'
+            ? 'h-[clamp(240px,45vh,380px)] md:h-[min(52vw,950px)]'
+            : 'h-[clamp(210px,40vh,340px)] md:h-[min(48vw,880px)]'
 
           return (
             <div
               key={member.key}
               className={cn(
-                // Mobile: full-width card with background, rounded, clipped, top padding for framing
-                'relative shrink-0 w-full overflow-hidden rounded-2xl bg-muted pt-3',
-                // Desktop: revert to auto-width transparent float, no padding
-                'md:w-auto md:overflow-visible md:rounded-none md:bg-transparent md:pt-0',
+                // Mobile: card with background hugging the content, rounded, restricted height, flush bottom
+                // overflow-visible so the name plate can pop out
+                'relative shrink-0 overflow-visible rounded-[2.5rem] bg-muted/60 pt-4 px-4 pb-0 scroll-reveal',
+                // Desktop: transparent, auto width, no rounding, overlapping, no padding
+                'md:w-auto md:rounded-none md:bg-transparent md:p-0',
                 overlapClass,
                 orderClass,
                 zClass,
@@ -100,28 +125,30 @@ export const LeadershipSection = async () => {
                 <Image
                   src={member.photoSrc}
                   alt={`Foto ${member.name}`}
-                  width={400}
-                  height={534}
-                  className='h-full w-auto max-w-none'
+                  width={800}
+                  height={1067}
+                  className='h-full w-auto max-w-none object-bottom object-contain max-md:object-left-bottom max-md:rounded-t-[2rem]'
                   unoptimized={member.photoSrc.startsWith('http')}
                 />
               ) : (
-                <div className='bg-muted/50 h-full' style={{ aspectRatio: '3/4' }} />
+                <div className='bg-muted/30 h-full rounded-t-[2rem]' style={{ aspectRatio: '3/4' }} />
               )}
 
-              {/* Floating frosted name plate */}
-              {/* Desktop default: centered; Mobile override: right-aligned (photo flush left) */}
+              {/* Floating frosted name plate - Popping out to the right on mobile, flush with viewport padding */}
               <div className={cn(
-                'absolute bottom-4 rounded-xl bg-white/90 px-3 py-2 shadow-[0_4px_28px_rgba(0,0,0,0.18)] backdrop-blur-md ring-1 ring-white/60',
-                // Desktop default: centered
-                'left-1/2 -translate-x-1/2 w-max max-w-[85%] text-center',
-                // Mobile override: flush right, text right, narrower
-                'max-md:left-auto max-md:translate-x-0 max-md:right-4 max-md:text-right max-md:max-w-[52%]'
+                'absolute rounded-xl bg-white/80 px-4 py-2.5 shadow-[0_8px_32px_rgba(0,0,0,0.12)] backdrop-blur-md ring-1 ring-white/50',
+                // Desktop default: bottom placement
+                'bottom-12 w-max max-w-[85%] max-md:hidden',
+                // Desktop alignment based on position with a bit of offset (8)
+                isCenter ? 'left-1/2 -translate-x-1/2 text-center' :
+                isLeft ? 'left-8 text-left' : 'right-8 text-right',
+                // Mobile override: flush right, popping out to align with viewport edge, text right
+                'max-md:bottom-6 max-md:right-[-24px] max-md:left-auto max-md:translate-x-0 max-md:text-right max-md:max-w-[80%] max-md:flex max-md:flex-col'
               )}>
-                <p className='text-primary font-sans text-[9px] leading-none font-semibold tracking-[0.18em] uppercase'>
+                <p className='text-primary font-sans text-[10px] leading-none font-bold tracking-[0.2em] uppercase'>
                   {member.label}
                 </p>
-                <p className='font-heading text-foreground mt-1 text-sm leading-tight font-bold'>
+                <p className='font-heading text-foreground mt-1.5 text-sm md:text-base leading-tight font-bold'>
                   {member.name}
                 </p>
               </div>
@@ -129,7 +156,6 @@ export const LeadershipSection = async () => {
           )
         })}
       </div>
-
     </section>
   )
 }

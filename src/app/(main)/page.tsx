@@ -34,7 +34,7 @@ const Page = () => {
       <HeroSection />
       <AboutSection />
       <ActionsSection />
-      <LeadershipSection />
+      <LeadershipSection showMoreLink />
       <NetworkSection />
       <PublicationsSection />
       <CtaSection />
