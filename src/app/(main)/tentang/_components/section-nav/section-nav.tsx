@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { cn } from '~/lib/shadcn/utils'
+import { useLenisScroll } from '~/components/lenis-provider'
 
 const SECTIONS = [
   { id: 'sejarah', label: 'Sejarah' },
@@ -17,6 +18,7 @@ const SECTIONS = [
 export const SectionNav = () => {
   const [activeSection, setActiveSection] = useState<string | null>(null)
   const [visible, setVisible] = useState(false)
+  const { scrollTo } = useLenisScroll()
 
   useEffect(() => {
     const hero = document.getElementById('tentang-hero')
@@ -46,8 +48,9 @@ export const SectionNav = () => {
     return () => observers.forEach((o) => o?.disconnect())
   }, [])
 
-  const scrollTo = (id: string) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
+  const handleScrollTo = (id: string) => {
+    const el = document.getElementById(id)
+    if (el) scrollTo(el)
   }
 
   return (
@@ -64,7 +67,7 @@ export const SectionNav = () => {
           return (
             <li key={id}>
               <button
-                onClick={() => scrollTo(id)}
+                onClick={() => handleScrollTo(id)}
                 aria-label={`Go to ${label}`}
                 className="group relative flex items-center justify-center"
               >
