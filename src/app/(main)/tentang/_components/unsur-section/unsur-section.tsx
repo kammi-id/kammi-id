@@ -6,26 +6,10 @@ import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 const UNSUR_ITEMS = [
-  {
-    num: '01',
-    title: 'Kader',
-    desc: 'Individu Muslim yang berproses dalam pembinaan KAMMI, membentuk karakter dan kompetensi untuk dakwah.',
-  },
-  {
-    num: '02',
-    title: 'Kampus',
-    desc: 'Arena utama gerak KAMMI, tempat kader hadir sebagai representasi nilai Islam di kehidupan akademik.',
-  },
-  {
-    num: '03',
-    title: 'Masyarakat',
-    desc: 'Medan pengabdian nyata, di mana kader KAMMI hadir sebagai agen perubahan sosial yang berdampak.',
-  },
-  {
-    num: '04',
-    title: 'Negara',
-    desc: 'Cita-cita besar KAMMI: berkontribusi pada terwujudnya negara yang adil dan beradab berlandaskan nilai Islam.',
-  },
+  { num: '01', title: 'Membangun Basis Sosial' },
+  { num: '02', title: 'Membangun Basis Operasional' },
+  { num: '03', title: 'Membangun Basis Konsep' },
+  { num: '04', title: 'Membangun Basis Kebijakan' },
 ]
 
 export const UnsurSection = () => {
@@ -92,9 +76,6 @@ export const UnsurSection = () => {
                 {item.num}
               </span>
               <h3 className="mt-4 font-heading text-xl font-bold text-foreground">{item.title}</h3>
-              <p className="mt-3 font-sans text-sm leading-relaxed text-muted-foreground">
-                {item.desc}
-              </p>
             </div>
           ))}
         </div>

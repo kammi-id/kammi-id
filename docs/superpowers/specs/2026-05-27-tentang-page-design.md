@@ -147,7 +147,7 @@ Semua copy: placeholder realistis (bukan lorem ipsum), akan diperbarui kemudian.
 ### Dependencies
 
 - `gsap` + `@gsap/react` — sudah terinstall (`^3.15.0`, `^2.1.2`)
-- `lenis` — **perlu diinstall** (`npm install lenis`)
+- `lenis` — **perlu diinstall** (`bun add lenis`)
 
 ### Component Architecture
 

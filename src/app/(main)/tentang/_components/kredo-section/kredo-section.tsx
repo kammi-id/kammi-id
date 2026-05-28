@@ -8,56 +8,39 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 const KREDO_ITEMS = [
   {
     numeral: 'I',
-    title: 'Kredo Ketuhanan',
     paragraphs: [
-      'Kami percaya bahwa Allah adalah satu-satunya Tuhan yang berhak disembah, yang menciptakan alam semesta dan seluruh isinya dengan hikmah yang agung. Keyakinan ini bukan sekadar pernyataan verbal, melainkan fondasi yang menopang seluruh bangunan hidup kami.',
-      'Dari keyakinan ini lahir tanggung jawab: bahwa setiap nikmat yang diterima adalah amanah, bahwa setiap kemampuan yang dimiliki adalah titipan, dan bahwa setiap keputusan yang diambil akan dimintai pertanggungjawaban di hadapan-Nya.',
-      'Kami meyakini bahwa hanya dengan menempatkan Allah sebagai pusat orientasi hidup, seorang manusia dapat mencapai harkat tertingginya dan memberikan manfaat terbesar bagi sesama.',
+      'Kami adalah orang-orang yang berpikir dan berkendak merdeka. Tidak ada satu orang pun yang bisa memaksa kami bertindak. Kami hanya bertindak atas dasar pemahaman, bukan taklid, serta atas dasar keikhlasan, bukan mencari pujian atau kedudukan.',
     ],
   },
   {
     numeral: 'II',
-    title: 'Kredo Kemanusiaan',
     paragraphs: [
-      'Kami percaya bahwa setiap manusia adalah makhluk mulia yang ditiupkan ruh Ilahi ke dalam dirinya, terlepas dari ras, suku, bahasa, dan status sosialnya. Kemuliaan ini bukan sesuatu yang harus dibuktikan, melainkan sesuatu yang harus diakui dan dijaga.',
-      'Dari keyakinan ini lahir komitmen: bahwa kami menolak segala bentuk penistaan terhadap martabat manusia, bahwa kami berpihak kepada mereka yang tertindas, dan bahwa kami berupaya menciptakan ruang di mana setiap orang dapat hidup dengan bermartabat.',
-      'Kami meyakini bahwa cinta kepada sesama manusia adalah manifestasi nyata dari cinta kepada Allah yang menciptakan mereka semua.',
+      'Kami adalah orang-orang pemberani. Hanyalah Allah yang kami takuti. Tidak ada satu makhluk pun yang bisa menggentarkan hati kami, atau membuat kami tertunduk apalagi takluk kepadanya. Tiada yang kami takuti, kecuali ketakutan kepada-Nya.',
     ],
   },
   {
     numeral: 'III',
-    title: 'Kredo Keislaman',
     paragraphs: [
-      'Kami percaya bahwa Islam adalah agama yang sempurna, risalah terakhir yang Allah turunkan untuk menjadi rahmat bagi seluruh alam. Islam bukan warisan budaya yang kami terima secara pasif, melainkan komitmen hidup yang kami pilih secara sadar.',
-      'Dari keyakinan ini lahir tanggung jawab: bahwa kami harus memahami Islam secara utuh dan mendalam, bahwa kami harus mempraktikkannya dalam seluruh dimensi kehidupan, dan bahwa kami harus mendakwahkannya dengan hikmah dan teladan yang baik.',
-      'Kami meyakini bahwa seorang Muslim sejati adalah mereka yang keislamannya membawa kebaikan tidak hanya bagi dirinya, tetapi bagi seluruh makhluk di sekitarnya.',
+      'Kami adalah para petarung sejati. Atas nama al-haq kami bertempur, sampai tidak ada lagi fitnah di muka bumi ini. Kami bukan golongan orang yang melarikan diri dari medan pertempuran atau orang-orang yang enggan pergi berjihad. Kami akan memenangkan setiap pertarungan dengan menegakkan prinsip-prinsip Islam.',
     ],
   },
   {
     numeral: 'IV',
-    title: 'Kredo Pergerakan',
     paragraphs: [
-      'Kami percaya bahwa iman yang sejati selalu berbuah amal, bahwa keyakinan yang tulus selalu mendorong kepada pergerakan. Diam di hadapan ketidakadilan adalah pengkhianatan terhadap iman itu sendiri.',
-      'Dari keyakinan ini lahir komitmen: bahwa kami tidak akan membatasi diri pada ranah privat saja, bahwa kami akan hadir di ruang-ruang publik dengan kontribusi nyata, dan bahwa kami akan terus bergerak selama masih ada kebaikan yang harus ditegakkan.',
-      'Kami meyakini bahwa pergerakan yang benar adalah pergerakan yang berlandaskan ilmu, berorientasi pada perubahan yang membawa maslahat, dan senantiasa dalam bingkai ketaatan kepada Allah.',
+      'Kami adalah penghitung risiko yang cermat, tetapi kami bukanlah orang-orang yang takut mengambil risiko. Syahid adalah kemuliaan dan cita-cita tertinggi kami. Kami adalah para perindu surga. Kami akan menyebarkan aromanya di dalam kehidupan keseharian kami kepada suasana lingkungan kami. Hari-hari kami senantiasa dihiasi dengan tilawah, zikir, saling menasihati dalam kebenaran dan kesabaran, diskusi-diskusi yang bermanfaat dan jauh dari kesia-siaan, serta kerja-kerja yang konkret bagi perbaikan masyarakat.',
+      'Kami adalah putra-putri kandung dakwah, akan beredar bersama dakwah ini ke mana pun perginya, menjadi pembangunnya yang paling tekun, menjadi penyebarnya yang paling agresif, serta penegaknya yang paling kukuh.',
     ],
   },
   {
     numeral: 'V',
-    title: 'Kredo Kebangsaan',
     paragraphs: [
-      'Kami percaya bahwa Indonesia adalah amanah Allah yang dipercayakan kepada kami. Tanah ini, dengan seluruh kekayaan dan keberagamannya, adalah ladang pengabdian yang harus kami rawat dan perjuangkan dengan sepenuh jiwa.',
-      'Dari keyakinan ini lahir cinta: bahwa kami mencintai Indonesia bukan karena ia sempurna, melainkan karena ia adalah rumah bagi saudara-saudara kami yang perlu diperjuangkan masa depannya.',
-      'Kami meyakini bahwa seorang Muslim yang baik akan menjadi warga negara yang baik, dan seorang warga negara yang baik akan memberikan kontribusi terbaik bagi terwujudnya Indonesia yang adil, makmur, dan bermartabat.',
+      'Kami adalah orang-orang yang senantiasa menyiapkan diri untuk masa depan Islam. Kami bukanlah orang yang suka berleha-leha, minimalis dan loyo. Kami senantiasa bertebaran di dalam kehidupan, melakukan eksperimen yang terencana, dan kami adalah orang-orang progressif yang bebas dari kejumudan, karena kami memandang bahwa kehidupan ini adalah tempat untuk belajar, agar kami dan para penerus kami menjadi perebut kemenangan yang hanya akan kami persembahkan untuk Islam.',
     ],
   },
   {
     numeral: 'VI',
-    title: 'Kredo Kemahasiswaan',
     paragraphs: [
-      'Kami percaya bahwa masa muda adalah waktu terbaik untuk menanamkan nilai, membangun karakter, dan meletakkan fondasi bagi kehidupan yang bermakna. Kampus adalah laboratorium kehidupan, tempat ide-ide besar lahir dan diuji.',
-      'Dari keyakinan ini lahir semangat: bahwa kami tidak akan menyia-nyiakan masa muda, bahwa kami akan menggunakan platform kemahasiswaan untuk membawa perubahan nyata, dan bahwa kami akan menjaga marwah intelektual sebagai modal terbesar kaum muda.',
-      'Kami meyakini bahwa mahasiswa yang baik bukan hanya mereka yang unggul secara akademik, melainkan mereka yang mengintegrasikan kecerdasan intelektual dengan kecerdasan moral dan kepekaan sosial yang tinggi.',
+      'Kami adalah ilmuwan yang tajam analisisnya, pemuda yang kritis terhadap kebatilan, politisi yang piawai mengalahkan muslihat musuh dan yang piawai dalam memperjuangkan kepentingan umat, seorang pejuang di siang hari dan rahib di malam hari, pemimpin yang bermoral, teguh pada prinsip dan mampu mentransformasikan masyarakat, guru yang mampu memberikan kepahaman dan teladan, sahabat yang tulus dan penuh kasih sayang, relawan yang mampu memecahkan masalah sosial, warga yang ramah kepada masyarakatnya dan responsif terhadap masalah mereka, manajer yang efektif dan efisien, prajurit yang gagah berani dan pintar bersiasat, diplomat yang terampil berdialog, piawai berwacana, luas pergaulannya, percaya diri yang tinggi, semangat yang berkobar tinggi.',
     ],
   },
 ]
@@ -130,7 +113,7 @@ export const KredoSection = () => {
               key={kredo.numeral}
               data-kredo-panel
               className="relative flex min-h-screen w-full shrink-0 flex-col justify-center px-8 py-20 md:w-screen md:px-16 lg:px-24"
-              aria-label={`Kredo ${kredo.numeral}: ${kredo.title}`}
+              aria-label={`Kredo ${kredo.numeral}`}
             >
               <span
                 className="pointer-events-none absolute right-8 top-1/2 -translate-y-1/2 select-none font-heading text-[clamp(10rem,22vw,20rem)] font-bold leading-none text-white/[0.03]"
@@ -139,7 +122,7 @@ export const KredoSection = () => {
                 {kredo.numeral}
               </span>
 
-              <div data-kredo-content className="relative max-w-2xl">
+              <div data-kredo-content className="relative max-w-3xl">
                 {i === 0 && (
                   <p
                     id="kredo-heading"
@@ -158,17 +141,18 @@ export const KredoSection = () => {
                   </span>
                 </div>
 
-                <h2 className="font-heading text-2xl font-bold leading-snug text-white lg:text-3xl">
-                  {kredo.title}
-                </h2>
+                <span
+                  className="block font-heading text-[5rem] leading-none text-primary/50 lg:text-[6rem]"
+                  aria-hidden="true"
+                >
+                  &ldquo;
+                </span>
 
-                <div className="mt-5 h-px w-12 bg-primary/40" aria-hidden="true" />
-
-                <div className="mt-6 space-y-4">
+                <div className="mt-2 space-y-5">
                   {kredo.paragraphs.map((para, j) => (
                     <p
                       key={j}
-                      className="font-sans text-sm leading-relaxed text-white/55 lg:text-base"
+                      className="font-heading text-lg font-bold leading-snug text-white lg:text-xl"
                     >
                       {para}
                     </p>

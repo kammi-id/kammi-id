@@ -6,12 +6,12 @@ import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 const PRINSIP_ITEMS = [
-  { num: '01', title: 'Rabbani', desc: 'Berorientasi kepada Allah dalam setiap gerak dan keputusan organisasi.' },
-  { num: '02', title: 'Ikhlas', desc: 'Beramal semata mengharap ridha Allah, jauh dari pamrih duniawi.' },
-  { num: '03', title: 'Dakwah', desc: 'Gerakan yang berlandaskan seruan kepada kebaikan universal.' },
-  { num: '04', title: 'Taghyir', desc: 'Mendorong perubahan dari individu hingga tatanan sosial yang lebih adil.' },
-  { num: '05', title: 'Ukhuwah', desc: 'Membangun persaudaraan yang kokoh di atas aqidah yang sama.' },
-  { num: '06', title: 'Istiqamah', desc: 'Teguh dan konsisten dalam menjalankan amanah gerakan.' },
+  { num: '01', title: 'Kemenangan Islam adalah jiwa perjuangan KAMMI' },
+  { num: '02', title: 'Kebatilan adalah musuh abadi KAMMI' },
+  { num: '03', title: 'Solusi Islam adalah tawaran perjuangan KAMMI' },
+  { num: '04', title: 'Perbaikan adalah tradisi perjuangan KAMMI' },
+  { num: '05', title: 'Kepemimpinan ummat adalah strategi perjuangan KAMMI' },
+  { num: '06', title: 'Persaudaraan adalah watak muamalah KAMMI' },
 ]
 
 export const PrinsipSection = () => {
@@ -81,8 +81,7 @@ export const PrinsipSection = () => {
               >
                 {item.num}
               </span>
-              <h3 className="mt-3 font-heading text-lg font-bold text-white">{item.title}</h3>
-              <p className="mt-2 font-sans text-sm leading-relaxed text-white/55">{item.desc}</p>
+              <h3 className="mt-3 font-heading text-base font-bold leading-snug text-white">{item.title}</h3>
             </div>
           ))}
         </div>

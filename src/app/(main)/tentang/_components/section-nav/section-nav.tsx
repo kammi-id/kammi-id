@@ -5,7 +5,6 @@ import { cn } from '~/lib/shadcn/utils'
 import { useLenisScroll } from '~/components/lenis-provider'
 
 const SECTIONS = [
-  { id: 'sejarah', label: 'Sejarah' },
   { id: 'visi', label: 'Visi' },
   { id: 'misi', label: 'Misi' },
   { id: 'karakteristik', label: 'Karakteristik' },
@@ -13,6 +12,7 @@ const SECTIONS = [
   { id: 'prinsip', label: 'Prinsip' },
   { id: 'paradigma', label: 'Paradigma' },
   { id: 'kredo', label: 'Kredo' },
+  { id: 'sejarah', label: 'Sejarah' },
 ]
 
 export const SectionNav = () => {

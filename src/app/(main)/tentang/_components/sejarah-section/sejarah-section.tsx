@@ -44,7 +44,7 @@ export const SejarahSection = () => {
           className="pointer-events-none absolute -top-6 right-0 select-none font-heading text-[clamp(8rem,20vw,18rem)] font-bold leading-none text-foreground/[0.04]"
           aria-hidden="true"
         >
-          01
+          08
         </span>
 
         <div className="max-w-3xl">
@@ -69,6 +69,31 @@ export const SejarahSection = () => {
             perubahan tetap berada di jalur keadilan dan kebenaran. Hari ini, KAMMI hadir di ratusan
             kampus di seluruh penjuru Indonesia.
           </p>
+        </div>
+
+        <div
+          data-reveal
+          className="mt-16 aspect-video w-full max-w-3xl overflow-hidden rounded-sm bg-foreground/5"
+          aria-label="Video sejarah KAMMI"
+        >
+          <div className="flex h-full w-full flex-col items-center justify-center gap-4 text-foreground/20">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              className="size-14 text-primary/30"
+              aria-hidden="true"
+            >
+              <path
+                fillRule="evenodd"
+                d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12Zm14.024-.983a1.125 1.125 0 0 1 0 1.966l-5.603 3.113A1.125 1.125 0 0 1 9 15.113V8.887c0-.857.921-1.4 1.671-.983l5.603 3.113Z"
+                clipRule="evenodd"
+              />
+            </svg>
+            <p className="font-sans text-xs font-semibold uppercase tracking-widest text-foreground/30">
+              Video Sejarah KAMMI
+            </p>
+          </div>
         </div>
       </div>
     </section>

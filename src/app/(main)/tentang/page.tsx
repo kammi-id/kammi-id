@@ -21,7 +21,6 @@ const TentangPage = () => {
     <>
       <SectionNav />
       <TentangHero />
-      <SejarahSection />
       <VisiSection />
       <MisiSection />
       <KarakteristikSection />
@@ -29,6 +28,7 @@ const TentangPage = () => {
       <PrinsipSection />
       <ParadigmaSection />
       <KredoSection />
+      <SejarahSection />
     </>
   )
 }

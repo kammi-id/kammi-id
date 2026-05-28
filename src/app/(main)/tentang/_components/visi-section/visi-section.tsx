@@ -51,8 +51,8 @@ export const VisiSection = () => {
           id="visi-heading"
           className="mt-6 font-heading text-[clamp(1.75rem,4vw,3.25rem)] font-bold leading-snug text-primary-foreground"
         >
-          Terwujudnya masyarakat Islami di Indonesia yang adil dan sejahtera dalam naungan ridha
-          Allah SWT.
+          Wadah perjuangan permanen yang akan melahirkan kader-kader Pemimpin dalam upaya
+          mewujudkan Bangsa dan Negara Indonesia yang Islami.
         </p>
       </div>
     </section>

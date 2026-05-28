@@ -6,26 +6,10 @@ import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 const PARADIGMA_ITEMS = [
-  {
-    num: '01',
-    title: 'Islam sebagai Sistem Hidup Komprehensif',
-    body: 'Islam bukan agama ritual semata, ia adalah sistem kehidupan yang mengatur seluruh aspek dari individu hingga negara — panduan yang menyeluruh dan tidak terbagi.',
-  },
-  {
-    num: '02',
-    title: 'Perubahan Dimulai dari Individu',
-    body: 'Transformasi sosial yang sejati hanya mungkin terjadi jika dimulai dari pembentukan karakter individu yang unggul, berintegritas, dan bertakwa.',
-  },
-  {
-    num: '03',
-    title: 'Mahasiswa sebagai Agen Perubahan',
-    body: 'Mahasiswa memiliki posisi strategis dalam masyarakat sebagai kelompok terdidik yang bebas dari kepentingan sempit dan mampu melihat gambaran besar.',
-  },
-  {
-    num: '04',
-    title: 'Dakwah sebagai Metode Gerak',
-    body: 'Dakwah adalah jalan yang dipilih KAMMI untuk mencapai perubahan: mengajak, bukan memaksa; meyakinkan, bukan melarang; membangun, bukan merobohkan.',
-  },
+  { num: '01', title: 'KAMMI adalah gerakan dakwah tauhid' },
+  { num: '02', title: 'KAMMI adalah intelektual profetik' },
+  { num: '03', title: 'KAMMI adalah gerakan sosial independen' },
+  { num: '04', title: 'KAMMI adalah gerakan politik ekstraparlementer' },
 ]
 
 export const ParadigmaSection = () => {
@@ -95,14 +79,9 @@ export const ParadigmaSection = () => {
               >
                 {item.num}
               </span>
-              <div>
-                <h3 className="font-heading text-xl font-bold leading-snug text-foreground lg:text-2xl">
-                  {item.title}
-                </h3>
-                <p className="mt-3 max-w-2xl font-sans text-base leading-relaxed text-muted-foreground">
-                  {item.body}
-                </p>
-              </div>
+              <h3 className="font-heading text-xl font-bold leading-snug text-foreground lg:text-2xl">
+                {item.title}
+              </h3>
             </div>
           ))}
         </div>

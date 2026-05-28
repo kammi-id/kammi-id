@@ -6,11 +6,11 @@ import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 const MISI_ITEMS = [
-  'Membina mahasiswa Muslim untuk menjadi kader dakwah yang kompeten dan berintegritas tinggi.',
-  'Mengembangkan potensi mahasiswa sebagai pemimpin masa depan bangsa yang bertakwa.',
-  'Membangun gerakan dakwah kampus yang sistematis dan berkesinambungan di seluruh Indonesia.',
-  'Mendorong perubahan sosial-politik yang berlandaskan nilai-nilai Islam yang rahmatan lil alamin.',
-  'Menjaga ukhuwah Islamiyah dan persatuan umat di tengah keberagaman bangsa Indonesia.',
+  'Membina keislaman, keimanan, dan ketaqwaan mahasiswa muslim Indonesia.',
+  'Menggali, mengembangkan, dan memantapkan potensi dakwah, intelektual, sosial, dan politik mahasiswa.',
+  'Mencerahkan dan meningkatkan kualitas masyarakat Indonesia menjadi masyarakat yang rabbani, madani (civil society).',
+  'Memelopori dan memelihara komunikasi, solidaritas, dan kerjasama mahasiswa Indonesia dalam menyelesaikan permasalahan kerakyatan dan kebangsaan.',
+  'Mengembangkan kerjasama antar elemen masyarakat dengan semangat membawa kebaikan, menyebar manfaat, dan mencegah kemungkaran (amar maruf nahi munkar).',
 ]
 
 export const MisiSection = () => {

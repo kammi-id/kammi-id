@@ -6,14 +6,8 @@ import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 const KARAKTERISTIK_ITEMS = [
-  {
-    title: 'Gerakan Dakwah Amar Maruf Nahi Munkar',
-    body: 'KAMMI bergerak di atas landasan dakwah Ilallah, mengajak kepada kebaikan dan mencegah kemungkaran sebagai manifestasi tanggung jawab seorang Muslim terhadap masyarakatnya.',
-  },
-  {
-    title: 'Gerakan Mahasiswa Berlandaskan Nilai Islam',
-    body: 'Setiap gerak dan langkah KAMMI dibingkai dalam nilai-nilai Islam yang komprehensif, menjadikan Islam sebagai panduan hidup yang menyeluruh, bukan sekadar ritual.',
-  },
+  { title: 'Harokatu Tajnid', subtitle: 'Organisasi Pengkaderan' },
+  { title: 'Harokatu Amal', subtitle: 'Organisasi Pergerakan' },
 ]
 
 export const KarakteristikSection = () => {
@@ -73,11 +67,11 @@ export const KarakteristikSection = () => {
         <div className="grid grid-cols-1 gap-x-20 gap-y-12 lg:grid-cols-2">
           {KARAKTERISTIK_ITEMS.map((item, i) => (
             <div key={i} data-kar-col className="border-t-2 border-primary pt-8">
-              <h3 className="font-heading text-xl font-bold leading-snug text-foreground lg:text-2xl">
+              <h3 className="font-heading text-[clamp(1.75rem,3vw,2.5rem)] font-bold leading-snug text-foreground">
                 {item.title}
               </h3>
-              <p className="mt-5 font-sans text-base leading-relaxed text-muted-foreground lg:text-lg">
-                {item.body}
+              <p className="mt-2 font-sans text-sm font-semibold uppercase tracking-widest text-muted-foreground">
+                {item.subtitle}
               </p>
             </div>
           ))}
