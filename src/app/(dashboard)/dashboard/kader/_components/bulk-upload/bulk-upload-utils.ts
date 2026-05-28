@@ -6,8 +6,14 @@ export const BulkMemberRowSchema = z.object({
   gender: z
     .string()
     .transform((v) => v.toLowerCase().trim())
-    .refine((v) => ['ikhwan', 'akhwat'].includes(v), 'Harus "ikhwan" atau "akhwat"'),
-  yearOfEntry: z.coerce.number().min(1998, 'Minimal 1998').max(new Date().getFullYear()),
+    .refine(
+      (v) => ['ikhwan', 'akhwat'].includes(v),
+      'Harus "ikhwan" atau "akhwat"'
+    ),
+  yearOfEntry: z.coerce
+    .number()
+    .min(1998, 'Minimal 1998')
+    .max(new Date().getFullYear()),
   phone: z.string().optional().nullable()
 })
 
@@ -37,22 +43,37 @@ export const parseXLSXFile = (file: File): Promise<ParsedRow[]> => {
           const normalized = {
             name: String(row['Nama'] ?? row['name'] ?? '').trim(),
             gender: String(row['Jenis Kelamin'] ?? row['gender'] ?? '').trim(),
-            yearOfEntry: row['Tahun Masuk'] ?? row['yearOfEntry'] ?? row['year_of_entry'],
+            yearOfEntry:
+              row['Tahun Masuk'] ?? row['yearOfEntry'] ?? row['year_of_entry'],
             phone: String(row['No HP'] ?? row['phone'] ?? '').trim() || null
           }
 
           const result = BulkMemberRowSchema.safeParse(normalized)
 
           if (result.success) {
-            return { index, raw: normalized, data: result.data, errors: {}, valid: true }
+            return {
+              index,
+              raw: normalized,
+              data: result.data,
+              errors: {},
+              valid: true
+            }
           }
 
           const errors: Record<string, string> = {}
-          for (const [field, msgs] of Object.entries(result.error.flatten().fieldErrors)) {
+          for (const [field, msgs] of Object.entries(
+            result.error.flatten().fieldErrors
+          )) {
             errors[field] = (msgs as string[])[0]
           }
 
-          return { index, raw: normalized, data: normalized as Partial<BulkMemberRow>, errors, valid: false }
+          return {
+            index,
+            raw: normalized,
+            data: normalized as Partial<BulkMemberRow>,
+            errors,
+            valid: false
+          }
         })
 
         resolve(parsed)

@@ -29,14 +29,28 @@ export const AboutForm = ({ initialData }: Props) => {
   const [paragraph2, setParagraph2] = useState(initialData.paragraph2)
   const [readMoreLabel, setReadMoreLabel] = useState(initialData.readMoreLabel)
   const [readMoreHref, setReadMoreHref] = useState(initialData.readMoreHref)
-  const [miniStrategiTitle, setMiniStrategiTitle] = useState(initialData.miniStrategiTitle)
-  const [miniStrategiDescription, setMiniStrategiDescription] = useState(initialData.miniStrategiDescription)
-  const [miniStrategiLinkLabel, setMiniStrategiLinkLabel] = useState(initialData.miniStrategiLinkLabel)
-  const [miniStrategiLinkHref, setMiniStrategiLinkHref] = useState(initialData.miniStrategiLinkHref)
+  const [miniStrategiTitle, setMiniStrategiTitle] = useState(
+    initialData.miniStrategiTitle
+  )
+  const [miniStrategiDescription, setMiniStrategiDescription] = useState(
+    initialData.miniStrategiDescription
+  )
+  const [miniStrategiLinkLabel, setMiniStrategiLinkLabel] = useState(
+    initialData.miniStrategiLinkLabel
+  )
+  const [miniStrategiLinkHref, setMiniStrategiLinkHref] = useState(
+    initialData.miniStrategiLinkHref
+  )
 
   const { isDirty, markClean } = useUnsavedChanges({
-    paragraph1, paragraph2, readMoreLabel, readMoreHref,
-    miniStrategiTitle, miniStrategiDescription, miniStrategiLinkLabel, miniStrategiLinkHref
+    paragraph1,
+    paragraph2,
+    readMoreLabel,
+    readMoreHref,
+    miniStrategiTitle,
+    miniStrategiDescription,
+    miniStrategiLinkLabel,
+    miniStrategiLinkHref
   })
 
   useEffect(() => {
@@ -45,19 +59,27 @@ export const AboutForm = ({ initialData }: Props) => {
       markClean()
     }
     if (state.error) toast.error(state.error)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state])
 
   useEffect(() => {
     if (state.values && !state.success) {
-      if (state.values.paragraph1 !== undefined) setParagraph1(state.values.paragraph1)
-      if (state.values.paragraph2 !== undefined) setParagraph2(state.values.paragraph2)
-      if (state.values.readMoreLabel !== undefined) setReadMoreLabel(state.values.readMoreLabel)
-      if (state.values.readMoreHref !== undefined) setReadMoreHref(state.values.readMoreHref)
-      if (state.values.miniStrategiTitle !== undefined) setMiniStrategiTitle(state.values.miniStrategiTitle)
-      if (state.values.miniStrategiDescription !== undefined) setMiniStrategiDescription(state.values.miniStrategiDescription)
-      if (state.values.miniStrategiLinkLabel !== undefined) setMiniStrategiLinkLabel(state.values.miniStrategiLinkLabel)
-      if (state.values.miniStrategiLinkHref !== undefined) setMiniStrategiLinkHref(state.values.miniStrategiLinkHref)
+      if (state.values.paragraph1 !== undefined)
+        setParagraph1(state.values.paragraph1)
+      if (state.values.paragraph2 !== undefined)
+        setParagraph2(state.values.paragraph2)
+      if (state.values.readMoreLabel !== undefined)
+        setReadMoreLabel(state.values.readMoreLabel)
+      if (state.values.readMoreHref !== undefined)
+        setReadMoreHref(state.values.readMoreHref)
+      if (state.values.miniStrategiTitle !== undefined)
+        setMiniStrategiTitle(state.values.miniStrategiTitle)
+      if (state.values.miniStrategiDescription !== undefined)
+        setMiniStrategiDescription(state.values.miniStrategiDescription)
+      if (state.values.miniStrategiLinkLabel !== undefined)
+        setMiniStrategiLinkLabel(state.values.miniStrategiLinkLabel)
+      if (state.values.miniStrategiLinkHref !== undefined)
+        setMiniStrategiLinkHref(state.values.miniStrategiLinkHref)
     }
   }, [state.values, state.success])
 
@@ -207,11 +229,7 @@ export const AboutForm = ({ initialData }: Props) => {
 
       <div className='flex items-center justify-end gap-3'>
         <UnsavedChangesBanner isDirty={isDirty} />
-        <Button
-          type='submit'
-          className='px-6'
-          disabled={isPending}
-        >
+        <Button type='submit' className='px-6' disabled={isPending}>
           {isPending ? 'Menyimpan...' : 'Simpan Pengaturan Tentang'}
         </Button>
       </div>

@@ -46,7 +46,9 @@ const ProfilePage = async ({
   const userCanEdit = canEdit(session, member.id)
 
   const adminActionsSlot =
-    userCanEdit && session?.user.role === 'bpk' && session.user.connectedOrganization ? (
+    userCanEdit &&
+    session?.user.role === 'bpk' &&
+    session.user.connectedOrganization ? (
       <ResetPasswordButton
         memberId={member.id}
         organizationId={session.user.connectedOrganization.id}

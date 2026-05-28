@@ -20,10 +20,10 @@ Tiga fitur terintegrasi yang diimplementasi sekaligus:
 
 ### Entry Points
 
-| Lokasi | Tombol | Scope |
-|--------|--------|-------|
-| `/dashboard/kader` (halaman kader se-Indonesia) | "Import XLSX" di page header | `organizationId` BPK yang login |
-| `/dashboard/trainings/[id]` (halaman detail DM1) | "Import Peserta" di samping "Tambah Manual" | `organizationId` training |
+| Lokasi                                           | Tombol                                      | Scope                           |
+| ------------------------------------------------ | ------------------------------------------- | ------------------------------- |
+| `/dashboard/kader` (halaman kader se-Indonesia)  | "Import XLSX" di page header                | `organizationId` BPK yang login |
+| `/dashboard/trainings/[id]` (halaman detail DM1) | "Import Peserta" di samping "Tambah Manual" | `organizationId` training       |
 
 ### Parse & Validation Flow
 
@@ -60,7 +60,7 @@ type BulkCreateInput = {
     phone?: string | null
   }>
   organizationId: string
-  trainingId?: string  // opsional, untuk konteks DM1
+  trainingId?: string // opsional, untuk konteks DM1
 }
 
 // Output
@@ -71,13 +71,14 @@ type BulkCreateOutput = {
     memberId: string
     name: string
     registerNumber: string
-    password: string  // plaintext, sekali saja
+    password: string // plaintext, sekali saja
   }>
   errors?: string[]
 }
 ```
 
 **Implementasi:**
+
 - Auth check: user harus BPK, `organizationId` harus in-scope
 - Semua insert dalam satu `db.transaction()` — gagal satu, rollback semua
 - Setiap member: `generateRegisterNumber()` + `createMember()` (yang sudah include `createUser()`)
@@ -98,10 +99,10 @@ type BulkCreateOutput = {
 type CredentialEntry = {
   memberId: string
   name: string
-  registerNumber: string  // username login kader
-  password: string        // plaintext, client-only
+  registerNumber: string // username login kader
+  password: string // plaintext, client-only
   organizationId: string
-  createdAt: string       // ISO timestamp
+  createdAt: string // ISO timestamp
 }
 
 type CredentialStore = {
@@ -110,6 +111,7 @@ type CredentialStore = {
 ```
 
 **Implementasi:**
+
 - Package: `@nanostores/persistent`
 - localStorage key: `kammi:credentials`
 - Setelah server action sukses return credentials, client append ke store berdasarkan `organizationId` aktif
@@ -140,7 +142,7 @@ Hanya visible bila: user yang login adalah BPK **dan** kader dalam scope org-nya
 ### Flow
 
 1. User klik "Reset Password"
-2. Confirmation dialog muncul: *"Password lama kader ini akan langsung tidak berlaku. Lanjutkan?"*
+2. Confirmation dialog muncul: _"Password lama kader ini akan langsung tidak berlaku. Lanjutkan?"_
 3. User konfirmasi → `regenerateCredentialAction(memberId)`
 4. Server: generate password baru → hash → update `passwordHash` di tabel `user` where `connectedMemberId = memberId`
 5. Return `{ registerNumber, password }` plaintext ke client
@@ -161,12 +163,13 @@ type RegenerateOutput = {
   message: string
   data?: {
     registerNumber: string
-    password: string  // plaintext, sekali saja
+    password: string // plaintext, sekali saja
   }
 }
 ```
 
 **Implementasi:**
+
 - Auth check: user harus BPK, kader harus in-scope
 - `generatePassword()` → `hashPassword()` → update `user.passwordHash`
 - Return plaintext — tidak di-persist di server
@@ -212,10 +215,10 @@ src/
 
 ## Dependencies Baru
 
-| Package | Kegunaan |
-|---------|---------|
-| `xlsx` (SheetJS) | Parse XLSX di client + generate template & CSV |
-| `@nanostores/persistent` | Persistent localStorage store |
+| Package                  | Kegunaan                                       |
+| ------------------------ | ---------------------------------------------- |
+| `xlsx` (SheetJS)         | Parse XLSX di client + generate template & CSV |
+| `@nanostores/persistent` | Persistent localStorage store                  |
 
 ---
 

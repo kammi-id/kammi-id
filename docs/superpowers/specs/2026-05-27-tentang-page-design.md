@@ -25,6 +25,7 @@ Berjalan melewati identitas KAMMI dari sejarah hingga kredo, dan keluar dengan p
 **Scene sentence:** Mahasiswa membuka /tentang malam hari di laptop, sedang riset sebelum memutuskan bergabung — mereka butuh merasakan berat dan tujuan organisasi, bukan sekadar membaca teks berjejer.
 
 **Named anchor references:**
+
 - **NMAAHC (National Museum of African American History)** — perjalanan imersif lantai-per-lantai, ada berat dan reverens
 - **Stripe.com/about** — tipografi premium, pacing yang sabar dan deliberate
 - **US Constitution formatting** — khusus section Kredo: presisi, kewenangan, tak terbantahkan
@@ -46,17 +47,17 @@ Berjalan melewati identitas KAMMI dari sejarah hingga kredo, dan keluar dengan p
 
 9 slot total (1 hero + 8 section):
 
-| Slot | Section | Background | Visual Treatment |
-|------|---------|------------|-----------------|
-| Hero | Title Card | White | Judul `clamp(4rem,10vw,9rem)`, 1 kalimat framing, animated scroll cue |
-| 1 | Sejarah Singkat | Cream `oklch(0.97 0.01 60)` | Archival, text-forward, typographic |
-| 2 | Visi KAMMI | Crimson drench (`--primary`) | Single bold statement, white text, no noise |
-| 3 | Misi KAMMI (5 item) | Near-black `oklch(0.14 0.005 285)` | Large numerals, stagger reveal per scroll |
-| 4 | Karakteristik (2 item) | White/soft | Dua kolom tipografis, generous whitespace |
-| 5 | Unsur Gerakan (4 item) | Warm cream | Quadrant layout, large numeral anchor |
-| 6 | Prinsip (6 item) | Deep slate `oklch(0.18 0.008 285)` | 2×3 grid, text-only, no icons |
-| 7 | Paradigma (4 item) | White + crimson accent | 4 statement tipografis besar |
-| 8 | Kredo (6 artikel) | Near-black `oklch(0.12 0.005 285)` | GSAP horizontal pin, 6 constitutional panels |
+| Slot | Section                | Background                         | Visual Treatment                                                      |
+| ---- | ---------------------- | ---------------------------------- | --------------------------------------------------------------------- |
+| Hero | Title Card             | White                              | Judul `clamp(4rem,10vw,9rem)`, 1 kalimat framing, animated scroll cue |
+| 1    | Sejarah Singkat        | Cream `oklch(0.97 0.01 60)`        | Archival, text-forward, typographic                                   |
+| 2    | Visi KAMMI             | Crimson drench (`--primary`)       | Single bold statement, white text, no noise                           |
+| 3    | Misi KAMMI (5 item)    | Near-black `oklch(0.14 0.005 285)` | Large numerals, stagger reveal per scroll                             |
+| 4    | Karakteristik (2 item) | White/soft                         | Dua kolom tipografis, generous whitespace                             |
+| 5    | Unsur Gerakan (4 item) | Warm cream                         | Quadrant layout, large numeral anchor                                 |
+| 6    | Prinsip (6 item)       | Deep slate `oklch(0.18 0.008 285)` | 2×3 grid, text-only, no icons                                         |
+| 7    | Paradigma (4 item)     | White + crimson accent             | 4 statement tipografis besar                                          |
+| 8    | Kredo (6 artikel)      | Near-black `oklch(0.12 0.005 285)` | GSAP horizontal pin, 6 constitutional panels                          |
 
 ### Section Numbering
 
@@ -74,13 +75,13 @@ Tiap section (1–8) menampilkan super-large muted section number di background 
 
 ## 6. Key States
 
-| State | Behavior |
-|-------|---------|
-| Default | Semua section render, Lenis + GSAP aktif |
-| Reduced motion | `prefers-reduced-motion`: semua GSAP animations off, konten tetap fully readable tanpa motion |
-| Mobile | Kredo horizontal pin collapse → vertical scroll biasa; layout responsif per section |
-| Loading | RSC content-first, animasi adalah progressive enhancement (tidak block render) |
-| Long Kredo text | Panel accommodate overflow gracefully dengan scrollable area internal |
+| State           | Behavior                                                                                      |
+| --------------- | --------------------------------------------------------------------------------------------- |
+| Default         | Semua section render, Lenis + GSAP aktif                                                      |
+| Reduced motion  | `prefers-reduced-motion`: semua GSAP animations off, konten tetap fully readable tanpa motion |
+| Mobile          | Kredo horizontal pin collapse → vertical scroll biasa; layout responsif per section           |
+| Loading         | RSC content-first, animasi adalah progressive enhancement (tidak block render)                |
+| Long Kredo text | Panel accommodate overflow gracefully dengan scrollable area internal                         |
 
 ---
 
@@ -94,17 +95,17 @@ Tiap section (1–8) menampilkan super-large muted section number di background 
 
 ### GSAP ScrollTrigger per Section
 
-| Section | GSAP Behavior |
-|---------|--------------|
-| Hero | Scroll cue animasi loop (chevron/arrow bounce) |
-| Sejarah | Text lines fade + slide up saat enter viewport |
-| Visi | Heading scale-up saat pin, hold selama user pause |
-| Misi | Tiap item stagger masuk sequential (`scrub: true`) |
-| Karakteristik | Dua kolom slide dari sisi berlawanan |
-| Unsur | Quadrant reveal dari center outward |
-| Prinsip | Grid items cascade masuk |
-| Paradigma | Statements snap-reveal satu per satu |
-| Kredo | **Horizontal pin**: scroll vertikal → gerak horizontal. 6 panel berurutan seperti membuka lembar konstitusi |
+| Section       | GSAP Behavior                                                                                               |
+| ------------- | ----------------------------------------------------------------------------------------------------------- |
+| Hero          | Scroll cue animasi loop (chevron/arrow bounce)                                                              |
+| Sejarah       | Text lines fade + slide up saat enter viewport                                                              |
+| Visi          | Heading scale-up saat pin, hold selama user pause                                                           |
+| Misi          | Tiap item stagger masuk sequential (`scrub: true`)                                                          |
+| Karakteristik | Dua kolom slide dari sisi berlawanan                                                                        |
+| Unsur         | Quadrant reveal dari center outward                                                                         |
+| Prinsip       | Grid items cascade masuk                                                                                    |
+| Paradigma     | Statements snap-reveal satu per satu                                                                        |
+| Kredo         | **Horizontal pin**: scroll vertikal → gerak horizontal. 6 panel berurutan seperti membuka lembar konstitusi |
 
 ### Kredo Horizontal Scroll Detail
 
@@ -127,6 +128,7 @@ Tiap section (1–8) menampilkan super-large muted section number di background 
 ### Section 1–7
 
 Tiap section memerlukan:
+
 - Heading section (dari data aktual atau placeholder yang realistis)
 - Konten utama sesuai jumlah item (5 misi, 2 karakteristik, dst)
 - Konten akan diisi kemudian oleh user
@@ -134,6 +136,7 @@ Tiap section memerlukan:
 ### Section 8 — Kredo
 
 6 panel, tiap panel:
+
 - Nomor Romawi (I, II, III, IV, V, VI)
 - Judul kredo (pendek, authoritative)
 - Body text panjang (artikel level, konstitusional tone)
@@ -178,7 +181,9 @@ src/app/(main)/
 ### Reduced Motion
 
 ```tsx
-const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+const prefersReducedMotion = window.matchMedia(
+  '(prefers-reduced-motion: reduce)'
+).matches
 if (!prefersReducedMotion) {
   // init GSAP animations
 }

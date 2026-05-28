@@ -16,30 +16,53 @@ interface LeadershipSectionProps {
   showMoreLink?: boolean
 }
 
-export const LeadershipSection = async ({ showMoreLink = false }: LeadershipSectionProps) => {
+export const LeadershipSection = async ({
+  showMoreLink = false
+}: LeadershipSectionProps) => {
   const { periodLabel, heading, triumvirate } = await getLeadershipSettings()
 
-  const hasContent = [triumvirate.ketua, triumvirate.sekretaris, triumvirate.bendahara]
-    .some((p) => p.name || p.photoUrl)
+  const hasContent = [
+    triumvirate.ketua,
+    triumvirate.sekretaris,
+    triumvirate.bendahara
+  ].some((p) => p.name || p.photoUrl)
   if (!hasContent) return null
 
   const [sekretarisSrc, ketuaSrc, bendaharaSrc] = await Promise.all([
     resolveSiteImage(triumvirate.sekretaris.photoUrl),
     resolveSiteImage(triumvirate.ketua.photoUrl),
-    resolveSiteImage(triumvirate.bendahara.photoUrl),
+    resolveSiteImage(triumvirate.bendahara.photoUrl)
   ])
 
   // Desktop visual order: sekretaris (left) | ketua (center) | bendahara (right)
   // Mobile order via CSS: ketua first, then sekretaris, then bendahara
   const trio: TrioMember[] = [
-    { key: 'sekretaris', label: 'Sekretaris Jenderal', ...triumvirate.sekretaris, photoSrc: sekretarisSrc, position: 'left' },
-    { key: 'ketua', label: 'Ketua Umum', ...triumvirate.ketua, photoSrc: ketuaSrc, position: 'center' },
-    { key: 'bendahara', label: 'Bendahara Umum', ...triumvirate.bendahara, photoSrc: bendaharaSrc, position: 'right' },
+    {
+      key: 'sekretaris',
+      label: 'Sekretaris Jenderal',
+      ...triumvirate.sekretaris,
+      photoSrc: sekretarisSrc,
+      position: 'left'
+    },
+    {
+      key: 'ketua',
+      label: 'Ketua Umum',
+      ...triumvirate.ketua,
+      photoSrc: ketuaSrc,
+      position: 'center'
+    },
+    {
+      key: 'bendahara',
+      label: 'Bendahara Umum',
+      ...triumvirate.bendahara,
+      photoSrc: bendaharaSrc,
+      position: 'right'
+    }
   ]
 
   return (
     <section
-      className='bg-background relative flex flex-col overflow-hidden border-b border-border'
+      className='bg-background border-border relative flex flex-col overflow-hidden border-b'
       aria-labelledby='leadership-heading'
     >
       {/* Header */}
@@ -112,7 +135,7 @@ export const LeadershipSection = async ({ showMoreLink = false }: LeadershipSect
               className={cn(
                 // Mobile: card with background hugging the content, rounded, restricted height, flush bottom
                 // overflow-visible so the name plate can pop out
-                'relative shrink-0 overflow-visible rounded-[2.5rem] bg-muted/60 pt-4 px-4 pb-0 scroll-reveal',
+                'bg-muted/60 scroll-reveal relative shrink-0 overflow-visible rounded-[2.5rem] px-4 pt-4 pb-0',
                 // Desktop: transparent, auto width, no rounding, overlapping, no padding
                 'md:w-auto md:rounded-none md:bg-transparent md:p-0',
                 overlapClass,
@@ -127,28 +150,36 @@ export const LeadershipSection = async ({ showMoreLink = false }: LeadershipSect
                   alt={`Foto ${member.name}`}
                   width={800}
                   height={1067}
-                  className='h-full w-auto max-w-none object-bottom object-contain max-md:object-left-bottom max-md:rounded-t-[2rem]'
+                  className='h-full w-auto max-w-none object-contain object-bottom max-md:rounded-t-[2rem] max-md:object-left-bottom'
                   unoptimized={member.photoSrc.startsWith('http')}
                 />
               ) : (
-                <div className='bg-muted/30 h-full rounded-t-[2rem]' style={{ aspectRatio: '3/4' }} />
+                <div
+                  className='bg-muted/30 h-full rounded-t-[2rem]'
+                  style={{ aspectRatio: '3/4' }}
+                />
               )}
 
               {/* Floating frosted name plate - Popping out to the right on mobile, flush with viewport padding */}
-              <div className={cn(
-                'absolute rounded-xl bg-white/80 px-4 py-2.5 shadow-[0_8px_32px_rgba(0,0,0,0.12)] backdrop-blur-md ring-1 ring-white/50',
-                // Desktop default: bottom placement
-                'bottom-12 w-max max-w-[85%] max-md:hidden',
-                // Desktop alignment based on position with a bit of offset (8)
-                isCenter ? 'left-1/2 -translate-x-1/2 text-center' :
-                isLeft ? 'left-8 text-left' : 'right-8 text-right',
-                // Mobile override: flush right, popping out to align with viewport edge, text right
-                'max-md:bottom-6 max-md:right-[-24px] max-md:left-auto max-md:translate-x-0 max-md:text-right max-md:max-w-[80%] max-md:flex max-md:flex-col'
-              )}>
+              <div
+                className={cn(
+                  'absolute rounded-xl bg-white/80 px-4 py-2.5 shadow-[0_8px_32px_rgba(0,0,0,0.12)] ring-1 ring-white/50 backdrop-blur-md',
+                  // Desktop default: bottom placement
+                  'bottom-12 w-max max-w-[85%] max-md:hidden',
+                  // Desktop alignment based on position with a bit of offset (8)
+                  isCenter
+                    ? 'left-1/2 -translate-x-1/2 text-center'
+                    : isLeft
+                      ? 'left-8 text-left'
+                      : 'right-8 text-right',
+                  // Mobile override: flush right, popping out to align with viewport edge, text right
+                  'max-md:right-[-24px] max-md:bottom-6 max-md:left-auto max-md:flex max-md:max-w-[80%] max-md:translate-x-0 max-md:flex-col max-md:text-right'
+                )}
+              >
                 <p className='text-primary font-sans text-[10px] leading-none font-bold tracking-[0.2em] uppercase'>
                   {member.label}
                 </p>
-                <p className='font-heading text-foreground mt-1.5 text-sm md:text-base leading-tight font-bold'>
+                <p className='font-heading text-foreground mt-1.5 text-sm leading-tight font-bold md:text-base'>
                   {member.name}
                 </p>
               </div>

@@ -32,20 +32,20 @@ const checkAccess = async (): Promise<{ orgId: string } | null> => {
 
 const personSchema = z.object({
   name: z.string(),
-  photoUrl: z.string(),
+  photoUrl: z.string()
 })
 
 const leaderMemberSchema = z.object({
   id: z.string(),
   name: z.string(),
   role: z.string(),
-  photoUrl: z.string(),
+  photoUrl: z.string()
 })
 
 const leaderBlockSchema = z.object({
   id: z.string(),
   title: z.string(),
-  members: z.array(leaderMemberSchema),
+  members: z.array(leaderMemberSchema)
 })
 
 const leadershipSchema = z.object({
@@ -54,16 +54,16 @@ const leadershipSchema = z.object({
   triumvirate: z.object({
     ketua: personSchema,
     sekretaris: personSchema,
-    bendahara: personSchema,
+    bendahara: personSchema
   }),
   leaders: z.array(
     z.object({
       name: z.string(),
       role: z.string(),
-      photoUrl: z.string(),
+      photoUrl: z.string()
     })
   ),
-  leaderBlocks: z.array(leaderBlockSchema),
+  leaderBlocks: z.array(leaderBlockSchema)
 })
 
 export const saveLeadershipAction = async (
@@ -85,13 +85,23 @@ export const saveLeadershipAction = async (
     return { error: 'Data pengurus tidak valid.' }
   }
 
-  const result = leadershipSchema.safeParse({ ...raw, leaders, triumvirate, leaderBlocks })
+  const result = leadershipSchema.safeParse({
+    ...raw,
+    leaders,
+    triumvirate,
+    leaderBlocks
+  })
   if (!result.success) {
     return {
-      fieldErrors: result.error.flatten().fieldErrors as Record<string, string[]>,
+      fieldErrors: result.error.flatten().fieldErrors as Record<
+        string,
+        string[]
+      >,
       values: Object.fromEntries(
-        Object.entries({ periodLabel: raw.periodLabel, heading: raw.heading })
-          .filter(([, v]) => v != null && typeof v === 'string')
+        Object.entries({
+          periodLabel: raw.periodLabel,
+          heading: raw.heading
+        }).filter(([, v]) => v != null && typeof v === 'string')
       ) as Record<string, string>
     }
   }

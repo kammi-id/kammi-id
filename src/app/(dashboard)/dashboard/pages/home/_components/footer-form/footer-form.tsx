@@ -19,7 +19,10 @@ import { LinkListEditor, type LinkItem } from '~/components/ui/link-list-editor'
 
 type Props = { initialData: FooterSettings }
 
-const toLinksWithId = (links: { label: string; href: string }[], prefix: string): LinkItem[] =>
+const toLinksWithId = (
+  links: { label: string; href: string }[],
+  prefix: string
+): LinkItem[] =>
   links.map((l, i) => ({ ...l, id: `${prefix}-${i}-${Date.now()}` }))
 
 export const FooterForm = ({ initialData }: Props) => {
@@ -39,11 +42,18 @@ export const FooterForm = ({ initialData }: Props) => {
   const [socialIG, setSocialIG] = useState(initialData.socialIG)
   const [socialTwitter, setSocialTwitter] = useState(initialData.socialTwitter)
   const [socialYoutube, setSocialYoutube] = useState(initialData.socialYoutube)
-  const [socialTelegram, setSocialTelegram] = useState(initialData.socialTelegram)
+  const [socialTelegram, setSocialTelegram] = useState(
+    initialData.socialTelegram
+  )
 
   const { isDirty, markClean } = useUnsavedChanges({
-    footerKAMMI, footerBeritaData, footerIkutiKami,
-    socialIG, socialTwitter, socialYoutube, socialTelegram
+    footerKAMMI,
+    footerBeritaData,
+    footerIkutiKami,
+    socialIG,
+    socialTwitter,
+    socialYoutube,
+    socialTelegram
   })
 
   useEffect(() => {
@@ -52,12 +62,13 @@ export const FooterForm = ({ initialData }: Props) => {
       markClean()
     }
     if (state.error) toast.error(state.error)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state])
 
   useEffect(() => {
     if (state.values && !state.success) {
-      if (state.values.socialIG !== undefined) setSocialIG(state.values.socialIG)
+      if (state.values.socialIG !== undefined)
+        setSocialIG(state.values.socialIG)
       if (state.values.socialTwitter !== undefined)
         setSocialTwitter(state.values.socialTwitter)
       if (state.values.socialYoutube !== undefined)

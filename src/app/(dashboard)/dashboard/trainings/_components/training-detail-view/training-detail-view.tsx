@@ -122,7 +122,7 @@ const StatusBadge = ({
   const status = getTrainingStatus(startDate, endDate)
   if (status === 'scheduled') {
     return (
-      <span className='inline-flex items-center gap-1 rounded-full border border-[var(--color-status-warning-border)] bg-[var(--color-status-warning-bg)] px-2.5 py-0.5 font-geist-mono text-[11px] font-medium tracking-wide text-[var(--color-status-warning-text)] uppercase'>
+      <span className='font-geist-mono inline-flex items-center gap-1 rounded-full border border-[var(--color-status-warning-border)] bg-[var(--color-status-warning-bg)] px-2.5 py-0.5 text-[11px] font-medium tracking-wide text-[var(--color-status-warning-text)] uppercase'>
         <HugeiconsIcon icon={Clock01Icon} className='size-3' />
         Terjadwal
       </span>
@@ -130,14 +130,14 @@ const StatusBadge = ({
   }
   if (status === 'ongoing') {
     return (
-      <span className='border-primary/20 bg-primary/8 text-primary inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 font-geist-mono text-[11px] font-medium tracking-wide uppercase'>
+      <span className='border-primary/20 bg-primary/8 text-primary font-geist-mono inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[11px] font-medium tracking-wide uppercase'>
         <span className='bg-primary size-1.5 animate-pulse rounded-full' />
         Berlangsung
       </span>
     )
   }
   return (
-    <span className='inline-flex items-center gap-1 rounded-full border border-[var(--color-status-success-border)] bg-[var(--color-status-success-bg)] px-2.5 py-0.5 font-geist-mono text-[11px] font-medium tracking-wide text-[var(--color-status-success-text)] uppercase'>
+    <span className='font-geist-mono inline-flex items-center gap-1 rounded-full border border-[var(--color-status-success-border)] bg-[var(--color-status-success-bg)] px-2.5 py-0.5 text-[11px] font-medium tracking-wide text-[var(--color-status-success-text)] uppercase'>
       <HugeiconsIcon icon={CheckmarkCircle01Icon} className='size-3' />
       Selesai
     </span>
@@ -606,7 +606,7 @@ export const TrainingDetailView = ({
                       )}
                     >
                       <div className='flex min-w-0 items-center gap-2.5'>
-                        <span className='text-muted-foreground/40 w-5 shrink-0 text-right font-geist-mono text-[10px] tabular-nums'>
+                        <span className='text-muted-foreground/40 font-geist-mono w-5 shrink-0 text-right text-[10px] tabular-nums'>
                           {idx + 1}
                         </span>
                         <Tooltip>
@@ -649,7 +649,7 @@ export const TrainingDetailView = ({
                       </div>
                       <div className='flex shrink-0 items-center gap-1.5'>
                         {att.isPassing ? (
-                          <span className='flex items-center gap-1 font-geist-mono text-xs font-bold tracking-wide text-[var(--color-status-success-text)] uppercase'>
+                          <span className='font-geist-mono flex items-center gap-1 text-xs font-bold tracking-wide text-[var(--color-status-success-text)] uppercase'>
                             <HugeiconsIcon
                               icon={Tick01Icon}
                               className='size-3'

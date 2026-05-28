@@ -5,7 +5,9 @@ import {
   type LeadershipSettings
 } from '~/db/query/site-settings'
 
-export const getLeadershipSettings = async (organizationId: string): Promise<LeadershipSettings> => {
+export const getLeadershipSettings = async (
+  organizationId: string
+): Promise<LeadershipSettings> => {
   'use cache'
   cacheLife('minutes')
   cacheTag('site-settings', `site-settings-leadership-${organizationId}`)
@@ -20,6 +22,6 @@ export const getLeadershipSettings = async (organizationId: string): Promise<Lea
     heading: raw.heading ?? d.heading,
     triumvirate: raw.triumvirate ?? d.triumvirate,
     leaders: raw.leaders ?? d.leaders,
-    leaderBlocks: raw.leaderBlocks ?? d.leaderBlocks,
+    leaderBlocks: raw.leaderBlocks ?? d.leaderBlocks
   }
 }

@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
-import { TentangHero } from './_components/tentang-hero'
+import { TentangScene } from './_components/tentang-scene'
 import { SejarahSection } from './_components/sejarah-section'
-import { VisiSection } from './_components/visi-section'
 import { MisiSection } from './_components/misi-section'
 import { KarakteristikSection } from './_components/karakteristik-section'
 import { UnsurSection } from './_components/unsur-section'
@@ -13,15 +12,14 @@ import { SectionNav } from './_components/section-nav'
 export const metadata: Metadata = {
   title: 'Tentang KAMMI',
   description:
-    'Mengenal KAMMI — sejarah, visi, misi, karakteristik, prinsip, paradigma, dan kredo gerakan.',
+    'Mengenal KAMMI — sejarah, visi, misi, karakteristik, prinsip, paradigma, dan kredo gerakan.'
 }
 
 const TentangPage = () => {
   return (
     <>
       <SectionNav />
-      <TentangHero />
-      <VisiSection />
+      <TentangScene />
       <MisiSection />
       <KarakteristikSection />
       <UnsurSection />

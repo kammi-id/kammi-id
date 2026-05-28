@@ -37,7 +37,7 @@ export const appendCredentials = (
 
   credentialStore.set({
     ...current,
-    [organizationId]: updated,
+    [organizationId]: updated
   })
 }
 
@@ -45,6 +45,6 @@ export const clearCredentials = (organizationId: string) => {
   const current = credentialStore.get()
   credentialStore.set({
     ...current,
-    [organizationId]: [],
+    [organizationId]: []
   })
 }

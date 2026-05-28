@@ -12,14 +12,14 @@ import {
   useSensor,
   useSensors,
   closestCenter,
-  useDroppable,
+  useDroppable
 } from '@dnd-kit/core'
 import {
   SortableContext,
   useSortable,
   arrayMove,
   rectSortingStrategy,
-  verticalListSortingStrategy,
+  verticalListSortingStrategy
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { Button } from '~/components/shadcn/ui/button'
@@ -35,7 +35,11 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { Add01Icon, Delete02Icon } from '@hugeicons/core-free-icons'
 import { TransparentImageUpload } from '../transparent-image-upload'
 import { saveLeadershipAction, type SettingsActionState } from '../action'
-import type { LeadershipSettings, LeaderBlock, LeaderMember } from '~/db/query/site-settings'
+import type {
+  LeadershipSettings,
+  LeaderBlock,
+  LeaderMember
+} from '~/db/query/site-settings'
 import { useUnsavedChanges } from '~/hooks/use-unsaved-changes'
 import { UnsavedChangesBanner } from '~/components/unsaved-changes-banner'
 
@@ -53,8 +57,8 @@ class SmartPointerSensor extends PointerSensor {
         if (!nativeEvent.isPrimary || nativeEvent.button !== 0) return false
         if (isInteractiveElement(nativeEvent.target)) return false
         return true
-      },
-    },
+      }
+    }
   ]
 }
 
@@ -65,19 +69,19 @@ type Props = { initialData: LeadershipSettings }
 const TRIUMVIRATE_META: { key: TriumvirateKey; label: string }[] = [
   { key: 'ketua', label: 'Ketua Umum' },
   { key: 'sekretaris', label: 'Sekretaris Jenderal' },
-  { key: 'bendahara', label: 'Bendahara Umum' },
+  { key: 'bendahara', label: 'Bendahara Umum' }
 ]
 
 const SectionHeader = ({
   title,
-  description,
+  description
 }: {
   title: string
   description: string
 }) => (
   <div className='space-y-1'>
-    <p className='text-sm font-semibold text-foreground'>{title}</p>
-    <p className='text-sm text-muted-foreground'>{description}</p>
+    <p className='text-foreground text-sm font-semibold'>{title}</p>
+    <p className='text-muted-foreground text-sm'>{description}</p>
   </div>
 )
 
@@ -103,7 +107,7 @@ const SortableMemberCard = ({
   member,
   blockId,
   onUpdate,
-  onRemove,
+  onRemove
 }: {
   member: LeaderMember
   blockId: string
@@ -116,28 +120,28 @@ const SortableMemberCard = ({
     setNodeRef,
     transform,
     transition,
-    isDragging,
+    isDragging
   } = useSortable({ id: member.id, data: { type: 'member', blockId } })
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    opacity: isDragging ? 0.35 : 1,
+    opacity: isDragging ? 0.35 : 1
   }
 
   return (
     <div
       ref={setNodeRef}
       style={style}
-      className='overflow-hidden rounded-[10px] border border-border bg-background'
+      className='border-border bg-background overflow-hidden rounded-[10px] border'
     >
       {/* Card header */}
-      <div className='flex items-center justify-between border-b border-border px-3 py-2'>
+      <div className='border-border flex items-center justify-between border-b px-3 py-2'>
         <button
           type='button'
           {...attributes}
           {...listeners}
-          className='flex size-7 cursor-grab items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted active:cursor-grabbing'
+          className='text-muted-foreground hover:bg-muted flex size-7 cursor-grab items-center justify-center rounded-md transition-colors active:cursor-grabbing'
           aria-label='Geser card'
         >
           <GripIcon className='size-4' />
@@ -145,10 +149,14 @@ const SortableMemberCard = ({
         <button
           type='button'
           onClick={onRemove}
-          className='flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive'
+          className='text-muted-foreground hover:bg-destructive/10 hover:text-destructive flex size-7 items-center justify-center rounded-md transition-colors'
           aria-label={`Hapus ${member.name || 'pengurus'}`}
         >
-          <HugeiconsIcon icon={Delete02Icon} className='size-3.5' strokeWidth={2} />
+          <HugeiconsIcon
+            icon={Delete02Icon}
+            className='size-3.5'
+            strokeWidth={2}
+          />
         </button>
       </div>
 
@@ -159,7 +167,7 @@ const SortableMemberCard = ({
         height={140}
       />
 
-      <div className='space-y-3 border-t border-border px-3 py-3'>
+      <div className='border-border space-y-3 border-t px-3 py-3'>
         <Field>
           <FieldLabel htmlFor={`member-name-${member.id}`}>Nama</FieldLabel>
           <FieldContent>
@@ -189,15 +197,17 @@ const SortableMemberCard = ({
 
 // Drag overlay card (ghost while dragging)
 const MemberCardGhost = ({ member }: { member: LeaderMember }) => (
-  <div className='overflow-hidden rounded-[10px] border border-primary/30 bg-background shadow-lg ring-1 ring-primary/20'>
-    <div className='flex items-center justify-between border-b border-border px-3 py-2'>
-      <div className='flex size-7 cursor-grabbing items-center justify-center rounded-md bg-muted text-muted-foreground'>
+  <div className='border-primary/30 bg-background ring-primary/20 overflow-hidden rounded-[10px] border shadow-lg ring-1'>
+    <div className='border-border flex items-center justify-between border-b px-3 py-2'>
+      <div className='bg-muted text-muted-foreground flex size-7 cursor-grabbing items-center justify-center rounded-md'>
         <GripIcon className='size-4' />
       </div>
     </div>
-    <div className='border-t border-border px-3 py-3'>
-      <p className='text-xs font-semibold text-foreground'>{member.name || 'Pengurus'}</p>
-      <p className='text-[10px] text-muted-foreground'>{member.role || '—'}</p>
+    <div className='border-border border-t px-3 py-3'>
+      <p className='text-foreground text-xs font-semibold'>
+        {member.name || 'Pengurus'}
+      </p>
+      <p className='text-muted-foreground text-[10px]'>{member.role || '—'}</p>
     </div>
   </div>
 )
@@ -205,7 +215,7 @@ const MemberCardGhost = ({ member }: { member: LeaderMember }) => (
 // Droppable block container
 const BlockDropZone = ({
   block,
-  children,
+  children
 }: {
   block: LeaderBlock
   children: React.ReactNode
@@ -214,7 +224,7 @@ const BlockDropZone = ({
   return (
     <div
       ref={setNodeRef}
-      className={`min-h-[80px] rounded-lg transition-colors ${isOver ? 'bg-primary/5 ring-1 ring-primary/20' : ''}`}
+      className={`min-h-[80px] rounded-lg transition-colors ${isOver ? 'bg-primary/5 ring-primary/20 ring-1' : ''}`}
     >
       {children}
     </div>
@@ -226,7 +236,7 @@ const SortableBlockWrapper = ({
   block,
   onRemove,
   onUpdateTitle,
-  children,
+  children
 }: {
   block: LeaderBlock
   onRemove: (id: string) => void
@@ -239,28 +249,28 @@ const SortableBlockWrapper = ({
     setNodeRef,
     transform,
     transition,
-    isDragging,
+    isDragging
   } = useSortable({ id: block.id, data: { type: 'block' } })
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    opacity: isDragging ? 0.4 : 1,
+    opacity: isDragging ? 0.4 : 1
   }
 
   return (
     <div
       ref={setNodeRef}
       style={style}
-      className='overflow-hidden rounded-[12px] border border-border'
+      className='border-border overflow-hidden rounded-[12px] border'
     >
-      <div className='flex items-center gap-2 border-b border-border bg-muted/30 px-3 py-2.5'>
+      <div className='border-border bg-muted/30 flex items-center gap-2 border-b px-3 py-2.5'>
         {/* Block drag handle */}
         <button
           type='button'
           {...attributes}
           {...listeners}
-          className='flex size-7 shrink-0 cursor-grab items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted active:cursor-grabbing'
+          className='text-muted-foreground hover:bg-muted flex size-7 shrink-0 cursor-grab items-center justify-center rounded-md transition-colors active:cursor-grabbing'
           aria-label='Geser blok'
         >
           <GripIcon className='size-4' />
@@ -277,10 +287,14 @@ const SortableBlockWrapper = ({
         <button
           type='button'
           onClick={() => onRemove(block.id)}
-          className='flex size-7 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive'
+          className='text-muted-foreground hover:bg-destructive/10 hover:text-destructive flex size-7 shrink-0 items-center justify-center rounded-md transition-colors'
           aria-label={`Hapus blok ${block.title}`}
         >
-          <HugeiconsIcon icon={Delete02Icon} className='size-3.5' strokeWidth={2} />
+          <HugeiconsIcon
+            icon={Delete02Icon}
+            className='size-3.5'
+            strokeWidth={2}
+          />
         </button>
       </div>
 
@@ -301,9 +315,9 @@ const initBlocks = (data: LeadershipSettings): LeaderBlock[] => {
           id: crypto.randomUUID(),
           name: l.name,
           role: l.role,
-          photoUrl: l.photoUrl,
-        })),
-      },
+          photoUrl: l.photoUrl
+        }))
+      }
     ]
   }
   return []
@@ -311,15 +325,19 @@ const initBlocks = (data: LeadershipSettings): LeaderBlock[] => {
 
 export const LeadershipForm = ({ initialData }: Props) => {
   const dndId = useId()
-  const [state, formAction, isPending] = useActionState<SettingsActionState, FormData>(
-    saveLeadershipAction,
-    {}
-  )
+  const [state, formAction, isPending] = useActionState<
+    SettingsActionState,
+    FormData
+  >(saveLeadershipAction, {})
 
-  const [triumvirate, setTriumvirate] = useState<Triumvirate>(initialData.triumvirate)
+  const [triumvirate, setTriumvirate] = useState<Triumvirate>(
+    initialData.triumvirate
+  )
   const [periodLabel, setPeriodLabel] = useState(initialData.periodLabel)
   const [heading, setHeading] = useState(initialData.heading)
-  const [blocks, setBlocks] = useState<LeaderBlock[]>(() => initBlocks(initialData))
+  const [blocks, setBlocks] = useState<LeaderBlock[]>(() =>
+    initBlocks(initialData)
+  )
   const [activeId, setActiveId] = useState<string | null>(null)
   const [activeType, setActiveType] = useState<'block' | 'member' | null>(null)
 
@@ -327,7 +345,7 @@ export const LeadershipForm = ({ initialData }: Props) => {
     blocks,
     periodLabel,
     heading,
-    triumvirate,
+    triumvirate
   })
 
   useEffect(() => {
@@ -341,19 +359,30 @@ export const LeadershipForm = ({ initialData }: Props) => {
 
   useEffect(() => {
     if (state.values && !state.success) {
-      if (state.values.periodLabel !== undefined) setPeriodLabel(state.values.periodLabel)
+      if (state.values.periodLabel !== undefined)
+        setPeriodLabel(state.values.periodLabel)
       if (state.values.heading !== undefined) setHeading(state.values.heading)
     }
   }, [state.values, state.success])
 
   // ── Triumvirate helpers ────────────────────────────────────────────────────
-  const updateTriumvirate = (key: TriumvirateKey, field: 'name' | 'photoUrl', value: string) => {
-    setTriumvirate((prev) => ({ ...prev, [key]: { ...prev[key], [field]: value } }))
+  const updateTriumvirate = (
+    key: TriumvirateKey,
+    field: 'name' | 'photoUrl',
+    value: string
+  ) => {
+    setTriumvirate((prev) => ({
+      ...prev,
+      [key]: { ...prev[key], [field]: value }
+    }))
   }
 
   // ── Block helpers ──────────────────────────────────────────────────────────
   const addBlock = () => {
-    setBlocks((prev) => [...prev, { id: crypto.randomUUID(), title: 'Blok Baru', members: [] }])
+    setBlocks((prev) => [
+      ...prev,
+      { id: crypto.randomUUID(), title: 'Blok Baru', members: [] }
+    ])
   }
 
   const removeBlock = (blockId: string) => {
@@ -361,7 +390,9 @@ export const LeadershipForm = ({ initialData }: Props) => {
   }
 
   const updateBlockTitle = (blockId: string, title: string) => {
-    setBlocks((prev) => prev.map((b) => (b.id === blockId ? { ...b, title } : b)))
+    setBlocks((prev) =>
+      prev.map((b) => (b.id === blockId ? { ...b, title } : b))
+    )
   }
 
   // ── Member helpers ─────────────────────────────────────────────────────────
@@ -373,8 +404,8 @@ export const LeadershipForm = ({ initialData }: Props) => {
               ...b,
               members: [
                 ...b.members,
-                { id: crypto.randomUUID(), name: '', role: '', photoUrl: '' },
-              ],
+                { id: crypto.randomUUID(), name: '', role: '', photoUrl: '' }
+              ]
             }
           : b
       )
@@ -384,16 +415,28 @@ export const LeadershipForm = ({ initialData }: Props) => {
   const removeMember = (blockId: string, memberId: string) => {
     setBlocks((prev) =>
       prev.map((b) =>
-        b.id === blockId ? { ...b, members: b.members.filter((m) => m.id !== memberId) } : b
+        b.id === blockId
+          ? { ...b, members: b.members.filter((m) => m.id !== memberId) }
+          : b
       )
     )
   }
 
-  const updateMember = (blockId: string, memberId: string, field: keyof LeaderMember, value: string) => {
+  const updateMember = (
+    blockId: string,
+    memberId: string,
+    field: keyof LeaderMember,
+    value: string
+  ) => {
     setBlocks((prev) =>
       prev.map((b) =>
         b.id === blockId
-          ? { ...b, members: b.members.map((m) => (m.id === memberId ? { ...m, [field]: value } : m)) }
+          ? {
+              ...b,
+              members: b.members.map((m) =>
+                m.id === memberId ? { ...m, [field]: value } : m
+              )
+            }
           : b
       )
     )
@@ -416,7 +459,9 @@ export const LeadershipForm = ({ initialData }: Props) => {
 
   const handleDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id as string)
-    setActiveType((event.active.data.current?.type as 'block' | 'member') ?? null)
+    setActiveType(
+      (event.active.data.current?.type as 'block' | 'member') ?? null
+    )
   }
 
   const handleDragOver = (event: DragOverEvent) => {
@@ -493,8 +538,12 @@ export const LeadershipForm = ({ initialData }: Props) => {
     )
   }
 
-  const activeMember = activeId && activeType === 'member' ? findMember(activeId) : null
-  const activeBlock = activeId && activeType === 'block' ? blocks.find((b) => b.id === activeId) : null
+  const activeMember =
+    activeId && activeType === 'member' ? findMember(activeId) : null
+  const activeBlock =
+    activeId && activeType === 'block'
+      ? blocks.find((b) => b.id === activeId)
+      : null
   const fe = state.fieldErrors ?? {}
 
   return (
@@ -526,7 +575,9 @@ export const LeadershipForm = ({ initialData }: Props) => {
                   placeholder='Masa Jabatan KAMMI'
                 />
               </FieldContent>
-              <FieldError errors={fe.periodLabel?.map((m) => ({ message: m }))} />
+              <FieldError
+                errors={fe.periodLabel?.map((m) => ({ message: m }))}
+              />
             </Field>
             <Field>
               <FieldLabel htmlFor='heading'>Judul Seksi</FieldLabel>
@@ -555,10 +606,10 @@ export const LeadershipForm = ({ initialData }: Props) => {
           {TRIUMVIRATE_META.map(({ key, label }) => (
             <div
               key={key}
-              className='overflow-hidden rounded-[10px] border border-border'
+              className='border-border overflow-hidden rounded-[10px] border'
             >
-              <div className='border-b border-border px-4 py-3'>
-                <span className='font-mono text-[10px] font-medium uppercase tracking-wide text-muted-foreground'>
+              <div className='border-border border-b px-4 py-3'>
+                <span className='text-muted-foreground font-mono text-[10px] font-medium tracking-wide uppercase'>
                   {label}
                 </span>
               </div>
@@ -570,10 +621,12 @@ export const LeadershipForm = ({ initialData }: Props) => {
                 height={192}
               />
 
-              <div className='border-t border-border px-4 py-4'>
+              <div className='border-border border-t px-4 py-4'>
                 <Input
                   value={triumvirate[key].name}
-                  onChange={(e) => updateTriumvirate(key, 'name', e.target.value)}
+                  onChange={(e) =>
+                    updateTriumvirate(key, 'name', e.target.value)
+                  }
                   placeholder='Nama Lengkap'
                   aria-label={`Nama ${label}`}
                 />
@@ -625,15 +678,22 @@ export const LeadershipForm = ({ initialData }: Props) => {
                                 member={member}
                                 blockId={block.id}
                                 onUpdate={(field, value) =>
-                                  updateMember(block.id, member.id, field, value)
+                                  updateMember(
+                                    block.id,
+                                    member.id,
+                                    field,
+                                    value
+                                  )
                                 }
-                                onRemove={() => removeMember(block.id, member.id)}
+                                onRemove={() =>
+                                  removeMember(block.id, member.id)
+                                }
                               />
                             ))}
                           </div>
                         ) : (
-                          <div className='flex min-h-[80px] items-center justify-center rounded-lg border border-dashed border-border'>
-                            <p className='text-sm text-muted-foreground'>
+                          <div className='border-border flex min-h-[80px] items-center justify-center rounded-lg border border-dashed'>
+                            <p className='text-muted-foreground text-sm'>
                               Taruh pengurus di sini
                             </p>
                           </div>
@@ -646,7 +706,11 @@ export const LeadershipForm = ({ initialData }: Props) => {
                       onClick={() => addMember(block.id)}
                       className='border-border text-muted-foreground hover:border-primary/40 hover:text-primary mt-4 flex w-full items-center justify-center gap-2 rounded-[10px] border border-dashed py-2.5 text-sm transition-colors'
                     >
-                      <HugeiconsIcon icon={Add01Icon} className='size-4' strokeWidth={2} />
+                      <HugeiconsIcon
+                        icon={Add01Icon}
+                        className='size-4'
+                        strokeWidth={2}
+                      />
                       Tambah Pengurus
                     </button>
                   </div>
@@ -658,15 +722,15 @@ export const LeadershipForm = ({ initialData }: Props) => {
           <DragOverlay>
             {activeMember ? <MemberCardGhost member={activeMember} /> : null}
             {activeBlock ? (
-              <div className='overflow-hidden rounded-[12px] border border-primary/30 bg-background shadow-lg ring-1 ring-primary/20 opacity-90'>
-                <div className='flex items-center gap-2 border-b border-border bg-muted/30 px-3 py-2.5'>
-                  <div className='flex size-7 cursor-grabbing items-center justify-center rounded-md bg-muted text-muted-foreground'>
+              <div className='border-primary/30 bg-background ring-primary/20 overflow-hidden rounded-[12px] border opacity-90 shadow-lg ring-1'>
+                <div className='border-border bg-muted/30 flex items-center gap-2 border-b px-3 py-2.5'>
+                  <div className='bg-muted text-muted-foreground flex size-7 cursor-grabbing items-center justify-center rounded-md'>
                     <GripIcon className='size-4' />
                   </div>
-                  <span className='flex-1 text-sm font-semibold text-foreground'>
+                  <span className='text-foreground flex-1 text-sm font-semibold'>
                     {activeBlock.title || 'Blok'}
                   </span>
-                  <span className='text-xs text-muted-foreground'>
+                  <span className='text-muted-foreground text-xs'>
                     {activeBlock.members.length} pengurus
                   </span>
                 </div>
@@ -686,7 +750,7 @@ export const LeadershipForm = ({ initialData }: Props) => {
       </section>
 
       {/* Save bar */}
-      <div className='flex items-center justify-end gap-3 border-t border-border pt-6'>
+      <div className='border-border flex items-center justify-end gap-3 border-t pt-6'>
         <UnsavedChangesBanner isDirty={isDirty} />
         <Button type='submit' className='px-6' disabled={isPending}>
           {isPending ? 'Menyimpan...' : 'Simpan Pengaturan'}

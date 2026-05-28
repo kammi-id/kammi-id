@@ -5,32 +5,39 @@ import { Calendar01Icon } from '@hugeicons/core-free-icons'
 
 export const metadata: Metadata = {
   title: 'Event & Agenda — KAMMI.id',
-  description: 'Ikuti berbagai agenda pelatihan kaderisasi, seminar nasional, diskusi publik, dan kongres Kesatuan Aksi Mahasiswa Muslim Indonesia.',
+  description:
+    'Ikuti berbagai agenda pelatihan kaderisasi, seminar nasional, diskusi publik, dan kongres Kesatuan Aksi Mahasiswa Muslim Indonesia.'
 }
 
 const EventPage = () => {
   return (
     <div className='bg-background min-h-[70vh] pb-24'>
       {/* Breadcrumb */}
-      <nav aria-label='Breadcrumb' className='mx-auto max-w-7xl px-6 py-5 lg:px-8'>
-        <ol className='flex items-center gap-2 text-sm text-muted-foreground'>
+      <nav
+        aria-label='Breadcrumb'
+        className='mx-auto max-w-7xl px-6 py-5 lg:px-8'
+      >
+        <ol className='text-muted-foreground flex items-center gap-2 text-sm'>
           <li>
             <Link href='/' className='hover:text-foreground transition-colors'>
               Beranda
             </Link>
           </li>
-          <li aria-hidden='true' className='select-none text-muted-foreground/45'>
+          <li
+            aria-hidden='true'
+            className='text-muted-foreground/45 select-none'
+          >
             /
           </li>
           <li>
-            <span className='font-medium text-foreground'>Agenda Kegiatan</span>
+            <span className='text-foreground font-medium'>Agenda Kegiatan</span>
           </li>
         </ol>
       </nav>
 
       {/* Content Section */}
       <div className='mx-auto max-w-3xl px-6 pt-8 text-center lg:px-8'>
-        <div className='mx-auto mb-6 flex size-16 items-center justify-center rounded-2xl bg-primary/5 text-primary ring-1 ring-primary/10'>
+        <div className='bg-primary/5 text-primary ring-primary/10 mx-auto mb-6 flex size-16 items-center justify-center rounded-2xl ring-1'>
           <HugeiconsIcon
             icon={Calendar01Icon}
             className='size-8'
@@ -41,18 +48,22 @@ const EventPage = () => {
         <h1 className='font-heading text-foreground text-3xl font-bold tracking-tight sm:text-4xl'>
           Agenda <span className='text-primary'>Kegiatan</span>
         </h1>
-        
+
         <p className='text-muted-foreground mx-auto mt-4 max-w-xl font-sans text-base leading-relaxed md:text-lg'>
-          Belum ada agenda terdekat saat ini. Bidang Terkait sedang mematangkan perencanaan Dauroh Marhalah, seminar kepemudaan, dan aksi gerakan nasional berikutnya.
+          Belum ada agenda terdekat saat ini. Bidang Terkait sedang mematangkan
+          perencanaan Dauroh Marhalah, seminar kepemudaan, dan aksi gerakan
+          nasional berikutnya.
         </p>
 
         {/* Feature Navigation Card */}
         <div className='border-border/60 bg-muted/30 mx-auto mt-12 max-w-md rounded-3xl border p-6 text-left backdrop-blur-xs'>
-          <h3 className='font-heading text-foreground text-sm font-bold uppercase tracking-wider text-primary/80'>
+          <h3 className='font-heading text-foreground text-primary/80 text-sm font-bold tracking-wider uppercase'>
             Informasi Penting
           </h3>
           <p className='text-muted-foreground mt-2 font-sans text-sm leading-relaxed'>
-            Pengumuman pendaftaran kegiatan kaderisasi nasional atau wilayah akan diinfokan langsung lewat koordinasi berjenjang struktural pengurus wilayah/daerah masing-masing.
+            Pengumuman pendaftaran kegiatan kaderisasi nasional atau wilayah
+            akan diinfokan langsung lewat koordinasi berjenjang struktural
+            pengurus wilayah/daerah masing-masing.
           </p>
           <div className='mt-5 flex gap-3'>
             <Link

@@ -14,7 +14,7 @@ export const siteSettings = pgTable(
     updatedAt: t
       .timestamp('updated_at')
       .default(sql`now()`)
-      .notNull(),
+      .notNull()
   }),
   (table) => [unique().on(table.key, table.organizationId)]
 )

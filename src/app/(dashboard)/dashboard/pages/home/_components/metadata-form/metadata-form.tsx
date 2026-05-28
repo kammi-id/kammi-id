@@ -31,7 +31,11 @@ export const MetadataForm = ({ initialData }: Props) => {
   )
   const [ogImageUrl, setOgImageUrl] = useState(initialData.ogImageUrl)
 
-  const { isDirty, markClean } = useUnsavedChanges({ pageTitle, metaDescription, ogImageUrl })
+  const { isDirty, markClean } = useUnsavedChanges({
+    pageTitle,
+    metaDescription,
+    ogImageUrl
+  })
 
   useEffect(() => {
     if (state.success) {
@@ -39,12 +43,13 @@ export const MetadataForm = ({ initialData }: Props) => {
       markClean()
     }
     if (state.error) toast.error(state.error)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state])
 
   useEffect(() => {
     if (state.values && !state.success) {
-      if (state.values.pageTitle !== undefined) setPageTitle(state.values.pageTitle)
+      if (state.values.pageTitle !== undefined)
+        setPageTitle(state.values.pageTitle)
       if (state.values.metaDescription !== undefined)
         setMetaDescription(state.values.metaDescription)
       if (state.values.ogImageUrl !== undefined)
@@ -117,11 +122,7 @@ export const MetadataForm = ({ initialData }: Props) => {
 
       <div className='flex items-center justify-end gap-3'>
         <UnsavedChangesBanner isDirty={isDirty} />
-        <Button
-          type='submit'
-          className='px-6'
-          disabled={isPending}
-        >
+        <Button type='submit' className='px-6' disabled={isPending}>
           {isPending ? 'Menyimpan...' : 'Simpan Metadata'}
         </Button>
       </div>

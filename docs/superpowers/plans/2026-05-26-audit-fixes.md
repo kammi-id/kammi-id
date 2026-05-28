@@ -15,6 +15,7 @@
 ### Task A1: Hapus `import React` yang tidak perlu
 
 **Files:**
+
 - Modify: `src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-header/profile-header.tsx`
 - Modify: `src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-training-history/profile-training-history.tsx`
 - Modify: `src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/warning-tooltip/warning-tooltip.tsx`
@@ -22,11 +23,13 @@
 
 - [ ] **Step 1: Hapus bare `import React from 'react'` di profile-header**
 
-  Di [profile-header.tsx](src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-header/profile-header.tsx), baris 1:
+  Di [profile-header.tsx](<src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-header/profile-header.tsx>), baris 1:
+
   ```diff
   - import React from 'react'
     import Link from 'next/link'
   ```
+
   Perhatian: baris `interface ProfileHeaderProps` menggunakan `React.ReactNode` — ubah ke `import type { ReactNode } from 'react'` dan ganti semua `React.ReactNode` → `ReactNode`.
 
 - [ ] **Step 2: Update type reference di profile-header**
@@ -65,6 +68,7 @@
   - import React from 'react'
     import Link from 'next/link'
   ```
+
   Cek apakah ada `React.something` — kalau ada, pindahkan ke named import. Kemungkinan tidak ada.
 
 - [ ] **Step 6: Verify TypeScript tidak error**
@@ -72,6 +76,7 @@
   ```bash
   cd /Users/radenpioneer/projects/kammi-id/.worktree/dev-20260104 && bun run typecheck 2>&1 | head -30
   ```
+
   Expected: 0 errors baru.
 
 - [ ] **Step 7: Commit**
@@ -89,12 +94,14 @@
 ### Task A2: Ganti `font-mono` → `font-geist-mono` di training components
 
 **Files:**
+
 - Modify: `src/app/(dashboard)/dashboard/trainings/_components/training-detail-view/training-detail-view.tsx`
 - Modify: `src/app/(dashboard)/dashboard/trainings/_components/training-section-cards/training-section-cards.tsx`
 
 - [ ] **Step 1: Replace di training-detail-view.tsx**
 
   Run find-and-replace untuk semua `font-mono` → `font-geist-mono` di file tersebut (tidak ada exceptions — semua penggunaan di file ini seharusnya Geist Mono):
+
   ```bash
   sed -i '' 's/font-mono\b/font-geist-mono/g' \
     /Users/radenpioneer/projects/kammi-id/.worktree/dev-20260104/src/app/\(dashboard\)/dashboard/trainings/_components/training-detail-view/training-detail-view.tsx
@@ -113,6 +120,7 @@
   grep -rn "font-mono\b" /Users/radenpioneer/projects/kammi-id/.worktree/dev-20260104/src \
     --include="*.tsx" | grep -v "node_modules\|shadcn\|\.claude"
   ```
+
   Expected: 0 hasil (atau hanya file yang memang diizinkan).
 
 - [ ] **Step 4: Commit**
@@ -128,11 +136,13 @@
 ### Task A3: Fix `rounded-4xl` → `rounded-2xl` di AlertDialogContent
 
 **Files:**
+
 - Modify: `src/components/shadcn/ui/alert-dialog.tsx`
 
 - [ ] **Step 1: Edit class di AlertDialogContent**
 
   Di [alert-dialog.tsx:55](src/components/shadcn/ui/alert-dialog.tsx#L55), ganti `rounded-4xl` → `rounded-2xl`:
+
   ```diff
   - "group/alert-dialog-content fixed top-1/2 left-1/2 z-50 grid w-full -translate-x-1/2 -translate-y-1/2 gap-6 rounded-4xl bg-popover..."
   + "group/alert-dialog-content fixed top-1/2 left-1/2 z-50 grid w-full -translate-x-1/2 -translate-y-1/2 gap-6 rounded-2xl bg-popover..."
@@ -150,11 +160,13 @@
 ### Task A4: Fix credential panel table header typography
 
 **Files:**
+
 - Modify: `src/components/credential-store/credential-panel.tsx`
 
 - [ ] **Step 1: Tambah `font-geist-mono`, `tracking-wide`, dan `uppercase` ke semua `<th>` di credential panel**
 
   Di [credential-panel.tsx:127-130](src/components/credential-store/credential-panel.tsx#L127), update:
+
   ```diff
   - <th scope="col" className="px-4 py-3 text-left font-medium text-muted-foreground">Nama</th>
   - <th scope="col" className="px-4 py-3 text-left font-medium text-muted-foreground">NIK</th>
@@ -180,6 +192,7 @@
 ### Task B1: Tambah CSS custom properties untuk status kaderisasi (member status colors)
 
 **Files:**
+
 - Modify: `src/app/globals.css`
 
 Context: `globals.css` sudah punya `--status-suspended-*`, `--status-nonactive-*`, `--status-alumn-*`. Yang belum ada: token untuk status aktif kader (active/passing icon) dan token untuk border radio gender di edit mode.
@@ -187,6 +200,7 @@ Context: `globals.css` sudah punya `--status-suspended-*`, `--status-nonactive-*
 - [ ] **Step 1: Tambah missing tokens di globals.css — section `:root`**
 
   Di `src/app/globals.css`, setelah block `--status-alumn-*` (sekitar baris 222), tambahkan:
+
   ```css
   /* Member activity status */
   --status-active-text: oklch(0.45 0.16 145);
@@ -196,34 +210,35 @@ Context: `globals.css` sudah punya `--status-suspended-*`, `--status-nonactive-*
   --status-training-fail: oklch(0.55 0.18 17);
 
   /* Warning indicator (warning-tooltip icon) */
-  --status-warning-icon: oklch(0.60 0.18 75);
+  --status-warning-icon: oklch(0.6 0.18 75);
 
   /* Gender radio button selected state (edit mode) */
-  --form-gender-selected-bg: oklch(0.52 0.20 17 / 0.08);
-  --form-gender-selected-border: oklch(0.52 0.20 17);
+  --form-gender-selected-bg: oklch(0.52 0.2 17 / 0.08);
+  --form-gender-selected-border: oklch(0.52 0.2 17);
   --form-gender-selected-text: oklch(0.42 0.18 17);
-  --form-gender-hover-border: oklch(0.52 0.20 17 / 0.40);
+  --form-gender-hover-border: oklch(0.52 0.2 17 / 0.4);
   ```
 
 - [ ] **Step 2: Tambah dark mode equivalents di `.dark` block**
 
   Di `src/app/globals.css`, dalam block `.dark` (sekitar baris 240+), tambahkan:
+
   ```css
   /* Member activity status */
   --status-active-text: oklch(0.72 0.16 145);
 
   /* Pass/fail row icons in training history */
-  --status-training-pass: oklch(0.70 0.16 145);
-  --status-training-fail: oklch(0.70 0.18 17);
+  --status-training-pass: oklch(0.7 0.16 145);
+  --status-training-fail: oklch(0.7 0.18 17);
 
   /* Warning indicator */
   --status-warning-icon: oklch(0.75 0.16 75);
 
   /* Gender radio button selected state (edit mode) */
-  --form-gender-selected-bg: oklch(0.52 0.20 17 / 0.12);
-  --form-gender-selected-border: oklch(0.65 0.20 17);
+  --form-gender-selected-bg: oklch(0.52 0.2 17 / 0.12);
+  --form-gender-selected-border: oklch(0.65 0.2 17);
   --form-gender-selected-text: oklch(0.75 0.16 17);
-  --form-gender-hover-border: oklch(0.65 0.20 17 / 0.40);
+  --form-gender-hover-border: oklch(0.65 0.2 17 / 0.4);
   ```
 
 - [ ] **Step 3: Commit**
@@ -238,6 +253,7 @@ Context: `globals.css` sudah punya `--status-suspended-*`, `--status-nonactive-*
 ### Task B2: Replace hardcoded OKLCH literals dengan CSS variables
 
 **Files:**
+
 - Modify: `src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-training-history/profile-training-history.tsx`
 - Modify: `src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/warning-tooltip/warning-tooltip.tsx`
 - Modify: `src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-info/profile-info.tsx`
@@ -246,12 +262,15 @@ Catatan: `profile-org-hierarchy.tsx` menggunakan inline OKLCH untuk warna org-le
 
 - [ ] **Step 1: Fix profile-training-history.tsx — icon pass/fail**
 
-  Di [profile-training-history.tsx:128](src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-training-history/profile-training-history.tsx#L128):
+  Di [profile-training-history.tsx:128](<src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-training-history/profile-training-history.tsx#L128>):
+
   ```diff
   - className='mx-auto size-4 text-[oklch(0.45_0.16_145)]'
   + className='mx-auto size-4 text-[var(--status-training-pass)]'
   ```
+
   Di baris 133:
+
   ```diff
   - className='mx-auto size-4 text-[oklch(0.55_0.18_17)]'
   + className='mx-auto size-4 text-[var(--status-training-fail)]'
@@ -259,7 +278,8 @@ Catatan: `profile-org-hierarchy.tsx` menggunakan inline OKLCH untuk warna org-le
 
 - [ ] **Step 2: Fix warning-tooltip.tsx — icon color**
 
-  Di [warning-tooltip.tsx:26](src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/warning-tooltip/warning-tooltip.tsx#L26):
+  Di [warning-tooltip.tsx:26](<src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/warning-tooltip/warning-tooltip.tsx#L26>):
+
   ```diff
   - className='size-3.5 text-[oklch(0.60_0.18_75)]'
   + className='size-3.5 text-[var(--status-warning-icon)]'
@@ -267,7 +287,8 @@ Catatan: `profile-org-hierarchy.tsx` menggunakan inline OKLCH untuk warna org-le
 
 - [ ] **Step 3: Fix profile-info.tsx — member status text colors**
 
-  Di [profile-info.tsx:79-82](src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-info/profile-info.tsx#L79):
+  Di [profile-info.tsx:79-82](<src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-info/profile-info.tsx#L79>):
+
   ```diff
   - if (member.isSuspended) return 'text-[oklch(0.50_0.18_17)]'
   - if (member.isNonActive) return 'text-[oklch(0.55_0.01_285)]'
@@ -281,7 +302,8 @@ Catatan: `profile-org-hierarchy.tsx` menggunakan inline OKLCH untuk warna org-le
 
 - [ ] **Step 4: Fix profile-info.tsx — gender radio selected state**
 
-  Di [profile-info.tsx:207-208](src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-info/profile-info.tsx#L207):
+  Di [profile-info.tsx:207-208](<src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-info/profile-info.tsx#L207>):
+
   ```diff
   - selectedGender === val
   -   ? 'border-[oklch(0.52_0.20_17)] bg-[oklch(0.52_0.20_17/0.08)] text-[oklch(0.42_0.18_17)]'
@@ -314,11 +336,13 @@ Catatan: `profile-org-hierarchy.tsx` menggunakan inline OKLCH untuk warna org-le
 ### Task C1: Tambah aria-label ke pass/fail icons di training history table
 
 **Files:**
+
 - Modify: `src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-training-history/profile-training-history.tsx`
 
 - [ ] **Step 1: Wrap icon dengan span sr-only untuk screen reader**
 
-  Di [profile-training-history.tsx:125-135](src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-training-history/profile-training-history.tsx#L125), ganti:
+  Di [profile-training-history.tsx:125-135](<src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-training-history/profile-training-history.tsx#L125>), ganti:
+
   ```diff
   - {record.isPassing ? (
   -   <HugeiconsIcon
@@ -366,11 +390,12 @@ Catatan: `profile-org-hierarchy.tsx` menggunakan inline OKLCH untuk warna org-le
 ### Task C2: Tambah copy-to-clipboard di credential dialog reset-password
 
 **Files:**
+
 - Modify: `src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/reset-password/reset-password-button.tsx`
 
 - [ ] **Step 1: Tambah CopyButton inline component dan gunakan di dialog**
 
-  Di [reset-password-button.tsx](src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/reset-password/reset-password-button.tsx), tambahkan setelah semua imports:
+  Di [reset-password-button.tsx](<src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/reset-password/reset-password-button.tsx>), tambahkan setelah semua imports:
 
   ```tsx
   const CopyButton = ({ value }: { value: string }) => {
@@ -388,7 +413,9 @@ Catatan: `profile-org-hierarchy.tsx` menggunakan inline OKLCH untuk warna org-le
         className='text-muted-foreground hover:text-foreground ml-auto shrink-0 transition-colors'
         aria-label={copied ? 'Tersalin' : 'Salin ke clipboard'}
       >
-        <span className='font-geist-mono text-xs'>{copied ? 'Tersalin!' : 'Salin'}</span>
+        <span className='font-geist-mono text-xs'>
+          {copied ? 'Tersalin!' : 'Salin'}
+        </span>
       </button>
     )
   }
@@ -436,6 +463,7 @@ Catatan: `profile-org-hierarchy.tsx` menggunakan inline OKLCH untuk warna org-le
 ### Task D1: Fix race condition di `profile-info.tsx` cascading useEffect
 
 **Files:**
+
 - Modify: `src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-info/profile-info.tsx`
 
 Context: Ada 4 `useEffect` yang memanggil Server Actions untuk cascading region data (province → city → district → subdistrict). Masalahnya: tidak ada AbortController atau cleanup, sehingga jika user mengganti province dengan cepat, response dari request sebelumnya bisa override state terbaru.
@@ -444,7 +472,8 @@ Solusi: Tambah cleanup function di setiap effect menggunakan flag `cancelled`.
 
 - [ ] **Step 1: Fix useEffect fetchProvincesAction — tambah cancelled flag**
 
-  Di [profile-info.tsx:110-117](src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-info/profile-info.tsx#L110), ganti:
+  Di [profile-info.tsx:110-117](<src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-info/profile-info.tsx#L110>), ganti:
+
   ```diff
   - useEffect(() => {
   -   if (!isEditing) return
@@ -469,7 +498,8 @@ Solusi: Tambah cleanup function di setiap effect menggunakan flag `cancelled`.
 
 - [ ] **Step 2: Fix useEffect fetchCitiesAction**
 
-  Di [profile-info.tsx:119-131](src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-info/profile-info.tsx#L119), ganti:
+  Di [profile-info.tsx:119-131](<src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-info/profile-info.tsx#L119>), ganti:
+
   ```diff
   - useEffect(() => {
   -   if (!province) {
@@ -504,7 +534,8 @@ Solusi: Tambah cleanup function di setiap effect menggunakan flag `cancelled`.
 
 - [ ] **Step 3: Fix useEffect fetchDistrictsAction**
 
-  Di [profile-info.tsx:133-144](src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-info/profile-info.tsx#L133), ganti:
+  Di [profile-info.tsx:133-144](<src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-info/profile-info.tsx#L133>), ganti:
+
   ```diff
   - useEffect(() => {
   -   if (!city) {
@@ -537,7 +568,8 @@ Solusi: Tambah cleanup function di setiap effect menggunakan flag `cancelled`.
 
 - [ ] **Step 4: Fix useEffect fetchVillagesAction**
 
-  Di [profile-info.tsx:146-155](src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-info/profile-info.tsx#L146), ganti:
+  Di [profile-info.tsx:146-155](<src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-info/profile-info.tsx#L146>), ganti:
+
   ```diff
   - useEffect(() => {
   -   if (!district) {
@@ -586,6 +618,7 @@ Solusi: Tambah cleanup function di setiap effect menggunakan flag `cancelled`.
 ### Task E1: Refactor `MembersPageTabs` dari render props ke children
 
 **Files:**
+
 - Modify: `src/app/(dashboard)/dashboard/kader/_components/members-page-tabs/members-page-tabs.tsx`
 - Modify: `src/app/(dashboard)/dashboard/kader/_components/MembersPageContent.tsx`
 
@@ -597,11 +630,13 @@ Context: `MembersPageTabs` saat ini pakai `renderSummary: () => ReactNode` dan `
   grep -n "MembersPageTabs\|renderSummary\|renderIndividuals" \
     /Users/radenpioneer/projects/kammi-id/.worktree/dev-20260104/src/app/\(dashboard\)/dashboard/kader/_components/MembersPageContent.tsx
   ```
+
   Perhatikan: kalau `MembersPageTabs` tidak dipakai (karena `MembersPageContent` sudah inline), skip Task E1 dan catat sebagai dead code.
 
 - [ ] **Step 2: Jika dipakai — update interface MembersPageTabs**
 
   Ganti seluruh isi `members-page-tabs.tsx`:
+
   ```tsx
   import Link from 'next/link'
   import {
@@ -653,10 +688,16 @@ Context: `MembersPageTabs` saat ini pakai `renderSummary: () => ReactNode` dan `
               Daftar Kader
             </TabsTrigger>
           </TabsList>
-          <TabsContent value='kader' className='m-0 border-none p-0 outline-none'>
+          <TabsContent
+            value='kader'
+            className='m-0 border-none p-0 outline-none'
+          >
             {summaryContent}
           </TabsContent>
-          <TabsContent value='individuals' className='m-0 border-none p-0 outline-none'>
+          <TabsContent
+            value='individuals'
+            className='m-0 border-none p-0 outline-none'
+          >
             {individualsContent}
           </TabsContent>
         </Tabs>
@@ -675,6 +716,7 @@ Context: `MembersPageTabs` saat ini pakai `renderSummary: () => ReactNode` dan `
 - [ ] **Step 3: Update callsite di MembersPageContent**
 
   Cari semua tempat `MembersPageTabs` dipanggil dan update prop names:
+
   ```diff
   - <MembersPageTabs
   -   renderSummary={renderSummary}
@@ -695,6 +737,7 @@ Context: `MembersPageTabs` saat ini pakai `renderSummary: () => ReactNode` dan `
   ```bash
   cd /Users/radenpioneer/projects/kammi-id/.worktree/dev-20260104 && bun run typecheck 2>&1 | head -20
   ```
+
   Expected: 0 new errors.
 
 - [ ] **Step 5: Commit**
@@ -713,6 +756,7 @@ Context: `MembersPageTabs` saat ini pakai `renderSummary: () => ReactNode` dan `
 ### Task F1: Buat `ProfileEditContext` dan `ProfileEditProvider`
 
 **Files:**
+
 - Create: `src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-edit-context/profile-edit-context.tsx`
 - Create: `src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-edit-context/index.ts`
 
@@ -721,6 +765,7 @@ Context: Saat ini `isEditing`, `canEdit`, `isPending`, dan `fieldErrors` di-prop
 - [ ] **Step 1: Buat context file**
 
   Buat `src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-edit-context/profile-edit-context.tsx`:
+
   ```tsx
   'use client'
 
@@ -739,11 +784,13 @@ Context: Saat ini `isEditing`, `canEdit`, `isPending`, dan `fieldErrors` di-prop
     cancelEditing: () => void
   }
 
-  export const ProfileEditContext = createContext<ProfileEditContextValue | null>(null)
+  export const ProfileEditContext =
+    createContext<ProfileEditContextValue | null>(null)
 
   export const useProfileEdit = (): ProfileEditContextValue => {
     const ctx = use(ProfileEditContext)
-    if (!ctx) throw new Error('useProfileEdit must be used within ProfileEditProvider')
+    if (!ctx)
+      throw new Error('useProfileEdit must be used within ProfileEditProvider')
     return ctx
   }
   ```
@@ -751,6 +798,7 @@ Context: Saat ini `isEditing`, `canEdit`, `isPending`, dan `fieldErrors` di-prop
 - [ ] **Step 2: Buat barrel index.ts**
 
   Buat `src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-edit-context/index.ts`:
+
   ```ts
   export * from './profile-edit-context'
   ```
@@ -767,11 +815,13 @@ Context: Saat ini `isEditing`, `canEdit`, `isPending`, dan `fieldErrors` di-prop
 ### Task F2: Refactor `ProfileInlineEditForm` menjadi provider + layout
 
 **Files:**
+
 - Modify: `src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-inline-edit-form/profile-inline-edit-form.tsx`
 
 - [ ] **Step 1: Rewrite ProfileInlineEditForm untuk expose context**
 
   Ganti seluruh isi `profile-inline-edit-form.tsx`:
+
   ```tsx
   'use client'
 
@@ -884,6 +934,7 @@ Context: Saat ini `isEditing`, `canEdit`, `isPending`, dan `fieldErrors` di-prop
 ### Task F3: Update `ProfileHeader` — consume context, hapus props yang tidak perlu
 
 **Files:**
+
 - Modify: `src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-header/profile-header.tsx`
 
 - [ ] **Step 1: Rewrite ProfileHeader untuk pakai useProfileEdit**
@@ -932,27 +983,53 @@ Context: Saat ini `isEditing`, `canEdit`, `isPending`, dan `fieldErrors` di-prop
   }
 
   export const ProfileHeader = ({ adminActionsSlot }: ProfileHeaderProps) => {
-    const { member, trainingHistory, canEdit, isEditing, isPending, startEditing, cancelEditing } = useProfileEdit()
+    const {
+      member,
+      trainingHistory,
+      canEdit,
+      isEditing,
+      isPending,
+      startEditing,
+      cancelEditing
+    } = useProfileEdit()
 
     const requiredDm = statusRequiredDm[member.status]
     const hasDm = requiredDm
-      ? (trainingHistory?.asAttendant.some((r) => r.type === requiredDm) ?? false)
+      ? (trainingHistory?.asAttendant.some((r) => r.type === requiredDm) ??
+        false)
       : true
 
-    const editSlot = canEdit && !isEditing ? (
-      <Button variant='outline' size='sm' type='button' onClick={startEditing}>
-        <HugeiconsIcon icon={PencilEdit01Icon} className='mr-1.5 size-3.5' />
-        Edit Profil
-      </Button>
-    ) : null
+    const editSlot =
+      canEdit && !isEditing ? (
+        <Button
+          variant='outline'
+          size='sm'
+          type='button'
+          onClick={startEditing}
+        >
+          <HugeiconsIcon icon={PencilEdit01Icon} className='mr-1.5 size-3.5' />
+          Edit Profil
+        </Button>
+      ) : null
 
     const editActionsSlot = isEditing ? (
       <div className='flex items-center gap-2'>
-        <Button variant='outline' size='sm' type='button' onClick={cancelEditing} disabled={isPending}>
+        <Button
+          variant='outline'
+          size='sm'
+          type='button'
+          onClick={cancelEditing}
+          disabled={isPending}
+        >
           <HugeiconsIcon icon={Cancel01Icon} className='mr-1.5 size-3.5' />
           Reset
         </Button>
-        <Button size='sm' type='submit' form='profile-edit-form' disabled={isPending}>
+        <Button
+          size='sm'
+          type='submit'
+          form='profile-edit-form'
+          disabled={isPending}
+        >
           <HugeiconsIcon icon={FloppyDiskIcon} className='mr-1.5 size-3.5' />
           {isPending ? 'Menyimpan...' : 'Simpan Profil'}
         </Button>
@@ -1032,11 +1109,13 @@ Context: Saat ini `isEditing`, `canEdit`, `isPending`, dan `fieldErrors` di-prop
 ### Task F4: Update `ProfileAvatar` — consume context
 
 **Files:**
+
 - Modify: `src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-avatar/profile-avatar.tsx`
 
 - [ ] **Step 1: Hapus props interface, consume context via useProfileEdit**
 
   Ganti props interface dan destructuring:
+
   ```diff
   - interface ProfileAvatarProps {
   -   name: string
@@ -1079,11 +1158,13 @@ Context: Saat ini `isEditing`, `canEdit`, `isPending`, dan `fieldErrors` di-prop
 ### Task F5: Update `ProfileInfo` — consume context, hapus props
 
 **Files:**
+
 - Modify: `src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-info/profile-info.tsx`
 
 - [ ] **Step 1: Hapus props interface, consume context**
 
   Ganti:
+
   ```diff
   - interface ProfileInfoProps {
   -   member: Member
@@ -1123,6 +1204,7 @@ Context: Saat ini `isEditing`, `canEdit`, `isPending`, dan `fieldErrors` di-prop
 ### Task F6: Update `ProfileSidebar` — consume context, hapus props
 
 **Files:**
+
 - Modify: `src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-sidebar/profile-sidebar.tsx`
 
 - [ ] **Step 1: Hapus props, consume context**
@@ -1172,6 +1254,7 @@ Context: Saat ini `isEditing`, `canEdit`, `isPending`, dan `fieldErrors` di-prop
 ### Task F7: Update `ProfileTrainingHistory` — consume context, hapus props
 
 **Files:**
+
 - Modify: `src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-training-history/profile-training-history.tsx`
 
 - [ ] **Step 1: Hapus props, consume context**
@@ -1212,6 +1295,7 @@ Context: Saat ini `isEditing`, `canEdit`, `isPending`, dan `fieldErrors` di-prop
   ```bash
   cd /Users/radenpioneer/projects/kammi-id/.worktree/dev-20260104 && bun run typecheck 2>&1
   ```
+
   Expected: 0 errors.
 
 - [ ] **Step 2: Build check**
@@ -1219,6 +1303,7 @@ Context: Saat ini `isEditing`, `canEdit`, `isPending`, dan `fieldErrors` di-prop
   ```bash
   cd /Users/radenpioneer/projects/kammi-id/.worktree/dev-20260104 && bun run build 2>&1 | tail -20
   ```
+
   Expected: Build succeeds dengan 0 errors.
 
 - [ ] **Step 3: Check Next.js DevTools untuk errors**

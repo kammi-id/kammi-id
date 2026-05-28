@@ -16,35 +16,36 @@
 
 ### New Files
 
-| File | Tanggung Jawab |
-|------|----------------|
-| `src/components/credential-store/store.ts` | Nanostores persistent atom untuk credential per org |
-| `src/components/credential-store/credential-panel.tsx` | Panel UI (Sheet/Drawer) — list, download CSV, hapus |
-| `src/components/credential-store/index.ts` | Barrel export |
-| `src/app/(dashboard)/dashboard/kader/_components/bulk-upload/bulk-upload-utils.ts` | Parse XLSX + Zod validate baris |
-| `src/app/(dashboard)/dashboard/kader/_components/bulk-upload/action.ts` | `bulkCreateMembersAction` server action |
-| `src/app/(dashboard)/dashboard/kader/_components/bulk-upload/bulk-upload-preview.tsx` | Editable preview table |
-| `src/app/(dashboard)/dashboard/kader/_components/bulk-upload/bulk-upload-dialog.tsx` | Dialog wrapper: upload → preview → submit |
-| `src/app/(dashboard)/dashboard/kader/_components/bulk-upload/index.ts` | Barrel export |
-| `src/app/(dashboard)/dashboard/trainings/_components/training-detail-view/dm1-bulk-upload-button.tsx` | Tombol "Import Peserta" di DM1 detail view |
-| `src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/reset-password/action.ts` | `regenerateCredentialAction` server action |
-| `src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/reset-password/reset-password-button.tsx` | Tombol + confirmation dialog |
-| `src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/reset-password/index.ts` | Barrel export |
+| File                                                                                                          | Tanggung Jawab                                      |
+| ------------------------------------------------------------------------------------------------------------- | --------------------------------------------------- |
+| `src/components/credential-store/store.ts`                                                                    | Nanostores persistent atom untuk credential per org |
+| `src/components/credential-store/credential-panel.tsx`                                                        | Panel UI (Sheet/Drawer) — list, download CSV, hapus |
+| `src/components/credential-store/index.ts`                                                                    | Barrel export                                       |
+| `src/app/(dashboard)/dashboard/kader/_components/bulk-upload/bulk-upload-utils.ts`                            | Parse XLSX + Zod validate baris                     |
+| `src/app/(dashboard)/dashboard/kader/_components/bulk-upload/action.ts`                                       | `bulkCreateMembersAction` server action             |
+| `src/app/(dashboard)/dashboard/kader/_components/bulk-upload/bulk-upload-preview.tsx`                         | Editable preview table                              |
+| `src/app/(dashboard)/dashboard/kader/_components/bulk-upload/bulk-upload-dialog.tsx`                          | Dialog wrapper: upload → preview → submit           |
+| `src/app/(dashboard)/dashboard/kader/_components/bulk-upload/index.ts`                                        | Barrel export                                       |
+| `src/app/(dashboard)/dashboard/trainings/_components/training-detail-view/dm1-bulk-upload-button.tsx`         | Tombol "Import Peserta" di DM1 detail view          |
+| `src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/reset-password/action.ts`                 | `regenerateCredentialAction` server action          |
+| `src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/reset-password/reset-password-button.tsx` | Tombol + confirmation dialog                        |
+| `src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/reset-password/index.ts`                  | Barrel export                                       |
 
 ### Modified Files
 
-| File | Perubahan |
-|------|-----------|
-| `src/app/(dashboard)/dashboard/_components/site-header/site-header.tsx` | Tambah `<CredentialPanel />` di kanan header |
-| `src/app/(dashboard)/dashboard/kader/_components/MembersPageContent.tsx` | Tambah `<BulkUploadDialog>` di area header (BPK only) |
-| `src/app/(dashboard)/dashboard/trainings/_components/training-detail-view/training-detail-view.tsx` | Tambah `<DM1BulkUploadButton>` di samping DM1AddForm |
-| `src/app/(dashboard)/dashboard/profile/[registerNumber]/page.tsx` | Pass `memberId`, `registerNumber`, `userRole`, `orgId` ke `<ResetPasswordButton>` |
+| File                                                                                                | Perubahan                                                                         |
+| --------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| `src/app/(dashboard)/dashboard/_components/site-header/site-header.tsx`                             | Tambah `<CredentialPanel />` di kanan header                                      |
+| `src/app/(dashboard)/dashboard/kader/_components/MembersPageContent.tsx`                            | Tambah `<BulkUploadDialog>` di area header (BPK only)                             |
+| `src/app/(dashboard)/dashboard/trainings/_components/training-detail-view/training-detail-view.tsx` | Tambah `<DM1BulkUploadButton>` di samping DM1AddForm                              |
+| `src/app/(dashboard)/dashboard/profile/[registerNumber]/page.tsx`                                   | Pass `memberId`, `registerNumber`, `userRole`, `orgId` ke `<ResetPasswordButton>` |
 
 ---
 
 ## Task 1: Credential Store (Nanostores Persistent)
 
 **Files:**
+
 - Create: `src/components/credential-store/store.ts`
 - Create: `src/components/credential-store/index.ts`
 
@@ -117,6 +118,7 @@ git commit -m "feat(credential-store): add nanostores persistent credential stor
 ## Task 2: Credential Panel UI
 
 **Files:**
+
 - Create: `src/components/credential-store/credential-panel.tsx`
 
 - [ ] **Step 1: Buat CredentialPanel komponen**
@@ -153,7 +155,11 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger
 } from '~/components/shadcn/ui/alert-dialog'
-import { credentialStore, clearCredentials, type CredentialEntry } from './store'
+import {
+  credentialStore,
+  clearCredentials,
+  type CredentialEntry
+} from './store'
 
 interface CredentialPanelProps {
   organizationId: string
@@ -164,8 +170,7 @@ const downloadCSV = (entries: CredentialEntry[], orgSlug: string) => {
   const date = new Date().toISOString().slice(0, 10)
   const header = 'Nama,NIK (Username),Password,Tanggal Generate'
   const rows = entries.map(
-    (e) =>
-      `"${e.name}","${e.registerNumber}","${e.password}","${e.createdAt}"`
+    (e) => `"${e.name}","${e.registerNumber}","${e.password}","${e.createdAt}"`
   )
   const csv = [header, ...rows].join('\n')
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
@@ -219,22 +224,30 @@ export const CredentialPanel = ({
                   variant='outline'
                   onClick={() => downloadCSV(entries, orgSlug)}
                 >
-                  <HugeiconsIcon icon={Download04Icon} className='mr-2 size-3.5' />
+                  <HugeiconsIcon
+                    icon={Download04Icon}
+                    className='mr-2 size-3.5'
+                  />
                   Download CSV
                 </Button>
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <Button size='sm' variant='destructive'>
-                      <HugeiconsIcon icon={Delete02Icon} className='mr-2 size-3.5' />
+                      <HugeiconsIcon
+                        icon={Delete02Icon}
+                        className='mr-2 size-3.5'
+                      />
                       Hapus Semua
                     </Button>
                   </AlertDialogTrigger>
                   <AlertDialogContent>
                     <AlertDialogHeader>
-                      <AlertDialogTitle>Hapus semua credential?</AlertDialogTitle>
+                      <AlertDialogTitle>
+                        Hapus semua credential?
+                      </AlertDialogTitle>
                       <AlertDialogDescription>
-                        Data credential yang tersimpan di perangkat ini akan dihapus.
-                        Aksi ini tidak bisa dibatalkan.
+                        Data credential yang tersimpan di perangkat ini akan
+                        dihapus. Aksi ini tidak bisa dibatalkan.
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
@@ -256,7 +269,9 @@ export const CredentialPanel = ({
                   <tr>
                     <th className='px-3 py-2 text-left font-medium'>Nama</th>
                     <th className='px-3 py-2 text-left font-medium'>NIK</th>
-                    <th className='px-3 py-2 text-left font-medium'>Password</th>
+                    <th className='px-3 py-2 text-left font-medium'>
+                      Password
+                    </th>
                     <th className='px-3 py-2 text-left font-medium'>Tanggal</th>
                   </tr>
                 </thead>
@@ -264,8 +279,12 @@ export const CredentialPanel = ({
                   {entries.map((entry) => (
                     <tr key={entry.registerNumber} className='border-t'>
                       <td className='px-3 py-2'>{entry.name}</td>
-                      <td className='px-3 py-2 font-mono text-xs'>{entry.registerNumber}</td>
-                      <td className='px-3 py-2 font-mono text-xs'>{entry.password}</td>
+                      <td className='px-3 py-2 font-mono text-xs'>
+                        {entry.registerNumber}
+                      </td>
+                      <td className='px-3 py-2 font-mono text-xs'>
+                        {entry.password}
+                      </td>
                       <td className='px-3 py-2 text-xs'>
                         {new Date(entry.createdAt).toLocaleDateString('id-ID')}
                       </td>
@@ -296,6 +315,7 @@ git commit -m "feat(credential-store): add CredentialPanel sheet UI"
 ## Task 3: Tambah CredentialPanel ke SiteHeader
 
 **Files:**
+
 - Modify: `src/app/(dashboard)/dashboard/_components/site-header/site-header.tsx`
 
 > **Context:** SiteHeader adalah client component. Perlu membaca `organizationId` dan `orgSlug` dari session — tapi SiteHeader saat ini tidak punya akses session. Solusi: tambahkan `CredentialPanelWrapper` sebagai Server Component yang fetch session lalu render `CredentialPanel`, kemudian import ke SiteHeader via slot atau langsung dari layout.
@@ -349,7 +369,9 @@ export const SiteHeader = () => {
           orientation='vertical'
           className='mx-2 h-4 data-vertical:self-auto'
         />
-        <span className='flex-1 text-base font-medium'>{getLabel(pathname)}</span>
+        <span className='flex-1 text-base font-medium'>
+          {getLabel(pathname)}
+        </span>
         <CredentialPanelServer />
       </div>
     </header>
@@ -375,8 +397,13 @@ export const SiteHeader = ({ rightSlot }: SiteHeaderProps) => {
     <header className='flex h-(--header-height) shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)'>
       <div className='flex w-full items-center gap-1 px-4 lg:gap-2 lg:px-6'>
         <SidebarTrigger className='-ml-1' />
-        <Separator orientation='vertical' className='mx-2 h-4 data-vertical:self-auto' />
-        <span className='flex-1 text-base font-medium'>{getLabel(pathname)}</span>
+        <Separator
+          orientation='vertical'
+          className='mx-2 h-4 data-vertical:self-auto'
+        />
+        <span className='flex-1 text-base font-medium'>
+          {getLabel(pathname)}
+        </span>
         {rightSlot}
       </div>
     </header>
@@ -391,7 +418,7 @@ Lalu di `DashboardLayout`:
 import { CredentialPanelServer } from './_components/site-header/credential-panel-server'
 
 // Di dalam DashboardLayout, ubah SiteHeader menjadi:
-<SiteHeader rightSlot={<CredentialPanelServer />} />
+;<SiteHeader rightSlot={<CredentialPanelServer />} />
 ```
 
 - [ ] **Step 4: Commit**
@@ -407,6 +434,7 @@ git commit -m "feat(credential-store): tambah CredentialPanel ke site header"
 ## Task 4: Bulk Upload Utilities (Parse + Validate)
 
 **Files:**
+
 - Create: `src/app/(dashboard)/dashboard/kader/_components/bulk-upload/bulk-upload-utils.ts`
 
 - [ ] **Step 1: Buat utility file**
@@ -421,7 +449,9 @@ export const BulkMemberRowSchema = z.object({
   gender: z
     .string()
     .transform((v) => v.toLowerCase().trim())
-    .pipe(z.enum(['ikhwan', 'akhwat'], { message: 'Harus "ikhwan" atau "akhwat"' })),
+    .pipe(
+      z.enum(['ikhwan', 'akhwat'], { message: 'Harus "ikhwan" atau "akhwat"' })
+    ),
   yearOfEntry: z.coerce
     .number({ invalid_type_error: 'Tahun masuk harus angka' })
     .min(1998, 'Minimal 1998')
@@ -454,9 +484,7 @@ export const parseXLSXFile = (file: File): Promise<ParsedRow[]> => {
         const parsed: ParsedRow[] = rows.map((row, index) => {
           const normalized = {
             name: String(row['Nama'] ?? row['name'] ?? '').trim(),
-            gender: String(
-              row['Jenis Kelamin'] ?? row['gender'] ?? ''
-            ).trim(),
+            gender: String(row['Jenis Kelamin'] ?? row['gender'] ?? '').trim(),
             yearOfEntry:
               row['Tahun Masuk'] ?? row['yearOfEntry'] ?? row['year_of_entry'],
             phone: String(row['No HP'] ?? row['phone'] ?? '').trim() || null
@@ -523,6 +551,7 @@ git commit -m "feat(bulk-upload): add XLSX parse + Zod validation utilities"
 ## Task 5: Bulk Upload Server Action
 
 **Files:**
+
 - Create: `src/app/(dashboard)/dashboard/kader/_components/bulk-upload/action.ts`
 
 - [ ] **Step 1: Buat server action**
@@ -657,7 +686,9 @@ export const bulkCreateMembersAction = async (
     return {
       success: false,
       message:
-        err instanceof Error ? err.message : 'Gagal menambahkan kader secara massal',
+        err instanceof Error
+          ? err.message
+          : 'Gagal menambahkan kader secara massal',
       errors
     }
   }
@@ -697,6 +728,7 @@ git commit -m "feat(bulk-upload): add bulkCreateMembersAction server action"
 ## Task 6: Bulk Upload Preview Table (Editable)
 
 **Files:**
+
 - Create: `src/app/(dashboard)/dashboard/kader/_components/bulk-upload/bulk-upload-preview.tsx`
 
 - [ ] **Step 1: Buat preview table**
@@ -737,7 +769,10 @@ const revalidateRow = (row: ParsedRow): ParsedRow => {
   return { ...row, errors, valid: false }
 }
 
-export const BulkUploadPreview = ({ rows, onChange }: BulkUploadPreviewProps) => {
+export const BulkUploadPreview = ({
+  rows,
+  onChange
+}: BulkUploadPreviewProps) => {
   const updateRow = (index: number, field: string, value: unknown) => {
     const updated = rows.map((row) => {
       if (row.index !== index) return row
@@ -760,7 +795,9 @@ export const BulkUploadPreview = ({ rows, onChange }: BulkUploadPreviewProps) =>
           <Badge variant='destructive'>{errorCount} baris error</Badge>
         )}
         {errorCount === 0 && (
-          <Badge variant='default' className='bg-green-600'>Semua valid</Badge>
+          <Badge variant='default' className='bg-green-600'>
+            Semua valid
+          </Badge>
         )}
       </div>
 
@@ -770,7 +807,9 @@ export const BulkUploadPreview = ({ rows, onChange }: BulkUploadPreviewProps) =>
             <tr>
               <th className='px-3 py-2 text-left font-medium'>#</th>
               <th className='px-3 py-2 text-left font-medium'>Nama *</th>
-              <th className='px-3 py-2 text-left font-medium'>Jenis Kelamin *</th>
+              <th className='px-3 py-2 text-left font-medium'>
+                Jenis Kelamin *
+              </th>
               <th className='px-3 py-2 text-left font-medium'>Tahun Masuk *</th>
               <th className='px-3 py-2 text-left font-medium'>No HP</th>
             </tr>
@@ -781,20 +820,24 @@ export const BulkUploadPreview = ({ rows, onChange }: BulkUploadPreviewProps) =>
                 key={row.index}
                 className={cn('border-t', !row.valid && 'bg-destructive/5')}
               >
-                <td className='px-3 py-2 text-xs text-muted-foreground'>
+                <td className='text-muted-foreground px-3 py-2 text-xs'>
                   {row.index + 1}
                 </td>
                 <td className='px-3 py-1.5'>
                   <Input
                     value={String(row.data.name ?? '')}
-                    onChange={(e) => updateRow(row.index, 'name', e.target.value)}
+                    onChange={(e) =>
+                      updateRow(row.index, 'name', e.target.value)
+                    }
                     className={cn(
                       'h-7 text-xs',
                       row.errors.name && 'border-destructive'
                     )}
                   />
                   {row.errors.name && (
-                    <p className='mt-0.5 text-xs text-destructive'>{row.errors.name}</p>
+                    <p className='text-destructive mt-0.5 text-xs'>
+                      {row.errors.name}
+                    </p>
                   )}
                 </td>
                 <td className='px-3 py-1.5'>
@@ -816,7 +859,9 @@ export const BulkUploadPreview = ({ rows, onChange }: BulkUploadPreviewProps) =>
                     </SelectContent>
                   </Select>
                   {row.errors.gender && (
-                    <p className='mt-0.5 text-xs text-destructive'>{row.errors.gender}</p>
+                    <p className='text-destructive mt-0.5 text-xs'>
+                      {row.errors.gender}
+                    </p>
                   )}
                 </td>
                 <td className='px-3 py-1.5'>
@@ -826,7 +871,11 @@ export const BulkUploadPreview = ({ rows, onChange }: BulkUploadPreviewProps) =>
                     max={currentYear}
                     value={String(row.data.yearOfEntry ?? '')}
                     onChange={(e) =>
-                      updateRow(row.index, 'yearOfEntry', Number(e.target.value))
+                      updateRow(
+                        row.index,
+                        'yearOfEntry',
+                        Number(e.target.value)
+                      )
                     }
                     className={cn(
                       'h-7 w-24 text-xs',
@@ -834,7 +883,7 @@ export const BulkUploadPreview = ({ rows, onChange }: BulkUploadPreviewProps) =>
                     )}
                   />
                   {row.errors.yearOfEntry && (
-                    <p className='mt-0.5 text-xs text-destructive'>
+                    <p className='text-destructive mt-0.5 text-xs'>
                       {row.errors.yearOfEntry}
                     </p>
                   )}
@@ -871,6 +920,7 @@ git commit -m "feat(bulk-upload): add editable preview table with inline validat
 ## Task 7: Bulk Upload Dialog
 
 **Files:**
+
 - Create: `src/app/(dashboard)/dashboard/kader/_components/bulk-upload/bulk-upload-dialog.tsx`
 - Create: `src/app/(dashboard)/dashboard/kader/_components/bulk-upload/index.ts`
 
@@ -897,8 +947,15 @@ import {
   DialogTrigger,
   DialogFooter
 } from '~/components/shadcn/ui/dialog'
-import { appendCredentials, type CredentialEntry } from '~/components/credential-store/store'
-import { parseXLSXFile, generateTemplate, type ParsedRow } from './bulk-upload-utils'
+import {
+  appendCredentials,
+  type CredentialEntry
+} from '~/components/credential-store/store'
+import {
+  parseXLSXFile,
+  generateTemplate,
+  type ParsedRow
+} from './bulk-upload-utils'
 import { bulkCreateMembersAction } from './action'
 import { BulkUploadPreview } from './bulk-upload-preview'
 
@@ -1018,7 +1075,8 @@ export const BulkUploadDialog = ({
 
           {rows.length === 0 && (
             <p className='text-muted-foreground text-sm'>
-              Upload file XLSX untuk memulai. Gunakan template agar format kolom sesuai.
+              Upload file XLSX untuk memulai. Gunakan template agar format kolom
+              sesuai.
             </p>
           )}
         </div>
@@ -1038,7 +1096,9 @@ export const BulkUploadDialog = ({
                 className='mr-2 size-3.5 animate-spin'
               />
             ) : null}
-            {isPending ? 'Menyimpan...' : `Import ${rows.filter((r) => r.valid).length} Kader`}
+            {isPending
+              ? 'Menyimpan...'
+              : `Import ${rows.filter((r) => r.valid).length} Kader`}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -1066,6 +1126,7 @@ git commit -m "feat(bulk-upload): add BulkUploadDialog with file upload + previe
 ## Task 8: Integrasikan BulkUploadDialog ke Halaman Kader
 
 **Files:**
+
 - Modify: `src/app/(dashboard)/dashboard/kader/_components/MembersPageContent.tsx`
 
 - [ ] **Step 1: Tambah import dan render `BulkUploadDialog`**
@@ -1081,11 +1142,13 @@ import { BulkUploadDialog } from './bulk-upload'
 Lalu di dalam JSX, setelah `<MembersPageHeader ... />`, tambahkan:
 
 ```tsx
-{user.role === 'bpk' && currentOrg && (
-  <div className='flex justify-end'>
-    <BulkUploadDialog organizationId={currentOrg.id} />
-  </div>
-)}
+{
+  user.role === 'bpk' && currentOrg && (
+    <div className='flex justify-end'>
+      <BulkUploadDialog organizationId={currentOrg.id} />
+    </div>
+  )
+}
 ```
 
 - [ ] **Step 2: Commit**
@@ -1100,6 +1163,7 @@ git commit -m "feat(bulk-upload): tambah Import XLSX button di halaman kader"
 ## Task 9: Integrasikan DM1 Bulk Upload ke Training Detail View
 
 **Files:**
+
 - Create: `src/app/(dashboard)/dashboard/trainings/_components/training-detail-view/dm1-bulk-upload-button.tsx`
 - Modify: `src/app/(dashboard)/dashboard/trainings/_components/training-detail-view/training-detail-view.tsx`
 
@@ -1121,10 +1185,7 @@ export const DM1BulkUploadButton = ({
   organizationId
 }: DM1BulkUploadButtonProps) => {
   return (
-    <BulkUploadDialog
-      organizationId={organizationId}
-      trainingId={trainingId}
-    />
+    <BulkUploadDialog organizationId={organizationId} trainingId={trainingId} />
   )
 }
 ```
@@ -1137,12 +1198,14 @@ Di `training-detail-view.tsx`, cari area di mana `<DM1AddForm>` di-render. Tamba
 import { DM1BulkUploadButton } from './dm1-bulk-upload-button'
 
 // Di dalam JSX, cari tempat DM1AddForm di-render, lalu tambahkan:
-{training.type === 'dm1' && canManage && (
-  <DM1BulkUploadButton
-    trainingId={training.id}
-    organizationId={training.organizationId}
-  />
-)}
+{
+  training.type === 'dm1' && canManage && (
+    <DM1BulkUploadButton
+      trainingId={training.id}
+      organizationId={training.organizationId}
+    />
+  )
+}
 ```
 
 - [ ] **Step 3: Commit**
@@ -1158,6 +1221,7 @@ git commit -m "feat(bulk-upload): tambah Import Peserta di halaman detail DM1"
 ## Task 10: Regenerate Credential Server Action
 
 **Files:**
+
 - Create: `src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/reset-password/action.ts`
 
 - [ ] **Step 1: Buat action**
@@ -1211,7 +1275,10 @@ export const regenerateCredentialAction = async (
 
   const inScope = await isOrgInScope(user, memberRow.organizationId)
   if (!inScope) {
-    return { success: false, message: 'Kader ini bukan dalam scope organisasi antum' }
+    return {
+      success: false,
+      message: 'Kader ini bukan dalam scope organisasi antum'
+    }
   }
 
   const [userRow] = await db
@@ -1255,6 +1322,7 @@ git commit -m "feat(credential-store): add regenerateCredentialAction server act
 ## Task 11: Reset Password Button UI
 
 **Files:**
+
 - Create: `src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/reset-password/reset-password-button.tsx`
 - Create: `src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/reset-password/index.ts`
 - Modify: `src/app/(dashboard)/dashboard/profile/[registerNumber]/page.tsx`
@@ -1287,7 +1355,10 @@ import {
   DialogHeader,
   DialogTitle
 } from '~/components/shadcn/ui/dialog'
-import { appendCredentials, type CredentialEntry } from '~/components/credential-store/store'
+import {
+  appendCredentials,
+  type CredentialEntry
+} from '~/components/credential-store/store'
 import { regenerateCredentialAction } from './action'
 
 interface ResetPasswordButtonProps {
@@ -1351,7 +1422,8 @@ export const ResetPasswordButton = ({
             <AlertDialogTitle>Reset password kader ini?</AlertDialogTitle>
             <AlertDialogDescription>
               Password lama kader ini akan langsung tidak berlaku dan diganti
-              dengan yang baru. Password baru akan tersimpan di Credential Panel.
+              dengan yang baru. Password baru akan tersimpan di Credential
+              Panel.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -1372,11 +1444,15 @@ export const ResetPasswordButton = ({
             <div className='space-y-3 rounded-lg border p-4'>
               <div>
                 <p className='text-muted-foreground text-xs'>NIK (Username)</p>
-                <p className='font-mono font-medium'>{newCredential.registerNumber}</p>
+                <p className='font-mono font-medium'>
+                  {newCredential.registerNumber}
+                </p>
               </div>
               <div>
                 <p className='text-muted-foreground text-xs'>Password Baru</p>
-                <p className='font-mono font-medium'>{newCredential.password}</p>
+                <p className='font-mono font-medium'>
+                  {newCredential.password}
+                </p>
               </div>
               <p className='text-muted-foreground text-xs'>
                 Credential ini juga sudah tersimpan di Credential Panel.
@@ -1406,14 +1482,16 @@ Buka `src/app/(dashboard)/dashboard/profile/[registerNumber]/page.tsx`. Tambahka
 import { ResetPasswordButton } from './_components/reset-password'
 
 // Di dalam ProfilePage return, setelah ProfileInlineEditForm:
-{userCanEdit && session?.user.role === 'bpk' && (
-  <div className='px-4 py-2 md:px-6 md:py-4'>
-    <ResetPasswordButton
-      memberId={member.id}
-      organizationId={member.organizationId}
-    />
-  </div>
-)}
+{
+  userCanEdit && session?.user.role === 'bpk' && (
+    <div className='px-4 py-2 md:px-6 md:py-4'>
+      <ResetPasswordButton
+        memberId={member.id}
+        organizationId={member.organizationId}
+      />
+    </div>
+  )
+}
 ```
 
 > **Catatan:** `session` sudah di-destructure di atas, tapi `member.organizationId` perlu dipastikan — cek type `Member` dari `~/db/query/member`. Berdasarkan `withMemberCTE`, field `organizationId` tersedia.

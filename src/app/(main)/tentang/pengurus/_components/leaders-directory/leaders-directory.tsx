@@ -12,7 +12,7 @@ const Monogram = ({ name }: { name: string }) => {
     .join('')
 
   return (
-    <div className='flex h-full w-full items-center justify-center bg-muted text-lg font-semibold text-muted-foreground'>
+    <div className='bg-muted text-muted-foreground flex h-full w-full items-center justify-center text-lg font-semibold'>
       {initials || '?'}
     </div>
   )
@@ -21,7 +21,7 @@ const Monogram = ({ name }: { name: string }) => {
 const MemberCard = async ({
   name,
   role,
-  photoUrl,
+  photoUrl
 }: {
   name: string
   role: string
@@ -32,7 +32,7 @@ const MemberCard = async ({
   return (
     <div className='group flex flex-col'>
       {/* Photo frame — top padding shows bg-muted as a subtle top border */}
-      <div className='relative w-full overflow-hidden rounded-xl bg-muted aspect-[3/4] pt-2'>
+      <div className='bg-muted relative aspect-[3/4] w-full overflow-hidden rounded-xl pt-2'>
         {photoSrc ? (
           <div className='absolute inset-0 top-2'>
             <Image
@@ -57,7 +57,7 @@ const MemberCard = async ({
           {role}
         </p>
         <p
-          className='line-clamp-2 text-sm font-semibold leading-snug text-foreground lg:text-base'
+          className='text-foreground line-clamp-2 text-sm leading-snug font-semibold lg:text-base'
           title={name}
         >
           {name}
@@ -74,10 +74,10 @@ const BlockSection = async ({ block }: { block: LeaderBlock }) => {
     <div className='space-y-8'>
       {block.title && (
         <div className='flex flex-col items-center gap-3'>
-          <h3 className='font-heading text-center text-xl font-bold tracking-tight text-foreground'>
+          <h3 className='font-heading text-foreground text-center text-xl font-bold tracking-tight'>
             {block.title}
           </h3>
-          <div className='h-px w-10 rounded-full bg-primary/40' />
+          <div className='bg-primary/40 h-px w-10 rounded-full' />
         </div>
       )}
       <div className='flex flex-wrap justify-center gap-x-4 gap-y-8'>
@@ -111,7 +111,7 @@ export const LeadersDirectory = async () => {
     <section
       id='jajaran-pengurus'
       aria-label='Jajaran Pengurus'
-      className='bg-background border-t border-border px-6 pt-20 pb-16 lg:px-8 lg:pt-28 lg:pb-20'
+      className='bg-background border-border border-t px-6 pt-20 pb-16 lg:px-8 lg:pt-28 lg:pb-20'
     >
       <div className='mx-auto max-w-6xl'>
         {hasBlocks ? (

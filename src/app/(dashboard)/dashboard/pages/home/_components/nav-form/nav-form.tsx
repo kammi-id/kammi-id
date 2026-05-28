@@ -37,7 +37,11 @@ export const NavForm = ({ initialData }: Props) => {
     initialData.ctaBergabungHref
   )
 
-  const { isDirty, markClean } = useUnsavedChanges({ navLinks, ctaBergabungLabel, ctaBergabungHref })
+  const { isDirty, markClean } = useUnsavedChanges({
+    navLinks,
+    ctaBergabungLabel,
+    ctaBergabungHref
+  })
 
   useEffect(() => {
     if (state.success) {
@@ -45,7 +49,7 @@ export const NavForm = ({ initialData }: Props) => {
       markClean()
     }
     if (state.error) toast.error(state.error)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state])
 
   useEffect(() => {
@@ -61,7 +65,10 @@ export const NavForm = ({ initialData }: Props) => {
 
   const handleAction = useCallback(
     (fd: FormData) => {
-      fd.set('navLinks', JSON.stringify(navLinks.map(({ label, href }) => ({ label, href }))))
+      fd.set(
+        'navLinks',
+        JSON.stringify(navLinks.map(({ label, href }) => ({ label, href })))
+      )
       formAction(fd)
     },
     [navLinks, formAction]

@@ -5,7 +5,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger,
+  DropdownMenuTrigger
 } from '~/components/shadcn/ui/dropdown-menu'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { ArrowDown01Icon } from '@hugeicons/core-free-icons'
@@ -37,10 +37,14 @@ export const NavLinks = ({ links }: NavLinksProps) => {
                 />
               </DropdownMenuTrigger>
               <DropdownMenuContent align='start' className='min-w-[200px]'>
-                <DropdownMenuItem render={<Link href='/tentang' className='w-full' />}>
+                <DropdownMenuItem
+                  render={<Link href='/tentang' className='w-full' />}
+                >
                   Tentang KAMMI
                 </DropdownMenuItem>
-                <DropdownMenuItem render={<Link href='/tentang/pengurus' className='w-full' />}>
+                <DropdownMenuItem
+                  render={<Link href='/tentang/pengurus' className='w-full' />}
+                >
                   Pengurus Pusat
                 </DropdownMenuItem>
               </DropdownMenuContent>

@@ -69,7 +69,9 @@ export const saveHeroAction = async (
         string[]
       >,
       values: Object.fromEntries(
-        Object.entries(raw).filter(([, v]) => v != null && typeof v === 'string')
+        Object.entries(raw).filter(
+          ([, v]) => v != null && typeof v === 'string'
+        )
       ) as Record<string, string>
     }
   }
@@ -116,7 +118,9 @@ export const saveAboutAction = async (
         string[]
       >,
       values: Object.fromEntries(
-        Object.entries(raw).filter(([, v]) => v != null && typeof v === 'string')
+        Object.entries(raw).filter(
+          ([, v]) => v != null && typeof v === 'string'
+        )
       ) as Record<string, string>
     }
   }
@@ -174,7 +178,9 @@ export const saveActionsAction = async (
         string[]
       >,
       values: Object.fromEntries(
-        Object.entries(raw).filter(([, v]) => v != null && typeof v === 'string')
+        Object.entries(raw).filter(
+          ([, v]) => v != null && typeof v === 'string'
+        )
       ) as Record<string, string>
     }
   }
@@ -221,7 +227,9 @@ export const saveNavAction = async (
         string[]
       >,
       values: Object.fromEntries(
-        Object.entries(raw).filter(([, v]) => v != null && typeof v === 'string')
+        Object.entries(raw).filter(
+          ([, v]) => v != null && typeof v === 'string'
+        )
       ) as Record<string, string>
     }
   }
@@ -279,7 +287,9 @@ export const saveFooterAction = async (
         string[]
       >,
       values: Object.fromEntries(
-        Object.entries(raw).filter(([, v]) => v != null && typeof v === 'string')
+        Object.entries(raw).filter(
+          ([, v]) => v != null && typeof v === 'string'
+        )
       ) as Record<string, string>
     }
   }
@@ -319,7 +329,9 @@ export const saveMetadataAction = async (
         string[]
       >,
       values: Object.fromEntries(
-        Object.entries(raw).filter(([, v]) => v != null && typeof v === 'string')
+        Object.entries(raw).filter(
+          ([, v]) => v != null && typeof v === 'string'
+        )
       ) as Record<string, string>
     }
   }

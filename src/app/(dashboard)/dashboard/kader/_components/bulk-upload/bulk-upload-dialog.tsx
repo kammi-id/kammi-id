@@ -3,7 +3,11 @@
 import { useState, useTransition } from 'react'
 import { toast } from 'sonner'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Upload01Icon, Download04Icon, Loading03Icon } from '@hugeicons/core-free-icons'
+import {
+  Upload01Icon,
+  Download04Icon,
+  Loading03Icon
+} from '@hugeicons/core-free-icons'
 import { Button } from '~/components/shadcn/ui/button'
 import {
   Dialog,
@@ -13,8 +17,15 @@ import {
   DialogTitle,
   DialogTrigger
 } from '~/components/shadcn/ui/dialog'
-import { appendCredentials, type CredentialEntry } from '~/components/credential-store/store'
-import { generateTemplate, parseXLSXFile, type ParsedRow } from './bulk-upload-utils'
+import {
+  appendCredentials,
+  type CredentialEntry
+} from '~/components/credential-store/store'
+import {
+  generateTemplate,
+  parseXLSXFile,
+  type ParsedRow
+} from './bulk-upload-utils'
 import { bulkCreateMembersAction } from './action'
 import { BulkUploadPreview } from './bulk-upload-preview'
 
@@ -23,7 +34,10 @@ interface BulkUploadDialogProps {
   trainingId?: string
 }
 
-export const BulkUploadDialog = ({ organizationId, trainingId }: BulkUploadDialogProps) => {
+export const BulkUploadDialog = ({
+  organizationId,
+  trainingId
+}: BulkUploadDialogProps) => {
   const [open, setOpen] = useState(false)
   const [rows, setRows] = useState<ParsedRow[]>([])
   const [isPending, startTransition] = useTransition()
@@ -45,15 +59,21 @@ export const BulkUploadDialog = ({ organizationId, trainingId }: BulkUploadDialo
 
   const handleSubmit = () => {
     if (!canSubmit) return
-    const members = rows.filter((r) => r.valid).map((r) => ({
-      name: r.data.name!,
-      gender: r.data.gender as 'ikhwan' | 'akhwat',
-      yearOfEntry: r.data.yearOfEntry!,
-      phone: r.data.phone ?? null
-    }))
+    const members = rows
+      .filter((r) => r.valid)
+      .map((r) => ({
+        name: r.data.name!,
+        gender: r.data.gender as 'ikhwan' | 'akhwat',
+        yearOfEntry: r.data.yearOfEntry!,
+        phone: r.data.phone ?? null
+      }))
 
     startTransition(async () => {
-      const result = await bulkCreateMembersAction({ members, organizationId, trainingId })
+      const result = await bulkCreateMembersAction({
+        members,
+        organizationId,
+        trainingId
+      })
       if (result.success && result.data) {
         const entries: CredentialEntry[] = result.data.map((d) => ({
           memberId: d.memberId,
@@ -66,13 +86,13 @@ export const BulkUploadDialog = ({ organizationId, trainingId }: BulkUploadDialo
         appendCredentials(organizationId, entries)
         toast.success(result.message, {
           description: `${entries.length} credential tersimpan. Buka ikon kunci di header untuk download CSV.`,
-          duration: 6000,
+          duration: 6000
         })
         setOpen(false)
         setRows([])
       } else {
         toast.error(result.message ?? 'Terjadi kesalahan', {
-          description: 'Periksa koneksi internet dan coba lagi.',
+          description: 'Periksa koneksi internet dan coba lagi.'
         })
       }
     })
@@ -100,7 +120,12 @@ export const BulkUploadDialog = ({ organizationId, trainingId }: BulkUploadDialo
 
         <div className='space-y-4'>
           <div className='flex items-center gap-3'>
-            <Button type='button' variant='outline' size='sm' onClick={generateTemplate}>
+            <Button
+              type='button'
+              variant='outline'
+              size='sm'
+              onClick={generateTemplate}
+            >
               <HugeiconsIcon icon={Download04Icon} className='mr-2 size-3.5' />
               Download Template
             </Button>
@@ -124,7 +149,8 @@ export const BulkUploadDialog = ({ organizationId, trainingId }: BulkUploadDialo
             <BulkUploadPreview rows={rows} onChange={setRows} />
           ) : (
             <p className='text-muted-foreground text-sm'>
-              Upload file XLSX untuk memulai. Gunakan template agar format kolom sesuai.
+              Upload file XLSX untuk memulai. Gunakan template agar format kolom
+              sesuai.
             </p>
           )}
         </div>
@@ -139,9 +165,14 @@ export const BulkUploadDialog = ({ organizationId, trainingId }: BulkUploadDialo
           </Button>
           <Button onClick={handleSubmit} disabled={!canSubmit || isPending}>
             {isPending && (
-              <HugeiconsIcon icon={Loading03Icon} className='mr-2 size-3.5 animate-spin' />
+              <HugeiconsIcon
+                icon={Loading03Icon}
+                className='mr-2 size-3.5 animate-spin'
+              />
             )}
-            {isPending ? 'Menyimpan...' : `Import ${rows.filter((r) => r.valid).length} Kader`}
+            {isPending
+              ? 'Menyimpan...'
+              : `Import ${rows.filter((r) => r.valid).length} Kader`}
           </Button>
         </DialogFooter>
       </DialogContent>

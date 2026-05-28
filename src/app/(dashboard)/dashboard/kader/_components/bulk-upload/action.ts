@@ -65,7 +65,11 @@ export const bulkCreateMembersAction = async (
       const errorMessages = Object.entries(errors).map(
         ([field, msgs]) => `${field}: ${(msgs as string[])[0]}`
       )
-      return { success: false, message: 'Validasi input gagal.', errors: errorMessages }
+      return {
+        success: false,
+        message: 'Validasi input gagal.',
+        errors: errorMessages
+      }
     }
 
     const { members, organizationId, trainingId } = validated.data
@@ -125,7 +129,8 @@ export const bulkCreateMembersAction = async (
         }
       }
 
-      if (!pwCode || !pdCode) throw new Error('Failed to parse organization codes')
+      if (!pwCode || !pdCode)
+        throw new Error('Failed to parse organization codes')
 
       for (const memberInput of members) {
         const prefix = `${pwCode}${pdCode}${memberInput.yearOfEntry}`
@@ -213,7 +218,9 @@ export const bulkCreateMembersAction = async (
     return {
       success: false,
       message:
-        error instanceof Error ? error.message : 'Terjadi kesalahan tak terduga.'
+        error instanceof Error
+          ? error.message
+          : 'Terjadi kesalahan tak terduga.'
     }
   }
 }

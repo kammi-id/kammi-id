@@ -24,7 +24,10 @@ export const getHeroSettings = async (): Promise<HeroSettings> => {
   'use cache'
   cacheLife('days')
   const orgId = await resolvePPOrgId()
-  cacheTag('site-settings', orgId ? `site-settings-hero-${orgId}` : 'site-settings-hero')
+  cacheTag(
+    'site-settings',
+    orgId ? `site-settings-hero-${orgId}` : 'site-settings-hero'
+  )
   if (!orgId) return SETTINGS_DEFAULTS.hero
   return readSiteSettings<HeroSettings>('hero', SETTINGS_DEFAULTS.hero, orgId)
 }
@@ -33,16 +36,26 @@ export const getAboutSettings = async (): Promise<AboutSettings> => {
   'use cache'
   cacheLife('days')
   const orgId = await resolvePPOrgId()
-  cacheTag('site-settings', orgId ? `site-settings-about-${orgId}` : 'site-settings-about')
+  cacheTag(
+    'site-settings',
+    orgId ? `site-settings-about-${orgId}` : 'site-settings-about'
+  )
   if (!orgId) return SETTINGS_DEFAULTS.about
-  return readSiteSettings<AboutSettings>('about', SETTINGS_DEFAULTS.about, orgId)
+  return readSiteSettings<AboutSettings>(
+    'about',
+    SETTINGS_DEFAULTS.about,
+    orgId
+  )
 }
 
 export const getLeadershipSettings = async (): Promise<LeadershipSettings> => {
   'use cache'
   cacheLife('days')
   const orgId = await resolvePPOrgId()
-  cacheTag('site-settings', orgId ? `site-settings-leadership-${orgId}` : 'site-settings-leadership')
+  cacheTag(
+    'site-settings',
+    orgId ? `site-settings-leadership-${orgId}` : 'site-settings-leadership'
+  )
   const d = SETTINGS_DEFAULTS.leadership
   if (!orgId) return d
   const raw = await readSiteSettings<Partial<LeadershipSettings>>(
@@ -55,7 +68,7 @@ export const getLeadershipSettings = async (): Promise<LeadershipSettings> => {
     heading: raw.heading ?? d.heading,
     triumvirate: raw.triumvirate ?? d.triumvirate,
     leaders: raw.leaders ?? d.leaders,
-    leaderBlocks: raw.leaderBlocks ?? d.leaderBlocks,
+    leaderBlocks: raw.leaderBlocks ?? d.leaderBlocks
   }
 }
 
@@ -63,16 +76,26 @@ export const getActionsSettings = async (): Promise<ActionsSettings> => {
   'use cache'
   cacheLife('days')
   const orgId = await resolvePPOrgId()
-  cacheTag('site-settings', orgId ? `site-settings-actions-${orgId}` : 'site-settings-actions')
+  cacheTag(
+    'site-settings',
+    orgId ? `site-settings-actions-${orgId}` : 'site-settings-actions'
+  )
   if (!orgId) return SETTINGS_DEFAULTS.actions
-  return readSiteSettings<ActionsSettings>('actions', SETTINGS_DEFAULTS.actions, orgId)
+  return readSiteSettings<ActionsSettings>(
+    'actions',
+    SETTINGS_DEFAULTS.actions,
+    orgId
+  )
 }
 
 export const getNavSettings = async (): Promise<NavSettings> => {
   'use cache'
   cacheLife('days')
   const orgId = await resolvePPOrgId()
-  cacheTag('site-settings', orgId ? `site-settings-nav-${orgId}` : 'site-settings-nav')
+  cacheTag(
+    'site-settings',
+    orgId ? `site-settings-nav-${orgId}` : 'site-settings-nav'
+  )
   if (!orgId) return SETTINGS_DEFAULTS.nav
   return readSiteSettings<NavSettings>('nav', SETTINGS_DEFAULTS.nav, orgId)
 }
@@ -81,16 +104,26 @@ export const getFooterSettings = async (): Promise<FooterSettings> => {
   'use cache'
   cacheLife('days')
   const orgId = await resolvePPOrgId()
-  cacheTag('site-settings', orgId ? `site-settings-footer-${orgId}` : 'site-settings-footer')
+  cacheTag(
+    'site-settings',
+    orgId ? `site-settings-footer-${orgId}` : 'site-settings-footer'
+  )
   if (!orgId) return SETTINGS_DEFAULTS.footer
-  return readSiteSettings<FooterSettings>('footer', SETTINGS_DEFAULTS.footer, orgId)
+  return readSiteSettings<FooterSettings>(
+    'footer',
+    SETTINGS_DEFAULTS.footer,
+    orgId
+  )
 }
 
 export const getMetadataSettings = async (): Promise<MetadataSettings> => {
   'use cache'
   cacheLife('days')
   const orgId = await resolvePPOrgId()
-  cacheTag('site-settings', orgId ? `site-settings-metadata-${orgId}` : 'site-settings-metadata')
+  cacheTag(
+    'site-settings',
+    orgId ? `site-settings-metadata-${orgId}` : 'site-settings-metadata'
+  )
   if (!orgId) return SETTINGS_DEFAULTS.metadata
   return readSiteSettings<MetadataSettings>(
     'metadata',

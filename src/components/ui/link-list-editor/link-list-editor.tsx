@@ -18,7 +18,11 @@ export const LinkListEditor = ({
   onChange,
   sectionLabel
 }: LinkListEditorProps) => {
-  const update = (id: string, field: keyof Omit<LinkItem, 'id'>, value: string) => {
+  const update = (
+    id: string,
+    field: keyof Omit<LinkItem, 'id'>,
+    value: string
+  ) => {
     onChange(links.map((l) => (l.id === id ? { ...l, [field]: value } : l)))
   }
   const add = () =>
@@ -36,9 +40,15 @@ export const LinkListEditor = ({
         </div>
       )}
       {links.map((link) => (
-        <div key={link.id} className='grid grid-cols-[1fr_1fr_2.25rem] items-end gap-2'>
+        <div
+          key={link.id}
+          className='grid grid-cols-[1fr_1fr_2.25rem] items-end gap-2'
+        >
           <Field>
-            <FieldLabel htmlFor={`${sectionLabel}-label-${link.id}`} className='sr-only'>
+            <FieldLabel
+              htmlFor={`${sectionLabel}-label-${link.id}`}
+              className='sr-only'
+            >
               Nama Link
             </FieldLabel>
             <FieldContent>
@@ -51,7 +61,10 @@ export const LinkListEditor = ({
             </FieldContent>
           </Field>
           <Field>
-            <FieldLabel htmlFor={`${sectionLabel}-href-${link.id}`} className='sr-only'>
+            <FieldLabel
+              htmlFor={`${sectionLabel}-href-${link.id}`}
+              className='sr-only'
+            >
               URL
             </FieldLabel>
             <FieldContent>
@@ -70,7 +83,11 @@ export const LinkListEditor = ({
             className='text-muted-foreground hover:bg-destructive/10 hover:text-destructive mb-0.5 flex size-9 shrink-0 items-center justify-center rounded-lg transition-colors disabled:opacity-30'
             aria-label={`Hapus link ${link.label || 'ini'}`}
           >
-            <HugeiconsIcon icon={Delete02Icon} className='size-4' strokeWidth={2} />
+            <HugeiconsIcon
+              icon={Delete02Icon}
+              className='size-4'
+              strokeWidth={2}
+            />
           </button>
         </div>
       ))}

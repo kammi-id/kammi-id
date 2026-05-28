@@ -23,7 +23,7 @@ const RootLayout = ({
       )}
     >
       <head>
-      <meta name="apple-mobile-web-app-title" content="KAMMI.id" />
+        <meta name='apple-mobile-web-app-title' content='KAMMI.id' />
       </head>
       <body className='flex min-h-full flex-col'>{children}</body>
     </html>

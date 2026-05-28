@@ -109,7 +109,9 @@ export const ProfileInfo = () => {
       setLoadingProvince(false)
       if (res.success) setProvinces(res.data ?? [])
     })
-    return () => { cancelled = true }
+    return () => {
+      cancelled = true
+    }
   }, [isEditing])
 
   useEffect(() => {
@@ -126,7 +128,9 @@ export const ProfileInfo = () => {
       setLoadingCity(false)
       if (res.success) setCities(res.data ?? [])
     })
-    return () => { cancelled = true }
+    return () => {
+      cancelled = true
+    }
   }, [province])
 
   useEffect(() => {
@@ -142,7 +146,9 @@ export const ProfileInfo = () => {
       setLoadingDistrict(false)
       if (res.success) setDistricts(res.data ?? [])
     })
-    return () => { cancelled = true }
+    return () => {
+      cancelled = true
+    }
   }, [city])
 
   useEffect(() => {
@@ -157,7 +163,9 @@ export const ProfileInfo = () => {
       setLoadingSubdistrict(false)
       if (res.success) setSubdistricts(res.data ?? [])
     })
-    return () => { cancelled = true }
+    return () => {
+      cancelled = true
+    }
   }, [district])
 
   const getRegionName = (options: RegionItem[], code: string) =>

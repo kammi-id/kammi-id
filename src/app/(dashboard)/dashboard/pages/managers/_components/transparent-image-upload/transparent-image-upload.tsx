@@ -16,7 +16,7 @@ const CHECKER_STYLE: React.CSSProperties = {
     linear-gradient(-45deg, transparent 75%, oklch(0.92 0.004 286.32) 75%)
   `,
   backgroundSize: '12px 12px',
-  backgroundPosition: '0 0, 0 6px, 6px -6px, -6px 0px',
+  backgroundPosition: '0 0, 0 6px, 6px -6px, -6px 0px'
 }
 
 interface TransparentImageUploadProps {
@@ -32,7 +32,7 @@ export const TransparentImageUpload = ({
   onChange,
   folder = 'uploads',
   height = 192,
-  className,
+  className
 }: TransparentImageUploadProps) => {
   const [preview, setPreview] = useState<string | null>(null)
   const [isUploading, setIsUploading] = useState(false)
@@ -40,9 +40,13 @@ export const TransparentImageUpload = ({
 
   useEffect(() => {
     const load = async () => {
-      if (!value) { setPreview(null); return }
+      if (!value) {
+        setPreview(null)
+        return
+      }
       if (value.startsWith('http') || value.startsWith('/')) {
-        setPreview(value); return
+        setPreview(value)
+        return
       }
       try {
         const url = await getSignedUrlAction(value)
@@ -108,9 +112,13 @@ export const TransparentImageUpload = ({
             className='absolute inset-0 h-full w-full object-contain p-2'
           />
         ) : (
-          <div className='absolute inset-0 flex flex-col items-center justify-center gap-2 text-muted-foreground/50 transition-colors group-hover:text-muted-foreground/70'>
-            <HugeiconsIcon icon={ImageUploadIcon} className='size-8' strokeWidth={1.5} />
-            <span className='font-mono text-[10px] uppercase tracking-wider'>
+          <div className='text-muted-foreground/50 group-hover:text-muted-foreground/70 absolute inset-0 flex flex-col items-center justify-center gap-2 transition-colors'>
+            <HugeiconsIcon
+              icon={ImageUploadIcon}
+              className='size-8'
+              strokeWidth={1.5}
+            />
+            <span className='font-mono text-[10px] tracking-wider uppercase'>
               Unggah PNG transparan
             </span>
           </div>
@@ -118,8 +126,14 @@ export const TransparentImageUpload = ({
         {preview && !isUploading && (
           <div className='absolute inset-0 flex items-center justify-center bg-black/0 opacity-0 transition-all group-hover:bg-black/10 group-hover:opacity-100'>
             <div className='flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1.5 shadow-sm'>
-              <HugeiconsIcon icon={ImageUploadIcon} className='size-3.5 text-foreground' strokeWidth={2} />
-              <span className='text-[11px] font-medium text-foreground'>Ganti foto</span>
+              <HugeiconsIcon
+                icon={ImageUploadIcon}
+                className='text-foreground size-3.5'
+                strokeWidth={2}
+              />
+              <span className='text-foreground text-[11px] font-medium'>
+                Ganti foto
+              </span>
             </div>
           </div>
         )}

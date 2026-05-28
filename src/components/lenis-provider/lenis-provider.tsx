@@ -13,7 +13,7 @@ type LenisContextType = {
 }
 
 const LenisContext = createContext<LenisContextType>({
-  scrollTo: () => {},
+  scrollTo: () => {}
 })
 
 export const useLenisScroll = () => useContext(LenisContext)
@@ -25,7 +25,7 @@ export const LenisProvider = ({ children }: { children: ReactNode }) => {
     const lenis = new Lenis({
       autoRaf: false,
       duration: 1.2,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t))
     })
     lenisRef.current = lenis
 

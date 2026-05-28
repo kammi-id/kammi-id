@@ -42,8 +42,18 @@ export const HeroForm = ({ initialData }: Props) => {
   const [cta2Href, setCta2Href] = useState(initialData.cta2Href)
 
   const { isDirty, markClean } = useUnsavedChanges({
-    badgeText, title, titleAccent, subtitle, heroImageUrl, heroImageAlt,
-    quoteText, quoteAttribution, cta1Label, cta1Href, cta2Label, cta2Href
+    badgeText,
+    title,
+    titleAccent,
+    subtitle,
+    heroImageUrl,
+    heroImageAlt,
+    quoteText,
+    quoteAttribution,
+    cta1Label,
+    cta1Href,
+    cta2Label,
+    cta2Href
   })
 
   useEffect(() => {
@@ -52,7 +62,7 @@ export const HeroForm = ({ initialData }: Props) => {
       markClean()
     }
     if (state.error) toast.error(state.error)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state])
 
   useEffect(() => {
@@ -171,7 +181,8 @@ export const HeroForm = ({ initialData }: Props) => {
               />
             </FieldContent>
             <FieldDescription>
-              Deskripsi foto untuk pembaca layar dan Google. Contoh: Kader KAMMI berdiskusi.
+              Deskripsi foto untuk pembaca layar dan Google. Contoh: Kader KAMMI
+              berdiskusi.
             </FieldDescription>
             <FieldError
               errors={fe.heroImageAlt?.map((m) => ({ message: m }))}
@@ -276,11 +287,7 @@ export const HeroForm = ({ initialData }: Props) => {
 
       <div className='flex items-center justify-end gap-3'>
         <UnsavedChangesBanner isDirty={isDirty} />
-        <Button
-          type='submit'
-          className='px-6'
-          disabled={isPending}
-        >
+        <Button type='submit' className='px-6' disabled={isPending}>
           {isPending ? 'Menyimpan...' : 'Simpan Pengaturan Hero'}
         </Button>
       </div>

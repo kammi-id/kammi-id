@@ -19,6 +19,7 @@ export const ProfileEditProvider = ProfileEditContext.Provider
 
 export const useProfileEdit = (): ProfileEditContextValue => {
   const ctx = use(ProfileEditContext)
-  if (!ctx) throw new Error('useProfileEdit must be used within ProfileEditProvider')
+  if (!ctx)
+    throw new Error('useProfileEdit must be used within ProfileEditProvider')
   return ctx
 }

@@ -127,7 +127,7 @@ export const SETTINGS_DEFAULTS = {
     triumvirate: {
       ketua: { name: '', photoUrl: '' },
       sekretaris: { name: '', photoUrl: '' },
-      bendahara: { name: '', photoUrl: '' },
+      bendahara: { name: '', photoUrl: '' }
     },
     leaders: [],
     leaderBlocks: []
@@ -249,10 +249,10 @@ export const upsertSiteSettings = async (
     .values({
       key,
       organizationId,
-      data: data as Record<string, unknown>,
+      data: data as Record<string, unknown>
     })
     .onConflictDoUpdate({
       target: [siteSettings.key, siteSettings.organizationId],
-      set: { data: data as Record<string, unknown>, updatedAt: sql`now()` },
+      set: { data: data as Record<string, unknown>, updatedAt: sql`now()` }
     })
 }
