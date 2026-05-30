@@ -142,9 +142,34 @@ export const getTentangSettings = async (): Promise<TentangSettings> => {
     orgId ? `site-settings-tentang-${orgId}` : 'site-settings-tentang'
   )
   if (!orgId) return SETTINGS_DEFAULTS.tentang
-  return readSiteSettings<TentangSettings>(
-    'tentang',
-    SETTINGS_DEFAULTS.tentang,
-    orgId
-  )
+
+  const [heroData, prinsipData, paradigmaData, kredoData] = await Promise.all([
+    readSiteSettings<{ heroImageUrl: string }>(
+      'tentang-hero',
+      { heroImageUrl: SETTINGS_DEFAULTS.tentang.heroImageUrl },
+      orgId
+    ),
+    readSiteSettings<{ prinsipImages: TentangSettings['prinsipImages'] }>(
+      'tentang-prinsip',
+      { prinsipImages: SETTINGS_DEFAULTS.tentang.prinsipImages },
+      orgId
+    ),
+    readSiteSettings<{ paradigmaImages: TentangSettings['paradigmaImages'] }>(
+      'tentang-paradigma',
+      { paradigmaImages: SETTINGS_DEFAULTS.tentang.paradigmaImages },
+      orgId
+    ),
+    readSiteSettings<{ kredoImageUrl: string }>(
+      'tentang-kredo',
+      { kredoImageUrl: SETTINGS_DEFAULTS.tentang.kredoImageUrl },
+      orgId
+    )
+  ])
+
+  return {
+    heroImageUrl: heroData.heroImageUrl,
+    prinsipImages: prinsipData.prinsipImages,
+    paradigmaImages: paradigmaData.paradigmaImages,
+    kredoImageUrl: kredoData.kredoImageUrl
+  }
 }
