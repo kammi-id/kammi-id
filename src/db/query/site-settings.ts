@@ -89,6 +89,13 @@ export type MetadataSettings = {
   ogImageUrl: string
 }
 
+export type TentangSettings = {
+  heroImageUrl: string
+  prinsipImages: string[]    // length 6
+  paradigmaImages: string[]  // length 4
+  kredoImageUrl: string
+}
+
 export const SETTINGS_DEFAULTS = {
   hero: {
     badgeText: 'Kesatuan Aksi Mahasiswa Muslim Indonesia',
@@ -215,7 +222,14 @@ export const SETTINGS_DEFAULTS = {
     metaDescription:
       'Kesatuan Aksi Mahasiswa Muslim Indonesia. Membangun peradaban dengan intelektualitas, integritas, dan amal nyata.',
     ogImageUrl: '/assets/logo.png'
-  } satisfies MetadataSettings
+  } satisfies MetadataSettings,
+
+  tentang: {
+    heroImageUrl: '',
+    prinsipImages: ['', '', '', '', '', ''],
+    paradigmaImages: ['', '', '', ''],
+    kredoImageUrl: ''
+  } satisfies TentangSettings
 } as const
 
 export const readSiteSettings = async <T>(
