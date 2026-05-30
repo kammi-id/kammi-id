@@ -91,8 +91,8 @@ export type MetadataSettings = {
 
 export type TentangSettings = {
   heroImageUrl: string
-  prinsipImages: string[]    // length 6
-  paradigmaImages: string[]  // length 4
+  prinsipImages: [string, string, string, string, string, string]  // 6 items
+  paradigmaImages: [string, string, string, string]               // 4 items
   kredoImageUrl: string
 }
 
