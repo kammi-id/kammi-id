@@ -8,7 +8,8 @@ import {
   type ActionsSettings,
   type NavSettings,
   type FooterSettings,
-  type MetadataSettings
+  type MetadataSettings,
+  type TentangSettings
 } from '~/db/query/site-settings'
 import { readOrganizationIdByType } from '~/db/query/organization'
 
@@ -128,6 +129,22 @@ export const getMetadataSettings = async (): Promise<MetadataSettings> => {
   return readSiteSettings<MetadataSettings>(
     'metadata',
     SETTINGS_DEFAULTS.metadata,
+    orgId
+  )
+}
+
+export const getTentangSettings = async (): Promise<TentangSettings> => {
+  'use cache'
+  cacheLife('days')
+  const orgId = await resolvePPOrgId()
+  cacheTag(
+    'site-settings',
+    orgId ? `site-settings-tentang-${orgId}` : 'site-settings-tentang'
+  )
+  if (!orgId) return SETTINGS_DEFAULTS.tentang
+  return readSiteSettings<TentangSettings>(
+    'tentang',
+    SETTINGS_DEFAULTS.tentang,
     orgId
   )
 }

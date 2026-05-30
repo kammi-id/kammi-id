@@ -1,13 +1,7 @@
 import type { Metadata } from 'next'
 import { TentangScene } from './_components/tentang-scene'
-import { SejarahSection } from './_components/sejarah-section'
-import { MisiSection } from './_components/misi-section'
-import { KarakteristikSection } from './_components/karakteristik-section'
-import { UnsurSection } from './_components/unsur-section'
-import { PrinsipSection } from './_components/prinsip-section'
-import { ParadigmaSection } from './_components/paradigma-section'
-import { KredoSection } from './_components/kredo-section'
 import { SectionNav } from './_components/section-nav'
+import { getTentangSettings } from '~/app/(main)/_data/site-settings'
 
 export const metadata: Metadata = {
   title: 'Tentang KAMMI',
@@ -15,18 +9,13 @@ export const metadata: Metadata = {
     'Mengenal KAMMI — sejarah, visi, misi, karakteristik, prinsip, paradigma, dan kredo gerakan.'
 }
 
-const TentangPage = () => {
+const TentangPage = async () => {
+  const settings = await getTentangSettings()
+
   return (
     <>
       <SectionNav />
-      <TentangScene />
-      <MisiSection />
-      <KarakteristikSection />
-      <UnsurSection />
-      <PrinsipSection />
-      <ParadigmaSection />
-      <KredoSection />
-      <SejarahSection />
+      <TentangScene settings={settings} />
     </>
   )
 }
