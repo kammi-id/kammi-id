@@ -23,7 +23,8 @@ import {
   Add01Icon,
   Note01Icon,
   Home01Icon,
-  UserGroupIcon
+  UserGroupIcon,
+  InformationCircleIcon
 } from '@hugeicons/core-free-icons'
 import Image from 'next/image'
 import logo from '~/assets/logo.png'
@@ -193,6 +194,11 @@ export const AppSidebar = ({
                 title: 'Pengurus Pusat',
                 url: '/dashboard/pages/managers',
                 icon: <HugeiconsIcon icon={UserGroupIcon} strokeWidth={2} />
+              },
+              {
+                title: 'Halaman Tentang',
+                url: '/dashboard/pages/tentang',
+                icon: <HugeiconsIcon icon={InformationCircleIcon} strokeWidth={2} />
               }
             ]}
           />
