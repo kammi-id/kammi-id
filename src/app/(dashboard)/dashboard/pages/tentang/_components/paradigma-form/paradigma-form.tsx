@@ -50,6 +50,9 @@ export const ParadigmaForm = ({ initialData }: Props) => {
       markClean()
     }
     if (state.error) toast.error(state.error)
+    if (state.fieldErrors && Object.keys(state.fieldErrors).length > 0) {
+      toast.error('Data gambar tidak valid. Coba lagi.')
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state])
 

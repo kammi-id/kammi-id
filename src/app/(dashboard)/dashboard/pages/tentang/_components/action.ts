@@ -39,6 +39,7 @@ const persist = async (
   try {
     await upsertSiteSettings(key, data, orgId)
     revalidatePath('/tentang')
+    revalidatePath('/dashboard/pages/tentang')
     updateTag(`site-settings-tentang-${orgId}`)
     return { success: true }
   } catch {
