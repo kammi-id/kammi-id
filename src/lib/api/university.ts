@@ -31,6 +31,7 @@ export const universityApi = {
         'x-api-co-id': token,
         'Content-Type': 'application/json'
       },
+      cache: 'force-cache',
       next: { revalidate: 86400 }
     })
 
@@ -38,10 +39,16 @@ export const universityApi = {
       throw new Error(`University API error: ${response.status} ${response.statusText}`)
     }
 
-    const result = (await response.json()) as UniversityApiResponse
-    if (!result.is_success) {
-      throw new Error(result.message || 'API returned is_success: false')
+    try {
+      const result = (await response.json()) as UniversityApiResponse
+      if (!result.is_success) {
+        throw new Error(result.message || 'API returned is_success: false')
+      }
+      return result.data
+    } catch (error) {
+      throw new Error(
+        `Failed to parse JSON response from University API: ${error instanceof Error ? error.message : String(error)}`
+      )
     }
-    return result.data
   }
 }
