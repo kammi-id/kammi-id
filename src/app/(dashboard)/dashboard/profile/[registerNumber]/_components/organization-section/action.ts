@@ -58,7 +58,7 @@ export const saveOrgHistoryAction = async (
     await createMemberOrganizationHistory(data, memberId)
   }
 
-  revalidatePath(`/dashboard/profile/${memberId}`)
+  revalidatePath('/dashboard/profile')
   return {
     success: true,
     message: id ? 'Riwayat organisasi diperbarui.' : 'Riwayat organisasi ditambahkan.'
@@ -74,6 +74,6 @@ export const deleteOrgHistoryAction = async (
   if (!canEdit(session, memberId)) return { success: false, message: 'Akses ditolak.' }
 
   await deleteMemberOrganizationHistory(id, memberId)
-  revalidatePath(`/dashboard/profile/${memberId}`)
+  revalidatePath('/dashboard/profile')
   return { success: true, message: 'Riwayat organisasi dihapus.' }
 }

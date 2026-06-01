@@ -54,7 +54,7 @@ export const saveCareerAction = async (
     await createMemberCareer(data, memberId)
   }
 
-  revalidatePath(`/dashboard/profile/${memberId}`)
+  revalidatePath('/dashboard/profile')
   return { success: true, message: id ? 'Riwayat karir diperbarui.' : 'Riwayat karir ditambahkan.' }
 }
 
@@ -67,6 +67,6 @@ export const deleteCareerAction = async (
   if (!canEdit(session, memberId)) return { success: false, message: 'Akses ditolak.' }
 
   await deleteMemberCareer(id, memberId)
-  revalidatePath(`/dashboard/profile/${memberId}`)
+  revalidatePath('/dashboard/profile')
   return { success: true, message: 'Riwayat karir dihapus.' }
 }

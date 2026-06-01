@@ -70,7 +70,7 @@ export const saveAcademicAction = async (
     await createMemberAcademic(data, memberId)
   }
 
-  revalidatePath(`/dashboard/profile/${memberId}`)
+  revalidatePath('/dashboard/profile')
   return { success: true, message: id ? 'Data akademik diperbarui.' : 'Data akademik ditambahkan.' }
 }
 
@@ -83,6 +83,6 @@ export const deleteAcademicAction = async (
   if (!canEdit(session, memberId)) return { success: false, message: 'Akses ditolak.' }
 
   await deleteMemberAcademic(id, memberId)
-  revalidatePath(`/dashboard/profile/${memberId}`)
+  revalidatePath('/dashboard/profile')
   return { success: true, message: 'Data akademik dihapus.' }
 }
