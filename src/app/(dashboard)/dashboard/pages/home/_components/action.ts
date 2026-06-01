@@ -93,12 +93,10 @@ const aboutSchema = z.object({
   paragraph2: z.string().min(1, 'Paragraf 2 wajib diisi.'),
   readMoreLabel: z.string().min(1),
   readMoreHref: z.string().min(1),
-  miniStrategiTitle: z.string().min(1, 'Judul mini strategi wajib diisi.'),
-  miniStrategiDescription: z
-    .string()
-    .min(1, 'Deskripsi mini strategi wajib diisi.'),
-  miniStrategiLinkLabel: z.string().min(1),
-  miniStrategiLinkHref: z.string().min(1)
+  sejarahCardTitle: z.string().min(1, 'Judul card sejarah wajib diisi.'),
+  sejarahCardDescription: z.string().min(1, 'Deskripsi card sejarah wajib diisi.'),
+  sejarahCardLinkLabel: z.string().min(1),
+  sejarahCardLinkHref: z.string().min(1)
 })
 
 export const saveAboutAction = async (
