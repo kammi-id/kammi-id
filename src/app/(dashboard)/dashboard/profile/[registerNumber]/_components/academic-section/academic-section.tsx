@@ -77,7 +77,7 @@ const AcademicSheetForm = ({ memberId, entry, onClose }: AcademicSheetFormProps)
       toast.success(state.message ?? 'Data berhasil disimpan.')
       onClose()
     } else if (state.message && !state.errors) {
-      toast.error(state.message)
+      toast.error(state.message ?? 'Terjadi kesalahan.')
     }
   }, [state, onClose])
 
