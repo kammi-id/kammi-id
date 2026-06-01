@@ -52,9 +52,10 @@ export const AboutSection = async () => {
             </Link>
           </div>
 
-          {/* Right: Mini Strategi card */}
+          {/* Right: Sejarah Singkat card */}
           <div className='flex flex-col gap-4'>
             <div className='bg-primary text-primary-foreground rounded-2xl p-6'>
+              {/* Calendar icon */}
               <div className='bg-primary-foreground/15 mb-4 flex size-10 items-center justify-center rounded-xl'>
                 <svg
                   className='size-5'
@@ -62,40 +63,46 @@ export const AboutSection = async () => {
                   fill='none'
                   aria-hidden='true'
                 >
-                  <circle
-                    cx='12'
-                    cy='12'
-                    r='3'
-                    stroke='currentColor'
-                    strokeWidth='2'
-                  />
-                  <circle
-                    cx='12'
-                    cy='12'
-                    r='8'
+                  <rect
+                    x='3'
+                    y='4'
+                    width='18'
+                    height='18'
+                    rx='2'
                     stroke='currentColor'
                     strokeWidth='1.5'
-                    strokeDasharray='3 2'
                   />
                   <path
-                    d='M12 4v2M12 18v2M4 12h2M18 12h2'
+                    d='M16 2v4M8 2v4M3 10h18'
                     stroke='currentColor'
                     strokeWidth='1.5'
                     strokeLinecap='round'
                   />
+                  <path
+                    d='M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01'
+                    stroke='currentColor'
+                    strokeWidth='2'
+                    strokeLinecap='round'
+                  />
                 </svg>
               </div>
-              <h3 className='font-heading text-lg font-bold'>
-                {about.miniStrategiTitle}
+
+              {/* Date badge */}
+              <p className='text-primary-foreground/60 font-sans text-xs font-semibold tracking-widest uppercase'>
+                29 Maret 1998 · Malang
+              </p>
+
+              <h3 className='font-heading mt-1 text-lg font-bold'>
+                {about.sejarahCardTitle}
               </h3>
               <p className='text-primary-foreground/80 mt-2 font-sans text-sm leading-relaxed'>
-                {about.miniStrategiDescription}
+                {about.sejarahCardDescription}
               </p>
               <Link
-                href={about.miniStrategiLinkHref}
+                href={about.sejarahCardLinkHref}
                 className='text-primary-foreground/90 hover:text-primary-foreground mt-4 inline-flex items-center gap-1.5 font-sans text-sm font-semibold'
               >
-                {about.miniStrategiLinkLabel}
+                {about.sejarahCardLinkLabel}
                 <svg
                   className='size-4'
                   viewBox='0 0 16 16'
