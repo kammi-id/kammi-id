@@ -9,10 +9,30 @@ import type { FeatureCollection, Feature, Geometry } from 'geojson'
 import { SLUG_TO_ID_NAME, type ProvinceTooltip } from './leaflet-map-utils'
 import 'leaflet/dist/leaflet.css'
 
-const COLOR_HAS_PW = '#b85450'   // on-brand crimson, filled
-const COLOR_NO_PW  = '#d4a5a3'   // lighter for empty provinces
-const COLOR_HOVER  = '#8b1a1a'   // deep hover
+// ── Province styles (semi-transparent so OSM tiles show through) ──────────────
+const STYLE_HAS_PW: PathOptions = {
+  fillColor: '#b85450',
+  fillOpacity: 0.55,
+  color: 'rgba(255,255,255,0.85)',
+  weight: 0.7,
+  opacity: 1
+}
+const STYLE_NO_PW: PathOptions = {
+  fillColor: '#c4856e',
+  fillOpacity: 0.3,
+  color: 'rgba(255,255,255,0.6)',
+  weight: 0.5,
+  opacity: 1
+}
+const STYLE_HOVER: PathOptions = {
+  fillColor: '#8b1a1a',
+  fillOpacity: 0.82,
+  color: 'rgba(255,255,255,0.95)',
+  weight: 1.5,
+  opacity: 1
+}
 
+// ── Props ─────────────────────────────────────────────────────────────────────
 export interface LeafletMapProps {
   pwLookup: Record<string, string>
   onTooltip: (t: ProvinceTooltip) => void
@@ -28,22 +48,20 @@ const LeafletMap = ({ pwLookup, onTooltip, onMapHover }: LeafletMapProps) => {
     const container = containerRef.current
     if (!container) return
 
-    let L: typeof import('leaflet')
-    let map: LMap
+    // Cancelled flag prevents async callback from touching unmounted DOM
+    let cancelled = false
+    let map: LMap | null = null
 
     const init = async () => {
-      // Dynamic imports keep Leaflet out of the SSR bundle
-      L = await import('leaflet')
+      const L = await import('leaflet')
       const geoData: FeatureCollection = (
         await import('./indonesia-provinces.geojson.json')
       ).default as FeatureCollection
 
-      // Guard: component may have unmounted while imports resolved
-      if (!containerRef.current) return
-
-      // Leaflet sets data-initialized to avoid double-init
+      if (cancelled || !containerRef.current) return
       if ((container as any)._leaflet_id) return
 
+      // ── Map init ────────────────────────────────────────────────────────────
       map = L.map(container, {
         center: [-2.5, 118],
         zoom: 4,
@@ -53,17 +71,29 @@ const LeafletMap = ({ pwLookup, onTooltip, onMapHover }: LeafletMapProps) => {
         touchZoom: false,
         doubleClickZoom: false,
         keyboard: false,
-        attributionControl: false
+        // Attribution enabled — OSM legally requires it
+        attributionControl: true
       })
       mapRef.current = map
 
-      // Fit to Indonesia bounds
+      // Fit all of Indonesia in view
       map.fitBounds([[-11, 94], [6.5, 142]], { padding: [6, 6], animate: false })
 
-      // GeoJSON layer
+      // ── OpenStreetMap base layer ─────────────────────────────────────────────
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution:
+          '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors',
+        maxZoom: 18,
+        opacity: 0.9
+      }).addTo(map)
+
+      // ── Province GeoJSON overlay ─────────────────────────────────────────────
       const geoLayer = L.geoJSON(geoData, {
-        style: (feature) => provinceStyle(feature, false),
-        onEachFeature: (feature, layer) => {
+        style: (feature) => {
+          const slug: string = feature?.properties?.slug ?? ''
+          return pwLookup[slug] ? { ...STYLE_HAS_PW } : { ...STYLE_NO_PW }
+        },
+        onEachFeature: (feature: Feature<Geometry, any>, layer: L.Layer) => {
           const slug: string = feature.properties?.slug ?? ''
           const idName = SLUG_TO_ID_NAME[slug] ?? feature.properties?.name ?? ''
           const pwName = pwLookup[slug] ?? null
@@ -71,7 +101,7 @@ const LeafletMap = ({ pwLookup, onTooltip, onMapHover }: LeafletMapProps) => {
 
           layer.on({
             mouseover(e: L.LeafletMouseEvent) {
-              path.setStyle({ fillColor: COLOR_HOVER, fillOpacity: 1, weight: 1.5 })
+              path.setStyle(STYLE_HOVER)
               ;(path as any).bringToFront?.()
               onTooltip({
                 visible: true,
@@ -91,7 +121,7 @@ const LeafletMap = ({ pwLookup, onTooltip, onMapHover }: LeafletMapProps) => {
               })
             },
             mouseout() {
-              path.setStyle(provinceStyle(feature, false))
+              path.setStyle(pwLookup[slug] ? { ...STYLE_HAS_PW } : { ...STYLE_NO_PW })
               onTooltip({ visible: false, clientX: 0, clientY: 0, idName: '', pwName: null })
             }
           })
@@ -104,54 +134,39 @@ const LeafletMap = ({ pwLookup, onTooltip, onMapHover }: LeafletMapProps) => {
     init()
 
     return () => {
+      cancelled = true
       if (mapRef.current) {
         mapRef.current.remove()
         mapRef.current = null
         geoLayerRef.current = null
       }
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // Update styles when pwLookup changes (e.g., if data reloads)
+  // Re-style provinces when pwLookup changes
   useEffect(() => {
     const layer = geoLayerRef.current
     if (!layer) return
     layer.eachLayer((l) => {
       const feature = (l as any).feature as Feature<Geometry, any>
-      ;(l as L.Path).setStyle(provinceStyle(feature, false))
+      const slug: string = feature?.properties?.slug ?? ''
+      ;(l as L.Path).setStyle(pwLookup[slug] ? { ...STYLE_HAS_PW } : { ...STYLE_NO_PW })
     })
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pwLookup])
-
-  const provinceStyle = (
-    feature: Feature<Geometry, any> | undefined,
-    _hovered: boolean
-  ): PathOptions => {
-    const slug: string = feature?.properties?.slug ?? ''
-    const hasPW = !!pwLookup[slug]
-    return {
-      fillColor: hasPW ? COLOR_HAS_PW : COLOR_NO_PW,
-      fillOpacity: 0.85,
-      color: 'rgba(255,255,255,0.9)',
-      weight: 0.6,
-      opacity: 1
-    }
-  }
 
   return (
     <>
-      {/* Override Leaflet default grey ocean */}
+      {/* Scope Leaflet cursor overrides without disabling attribution */}
       <style>{`
-        .kammi-map .leaflet-container {
-          background: oklch(0.94 0.018 240) !important;
-        }
         .kammi-map .leaflet-grab,
-        .kammi-map .leaflet-crosshair {
-          cursor: default !important;
-        }
-        .kammi-map .leaflet-interactive {
-          cursor: pointer !important;
+        .kammi-map .leaflet-crosshair { cursor: default !important; }
+        .kammi-map .leaflet-interactive { cursor: pointer !important; }
+        .kammi-map .leaflet-attribution-flag { display: none !important; }
+        .kammi-map .leaflet-control-attribution {
+          background: rgba(255,255,255,0.75) !important;
+          font-size: 9px !important;
         }
       `}</style>
       <div
@@ -161,8 +176,7 @@ const LeafletMap = ({ pwLookup, onTooltip, onMapHover }: LeafletMapProps) => {
       >
         <div
           ref={containerRef}
-          className='h-full w-full rounded-2xl'
-          style={{ background: 'oklch(0.94 0.018 240)' }}
+          className='h-full w-full rounded-2xl overflow-hidden'
         />
       </div>
     </>

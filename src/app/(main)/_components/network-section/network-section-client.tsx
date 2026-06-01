@@ -68,10 +68,58 @@ export const NetworkSectionClient = ({
   const mapAreaRef = useRef<HTMLDivElement>(null)
   const cardsRowRef = useRef<HTMLDivElement>(null)
   const ctaBtnRef = useRef<HTMLDivElement>(null)
-  // Tooltip via direct DOM — zero React re-renders on hover
-  const tooltipRef = useRef<HTMLDivElement>(null)
+  // Tooltip element lives in document.body — never in React's tree.
+  // This avoids SSR hydration mismatches caused by next/dynamic partial bailouts.
+  const tooltipRef = useRef<HTMLDivElement | null>(null)
   const mapHoveredRef = useRef(false)
   const pwLookup = useRef(buildPWLookup(pwOrgs))
+
+  // Create tooltip imperatively in document.body — client only, zero SSR footprint
+  useEffect(() => {
+    const el = document.createElement('div')
+    // Base styles
+    Object.assign(el.style, {
+      position: 'fixed',
+      zIndex: '9999',
+      pointerEvents: 'none',
+      visibility: 'hidden',
+      minWidth: '160px',
+      maxWidth: '240px',
+      borderRadius: '12px',
+      padding: '10px 14px',
+      boxShadow: '0 20px 40px rgba(0,0,0,0.25)',
+      background: 'oklch(0.141 0.005 285.823)',
+      color: 'white',
+      transform: 'translateY(-100%)',
+      fontFamily: 'var(--font-sans, sans-serif)'
+    })
+    el.setAttribute('aria-hidden', 'true')
+    el.innerHTML = `
+      <p style="font-size:9px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;opacity:0.5;margin:0">Provinsi</p>
+      <p data-tip-name style="font-family:var(--font-heading,serif);font-size:14px;font-weight:700;line-height:1.25;margin:2px 0 0"></p>
+      <div data-tip-pw-section style="display:none">
+        <div style="height:1px;background:rgba(255,255,255,0.2);margin:6px 0"></div>
+        <p style="font-size:9px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;opacity:0.5;margin:0">Pengurus Wilayah</p>
+        <p data-tip-pw style="font-size:12px;line-height:1.4;opacity:0.9;margin:2px 0 0"></p>
+      </div>
+      <div data-tip-nopw-section style="display:none">
+        <div style="height:1px;background:rgba(255,255,255,0.15);margin:6px 0"></div>
+        <p style="font-size:10px;opacity:0.4;margin:0">Belum ada PW</p>
+      </div>
+    `
+    document.body.appendChild(el)
+    tooltipRef.current = el
+
+    // Hide tooltip on any scroll — section may move away from cursor without a mouseleave event
+    const onScroll = () => { el.style.visibility = 'hidden' }
+    window.addEventListener('scroll', onScroll, { passive: true })
+
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      document.body.removeChild(el)
+      tooltipRef.current = null
+    }
+  }, [])
 
   // DOM-direct tooltip updater — no setState, no re-renders
   const handleTooltip = useCallback((t: ProvinceTooltip) => {
@@ -195,38 +243,9 @@ export const NetworkSectionClient = ({
       className='bg-background relative flex h-dvh max-h-dvh flex-col overflow-hidden'
       aria-labelledby='network-heading'
     >
-      {/* Fixed tooltip — DOM-managed, zero React re-renders on hover */}
-      <div
-        ref={tooltipRef}
-        className='pointer-events-none fixed z-[9999] min-w-[160px] max-w-[240px] rounded-xl px-3.5 py-2.5 shadow-xl'
-        style={{
-          visibility: 'hidden',
-          background: 'oklch(0.141 0.005 285.823)',
-          color: 'white',
-          transform: 'translateY(-100%)'
-        }}
-        aria-hidden='true'
-      >
-        <p className='font-sans text-[9px] font-semibold tracking-widest uppercase opacity-50'>
-          Provinsi
-        </p>
-        <p data-tip-name className='font-heading mt-0.5 text-sm font-bold leading-snug' />
-
-        {/* PW section — shown when province has a PW */}
-        <div data-tip-pw-section style={{ display: 'none' }}>
-          <div className='my-1.5 h-px w-full bg-white/20' />
-          <p className='font-sans text-[9px] font-semibold tracking-widest uppercase opacity-50'>
-            Pengurus Wilayah
-          </p>
-          <p data-tip-pw className='font-sans mt-0.5 text-xs leading-snug opacity-90' />
-        </div>
-
-        {/* Fallback — shown when no PW exists */}
-        <div data-tip-nopw-section style={{ display: 'none' }}>
-          <div className='my-1.5 h-px w-full bg-white/15' />
-          <p className='font-sans text-[10px] opacity-40'>Belum ada PW</p>
-        </div>
-      </div>
+      {/* Tooltip is created imperatively in document.body (see useEffect above).
+          It never lives in the React tree, preventing SSR/hydration mismatches
+          caused by next/dynamic partial bailouts during server rendering. */}
 
       {/* Header */}
       <div className='relative z-10 shrink-0 pt-8 text-center lg:pt-10'>
