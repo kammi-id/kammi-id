@@ -22,10 +22,10 @@ export type AboutSettings = {
   paragraph2: string
   readMoreLabel: string
   readMoreHref: string
-  miniStrategiTitle: string
-  miniStrategiDescription: string
-  miniStrategiLinkLabel: string
-  miniStrategiLinkHref: string
+  sejarahCardTitle: string
+  sejarahCardDescription: string
+  sejarahCardLinkLabel: string
+  sejarahCardLinkHref: string
 }
 
 export type LeaderMember = {
@@ -93,7 +93,6 @@ export type TentangSettings = {
   heroImageUrl: string
   readonly prinsipImages: [string, string, string, string, string, string]
   readonly paradigmaImages: [string, string, string, string]
-  kredoImageUrl: string
 }
 
 export const SETTINGS_DEFAULTS = {
@@ -120,12 +119,12 @@ export const SETTINGS_DEFAULTS = {
     paragraph2:
       'Didirikan pada 1998, KAMMI telah melahirkan ribuan kader yang kini berkontribusi di berbagai sektor kehidupan bangsa: pemerintahan, akademisi, wirausaha, dan masyarakat sipil.',
     readMoreLabel: 'Lebih jauh tentang kami',
-    readMoreHref: '#organisasi',
-    miniStrategiTitle: 'Mini Strategi',
-    miniStrategiDescription:
-      'Membangun kader yang memiliki kemampuan intelektual, kepemimpinan, dan semangat dakwah untuk menjadi agen perubahan di skala lokal hingga nasional.',
-    miniStrategiLinkLabel: 'Selengkapnya',
-    miniStrategiLinkHref: '#strategi'
+    readMoreHref: '/tentang',
+    sejarahCardTitle: 'Lahir dari Rahim Reformasi',
+    sejarahCardDescription:
+      'Dari kampus ke kampus, KAMMI tumbuh sebagai kekuatan moral yang konsisten menjaga arah perubahan tetap berada di jalur keadilan dan kebenaran.',
+    sejarahCardLinkLabel: 'Baca sejarah lengkap',
+    sejarahCardLinkHref: '/tentang#sejarah'
   } satisfies AboutSettings,
 
   leadership: {
@@ -227,8 +226,7 @@ export const SETTINGS_DEFAULTS = {
   tentang: {
     heroImageUrl: '',
     prinsipImages: ['', '', '', '', '', ''],
-    paradigmaImages: ['', '', '', ''],
-    kredoImageUrl: ''
+    paradigmaImages: ['', '', '', '']
   } satisfies TentangSettings
 } as const
 
