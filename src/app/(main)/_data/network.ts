@@ -1,4 +1,4 @@
-import { unstable_cache } from 'next/cache'
+import { cacheLife, cacheTag } from 'next/cache'
 import { db } from '~/db/db'
 import { organization } from '~/db/schema/organization.sql'
 import { count, eq, inArray } from 'drizzle-orm'
@@ -15,7 +15,13 @@ export type PWOrg = {
   code: string
 }
 
-const _getNetworkStats = async (): Promise<NetworkStats> => {
+// ── Private query helpers ─────────────────────────────────────────────────────
+// These functions reference `db` directly. They are NOT 'use cache' functions.
+// `'use cache'` cannot serialize class instances (like Drizzle's db object) as
+// closure variables for cache key generation. By separating the db logic here,
+// the cached wrappers below only capture serializable function references.
+
+const _fetchNetworkStats = async (): Promise<NetworkStats> => {
   const results = await db
     .select({ type: organization.type, total: count() })
     .from(organization)
@@ -32,7 +38,7 @@ const _getNetworkStats = async (): Promise<NetworkStats> => {
   }
 }
 
-const _getPWOrganizations = async (): Promise<PWOrg[]> =>
+const _fetchPWOrganizations = async (): Promise<PWOrg[]> =>
   db
     .select({
       id: organization.id,
@@ -43,12 +49,20 @@ const _getPWOrganizations = async (): Promise<PWOrg[]> =>
     .where(eq(organization.type, 'pw'))
     .orderBy(organization.code)
 
-export const getNetworkStats = unstable_cache(_getNetworkStats, ['network-stats'], {
-  revalidate: 3600,
-  tags: ['network-stats']
-})
+// ── Public cached exports ─────────────────────────────────────────────────────
+// Only call the helper functions above — never reference `db` directly.
+// This matches the same pattern used in `_data/site-settings.ts`.
 
-export const getPWOrganizations = unstable_cache(_getPWOrganizations, ['pw-orgs'], {
-  revalidate: 3600,
-  tags: ['pw-orgs']
-})
+export const getNetworkStats = async (): Promise<NetworkStats> => {
+  'use cache'
+  cacheLife('hours')
+  cacheTag('network-stats')
+  return _fetchNetworkStats()
+}
+
+export const getPWOrganizations = async (): Promise<PWOrg[]> => {
+  'use cache'
+  cacheLife('hours')
+  cacheTag('pw-orgs')
+  return _fetchPWOrganizations()
+}
