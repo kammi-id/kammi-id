@@ -29,11 +29,16 @@ const resolveUrl = async (path: string): Promise<string> => {
 }
 
 // Cached PP org ID lookup — the PP org is stable, expires daily.
+// Returns null (→ defaults) if DB is unavailable (e.g. during Docker build).
 const resolvePPOrgId = async (): Promise<string | null> => {
   'use cache'
   cacheLife('days')
   cacheTag('pp-org-id')
-  return readOrganizationIdByType('pp')
+  try {
+    return await readOrganizationIdByType('pp')
+  } catch {
+    return null
+  }
 }
 
 export const getHomeHeroItemsSettings =
