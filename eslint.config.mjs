@@ -2,6 +2,7 @@ import { defineConfig, globalIgnores } from 'eslint/config'
 import nextVitals from 'eslint-config-next/core-web-vitals'
 import nextTs from 'eslint-config-next/typescript'
 import prettier from 'eslint-config-prettier/flat'
+import reactHooks from 'eslint-plugin-react-hooks'
 
 const eslintConfig = defineConfig([
   ...nextVitals,
@@ -13,11 +14,16 @@ const eslintConfig = defineConfig([
     '.next/**',
     'out/**',
     'build/**',
-    'next-env.d.ts'
+    'next-env.d.ts',
+    // Tooling worktrees and local-only directories:
+    '.claude/**',
+    '.claire/**',
+    '.agents/**'
   ]),
   // TODO: Address these as part of ongoing code quality improvements.
   // These rules flag widespread pre-existing patterns in the codebase.
   {
+    plugins: { 'react-hooks': reactHooks },
     rules: {
       // `any` is used intentionally in many places — clean up incrementally.
       '@typescript-eslint/no-explicit-any': 'warn',

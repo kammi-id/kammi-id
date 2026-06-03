@@ -88,6 +88,7 @@ export const PengurusHeroClient = ({
           0.32
         )
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         ScrollTrigger.create({
           trigger: section,
           start: 'top top',
@@ -99,7 +100,7 @@ export const PengurusHeroClient = ({
           // Prevent scrub from extrapolating below progress 0 on overscroll —
           // keeps title centered and at scale 3.5 when scrolling past the top
           clamp: true
-        })
+        } as any)
       } else {
         // Mobile M1: vertical stage reveal — text then photos stagger from below
         gsap.set(textWrapper, { opacity: 0, scale: 1.5, y: '10vh' })
