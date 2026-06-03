@@ -35,7 +35,10 @@ const loginFormAction = async (
         message: issue.message,
         path: issue.path
       })),
-      values: { username: typeof rawFormData.username === 'string' ? rawFormData.username : '' }
+      values: {
+        username:
+          typeof rawFormData.username === 'string' ? rawFormData.username : ''
+      }
     }
   }
 

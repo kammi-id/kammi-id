@@ -28,7 +28,7 @@ export const ActionsSection = async () => {
           >
             {heading}
           </h2>
-          <p className='text-background/60 mt-3 font-sans text-sm'>
+          <p className='text-background/60 mx-auto mt-3 max-w-2xl font-sans text-sm'>
             {subheading}
           </p>
         </div>

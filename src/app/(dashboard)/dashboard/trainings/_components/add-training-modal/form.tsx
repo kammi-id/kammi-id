@@ -98,7 +98,8 @@ export const TrainingForm = ({
   useEffect(() => {
     if (state.values && !state.success) {
       if (state.values.name) setName(state.values.name)
-      if (state.values.registrationDeadline) setRegistrationDeadline(state.values.registrationDeadline)
+      if (state.values.registrationDeadline)
+        setRegistrationDeadline(state.values.registrationDeadline)
     }
   }, [state.values, state.success])
 
@@ -349,7 +350,8 @@ export const TrainingForm = ({
               errors={state.errors?.masterId?.map((m) => ({ message: m }))}
             />
             <FieldDescription>
-              Hanya kader yang sudah lulus dan bersertifikat sebagai instruktur dauroh yang bisa dipilih.
+              Hanya kader yang sudah lulus dan bersertifikat sebagai instruktur
+              dauroh yang bisa dipilih.
             </FieldDescription>
           </Field>
         </FieldGroup>

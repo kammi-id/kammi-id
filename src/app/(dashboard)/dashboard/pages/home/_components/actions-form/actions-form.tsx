@@ -32,7 +32,11 @@ export const ActionsForm = ({ initialData }: Props) => {
   const [heading, setHeading] = useState(initialData.heading)
   const [subheading, setSubheading] = useState(initialData.subheading)
 
-  const { isDirty, markClean } = useUnsavedChanges({ programs, heading, subheading })
+  const { isDirty, markClean } = useUnsavedChanges({
+    programs,
+    heading,
+    subheading
+  })
 
   useEffect(() => {
     if (state.success) {
@@ -40,13 +44,14 @@ export const ActionsForm = ({ initialData }: Props) => {
       markClean()
     }
     if (state.error) toast.error(state.error)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state])
 
   useEffect(() => {
     if (state.values && !state.success) {
       if (state.values.heading !== undefined) setHeading(state.values.heading)
-      if (state.values.subheading !== undefined) setSubheading(state.values.subheading)
+      if (state.values.subheading !== undefined)
+        setSubheading(state.values.subheading)
     }
   }, [state.values, state.success])
 
@@ -264,11 +269,7 @@ export const ActionsForm = ({ initialData }: Props) => {
 
       <div className='flex items-center justify-end gap-3'>
         <UnsavedChangesBanner isDirty={isDirty} />
-        <Button
-          type='submit'
-          className='px-6'
-          disabled={isPending}
-        >
+        <Button type='submit' className='px-6' disabled={isPending}>
           {isPending ? 'Menyimpan...' : 'Simpan Pengaturan Aksi'}
         </Button>
       </div>

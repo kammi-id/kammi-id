@@ -8,6 +8,7 @@ import {
   SelectTrigger,
   SelectValue
 } from '~/components/shadcn/ui/select'
+import { Checkbox } from '~/components/shadcn/ui/checkbox'
 import { Badge } from '~/components/shadcn/ui/badge'
 import { cn } from '~/lib/shadcn/utils'
 import { BulkMemberRowSchema, type ParsedRow } from './bulk-upload-utils'
@@ -23,13 +24,18 @@ const revalidateRow = (row: ParsedRow): ParsedRow => {
     return { ...row, data: result.data, errors: {}, valid: true }
   }
   const errors: Record<string, string> = {}
-  for (const [field, msgs] of Object.entries(result.error.flatten().fieldErrors)) {
+  for (const [field, msgs] of Object.entries(
+    result.error.flatten().fieldErrors
+  )) {
     errors[field] = (msgs as string[])[0]
   }
   return { ...row, errors, valid: false }
 }
 
-export const BulkUploadPreview = ({ rows, onChange }: BulkUploadPreviewProps) => {
+export const BulkUploadPreview = ({
+  rows,
+  onChange
+}: BulkUploadPreviewProps) => {
   const updateRow = (index: number, field: string, value: unknown) => {
     const updated = rows.map((row) => {
       if (row.index !== index) return row
@@ -45,7 +51,9 @@ export const BulkUploadPreview = ({ rows, onChange }: BulkUploadPreviewProps) =>
   return (
     <div className='space-y-3'>
       <div className='flex items-center justify-between'>
-        <span className='text-muted-foreground text-sm'>{rows.length} baris ditemukan</span>
+        <span className='text-muted-foreground text-sm'>
+          {rows.length} baris ditemukan
+        </span>
         {errorCount > 0 ? (
           <Badge variant='destructive'>{errorCount} baris error</Badge>
         ) : (
@@ -59,23 +67,42 @@ export const BulkUploadPreview = ({ rows, onChange }: BulkUploadPreviewProps) =>
             <tr>
               <th className='px-3 py-2 text-left font-medium'>#</th>
               <th className='px-3 py-2 text-left font-medium'>Nama *</th>
-              <th className='px-3 py-2 text-left font-medium'>Jenis Kelamin *</th>
+              <th className='px-3 py-2 text-left font-medium'>
+                Jenis Kelamin *
+              </th>
+              <th className='px-3 py-2 text-left font-medium'>
+                Jenjang Pengkaderan *
+              </th>
               <th className='px-3 py-2 text-left font-medium'>Tahun Masuk *</th>
               <th className='px-3 py-2 text-left font-medium'>No HP</th>
+              <th className='px-3 py-2 text-center font-medium'>Pemandu</th>
+              <th className='px-3 py-2 text-center font-medium'>Instruktur</th>
             </tr>
           </thead>
           <tbody>
             {rows.map((row) => (
-              <tr key={row.index} className={cn('border-t', !row.valid && 'bg-destructive/5')}>
-                <td className='text-muted-foreground px-3 py-2 text-xs'>{row.index + 1}</td>
+              <tr
+                key={row.index}
+                className={cn('border-t', !row.valid && 'bg-destructive/5')}
+              >
+                <td className='text-muted-foreground px-3 py-2 text-xs'>
+                  {row.index + 1}
+                </td>
                 <td className='px-3 py-1.5'>
                   <Input
                     value={String(row.data.name ?? '')}
-                    onChange={(e) => updateRow(row.index, 'name', e.target.value)}
-                    className={cn('h-7 text-xs', row.errors.name && 'border-destructive')}
+                    onChange={(e) =>
+                      updateRow(row.index, 'name', e.target.value)
+                    }
+                    className={cn(
+                      'h-7 text-xs',
+                      row.errors.name && 'border-destructive'
+                    )}
                   />
                   {row.errors.name && (
-                    <p className='text-destructive mt-0.5 text-xs'>{row.errors.name}</p>
+                    <p className='text-destructive mt-0.5 text-xs'>
+                      {row.errors.name}
+                    </p>
                   )}
                 </td>
                 <td className='px-3 py-1.5'>
@@ -84,7 +111,10 @@ export const BulkUploadPreview = ({ rows, onChange }: BulkUploadPreviewProps) =>
                     onValueChange={(v) => updateRow(row.index, 'gender', v)}
                   >
                     <SelectTrigger
-                      className={cn('h-7 text-xs', row.errors.gender && 'border-destructive')}
+                      className={cn(
+                        'h-7 text-xs',
+                        row.errors.gender && 'border-destructive'
+                      )}
                     >
                       <SelectValue placeholder='Pilih' />
                     </SelectTrigger>
@@ -94,7 +124,34 @@ export const BulkUploadPreview = ({ rows, onChange }: BulkUploadPreviewProps) =>
                     </SelectContent>
                   </Select>
                   {row.errors.gender && (
-                    <p className='text-destructive mt-0.5 text-xs'>{row.errors.gender}</p>
+                    <p className='text-destructive mt-0.5 text-xs'>
+                      {row.errors.gender}
+                    </p>
+                  )}
+                </td>
+                <td className='px-3 py-1.5'>
+                  <Select
+                    value={String(row.data.status ?? 'ab1')}
+                    onValueChange={(v) => updateRow(row.index, 'status', v)}
+                  >
+                    <SelectTrigger
+                      className={cn(
+                        'h-7 text-xs',
+                        row.errors.status && 'border-destructive'
+                      )}
+                    >
+                      <SelectValue placeholder='Pilih' />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value='ab1'>AB 1</SelectItem>
+                      <SelectItem value='ab2'>AB 2</SelectItem>
+                      <SelectItem value='ab3'>AB 3</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {row.errors.status && (
+                    <p className='text-destructive mt-0.5 text-xs'>
+                      {row.errors.status}
+                    </p>
                   )}
                 </td>
                 <td className='px-3 py-1.5'>
@@ -103,23 +160,55 @@ export const BulkUploadPreview = ({ rows, onChange }: BulkUploadPreviewProps) =>
                     min={1998}
                     max={currentYear}
                     value={String(row.data.yearOfEntry ?? '')}
-                    onChange={(e) => updateRow(row.index, 'yearOfEntry', Number(e.target.value))}
+                    onChange={(e) =>
+                      updateRow(
+                        row.index,
+                        'yearOfEntry',
+                        Number(e.target.value)
+                      )
+                    }
                     className={cn(
                       'h-7 w-24 text-xs',
                       row.errors.yearOfEntry && 'border-destructive'
                     )}
                   />
                   {row.errors.yearOfEntry && (
-                    <p className='text-destructive mt-0.5 text-xs'>{row.errors.yearOfEntry}</p>
+                    <p className='text-destructive mt-0.5 text-xs'>
+                      {row.errors.yearOfEntry}
+                    </p>
                   )}
                 </td>
                 <td className='px-3 py-1.5'>
                   <Input
                     value={String(row.data.phone ?? '')}
-                    onChange={(e) => updateRow(row.index, 'phone', e.target.value || null)}
+                    onChange={(e) =>
+                      updateRow(row.index, 'phone', e.target.value || null)
+                    }
                     className='h-7 text-xs'
                     placeholder='Opsional'
                   />
+                </td>
+                <td className='px-3 py-1.5'>
+                  <div className='flex justify-center'>
+                    <Checkbox
+                      checked={row.data.isCertifiedMentor ?? false}
+                      onCheckedChange={(v) =>
+                        updateRow(row.index, 'isCertifiedMentor', !!v)
+                      }
+                      aria-label='Pemandu'
+                    />
+                  </div>
+                </td>
+                <td className='px-3 py-1.5'>
+                  <div className='flex justify-center'>
+                    <Checkbox
+                      checked={row.data.isCertifiedInstructor ?? false}
+                      onCheckedChange={(v) =>
+                        updateRow(row.index, 'isCertifiedInstructor', !!v)
+                      }
+                      aria-label='Instruktur'
+                    />
+                  </div>
                 </td>
               </tr>
             ))}

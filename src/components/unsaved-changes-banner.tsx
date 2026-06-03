@@ -27,7 +27,9 @@ export const UnsavedChangesBanner = ({
         className='text-muted-foreground size-4 shrink-0'
         strokeWidth={2}
       />
-      <span className='text-muted-foreground'>Ada perubahan belum disimpan.</span>
+      <span className='text-muted-foreground'>
+        Ada perubahan belum disimpan.
+      </span>
     </div>
   )
 }

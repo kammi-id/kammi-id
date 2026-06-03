@@ -5,6 +5,7 @@ const nextConfig: NextConfig = {
   cacheComponents: true,
   reactCompiler: true,
   experimental: {
+    viewTransition: true,
     serverActions: {
       bodySizeLimit: '50mb'
     },

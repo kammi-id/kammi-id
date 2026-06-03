@@ -15,14 +15,22 @@ import { ProfileEditProvider } from '../profile-edit-context'
 import { ProfileHeader } from '../profile-header'
 import { ProfileInfo } from '../profile-info'
 import { ProfileSidebar } from '../profile-sidebar'
-import { ProfileTrainingHistory } from '../profile-training-history'
+import { AcademicSection } from '../academic-section'
+import { CareerSection } from '../career-section'
+import { OrganizationSection } from '../organization-section'
 import type { Member } from '~/db/query/member'
 import type { MemberTrainingHistory } from '~/db/query/training'
+import type { MemberAcademic } from '~/db/query/academic'
+import type { MemberCareer } from '~/db/query/career'
+import type { MemberOrganizationHistory } from '~/db/query/organization-history'
 
 interface ProfileInlineEditFormProps {
   member: Member
   canEdit: boolean
   trainingHistory: MemberTrainingHistory
+  academicHistory: MemberAcademic[]
+  careerHistory: MemberCareer[]
+  organizationHistory: MemberOrganizationHistory[]
   orgHierarchySlot?: ReactNode
   adminActionsSlot?: ReactNode
 }
@@ -31,6 +39,9 @@ export const ProfileInlineEditForm = ({
   member,
   canEdit,
   trainingHistory,
+  academicHistory,
+  careerHistory,
+  organizationHistory,
   orgHierarchySlot,
   adminActionsSlot
 }: ProfileInlineEditFormProps) => {
@@ -97,6 +108,9 @@ export const ProfileInlineEditForm = ({
       value={{
         member,
         trainingHistory,
+        academicHistory,
+        careerHistory,
+        organizationHistory,
         canEdit,
         isEditing,
         isPending,
@@ -116,7 +130,13 @@ export const ProfileInlineEditForm = ({
               <main className='min-w-0 flex-1'>
                 <ProfileInfo key={`info-${formKey}`} />
                 <div className='mt-8'>
-                  <ProfileTrainingHistory />
+                  <AcademicSection />
+                </div>
+                <div className='mt-8'>
+                  <CareerSection />
+                </div>
+                <div className='mt-8'>
+                  <OrganizationSection />
                 </div>
               </main>
 

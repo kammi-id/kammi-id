@@ -3,7 +3,12 @@
 import { useStore } from '@nanostores/react'
 import { useState, useEffect } from 'react'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Key01Icon, Download04Icon, Delete02Icon, InformationCircleIcon } from '@hugeicons/core-free-icons'
+import {
+  Key01Icon,
+  Download04Icon,
+  Delete02Icon,
+  InformationCircleIcon
+} from '@hugeicons/core-free-icons'
 import { Button } from '~/components/shadcn/ui/button'
 import { Badge } from '~/components/shadcn/ui/badge'
 import {
@@ -12,7 +17,7 @@ import {
   SheetDescription,
   SheetHeader,
   SheetTitle,
-  SheetTrigger,
+  SheetTrigger
 } from '~/components/shadcn/ui/sheet'
 import {
   AlertDialog,
@@ -23,14 +28,18 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
+  AlertDialogTrigger
 } from '~/components/shadcn/ui/alert-dialog'
 import {
   Tooltip,
   TooltipContent,
-  TooltipTrigger,
+  TooltipTrigger
 } from '~/components/shadcn/ui/tooltip'
-import { credentialStore, clearCredentials, type CredentialEntry } from './store'
+import {
+  credentialStore,
+  clearCredentials,
+  type CredentialEntry
+} from './store'
 
 type CredentialPanelProps = {
   organizationId: string
@@ -43,8 +52,7 @@ const downloadCSV = (entries: CredentialEntry[], orgSlug: string) => {
 
   const header = 'Nama,NIK (Username),Password,Tanggal Generate'
   const rows = entries.map(
-    (e) =>
-      `"${e.name}","${e.registerNumber}","${e.password}","${e.createdAt}"`
+    (e) => `"${e.name}","${e.registerNumber}","${e.password}","${e.createdAt}"`
   )
   const csv = [header, ...rows].join('\n')
 
@@ -59,12 +67,17 @@ const downloadCSV = (entries: CredentialEntry[], orgSlug: string) => {
   URL.revokeObjectURL(url)
 }
 
-export const CredentialPanel = ({ organizationId, orgSlug }: CredentialPanelProps) => {
+export const CredentialPanel = ({
+  organizationId,
+  orgSlug
+}: CredentialPanelProps) => {
   const store = useStore(credentialStore)
   const [open, setOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
 
-  useEffect(() => { setMounted(true) }, [])
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const entries = store[organizationId] ?? []
   const count = entries.length
@@ -79,14 +92,19 @@ export const CredentialPanel = ({ organizationId, orgSlug }: CredentialPanelProp
         <TooltipTrigger render={<span />}>
           <SheetTrigger
             render={
-              <Button variant="ghost" size="icon" className="relative" aria-label="Lihat credential tersimpan" />
+              <Button
+                variant='ghost'
+                size='icon'
+                className='relative'
+                aria-label='Lihat credential tersimpan'
+              />
             }
           >
             <HugeiconsIcon icon={Key01Icon} strokeWidth={2} />
             {mounted && count > 0 && (
               <Badge
-                className="absolute -top-1 -right-1 h-4 min-w-4 px-1 text-[10px] leading-none"
-                variant="default"
+                className='absolute -top-1 -right-1 h-4 min-w-4 px-1 text-[10px] leading-none'
+                variant='default'
               >
                 {count > 99 ? '99+' : count}
               </Badge>
@@ -96,8 +114,11 @@ export const CredentialPanel = ({ organizationId, orgSlug }: CredentialPanelProp
         <TooltipContent>Credential Tersimpan</TooltipContent>
       </Tooltip>
 
-      <SheetContent side="right" className="sm:max-w-lg w-full flex flex-col gap-0 p-0">
-        <SheetHeader className="px-6 pt-6 pb-4 border-b">
+      <SheetContent
+        side='right'
+        className='flex w-full flex-col gap-0 p-0 sm:max-w-lg'
+      >
+        <SheetHeader className='border-b px-6 pt-6 pb-4'>
           <SheetTitle>Credential Tersimpan</SheetTitle>
           <SheetDescription>
             {count > 0
@@ -106,41 +127,82 @@ export const CredentialPanel = ({ organizationId, orgSlug }: CredentialPanelProp
           </SheetDescription>
         </SheetHeader>
 
-        <div className="flex items-start gap-2 px-6 py-3 border-b bg-muted/30 text-xs text-muted-foreground">
-          <HugeiconsIcon icon={InformationCircleIcon} strokeWidth={2} className="size-3.5 mt-0.5 shrink-0" />
-          <span>Data ini hanya tersimpan di browser ini. Download CSV untuk menyimpan secara permanen.</span>
+        <div className='bg-muted/30 text-muted-foreground flex items-start gap-2 border-b px-6 py-3 text-xs'>
+          <HugeiconsIcon
+            icon={InformationCircleIcon}
+            strokeWidth={2}
+            className='mt-0.5 size-3.5 shrink-0'
+          />
+          <span>
+            Data ini hanya tersimpan di browser ini. Download CSV untuk
+            menyimpan secara permanen.
+          </span>
         </div>
 
-        <div className="flex-1 overflow-auto">
+        <div className='flex-1 overflow-auto'>
           {count === 0 ? (
-            <div className="flex flex-col items-center justify-center gap-3 py-16 px-6 text-center text-muted-foreground">
-              <HugeiconsIcon icon={Key01Icon} strokeWidth={1.5} className="size-10 opacity-40" />
-              <p className="text-sm">
-                Belum ada credential yang di-generate. Upload XLSX kader untuk mulai generate.
+            <div className='text-muted-foreground flex flex-col items-center justify-center gap-3 px-6 py-16 text-center'>
+              <HugeiconsIcon
+                icon={Key01Icon}
+                strokeWidth={1.5}
+                className='size-10 opacity-40'
+              />
+              <p className='text-sm'>
+                Belum ada credential yang di-generate. Upload XLSX kader untuk
+                mulai generate.
               </p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+            <div className='overflow-x-auto'>
+              <table className='w-full text-sm'>
                 <thead>
-                  <tr className="border-b bg-muted/40">
-                    <th scope="col" className="px-4 py-3 text-left font-geist-mono text-xs font-medium tracking-wide text-muted-foreground uppercase">Nama</th>
-                    <th scope="col" className="px-4 py-3 text-left font-geist-mono text-xs font-medium tracking-wide text-muted-foreground uppercase">NIK</th>
-                    <th scope="col" className="px-4 py-3 text-left font-geist-mono text-xs font-medium tracking-wide text-muted-foreground uppercase">Password</th>
-                    <th scope="col" className="px-4 py-3 text-left font-geist-mono text-xs font-medium tracking-wide text-muted-foreground whitespace-nowrap uppercase">Tgl. Generate</th>
+                  <tr className='bg-muted/40 border-b'>
+                    <th
+                      scope='col'
+                      className='font-geist-mono text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wide uppercase'
+                    >
+                      Nama
+                    </th>
+                    <th
+                      scope='col'
+                      className='font-geist-mono text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wide uppercase'
+                    >
+                      NIK
+                    </th>
+                    <th
+                      scope='col'
+                      className='font-geist-mono text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wide uppercase'
+                    >
+                      Password
+                    </th>
+                    <th
+                      scope='col'
+                      className='font-geist-mono text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wide whitespace-nowrap uppercase'
+                    >
+                      Tgl. Generate
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
                   {entries.map((entry) => (
-                    <tr key={entry.registerNumber} className="border-b last:border-0 hover:bg-muted/20 transition-colors">
-                      <td className="px-4 py-3 max-w-[160px] truncate font-medium">{entry.name}</td>
-                      <td className="px-4 py-3 font-mono text-xs">{entry.registerNumber}</td>
-                      <td className="px-4 py-3 font-mono text-xs">{entry.password}</td>
-                      <td className="px-4 py-3 text-xs text-muted-foreground whitespace-nowrap">
+                    <tr
+                      key={entry.registerNumber}
+                      className='hover:bg-muted/20 border-b transition-colors last:border-0'
+                    >
+                      <td className='max-w-[160px] truncate px-4 py-3 font-medium'>
+                        {entry.name}
+                      </td>
+                      <td className='px-4 py-3 font-mono text-xs'>
+                        {entry.registerNumber}
+                      </td>
+                      <td className='px-4 py-3 font-mono text-xs'>
+                        {entry.password}
+                      </td>
+                      <td className='text-muted-foreground px-4 py-3 text-xs whitespace-nowrap'>
                         {new Date(entry.createdAt).toLocaleDateString('id-ID', {
                           day: '2-digit',
                           month: 'short',
-                          year: 'numeric',
+                          year: 'numeric'
                         })}
                       </td>
                     </tr>
@@ -152,27 +214,32 @@ export const CredentialPanel = ({ organizationId, orgSlug }: CredentialPanelProp
         </div>
 
         {count > 0 && (
-          <div className="flex items-center justify-between gap-3 border-t px-6 py-4">
+          <div className='flex items-center justify-between gap-3 border-t px-6 py-4'>
             <AlertDialog>
               <AlertDialogTrigger
                 render={
-                  <Button variant="outline" size="sm" className="text-destructive border-destructive/30 hover:bg-destructive/10 hover:text-destructive" />
+                  <Button
+                    variant='outline'
+                    size='sm'
+                    className='text-destructive border-destructive/30 hover:bg-destructive/10 hover:text-destructive'
+                  />
                 }
               >
                 <HugeiconsIcon icon={Delete02Icon} strokeWidth={2} />
                 Hapus Semua
               </AlertDialogTrigger>
-              <AlertDialogContent size="sm">
+              <AlertDialogContent size='sm'>
                 <AlertDialogHeader>
                   <AlertDialogTitle>Hapus semua credential?</AlertDialogTitle>
                   <AlertDialogDescription>
-                    Tindakan ini tidak dapat dibatalkan. Semua {count} credential yang tersimpan untuk organisasi ini akan dihapus.
+                    Tindakan ini tidak dapat dibatalkan. Semua {count}{' '}
+                    credential yang tersimpan untuk organisasi ini akan dihapus.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Batal</AlertDialogCancel>
                   <AlertDialogAction
-                    variant="destructive"
+                    variant='destructive'
                     onClick={handleClear}
                   >
                     Hapus Semua
@@ -181,10 +248,7 @@ export const CredentialPanel = ({ organizationId, orgSlug }: CredentialPanelProp
               </AlertDialogContent>
             </AlertDialog>
 
-            <Button
-              size="sm"
-              onClick={() => downloadCSV(entries, orgSlug)}
-            >
+            <Button size='sm' onClick={() => downloadCSV(entries, orgSlug)}>
               <HugeiconsIcon icon={Download04Icon} strokeWidth={2} />
               Download CSV
             </Button>

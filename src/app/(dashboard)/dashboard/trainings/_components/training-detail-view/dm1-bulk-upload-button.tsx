@@ -12,9 +12,6 @@ export const DM1BulkUploadButton = ({
   organizationId
 }: DM1BulkUploadButtonProps) => {
   return (
-    <BulkUploadDialog
-      organizationId={organizationId}
-      trainingId={trainingId}
-    />
+    <BulkUploadDialog organizationId={organizationId} trainingId={trainingId} />
   )
 }

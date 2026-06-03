@@ -40,7 +40,9 @@ export const SiteHeader = ({ rightSlot }: SiteHeaderProps) => {
           orientation='vertical'
           className='mx-2 h-4 data-vertical:self-auto'
         />
-        <span className='flex-1 text-base font-medium'>{getLabel(pathname)}</span>
+        <span className='flex-1 text-base font-medium'>
+          {getLabel(pathname)}
+        </span>
         {rightSlot}
       </div>
     </header>

@@ -1,7 +1,7 @@
 'use server'
 
 import { cookies } from 'next/headers'
-import { revalidatePath, revalidateTag } from 'next/cache'
+import { revalidatePath, updateTag } from 'next/cache'
 import { validateSession } from '~/lib/auth/api'
 import { upsertSiteSettings } from '~/db/query/site-settings'
 import { z } from 'zod'
@@ -13,7 +13,7 @@ export type SettingsActionState = {
   values?: Record<string, string>
 }
 
-const checkAccess = async () => {
+const checkAccess = async (): Promise<{ orgId: string } | null> => {
   const cookieStore = await cookies()
   const token = cookieStore.get('kammi_id_session')?.value
   if (!token) return null
@@ -22,44 +22,75 @@ const checkAccess = async () => {
   if (!session) return null
 
   const { role, connectedOrganization } = session.user
-  const isRoot = role === 'root'
-  const isHumasPP = role === 'humas' && connectedOrganization?.type === 'pp'
+  if (role !== 'root' && role !== 'humas') return null
 
-  if (!isRoot && !isHumasPP) return null
-  return session
+  const orgId = connectedOrganization?.id
+  if (!orgId) return null
+
+  return { orgId }
 }
 
+const personSchema = z.object({
+  name: z.string(),
+  photoUrl: z.string()
+})
+
+const leaderMemberSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  role: z.string(),
+  photoUrl: z.string()
+})
+
+const leaderBlockSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  members: z.array(leaderMemberSchema)
+})
+
 const leadershipSchema = z.object({
-  periodLabel: z.string().min(1),
+  periodLabel: z.string().min(1, 'Label periode wajib diisi.'),
   heading: z.string().min(1, 'Judul seksi wajib diisi.'),
-  leaders: z
-    .array(
-      z.object({
-        name: z.string().min(1, 'Nama wajib diisi.'),
-        role: z.string().min(1, 'Jabatan wajib diisi.'),
-        photoUrl: z.string().min(1, 'URL foto wajib diisi.')
-      })
-    )
-    .min(1)
+  triumvirate: z.object({
+    ketua: personSchema,
+    sekretaris: personSchema,
+    bendahara: personSchema
+  }),
+  leaders: z.array(
+    z.object({
+      name: z.string(),
+      role: z.string(),
+      photoUrl: z.string()
+    })
+  ),
+  leaderBlocks: z.array(leaderBlockSchema)
 })
 
 export const saveLeadershipAction = async (
   _prev: SettingsActionState,
   formData: FormData
 ): Promise<SettingsActionState> => {
-  if (!(await checkAccess())) return { error: 'Akses ditolak.' }
+  const access = await checkAccess()
+  if (!access) return { error: 'Akses ditolak.' }
+  const { orgId } = access
 
   const raw = Object.fromEntries(formData)
-  const leadersJson = raw.leaders as string
 
-  let leaders
+  let leaders, triumvirate, leaderBlocks
   try {
-    leaders = JSON.parse(leadersJson)
+    leaders = JSON.parse(raw.leaders as string)
+    triumvirate = JSON.parse(raw.triumvirate as string)
+    leaderBlocks = JSON.parse(raw.leaderBlocks as string)
   } catch {
     return { error: 'Data pengurus tidak valid.' }
   }
 
-  const result = leadershipSchema.safeParse({ ...raw, leaders })
+  const result = leadershipSchema.safeParse({
+    ...raw,
+    leaders,
+    triumvirate,
+    leaderBlocks
+  })
   if (!result.success) {
     return {
       fieldErrors: result.error.flatten().fieldErrors as Record<
@@ -67,15 +98,18 @@ export const saveLeadershipAction = async (
         string[]
       >,
       values: Object.fromEntries(
-        Object.entries({ periodLabel: raw.periodLabel, heading: raw.heading })
-          .filter(([, v]) => v != null && typeof v === 'string')
+        Object.entries({
+          periodLabel: raw.periodLabel,
+          heading: raw.heading
+        }).filter(([, v]) => v != null && typeof v === 'string')
       ) as Record<string, string>
     }
   }
 
   try {
-    await upsertSiteSettings('leadership', result.data)
+    await upsertSiteSettings('leadership', result.data, orgId)
     revalidatePath('/')
+    updateTag(`site-settings-leadership-${orgId}`)
     return { success: true }
   } catch {
     return { error: 'Gagal menyimpan pengaturan kepemimpinan.' }

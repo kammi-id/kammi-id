@@ -22,7 +22,10 @@ import {
   DialogHeader,
   DialogTitle
 } from '~/components/shadcn/ui/dialog'
-import { appendCredentials, type CredentialEntry } from '~/components/credential-store/store'
+import {
+  appendCredentials,
+  type CredentialEntry
+} from '~/components/credential-store/store'
 import { regenerateCredentialAction } from './action'
 
 const CopyButton = ({ value }: { value: string }) => {
@@ -40,7 +43,9 @@ const CopyButton = ({ value }: { value: string }) => {
       className='text-muted-foreground hover:text-foreground ml-auto shrink-0 transition-colors'
       aria-label={copied ? 'Tersalin' : 'Salin ke clipboard'}
     >
-      <span className='font-geist-mono text-xs'>{copied ? 'Tersalin!' : 'Salin'}</span>
+      <span className='font-geist-mono text-xs'>
+        {copied ? 'Tersalin!' : 'Salin'}
+      </span>
     </button>
   )
 }
@@ -80,7 +85,8 @@ export const ResetPasswordButton = ({
         toast.success(result.message)
       } else {
         toast.error(result.message ?? 'Gagal mereset password', {
-          description: 'Coba lagi atau hubungi administrator jika masalah berlanjut.',
+          description:
+            'Coba lagi atau hubungi administrator jika masalah berlanjut.'
         })
       }
     })
@@ -89,9 +95,14 @@ export const ResetPasswordButton = ({
   return (
     <>
       <AlertDialog>
-        <AlertDialogTrigger render={<Button variant='outline' size='sm' disabled={isPending} />}>
+        <AlertDialogTrigger
+          render={<Button variant='outline' size='sm' disabled={isPending} />}
+        >
           {isPending ? (
-            <HugeiconsIcon icon={Loading03Icon} className='mr-2 size-3.5 animate-spin' />
+            <HugeiconsIcon
+              icon={Loading03Icon}
+              className='mr-2 size-3.5 animate-spin'
+            />
           ) : (
             <HugeiconsIcon icon={Key01Icon} className='mr-2 size-3.5' />
           )}
@@ -102,7 +113,8 @@ export const ResetPasswordButton = ({
             <AlertDialogTitle>Reset password kader ini?</AlertDialogTitle>
             <AlertDialogDescription>
               Password lama kader ini akan langsung tidak berlaku dan diganti
-              dengan yang baru. Password baru akan tersimpan di Credential Panel.
+              dengan yang baru. Password baru akan tersimpan di Credential
+              Panel.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -123,17 +135,23 @@ export const ResetPasswordButton = ({
             <div className='space-y-3 rounded-lg border p-4'>
               <div>
                 <div className='flex items-center justify-between gap-2'>
-                  <p className='text-muted-foreground text-xs'>NIK (Username)</p>
+                  <p className='text-muted-foreground text-xs'>
+                    NIK (Username)
+                  </p>
                   <CopyButton value={newCredential.registerNumber} />
                 </div>
-                <p className='font-geist-mono text-sm font-medium'>{newCredential.registerNumber}</p>
+                <p className='font-geist-mono text-sm font-medium'>
+                  {newCredential.registerNumber}
+                </p>
               </div>
               <div>
                 <div className='flex items-center justify-between gap-2'>
                   <p className='text-muted-foreground text-xs'>Password Baru</p>
                   <CopyButton value={newCredential.password} />
                 </div>
-                <p className='font-geist-mono text-sm font-medium'>{newCredential.password}</p>
+                <p className='font-geist-mono text-sm font-medium'>
+                  {newCredential.password}
+                </p>
               </div>
               <p className='text-muted-foreground text-xs'>
                 Credential ini juga sudah tersimpan di Credential Panel.

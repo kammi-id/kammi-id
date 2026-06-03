@@ -15,8 +15,11 @@ import { trainingAttendants } from '~/db/schema/training.sql'
 const BulkMemberInputSchema = z.object({
   name: z.string().min(1, 'Nama wajib diisi'),
   gender: z.enum(['ikhwan', 'akhwat']),
+  status: z.enum(['ab1', 'ab2', 'ab3']).default('ab1'),
   yearOfEntry: z.number().min(1998).max(new Date().getFullYear()),
-  phone: z.string().optional().nullable()
+  phone: z.string().optional().nullable(),
+  isCertifiedMentor: z.boolean().default(false),
+  isCertifiedInstructor: z.boolean().default(false)
 })
 
 const BulkCreateInputSchema = z.object({
@@ -65,7 +68,11 @@ export const bulkCreateMembersAction = async (
       const errorMessages = Object.entries(errors).map(
         ([field, msgs]) => `${field}: ${(msgs as string[])[0]}`
       )
-      return { success: false, message: 'Validasi input gagal.', errors: errorMessages }
+      return {
+        success: false,
+        message: 'Validasi input gagal.',
+        errors: errorMessages
+      }
     }
 
     const { members, organizationId, trainingId } = validated.data
@@ -125,7 +132,8 @@ export const bulkCreateMembersAction = async (
         }
       }
 
-      if (!pwCode || !pdCode) throw new Error('Failed to parse organization codes')
+      if (!pwCode || !pdCode)
+        throw new Error('Failed to parse organization codes')
 
       for (const memberInput of members) {
         const prefix = `${pwCode}${pdCode}${memberInput.yearOfEntry}`
@@ -157,12 +165,12 @@ export const bulkCreateMembersAction = async (
             phone: memberInput.phone ?? null,
             organizationId,
             registerNumber,
-            status: 'ab1',
+            status: memberInput.status ?? 'ab1',
             isAlumn: false,
             isSuspended: false,
             isNonActive: false,
-            isCertifiedMentor: false,
-            isCertifiedInstructor: false
+            isCertifiedMentor: memberInput.isCertifiedMentor ?? false,
+            isCertifiedInstructor: memberInput.isCertifiedInstructor ?? false
           })
           .returning({
             id: memberTable.id,
@@ -213,7 +221,9 @@ export const bulkCreateMembersAction = async (
     return {
       success: false,
       message:
-        error instanceof Error ? error.message : 'Terjadi kesalahan tak terduga.'
+        error instanceof Error
+          ? error.message
+          : 'Terjadi kesalahan tak terduga.'
     }
   }
 }

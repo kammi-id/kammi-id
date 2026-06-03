@@ -1,61 +1,43 @@
-import Link from 'next/link'
-import { buttonVariants } from '~/components/shadcn/ui/button/button'
-import { cn } from '~/lib/shadcn/utils'
+import { getNetworkStats, getPWOrganizations } from '~/app/(main)/_data/network'
+import { NetworkSectionClient } from './network-section-client'
+import { NetworkSectionErrorBoundary } from './network-section-error-boundary'
 
-const STATS = [
-  { value: '38', label: 'Wilayah / Provinsi', suffix: '' },
-  { value: '300', label: 'Daerah / Kabupaten', suffix: '+' },
-  { value: '1.000', label: 'Komisariat / Kampus', suffix: '+' },
-  { value: '50k', label: 'Kader Aktif', suffix: '+' }
-]
-
-export const NetworkSection = () => {
-  return (
-    <section
-      className='bg-muted/40 py-20 lg:py-28'
-      aria-labelledby='network-heading'
+// ── RSC-level fallback ────────────────────────────────────────────────────────
+// Shown when the DB query fails (e.g. connection error). Keeps the visual
+// layout consistent without crashing the whole page.
+const NetworkSectionDataFallback = () => (
+  <section
+    className='bg-background border-border relative flex h-dvh max-h-dvh flex-col items-center justify-center gap-3 border-t'
+    aria-labelledby='network-fallback-heading'
+  >
+    <p
+      id='network-fallback-heading'
+      className='text-muted-foreground font-sans text-sm'
     >
-      <div className='mx-auto max-w-7xl px-6 lg:px-8'>
-        <div className='mb-12 text-center'>
-          <h2
-            id='network-heading'
-            className='font-heading text-foreground text-[clamp(1.5rem,3vw,2rem)] font-bold'
-          >
-            Peta Jaringan Nasional
-          </h2>
-          <div
-            className='bg-primary mx-auto mt-1 h-1 w-12 rounded-full'
-            aria-hidden='true'
-          />
-          <p className='text-muted-foreground mt-4 font-sans text-sm'>
-            Dari Sabang sampai Merauke, jaringan KAMMI hadir untuk mendukung
-            agenda kebangsaan dari level kampus.
-          </p>
-        </div>
+      Data jaringan tidak tersedia saat ini
+    </p>
+  </section>
+)
 
-        <div className='grid grid-cols-2 gap-4 lg:grid-cols-4'>
-          {STATS.map((stat) => (
-            <div
-              key={stat.label}
-              className='border-border bg-background rounded-2xl border p-6 text-center'
-            >
-              <p className='font-heading text-foreground text-[clamp(2rem,5vw,3rem)] leading-none font-bold'>
-                {stat.value}
-                <span className='text-primary'>{stat.suffix}</span>
-              </p>
-              <p className='text-muted-foreground mt-2 font-sans text-xs font-medium'>
-                {stat.label}
-              </p>
-            </div>
-          ))}
-        </div>
+// ── RSC wrapper ───────────────────────────────────────────────────────────────
+export const NetworkSection = async () => {
+  let stats: Awaited<ReturnType<typeof getNetworkStats>>
+  let pwOrgs: Awaited<ReturnType<typeof getPWOrganizations>>
 
-        <div className='mt-10 flex justify-center'>
-          <Link href='/dashboard' className={cn(buttonVariants())}>
-            Cari Pengurus Daerah
-          </Link>
-        </div>
-      </div>
-    </section>
+  try {
+    ;[stats, pwOrgs] = await Promise.all([
+      getNetworkStats(),
+      getPWOrganizations()
+    ])
+  } catch {
+    // DB unavailable — render graceful fallback instead of crashing the page
+    return <NetworkSectionDataFallback />
+  }
+
+  return (
+    // Client-side error boundary: catches Leaflet / dynamic-import runtime errors
+    <NetworkSectionErrorBoundary>
+      <NetworkSectionClient stats={stats} pwOrgs={pwOrgs} />
+    </NetworkSectionErrorBoundary>
   )
 }

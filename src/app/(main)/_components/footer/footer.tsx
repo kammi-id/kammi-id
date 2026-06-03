@@ -29,8 +29,8 @@ export const Footer = async () => {
             <Image
               src={Logo}
               alt='KAMMI.id'
-              className='h-10 w-auto object-contain'
-              style={{ height: '40px', width: 'auto' }}
+              className='h-16 w-auto object-contain'
+              style={{ height: '64px', width: 'auto' }}
             />
             <p className='text-muted-foreground mt-4 max-w-xs font-sans text-sm leading-relaxed'>
               Kesatuan Aksi Mahasiswa Muslim Indonesia. Organisasi mahasiswa

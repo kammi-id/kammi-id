@@ -2,56 +2,38 @@ import { cacheLife, cacheTag } from 'next/cache'
 import {
   readSiteSettings,
   SETTINGS_DEFAULTS,
-  type HeroSettings,
-  type AboutSettings,
-  type ActionsSettings,
-  type NavSettings,
-  type FooterSettings,
-  type MetadataSettings
+  type HomeHeroItemsSettings,
+  type HomeExtraItemsSettings
 } from '~/db/query/site-settings'
 
-export const getCachedHeroSettings = async (): Promise<HeroSettings> => {
+export const getCachedHomeHeroItemsSettings = async (
+  organizationId: string
+): Promise<HomeHeroItemsSettings> => {
   'use cache'
   cacheLife('days')
-  cacheTag('site-settings', 'site-settings-hero')
-  return readSiteSettings<HeroSettings>('hero', SETTINGS_DEFAULTS.hero)
+  cacheTag(
+    'site-settings',
+    `site-settings-home-hero-items-${organizationId}`
+  )
+  return readSiteSettings<HomeHeroItemsSettings>(
+    'home-hero-items',
+    SETTINGS_DEFAULTS.homeHeroItems,
+    organizationId
+  )
 }
 
-export const getCachedAboutSettings = async (): Promise<AboutSettings> => {
+export const getCachedHomeExtraItemsSettings = async (
+  organizationId: string
+): Promise<HomeExtraItemsSettings> => {
   'use cache'
   cacheLife('days')
-  cacheTag('site-settings', 'site-settings-about')
-  return readSiteSettings<AboutSettings>('about', SETTINGS_DEFAULTS.about)
+  cacheTag(
+    'site-settings',
+    `site-settings-home-extra-items-${organizationId}`
+  )
+  return readSiteSettings<HomeExtraItemsSettings>(
+    'home-extra-items',
+    SETTINGS_DEFAULTS.homeExtraItems,
+    organizationId
+  )
 }
-
-export const getCachedActionsSettings = async (): Promise<ActionsSettings> => {
-  'use cache'
-  cacheLife('days')
-  cacheTag('site-settings', 'site-settings-actions')
-  return readSiteSettings<ActionsSettings>('actions', SETTINGS_DEFAULTS.actions)
-}
-
-export const getCachedNavSettings = async (): Promise<NavSettings> => {
-  'use cache'
-  cacheLife('days')
-  cacheTag('site-settings', 'site-settings-nav')
-  return readSiteSettings<NavSettings>('nav', SETTINGS_DEFAULTS.nav)
-}
-
-export const getCachedFooterSettings = async (): Promise<FooterSettings> => {
-  'use cache'
-  cacheLife('days')
-  cacheTag('site-settings', 'site-settings-footer')
-  return readSiteSettings<FooterSettings>('footer', SETTINGS_DEFAULTS.footer)
-}
-
-export const getCachedMetadataSettings =
-  async (): Promise<MetadataSettings> => {
-    'use cache'
-    cacheLife('days')
-    cacheTag('site-settings', 'site-settings-metadata')
-    return readSiteSettings<MetadataSettings>(
-      'metadata',
-      SETTINGS_DEFAULTS.metadata
-    )
-  }

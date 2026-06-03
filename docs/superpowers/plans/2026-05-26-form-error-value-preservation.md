@@ -12,28 +12,29 @@
 
 ## File Map
 
-| File | Perubahan |
-|---|---|
-| `src/app/(dashboard)/login/_components/login-form/action.ts` | Tambah `values` ke `LoginFormState` & return saat error |
-| `src/app/(dashboard)/login/_components/login-form/login-form.tsx` | Username field → controlled dengan `state.values` |
-| `src/app/(dashboard)/dashboard/branches/_components/add-form/action.ts` | Tambah `values` ke `OrgFormState` & return saat error |
-| `src/app/(dashboard)/dashboard/branches/_components/add-form/add-form.tsx` | Fields `name`, `code`, `slug` → controlled; `type` (Select) → controlled |
-| `src/app/(dashboard)/dashboard/trainings/_components/add-training-modal/action.ts` | Tambah `values` ke `ActionResponse` & return saat error |
-| `src/app/(dashboard)/dashboard/trainings/_components/add-training-modal/form.tsx` | Field `name` & `registrationDeadline` → controlled state |
-| `src/app/(dashboard)/dashboard/pages/home/_components/action.ts` | Tambah `values` ke `SettingsActionState` & return di semua action |
-| `src/app/(dashboard)/dashboard/pages/home/_components/about-form/about-form.tsx` | Semua field → controlled |
-| `src/app/(dashboard)/dashboard/pages/home/_components/hero-form/hero-form.tsx` | Semua text field → controlled |
-| `src/app/(dashboard)/dashboard/pages/home/_components/metadata-form/metadata-form.tsx` | Semua field → controlled |
-| `src/app/(dashboard)/dashboard/pages/home/_components/nav-form/nav-form.tsx` | Fields `ctaBergabungLabel` & `ctaBergabungHref` → controlled |
-| `src/app/(dashboard)/dashboard/pages/home/_components/footer-form/footer-form.tsx` | Social media fields → controlled |
-| `src/app/(dashboard)/dashboard/pages/managers/_components/action.ts` | Tambah `values` ke `SettingsActionState` & return saat error |
-| `src/app/(dashboard)/dashboard/pages/managers/_components/leadership-form/leadership-form.tsx` | Fields `periodLabel` & `heading` → controlled |
+| File                                                                                           | Perubahan                                                                |
+| ---------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| `src/app/(dashboard)/login/_components/login-form/action.ts`                                   | Tambah `values` ke `LoginFormState` & return saat error                  |
+| `src/app/(dashboard)/login/_components/login-form/login-form.tsx`                              | Username field → controlled dengan `state.values`                        |
+| `src/app/(dashboard)/dashboard/branches/_components/add-form/action.ts`                        | Tambah `values` ke `OrgFormState` & return saat error                    |
+| `src/app/(dashboard)/dashboard/branches/_components/add-form/add-form.tsx`                     | Fields `name`, `code`, `slug` → controlled; `type` (Select) → controlled |
+| `src/app/(dashboard)/dashboard/trainings/_components/add-training-modal/action.ts`             | Tambah `values` ke `ActionResponse` & return saat error                  |
+| `src/app/(dashboard)/dashboard/trainings/_components/add-training-modal/form.tsx`              | Field `name` & `registrationDeadline` → controlled state                 |
+| `src/app/(dashboard)/dashboard/pages/home/_components/action.ts`                               | Tambah `values` ke `SettingsActionState` & return di semua action        |
+| `src/app/(dashboard)/dashboard/pages/home/_components/about-form/about-form.tsx`               | Semua field → controlled                                                 |
+| `src/app/(dashboard)/dashboard/pages/home/_components/hero-form/hero-form.tsx`                 | Semua text field → controlled                                            |
+| `src/app/(dashboard)/dashboard/pages/home/_components/metadata-form/metadata-form.tsx`         | Semua field → controlled                                                 |
+| `src/app/(dashboard)/dashboard/pages/home/_components/nav-form/nav-form.tsx`                   | Fields `ctaBergabungLabel` & `ctaBergabungHref` → controlled             |
+| `src/app/(dashboard)/dashboard/pages/home/_components/footer-form/footer-form.tsx`             | Social media fields → controlled                                         |
+| `src/app/(dashboard)/dashboard/pages/managers/_components/action.ts`                           | Tambah `values` ke `SettingsActionState` & return saat error             |
+| `src/app/(dashboard)/dashboard/pages/managers/_components/leadership-form/leadership-form.tsx` | Fields `periodLabel` & `heading` → controlled                            |
 
 ---
 
 ## Task 1: LoginForm — Preserve Username on Error
 
 **Files:**
+
 - Modify: `src/app/(dashboard)/login/_components/login-form/action.ts`
 - Modify: `src/app/(dashboard)/login/_components/login-form/login-form.tsx`
 
@@ -122,6 +123,7 @@ git commit -m "fix(login): preserve username input on form error"
 ## Task 2: AddOrganizationForm (Branches) — Preserve All Fields on Error
 
 **Files:**
+
 - Modify: `src/app/(dashboard)/dashboard/branches/_components/add-form/action.ts`
 - Modify: `src/app/(dashboard)/dashboard/branches/_components/add-form/add-form.tsx`
 
@@ -333,6 +335,7 @@ git commit -m "fix(branches): preserve form values on validation error"
 ## Task 3: TrainingForm — Preserve `name` dan `registrationDeadline` on Error
 
 **Files:**
+
 - Modify: `src/app/(dashboard)/dashboard/trainings/_components/add-training-modal/action.ts`
 - Modify: `src/app/(dashboard)/dashboard/trainings/_components/add-training-modal/form.tsx`
 
@@ -410,6 +413,7 @@ git commit -m "fix(trainings): preserve name and deadline fields on validation e
 ## Task 4: Settings Action — Tambah `values` ke Semua Action (pages/home)
 
 **Files:**
+
 - Modify: `src/app/(dashboard)/dashboard/pages/home/_components/action.ts`
 
 - [ ] **Step 1: Tambah `values` ke `SettingsActionState` dan return di setiap action yang error**
@@ -438,7 +442,10 @@ export const saveHeroAction = async (
   const result = heroSchema.safeParse(raw)
   if (!result.success) {
     return {
-      fieldErrors: result.error.flatten().fieldErrors as Record<string, string[]>,
+      fieldErrors: result.error.flatten().fieldErrors as Record<
+        string,
+        string[]
+      >,
       values: raw as Record<string, string>
     }
   }
@@ -446,7 +453,7 @@ export const saveHeroAction = async (
 }
 ```
 
-Terapkan pola yang sama untuk: `saveAboutAction`, `saveMetadataAction`, `saveNavAction`, `saveFooterAction`. 
+Terapkan pola yang sama untuk: `saveAboutAction`, `saveMetadataAction`, `saveNavAction`, `saveFooterAction`.
 
 Untuk `saveActionsAction` dan `saveNavAction` yang menggunakan JSON.parse untuk field kompleks (programs, navLinks, dll.) — field tersebut sudah dikelola sebagai controlled state di form, jadi cukup tambah `values` berisi field-field text biasa saja (bukan JSON).
 
@@ -462,6 +469,7 @@ git commit -m "fix(pages/home): add values to SettingsActionState for error pres
 ## Task 5: AboutForm — Semua Field Menjadi Controlled
 
 **Files:**
+
 - Modify: `src/app/(dashboard)/dashboard/pages/home/_components/about-form/about-form.tsx`
 
 - [ ] **Step 1: Tambah controlled state dan restore dari `state.values`**
@@ -479,10 +487,18 @@ export const AboutForm = ({ initialData }: Props) => {
   const [paragraph2, setParagraph2] = useState(initialData.paragraph2)
   const [readMoreLabel, setReadMoreLabel] = useState(initialData.readMoreLabel)
   const [readMoreHref, setReadMoreHref] = useState(initialData.readMoreHref)
-  const [miniStrategiTitle, setMiniStrategiTitle] = useState(initialData.miniStrategiTitle)
-  const [miniStrategiDescription, setMiniStrategiDescription] = useState(initialData.miniStrategiDescription)
-  const [miniStrategiLinkLabel, setMiniStrategiLinkLabel] = useState(initialData.miniStrategiLinkLabel)
-  const [miniStrategiLinkHref, setMiniStrategiLinkHref] = useState(initialData.miniStrategiLinkHref)
+  const [miniStrategiTitle, setMiniStrategiTitle] = useState(
+    initialData.miniStrategiTitle
+  )
+  const [miniStrategiDescription, setMiniStrategiDescription] = useState(
+    initialData.miniStrategiDescription
+  )
+  const [miniStrategiLinkLabel, setMiniStrategiLinkLabel] = useState(
+    initialData.miniStrategiLinkLabel
+  )
+  const [miniStrategiLinkHref, setMiniStrategiLinkHref] = useState(
+    initialData.miniStrategiLinkHref
+  )
 
   useEffect(() => {
     if (state.success) toast.success('Pengaturan tentang berhasil disimpan.')
@@ -492,14 +508,22 @@ export const AboutForm = ({ initialData }: Props) => {
   // Restore values saat error
   useEffect(() => {
     if (state.values && !state.success) {
-      if (state.values.paragraph1 !== undefined) setParagraph1(state.values.paragraph1)
-      if (state.values.paragraph2 !== undefined) setParagraph2(state.values.paragraph2)
-      if (state.values.readMoreLabel !== undefined) setReadMoreLabel(state.values.readMoreLabel)
-      if (state.values.readMoreHref !== undefined) setReadMoreHref(state.values.readMoreHref)
-      if (state.values.miniStrategiTitle !== undefined) setMiniStrategiTitle(state.values.miniStrategiTitle)
-      if (state.values.miniStrategiDescription !== undefined) setMiniStrategiDescription(state.values.miniStrategiDescription)
-      if (state.values.miniStrategiLinkLabel !== undefined) setMiniStrategiLinkLabel(state.values.miniStrategiLinkLabel)
-      if (state.values.miniStrategiLinkHref !== undefined) setMiniStrategiLinkHref(state.values.miniStrategiLinkHref)
+      if (state.values.paragraph1 !== undefined)
+        setParagraph1(state.values.paragraph1)
+      if (state.values.paragraph2 !== undefined)
+        setParagraph2(state.values.paragraph2)
+      if (state.values.readMoreLabel !== undefined)
+        setReadMoreLabel(state.values.readMoreLabel)
+      if (state.values.readMoreHref !== undefined)
+        setReadMoreHref(state.values.readMoreHref)
+      if (state.values.miniStrategiTitle !== undefined)
+        setMiniStrategiTitle(state.values.miniStrategiTitle)
+      if (state.values.miniStrategiDescription !== undefined)
+        setMiniStrategiDescription(state.values.miniStrategiDescription)
+      if (state.values.miniStrategiLinkLabel !== undefined)
+        setMiniStrategiLinkLabel(state.values.miniStrategiLinkLabel)
+      if (state.values.miniStrategiLinkHref !== undefined)
+        setMiniStrategiLinkHref(state.values.miniStrategiLinkHref)
     }
   }, [state.values, state.success])
 
@@ -540,7 +564,9 @@ export const AboutForm = ({ initialData }: Props) => {
 
         <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
           <Field>
-            <FieldLabel htmlFor='readMoreLabel'>Label Tautan &quot;Lebih Jauh&quot;</FieldLabel>
+            <FieldLabel htmlFor='readMoreLabel'>
+              Label Tautan &quot;Lebih Jauh&quot;
+            </FieldLabel>
             <FieldContent>
               <Input
                 id='readMoreLabel'
@@ -550,7 +576,9 @@ export const AboutForm = ({ initialData }: Props) => {
                 placeholder='Lebih jauh tentang kami'
               />
             </FieldContent>
-            <FieldError errors={fe.readMoreLabel?.map((m) => ({ message: m }))} />
+            <FieldError
+              errors={fe.readMoreLabel?.map((m) => ({ message: m }))}
+            />
           </Field>
           <Field>
             <FieldLabel htmlFor='readMoreHref'>Link Tautan</FieldLabel>
@@ -563,12 +591,16 @@ export const AboutForm = ({ initialData }: Props) => {
                 placeholder='#organisasi'
               />
             </FieldContent>
-            <FieldError errors={fe.readMoreHref?.map((m) => ({ message: m }))} />
+            <FieldError
+              errors={fe.readMoreHref?.map((m) => ({ message: m }))}
+            />
           </Field>
         </div>
 
         <div className='border-border bg-muted/40 rounded-2xl border p-5'>
-          <p className='text-foreground mb-4 text-sm font-medium'>Card Mini Strategi</p>
+          <p className='text-foreground mb-4 text-sm font-medium'>
+            Card Mini Strategi
+          </p>
           <div className='space-y-4'>
             <Field>
               <FieldLabel htmlFor='miniStrategiTitle'>Judul Card</FieldLabel>
@@ -581,10 +613,14 @@ export const AboutForm = ({ initialData }: Props) => {
                   placeholder='Mini Strategi'
                 />
               </FieldContent>
-              <FieldError errors={fe.miniStrategiTitle?.map((m) => ({ message: m }))} />
+              <FieldError
+                errors={fe.miniStrategiTitle?.map((m) => ({ message: m }))}
+              />
             </Field>
             <Field>
-              <FieldLabel htmlFor='miniStrategiDescription'>Deskripsi Card</FieldLabel>
+              <FieldLabel htmlFor='miniStrategiDescription'>
+                Deskripsi Card
+              </FieldLabel>
               <FieldContent>
                 <Textarea
                   id='miniStrategiDescription'
@@ -595,11 +631,17 @@ export const AboutForm = ({ initialData }: Props) => {
                   placeholder='Membangun kader yang memiliki...'
                 />
               </FieldContent>
-              <FieldError errors={fe.miniStrategiDescription?.map((m) => ({ message: m }))} />
+              <FieldError
+                errors={fe.miniStrategiDescription?.map((m) => ({
+                  message: m
+                }))}
+              />
             </Field>
             <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
               <Field>
-                <FieldLabel htmlFor='miniStrategiLinkLabel'>Label Link Card</FieldLabel>
+                <FieldLabel htmlFor='miniStrategiLinkLabel'>
+                  Label Link Card
+                </FieldLabel>
                 <FieldContent>
                   <Input
                     id='miniStrategiLinkLabel'
@@ -611,7 +653,9 @@ export const AboutForm = ({ initialData }: Props) => {
                 </FieldContent>
               </Field>
               <Field>
-                <FieldLabel htmlFor='miniStrategiLinkHref'>Link Card</FieldLabel>
+                <FieldLabel htmlFor='miniStrategiLinkHref'>
+                  Link Card
+                </FieldLabel>
                 <FieldContent>
                   <Input
                     id='miniStrategiLinkHref'
@@ -628,7 +672,11 @@ export const AboutForm = ({ initialData }: Props) => {
       </FieldGroup>
 
       <div className='flex justify-end'>
-        <Button type='submit' className='rounded-full px-8' disabled={isPending}>
+        <Button
+          type='submit'
+          className='rounded-full px-8'
+          disabled={isPending}
+        >
           {isPending ? 'Menyimpan...' : 'Simpan Pengaturan Tentang'}
         </Button>
       </div>
@@ -657,6 +705,7 @@ git commit -m "fix(pages/home): preserve about form values on validation error"
 ## Task 6: HeroForm — Semua Text Field Menjadi Controlled
 
 **Files:**
+
 - Modify: `src/app/(dashboard)/dashboard/pages/home/_components/hero-form/hero-form.tsx`
 
 - [ ] **Step 1: Tambah controlled state untuk semua field dan restore dari `state.values`**
@@ -676,7 +725,9 @@ export const HeroForm = ({ initialData }: Props) => {
   const [subtitle, setSubtitle] = useState(initialData.subtitle)
   const [heroImageAlt, setHeroImageAlt] = useState(initialData.heroImageAlt)
   const [quoteText, setQuoteText] = useState(initialData.quoteText)
-  const [quoteAttribution, setQuoteAttribution] = useState(initialData.quoteAttribution)
+  const [quoteAttribution, setQuoteAttribution] = useState(
+    initialData.quoteAttribution
+  )
   const [cta1Label, setCta1Label] = useState(initialData.cta1Label)
   const [cta1Href, setCta1Href] = useState(initialData.cta1Href)
   const [cta2Label, setCta2Label] = useState(initialData.cta2Label)
@@ -698,7 +749,8 @@ export const HeroForm = ({ initialData }: Props) => {
       if (v.heroImageUrl !== undefined) setHeroImageUrl(v.heroImageUrl)
       if (v.heroImageAlt !== undefined) setHeroImageAlt(v.heroImageAlt)
       if (v.quoteText !== undefined) setQuoteText(v.quoteText)
-      if (v.quoteAttribution !== undefined) setQuoteAttribution(v.quoteAttribution)
+      if (v.quoteAttribution !== undefined)
+        setQuoteAttribution(v.quoteAttribution)
       if (v.cta1Label !== undefined) setCta1Label(v.cta1Label)
       if (v.cta1Href !== undefined) setCta1Href(v.cta1Href)
       if (v.cta2Label !== undefined) setCta2Label(v.cta2Label)
@@ -720,7 +772,13 @@ export const HeroForm = ({ initialData }: Props) => {
         <Field>
           <FieldLabel htmlFor='badgeText'>Teks Badge</FieldLabel>
           <FieldContent>
-            <Input id='badgeText' name='badgeText' value={badgeText} onChange={(e) => setBadgeText(e.target.value)} placeholder='Kesatuan Aksi Mahasiswa Muslim Indonesia' />
+            <Input
+              id='badgeText'
+              name='badgeText'
+              value={badgeText}
+              onChange={(e) => setBadgeText(e.target.value)}
+              placeholder='Kesatuan Aksi Mahasiswa Muslim Indonesia'
+            />
           </FieldContent>
           <FieldError errors={fe.badgeText?.map((m) => ({ message: m }))} />
         </Field>
@@ -729,14 +787,26 @@ export const HeroForm = ({ initialData }: Props) => {
           <Field>
             <FieldLabel htmlFor='title'>Judul Utama</FieldLabel>
             <FieldContent>
-              <Input id='title' name='title' value={title} onChange={(e) => setTitle(e.target.value)} placeholder='Pelopor Kebaikan' />
+              <Input
+                id='title'
+                name='title'
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder='Pelopor Kebaikan'
+              />
             </FieldContent>
             <FieldError errors={fe.title?.map((m) => ({ message: m }))} />
           </Field>
           <Field>
             <FieldLabel htmlFor='titleAccent'>Kata Aksen (merah)</FieldLabel>
             <FieldContent>
-              <Input id='titleAccent' name='titleAccent' value={titleAccent} onChange={(e) => setTitleAccent(e.target.value)} placeholder='untuk' />
+              <Input
+                id='titleAccent'
+                name='titleAccent'
+                value={titleAccent}
+                onChange={(e) => setTitleAccent(e.target.value)}
+                placeholder='untuk'
+              />
             </FieldContent>
             <FieldError errors={fe.titleAccent?.map((m) => ({ message: m }))} />
           </Field>
@@ -745,7 +815,14 @@ export const HeroForm = ({ initialData }: Props) => {
         <Field>
           <FieldLabel htmlFor='subtitle'>Subjudul / Paragraf Hero</FieldLabel>
           <FieldContent>
-            <Textarea id='subtitle' name='subtitle' value={subtitle} onChange={(e) => setSubtitle(e.target.value)} rows={3} placeholder='Membangun peradaban dengan...' />
+            <Textarea
+              id='subtitle'
+              name='subtitle'
+              value={subtitle}
+              onChange={(e) => setSubtitle(e.target.value)}
+              rows={3}
+              placeholder='Membangun peradaban dengan...'
+            />
           </FieldContent>
           <FieldError errors={fe.subtitle?.map((m) => ({ message: m }))} />
         </Field>
@@ -754,16 +831,30 @@ export const HeroForm = ({ initialData }: Props) => {
           <Field>
             <FieldLabel>Foto Hero</FieldLabel>
             <FieldContent>
-              <ImageUpload value={heroImageUrl} onChange={setHeroImageUrl} folder='site-settings/hero' />
+              <ImageUpload
+                value={heroImageUrl}
+                onChange={setHeroImageUrl}
+                folder='site-settings/hero'
+              />
             </FieldContent>
-            <FieldError errors={fe.heroImageUrl?.map((m) => ({ message: m }))} />
+            <FieldError
+              errors={fe.heroImageUrl?.map((m) => ({ message: m }))}
+            />
           </Field>
           <Field>
             <FieldLabel htmlFor='heroImageAlt'>Alt Text Foto</FieldLabel>
             <FieldContent>
-              <Input id='heroImageAlt' name='heroImageAlt' value={heroImageAlt} onChange={(e) => setHeroImageAlt(e.target.value)} placeholder='Deskripsi foto untuk aksesibilitas' />
+              <Input
+                id='heroImageAlt'
+                name='heroImageAlt'
+                value={heroImageAlt}
+                onChange={(e) => setHeroImageAlt(e.target.value)}
+                placeholder='Deskripsi foto untuk aksesibilitas'
+              />
             </FieldContent>
-            <FieldError errors={fe.heroImageAlt?.map((m) => ({ message: m }))} />
+            <FieldError
+              errors={fe.heroImageAlt?.map((m) => ({ message: m }))}
+            />
           </Field>
         </div>
 
@@ -771,16 +862,31 @@ export const HeroForm = ({ initialData }: Props) => {
           <Field>
             <FieldLabel htmlFor='quoteText'>Teks Kutipan Mengambang</FieldLabel>
             <FieldContent>
-              <Textarea id='quoteText' name='quoteText' value={quoteText} onChange={(e) => setQuoteText(e.target.value)} rows={2} placeholder='Seperti akar yang menancap dalam...' />
+              <Textarea
+                id='quoteText'
+                name='quoteText'
+                value={quoteText}
+                onChange={(e) => setQuoteText(e.target.value)}
+                rows={2}
+                placeholder='Seperti akar yang menancap dalam...'
+              />
             </FieldContent>
             <FieldError errors={fe.quoteText?.map((m) => ({ message: m }))} />
           </Field>
           <Field>
             <FieldLabel htmlFor='quoteAttribution'>Atribusi Kutipan</FieldLabel>
             <FieldContent>
-              <Input id='quoteAttribution' name='quoteAttribution' value={quoteAttribution} onChange={(e) => setQuoteAttribution(e.target.value)} placeholder='Semangat KAMMI' />
+              <Input
+                id='quoteAttribution'
+                name='quoteAttribution'
+                value={quoteAttribution}
+                onChange={(e) => setQuoteAttribution(e.target.value)}
+                placeholder='Semangat KAMMI'
+              />
             </FieldContent>
-            <FieldError errors={fe.quoteAttribution?.map((m) => ({ message: m }))} />
+            <FieldError
+              errors={fe.quoteAttribution?.map((m) => ({ message: m }))}
+            />
           </Field>
         </div>
 
@@ -788,30 +894,58 @@ export const HeroForm = ({ initialData }: Props) => {
           <p className='text-foreground mb-4 text-sm font-medium'>Tombol CTA</p>
           <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
             <Field>
-              <FieldLabel htmlFor='cta1Label'>Label Tombol 1 (Utama)</FieldLabel>
+              <FieldLabel htmlFor='cta1Label'>
+                Label Tombol 1 (Utama)
+              </FieldLabel>
               <FieldContent>
-                <Input id='cta1Label' name='cta1Label' value={cta1Label} onChange={(e) => setCta1Label(e.target.value)} placeholder='Mulai Bergabung' />
+                <Input
+                  id='cta1Label'
+                  name='cta1Label'
+                  value={cta1Label}
+                  onChange={(e) => setCta1Label(e.target.value)}
+                  placeholder='Mulai Bergabung'
+                />
               </FieldContent>
               <FieldError errors={fe.cta1Label?.map((m) => ({ message: m }))} />
             </Field>
             <Field>
               <FieldLabel htmlFor='cta1Href'>Link Tombol 1</FieldLabel>
               <FieldContent>
-                <Input id='cta1Href' name='cta1Href' value={cta1Href} onChange={(e) => setCta1Href(e.target.value)} placeholder='#bergabung' />
+                <Input
+                  id='cta1Href'
+                  name='cta1Href'
+                  value={cta1Href}
+                  onChange={(e) => setCta1Href(e.target.value)}
+                  placeholder='#bergabung'
+                />
               </FieldContent>
               <FieldError errors={fe.cta1Href?.map((m) => ({ message: m }))} />
             </Field>
             <Field>
-              <FieldLabel htmlFor='cta2Label'>Label Tombol 2 (Outline)</FieldLabel>
+              <FieldLabel htmlFor='cta2Label'>
+                Label Tombol 2 (Outline)
+              </FieldLabel>
               <FieldContent>
-                <Input id='cta2Label' name='cta2Label' value={cta2Label} onChange={(e) => setCta2Label(e.target.value)} placeholder='Pelajari Visi' />
+                <Input
+                  id='cta2Label'
+                  name='cta2Label'
+                  value={cta2Label}
+                  onChange={(e) => setCta2Label(e.target.value)}
+                  placeholder='Pelajari Visi'
+                />
               </FieldContent>
               <FieldError errors={fe.cta2Label?.map((m) => ({ message: m }))} />
             </Field>
             <Field>
               <FieldLabel htmlFor='cta2Href'>Link Tombol 2</FieldLabel>
               <FieldContent>
-                <Input id='cta2Href' name='cta2Href' value={cta2Href} onChange={(e) => setCta2Href(e.target.value)} placeholder='#tentang' />
+                <Input
+                  id='cta2Href'
+                  name='cta2Href'
+                  value={cta2Href}
+                  onChange={(e) => setCta2Href(e.target.value)}
+                  placeholder='#tentang'
+                />
               </FieldContent>
               <FieldError errors={fe.cta2Href?.map((m) => ({ message: m }))} />
             </Field>
@@ -820,7 +954,11 @@ export const HeroForm = ({ initialData }: Props) => {
       </FieldGroup>
 
       <div className='flex justify-end'>
-        <Button type='submit' className='rounded-full px-8' disabled={isPending}>
+        <Button
+          type='submit'
+          className='rounded-full px-8'
+          disabled={isPending}
+        >
           {isPending ? 'Menyimpan...' : 'Simpan Pengaturan Hero'}
         </Button>
       </div>
@@ -841,6 +979,7 @@ git commit -m "fix(pages/home): preserve hero form values on validation error"
 ## Task 7: MetadataForm — Semua Field Menjadi Controlled
 
 **Files:**
+
 - Modify: `src/app/(dashboard)/dashboard/pages/home/_components/metadata-form/metadata-form.tsx`
 
 - [ ] **Step 1: Tambah controlled state dan restore dari `state.values`**
@@ -856,7 +995,9 @@ export const MetadataForm = ({ initialData }: Props) => {
   >(saveMetadataAction, {})
 
   const [pageTitle, setPageTitle] = useState(initialData.pageTitle)
-  const [metaDescription, setMetaDescription] = useState(initialData.metaDescription)
+  const [metaDescription, setMetaDescription] = useState(
+    initialData.metaDescription
+  )
   const [ogImageUrl, setOgImageUrl] = useState(initialData.ogImageUrl)
 
   useEffect(() => {
@@ -866,9 +1007,12 @@ export const MetadataForm = ({ initialData }: Props) => {
 
   useEffect(() => {
     if (state.values && !state.success) {
-      if (state.values.pageTitle !== undefined) setPageTitle(state.values.pageTitle)
-      if (state.values.metaDescription !== undefined) setMetaDescription(state.values.metaDescription)
-      if (state.values.ogImageUrl !== undefined) setOgImageUrl(state.values.ogImageUrl)
+      if (state.values.pageTitle !== undefined)
+        setPageTitle(state.values.pageTitle)
+      if (state.values.metaDescription !== undefined)
+        setMetaDescription(state.values.metaDescription)
+      if (state.values.ogImageUrl !== undefined)
+        setOgImageUrl(state.values.ogImageUrl)
     }
   }, [state.values, state.success])
 
@@ -880,33 +1024,67 @@ export const MetadataForm = ({ initialData }: Props) => {
         <Field>
           <FieldLabel htmlFor='pageTitle'>Judul Halaman (Title Tag)</FieldLabel>
           <FieldContent>
-            <Input id='pageTitle' name='pageTitle' value={pageTitle} onChange={(e) => setPageTitle(e.target.value)} placeholder='KAMMI.id — Pelopor Kebaikan untuk Indonesia' />
+            <Input
+              id='pageTitle'
+              name='pageTitle'
+              value={pageTitle}
+              onChange={(e) => setPageTitle(e.target.value)}
+              placeholder='KAMMI.id — Pelopor Kebaikan untuk Indonesia'
+            />
           </FieldContent>
-          <FieldDescription>Muncul di tab browser dan hasil pencarian Google.</FieldDescription>
+          <FieldDescription>
+            Muncul di tab browser dan hasil pencarian Google.
+          </FieldDescription>
           <FieldError errors={fe.pageTitle?.map((m) => ({ message: m }))} />
         </Field>
 
         <Field>
           <FieldLabel htmlFor='metaDescription'>Deskripsi Meta</FieldLabel>
           <FieldContent>
-            <Textarea id='metaDescription' name='metaDescription' value={metaDescription} onChange={(e) => setMetaDescription(e.target.value)} rows={3} placeholder='Kesatuan Aksi Mahasiswa Muslim Indonesia...' />
+            <Textarea
+              id='metaDescription'
+              name='metaDescription'
+              value={metaDescription}
+              onChange={(e) => setMetaDescription(e.target.value)}
+              rows={3}
+              placeholder='Kesatuan Aksi Mahasiswa Muslim Indonesia...'
+            />
           </FieldContent>
-          <FieldDescription>Ideal 150-160 karakter. Ditampilkan di hasil pencarian.</FieldDescription>
-          <FieldError errors={fe.metaDescription?.map((m) => ({ message: m }))} />
+          <FieldDescription>
+            Ideal 150-160 karakter. Ditampilkan di hasil pencarian.
+          </FieldDescription>
+          <FieldError
+            errors={fe.metaDescription?.map((m) => ({ message: m }))}
+          />
         </Field>
 
         <Field>
-          <FieldLabel htmlFor='ogImageUrl'>URL Gambar OG (Open Graph)</FieldLabel>
+          <FieldLabel htmlFor='ogImageUrl'>
+            URL Gambar OG (Open Graph)
+          </FieldLabel>
           <FieldContent>
-            <Input id='ogImageUrl' name='ogImageUrl' value={ogImageUrl} onChange={(e) => setOgImageUrl(e.target.value)} placeholder='/assets/logo.png atau https://...' />
+            <Input
+              id='ogImageUrl'
+              name='ogImageUrl'
+              value={ogImageUrl}
+              onChange={(e) => setOgImageUrl(e.target.value)}
+              placeholder='/assets/logo.png atau https://...'
+            />
           </FieldContent>
-          <FieldDescription>Gambar yang muncul saat halaman dibagikan di WhatsApp, Twitter, dll. Ukuran ideal 1200x630px.</FieldDescription>
+          <FieldDescription>
+            Gambar yang muncul saat halaman dibagikan di WhatsApp, Twitter, dll.
+            Ukuran ideal 1200x630px.
+          </FieldDescription>
           <FieldError errors={fe.ogImageUrl?.map((m) => ({ message: m }))} />
         </Field>
       </FieldGroup>
 
       <div className='flex justify-end'>
-        <Button type='submit' className='rounded-full px-8' disabled={isPending}>
+        <Button
+          type='submit'
+          className='rounded-full px-8'
+          disabled={isPending}
+        >
           {isPending ? 'Menyimpan...' : 'Simpan Metadata'}
         </Button>
       </div>
@@ -927,6 +1105,7 @@ git commit -m "fix(pages/home): preserve metadata form values on validation erro
 ## Task 8: NavForm — `ctaBergabungLabel` dan `ctaBergabungHref` Menjadi Controlled
 
 **Files:**
+
 - Modify: `src/app/(dashboard)/dashboard/pages/home/_components/nav-form/nav-form.tsx`
 
 - [ ] **Step 1: Tambah controlled state untuk CTA fields dan restore dari `state.values`**
@@ -940,8 +1119,12 @@ export const NavForm = ({ initialData }: Props) => {
     FormData
   >(saveNavAction, {})
   const [navLinks, setNavLinks] = useState<NavLink[]>(initialData.navLinks)
-  const [ctaBergabungLabel, setCtaBergabungLabel] = useState(initialData.ctaBergabungLabel)
-  const [ctaBergabungHref, setCtaBergabungHref] = useState(initialData.ctaBergabungHref)
+  const [ctaBergabungLabel, setCtaBergabungLabel] = useState(
+    initialData.ctaBergabungLabel
+  )
+  const [ctaBergabungHref, setCtaBergabungHref] = useState(
+    initialData.ctaBergabungHref
+  )
 
   useEffect(() => {
     if (state.success) toast.success('Pengaturan navigasi berhasil disimpan.')
@@ -950,8 +1133,10 @@ export const NavForm = ({ initialData }: Props) => {
 
   useEffect(() => {
     if (state.values && !state.success) {
-      if (state.values.ctaBergabungLabel !== undefined) setCtaBergabungLabel(state.values.ctaBergabungLabel)
-      if (state.values.ctaBergabungHref !== undefined) setCtaBergabungHref(state.values.ctaBergabungHref)
+      if (state.values.ctaBergabungLabel !== undefined)
+        setCtaBergabungLabel(state.values.ctaBergabungLabel)
+      if (state.values.ctaBergabungHref !== undefined)
+        setCtaBergabungHref(state.values.ctaBergabungHref)
     }
   }, [state.values, state.success])
 
@@ -966,31 +1151,57 @@ export const NavForm = ({ initialData }: Props) => {
       className='space-y-8'
     >
       <FieldGroup>
-        <LinkListEditor links={navLinks} onChange={setNavLinks} label='Menu Navigasi Utama' />
+        <LinkListEditor
+          links={navLinks}
+          onChange={setNavLinks}
+          label='Menu Navigasi Utama'
+        />
 
         <div className='border-border bg-muted/40 rounded-2xl border p-5'>
-          <p className='text-foreground mb-4 text-sm font-medium'>Tombol CTA Navbar</p>
+          <p className='text-foreground mb-4 text-sm font-medium'>
+            Tombol CTA Navbar
+          </p>
           <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
             <Field>
               <FieldLabel htmlFor='ctaBergabungLabel'>Label Tombol</FieldLabel>
               <FieldContent>
-                <Input id='ctaBergabungLabel' name='ctaBergabungLabel' value={ctaBergabungLabel} onChange={(e) => setCtaBergabungLabel(e.target.value)} placeholder='Bergabung di KAMMI' />
+                <Input
+                  id='ctaBergabungLabel'
+                  name='ctaBergabungLabel'
+                  value={ctaBergabungLabel}
+                  onChange={(e) => setCtaBergabungLabel(e.target.value)}
+                  placeholder='Bergabung di KAMMI'
+                />
               </FieldContent>
-              <FieldError errors={fe.ctaBergabungLabel?.map((m) => ({ message: m }))} />
+              <FieldError
+                errors={fe.ctaBergabungLabel?.map((m) => ({ message: m }))}
+              />
             </Field>
             <Field>
               <FieldLabel htmlFor='ctaBergabungHref'>Link Tombol</FieldLabel>
               <FieldContent>
-                <Input id='ctaBergabungHref' name='ctaBergabungHref' value={ctaBergabungHref} onChange={(e) => setCtaBergabungHref(e.target.value)} placeholder='#bergabung' />
+                <Input
+                  id='ctaBergabungHref'
+                  name='ctaBergabungHref'
+                  value={ctaBergabungHref}
+                  onChange={(e) => setCtaBergabungHref(e.target.value)}
+                  placeholder='#bergabung'
+                />
               </FieldContent>
-              <FieldError errors={fe.ctaBergabungHref?.map((m) => ({ message: m }))} />
+              <FieldError
+                errors={fe.ctaBergabungHref?.map((m) => ({ message: m }))}
+              />
             </Field>
           </div>
         </div>
       </FieldGroup>
 
       <div className='flex justify-end'>
-        <Button type='submit' className='rounded-full px-8' disabled={isPending}>
+        <Button
+          type='submit'
+          className='rounded-full px-8'
+          disabled={isPending}
+        >
           {isPending ? 'Menyimpan...' : 'Simpan Pengaturan Navigasi'}
         </Button>
       </div>
@@ -1011,6 +1222,7 @@ git commit -m "fix(pages/home): preserve nav CTA fields on validation error"
 ## Task 9: FooterForm — Social Media Fields Menjadi Controlled
 
 **Files:**
+
 - Modify: `src/app/(dashboard)/dashboard/pages/home/_components/footer-form/footer-form.tsx`
 
 - [ ] **Step 1: Tambah controlled state untuk social fields dan restore dari `state.values`**
@@ -1024,12 +1236,18 @@ export const FooterForm = ({ initialData }: Props) => {
     FormData
   >(saveFooterAction, {})
   const [footerKAMMI, setFooterKAMMI] = useState(initialData.footerKAMMI)
-  const [footerBeritaData, setFooterBeritaData] = useState(initialData.footerBeritaData)
-  const [footerIkutiKami, setFooterIkutiKami] = useState(initialData.footerIkutiKami)
+  const [footerBeritaData, setFooterBeritaData] = useState(
+    initialData.footerBeritaData
+  )
+  const [footerIkutiKami, setFooterIkutiKami] = useState(
+    initialData.footerIkutiKami
+  )
   const [socialIG, setSocialIG] = useState(initialData.socialIG)
   const [socialTwitter, setSocialTwitter] = useState(initialData.socialTwitter)
   const [socialYoutube, setSocialYoutube] = useState(initialData.socialYoutube)
-  const [socialTelegram, setSocialTelegram] = useState(initialData.socialTelegram)
+  const [socialTelegram, setSocialTelegram] = useState(
+    initialData.socialTelegram
+  )
 
   useEffect(() => {
     if (state.success) toast.success('Pengaturan footer berhasil disimpan.')
@@ -1038,10 +1256,14 @@ export const FooterForm = ({ initialData }: Props) => {
 
   useEffect(() => {
     if (state.values && !state.success) {
-      if (state.values.socialIG !== undefined) setSocialIG(state.values.socialIG)
-      if (state.values.socialTwitter !== undefined) setSocialTwitter(state.values.socialTwitter)
-      if (state.values.socialYoutube !== undefined) setSocialYoutube(state.values.socialYoutube)
-      if (state.values.socialTelegram !== undefined) setSocialTelegram(state.values.socialTelegram)
+      if (state.values.socialIG !== undefined)
+        setSocialIG(state.values.socialIG)
+      if (state.values.socialTwitter !== undefined)
+        setSocialTwitter(state.values.socialTwitter)
+      if (state.values.socialYoutube !== undefined)
+        setSocialYoutube(state.values.socialYoutube)
+      if (state.values.socialTelegram !== undefined)
+        setSocialTelegram(state.values.socialTelegram)
     }
   }, [state.values, state.success])
 
@@ -1057,34 +1279,78 @@ export const FooterForm = ({ initialData }: Props) => {
     >
       <FieldGroup>
         <div className='border-border bg-muted/40 rounded-2xl border p-5'>
-          <p className='text-foreground mb-4 text-sm font-medium'>Tautan Media Sosial</p>
+          <p className='text-foreground mb-4 text-sm font-medium'>
+            Tautan Media Sosial
+          </p>
           <FieldDescription className='mb-4'>
             Isi URL lengkap atau biarkan kosong untuk menyembunyikan ikon.
           </FieldDescription>
           <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
             {[
-              { name: 'socialIG', label: 'Instagram', value: socialIG, onChange: setSocialIG },
-              { name: 'socialTwitter', label: 'Twitter / X', value: socialTwitter, onChange: setSocialTwitter },
-              { name: 'socialYoutube', label: 'YouTube', value: socialYoutube, onChange: setSocialYoutube },
-              { name: 'socialTelegram', label: 'Telegram', value: socialTelegram, onChange: setSocialTelegram }
+              {
+                name: 'socialIG',
+                label: 'Instagram',
+                value: socialIG,
+                onChange: setSocialIG
+              },
+              {
+                name: 'socialTwitter',
+                label: 'Twitter / X',
+                value: socialTwitter,
+                onChange: setSocialTwitter
+              },
+              {
+                name: 'socialYoutube',
+                label: 'YouTube',
+                value: socialYoutube,
+                onChange: setSocialYoutube
+              },
+              {
+                name: 'socialTelegram',
+                label: 'Telegram',
+                value: socialTelegram,
+                onChange: setSocialTelegram
+              }
             ].map(({ name, label, value, onChange }) => (
               <Field key={name}>
                 <FieldLabel htmlFor={name}>{label}</FieldLabel>
                 <FieldContent>
-                  <Input id={name} name={name} value={value} onChange={(e) => onChange(e.target.value)} placeholder='https://...' />
+                  <Input
+                    id={name}
+                    name={name}
+                    value={value}
+                    onChange={(e) => onChange(e.target.value)}
+                    placeholder='https://...'
+                  />
                 </FieldContent>
               </Field>
             ))}
           </div>
         </div>
 
-        <LinkListEditor links={footerKAMMI} onChange={setFooterKAMMI} label='Kolom Footer: KAMMI' />
-        <LinkListEditor links={footerBeritaData} onChange={setFooterBeritaData} label='Kolom Footer: Berita & Data' />
-        <LinkListEditor links={footerIkutiKami} onChange={setFooterIkutiKami} label='Kolom Footer: Ikuti Kami' />
+        <LinkListEditor
+          links={footerKAMMI}
+          onChange={setFooterKAMMI}
+          label='Kolom Footer: KAMMI'
+        />
+        <LinkListEditor
+          links={footerBeritaData}
+          onChange={setFooterBeritaData}
+          label='Kolom Footer: Berita & Data'
+        />
+        <LinkListEditor
+          links={footerIkutiKami}
+          onChange={setFooterIkutiKami}
+          label='Kolom Footer: Ikuti Kami'
+        />
       </FieldGroup>
 
       <div className='flex justify-end'>
-        <Button type='submit' className='rounded-full px-8' disabled={isPending}>
+        <Button
+          type='submit'
+          className='rounded-full px-8'
+          disabled={isPending}
+        >
           {isPending ? 'Menyimpan...' : 'Simpan Pengaturan Footer'}
         </Button>
       </div>
@@ -1105,6 +1371,7 @@ git commit -m "fix(pages/home): preserve footer social fields on validation erro
 ## Task 10: Managers Action + LeadershipForm — `periodLabel` dan `heading` Menjadi Controlled
 
 **Files:**
+
 - Modify: `src/app/(dashboard)/dashboard/pages/managers/_components/action.ts`
 - Modify: `src/app/(dashboard)/dashboard/pages/managers/_components/leadership-form/leadership-form.tsx`
 
@@ -1117,7 +1384,10 @@ Baca file `src/app/(dashboard)/dashboard/pages/managers/_components/action.ts` t
 if (!result.success) {
   return {
     fieldErrors: result.error.flatten().fieldErrors as Record<string, string[]>,
-    values: { periodLabel: raw.periodLabel as string, heading: raw.heading as string }
+    values: {
+      periodLabel: raw.periodLabel as string,
+      heading: raw.heading as string
+    }
   }
 }
 ```
@@ -1137,13 +1407,15 @@ export const LeadershipForm = ({ initialData }: Props) => {
   const [heading, setHeading] = useState(initialData.heading)
 
   useEffect(() => {
-    if (state.success) toast.success('Pengaturan kepemimpinan berhasil disimpan.')
+    if (state.success)
+      toast.success('Pengaturan kepemimpinan berhasil disimpan.')
     if (state.error) toast.error(state.error)
   }, [state])
 
   useEffect(() => {
     if (state.values && !state.success) {
-      if (state.values.periodLabel !== undefined) setPeriodLabel(state.values.periodLabel)
+      if (state.values.periodLabel !== undefined)
+        setPeriodLabel(state.values.periodLabel)
       if (state.values.heading !== undefined) setHeading(state.values.heading)
     }
   }, [state.values, state.success])
@@ -1165,13 +1437,25 @@ export const LeadershipForm = ({ initialData }: Props) => {
           <Field>
             <FieldLabel htmlFor='periodLabel'>Label Periode</FieldLabel>
             <FieldContent>
-              <Input id='periodLabel' name='periodLabel' value={periodLabel} onChange={(e) => setPeriodLabel(e.target.value)} placeholder='Masa Jabatan KAMMI' />
+              <Input
+                id='periodLabel'
+                name='periodLabel'
+                value={periodLabel}
+                onChange={(e) => setPeriodLabel(e.target.value)}
+                placeholder='Masa Jabatan KAMMI'
+              />
             </FieldContent>
           </Field>
           <Field>
             <FieldLabel htmlFor='heading'>Judul Seksi</FieldLabel>
             <FieldContent>
-              <Input id='heading' name='heading' value={heading} onChange={(e) => setHeading(e.target.value)} placeholder='Mengenal Pengurus Pusat KAMMI' />
+              <Input
+                id='heading'
+                name='heading'
+                value={heading}
+                onChange={(e) => setHeading(e.target.value)}
+                placeholder='Mengenal Pengurus Pusat KAMMI'
+              />
             </FieldContent>
             <FieldError errors={fe.heading?.map((m) => ({ message: m }))} />
           </Field>
@@ -1181,7 +1465,11 @@ export const LeadershipForm = ({ initialData }: Props) => {
       </FieldGroup>
 
       <div className='flex justify-end'>
-        <Button type='submit' className='rounded-full px-8' disabled={isPending}>
+        <Button
+          type='submit'
+          className='rounded-full px-8'
+          disabled={isPending}
+        >
           {isPending ? 'Menyimpan...' : 'Simpan Pengaturan Kepemimpinan'}
         </Button>
       </div>
@@ -1202,6 +1490,7 @@ git commit -m "fix(pages/managers): preserve leadership form values on validatio
 ## Task 11: ActionsForm — `heading` dan `subheading` Menjadi Controlled
 
 **Files:**
+
 - Modify: `src/app/(dashboard)/dashboard/pages/home/_components/actions-form/actions-form.tsx`
 
 - [ ] **Step 1: Tambah controlled state untuk `heading` dan `subheading` dan restore dari `state.values`**
@@ -1226,7 +1515,8 @@ export const ActionsForm = ({ initialData }: Props) => {
   useEffect(() => {
     if (state.values && !state.success) {
       if (state.values.heading !== undefined) setHeading(state.values.heading)
-      if (state.values.subheading !== undefined) setSubheading(state.values.subheading)
+      if (state.values.subheading !== undefined)
+        setSubheading(state.values.subheading)
     }
   }, [state.values, state.success])
 
@@ -1247,14 +1537,26 @@ export const ActionsForm = ({ initialData }: Props) => {
           <Field>
             <FieldLabel htmlFor='heading'>Judul Seksi</FieldLabel>
             <FieldContent>
-              <Input id='heading' name='heading' value={heading} onChange={(e) => setHeading(e.target.value)} placeholder='Aksi Nyata KAMMI Untuk Indonesia' />
+              <Input
+                id='heading'
+                name='heading'
+                value={heading}
+                onChange={(e) => setHeading(e.target.value)}
+                placeholder='Aksi Nyata KAMMI Untuk Indonesia'
+              />
             </FieldContent>
             <FieldError errors={fe.heading?.map((m) => ({ message: m }))} />
           </Field>
           <Field>
             <FieldLabel htmlFor='subheading'>Subjudul Seksi</FieldLabel>
             <FieldContent>
-              <Input id='subheading' name='subheading' value={subheading} onChange={(e) => setSubheading(e.target.value)} placeholder='Manifestasi intelektualitas...' />
+              <Input
+                id='subheading'
+                name='subheading'
+                value={subheading}
+                onChange={(e) => setSubheading(e.target.value)}
+                placeholder='Manifestasi intelektualitas...'
+              />
             </FieldContent>
           </Field>
         </div>
@@ -1263,7 +1565,11 @@ export const ActionsForm = ({ initialData }: Props) => {
       </FieldGroup>
 
       <div className='flex justify-end'>
-        <Button type='submit' className='rounded-full px-8' disabled={isPending}>
+        <Button
+          type='submit'
+          className='rounded-full px-8'
+          disabled={isPending}
+        >
           {isPending ? 'Menyimpan...' : 'Simpan Pengaturan Aksi'}
         </Button>
       </div>

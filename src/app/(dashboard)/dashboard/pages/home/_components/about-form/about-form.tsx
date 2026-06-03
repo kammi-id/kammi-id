@@ -29,14 +29,20 @@ export const AboutForm = ({ initialData }: Props) => {
   const [paragraph2, setParagraph2] = useState(initialData.paragraph2)
   const [readMoreLabel, setReadMoreLabel] = useState(initialData.readMoreLabel)
   const [readMoreHref, setReadMoreHref] = useState(initialData.readMoreHref)
-  const [miniStrategiTitle, setMiniStrategiTitle] = useState(initialData.miniStrategiTitle)
-  const [miniStrategiDescription, setMiniStrategiDescription] = useState(initialData.miniStrategiDescription)
-  const [miniStrategiLinkLabel, setMiniStrategiLinkLabel] = useState(initialData.miniStrategiLinkLabel)
-  const [miniStrategiLinkHref, setMiniStrategiLinkHref] = useState(initialData.miniStrategiLinkHref)
+  const [sejarahCardTitle, setSejarahCardTitle] = useState(initialData.sejarahCardTitle)
+  const [sejarahCardDescription, setSejarahCardDescription] = useState(initialData.sejarahCardDescription)
+  const [sejarahCardLinkLabel, setSejarahCardLinkLabel] = useState(initialData.sejarahCardLinkLabel)
+  const [sejarahCardLinkHref, setSejarahCardLinkHref] = useState(initialData.sejarahCardLinkHref)
 
   const { isDirty, markClean } = useUnsavedChanges({
-    paragraph1, paragraph2, readMoreLabel, readMoreHref,
-    miniStrategiTitle, miniStrategiDescription, miniStrategiLinkLabel, miniStrategiLinkHref
+    paragraph1,
+    paragraph2,
+    readMoreLabel,
+    readMoreHref,
+    sejarahCardTitle,
+    sejarahCardDescription,
+    sejarahCardLinkLabel,
+    sejarahCardLinkHref
   })
 
   useEffect(() => {
@@ -45,19 +51,27 @@ export const AboutForm = ({ initialData }: Props) => {
       markClean()
     }
     if (state.error) toast.error(state.error)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state])
 
   useEffect(() => {
     if (state.values && !state.success) {
-      if (state.values.paragraph1 !== undefined) setParagraph1(state.values.paragraph1)
-      if (state.values.paragraph2 !== undefined) setParagraph2(state.values.paragraph2)
-      if (state.values.readMoreLabel !== undefined) setReadMoreLabel(state.values.readMoreLabel)
-      if (state.values.readMoreHref !== undefined) setReadMoreHref(state.values.readMoreHref)
-      if (state.values.miniStrategiTitle !== undefined) setMiniStrategiTitle(state.values.miniStrategiTitle)
-      if (state.values.miniStrategiDescription !== undefined) setMiniStrategiDescription(state.values.miniStrategiDescription)
-      if (state.values.miniStrategiLinkLabel !== undefined) setMiniStrategiLinkLabel(state.values.miniStrategiLinkLabel)
-      if (state.values.miniStrategiLinkHref !== undefined) setMiniStrategiLinkHref(state.values.miniStrategiLinkHref)
+      if (state.values.paragraph1 !== undefined)
+        setParagraph1(state.values.paragraph1)
+      if (state.values.paragraph2 !== undefined)
+        setParagraph2(state.values.paragraph2)
+      if (state.values.readMoreLabel !== undefined)
+        setReadMoreLabel(state.values.readMoreLabel)
+      if (state.values.readMoreHref !== undefined)
+        setReadMoreHref(state.values.readMoreHref)
+      if (state.values.sejarahCardTitle !== undefined)
+        setSejarahCardTitle(state.values.sejarahCardTitle)
+      if (state.values.sejarahCardDescription !== undefined)
+        setSejarahCardDescription(state.values.sejarahCardDescription)
+      if (state.values.sejarahCardLinkLabel !== undefined)
+        setSejarahCardLinkLabel(state.values.sejarahCardLinkLabel)
+      if (state.values.sejarahCardLinkHref !== undefined)
+        setSejarahCardLinkHref(state.values.sejarahCardLinkHref)
     }
   }, [state.values, state.success])
 
@@ -133,70 +147,60 @@ export const AboutForm = ({ initialData }: Props) => {
 
         <div className='border-border bg-muted/40 rounded-2xl border p-5'>
           <p className='text-foreground mb-4 text-sm font-medium'>
-            Card Mini Strategi
+            Card Sejarah Singkat
           </p>
           <div className='space-y-4'>
             <Field>
-              <FieldLabel htmlFor='miniStrategiTitle'>Judul Card</FieldLabel>
+              <FieldLabel htmlFor='sejarahCardTitle'>Judul Card</FieldLabel>
               <FieldContent>
                 <Input
-                  id='miniStrategiTitle'
-                  name='miniStrategiTitle'
-                  value={miniStrategiTitle}
-                  onChange={(e) => setMiniStrategiTitle(e.target.value)}
-                  placeholder='Mini Strategi'
+                  id='sejarahCardTitle'
+                  name='sejarahCardTitle'
+                  value={sejarahCardTitle}
+                  onChange={(e) => setSejarahCardTitle(e.target.value)}
+                  placeholder='Lahir dari Rahim Reformasi'
                 />
               </FieldContent>
-              <FieldError
-                errors={fe.miniStrategiTitle?.map((m) => ({ message: m }))}
-              />
+              <FieldError errors={fe.sejarahCardTitle?.map((m) => ({ message: m }))} />
             </Field>
             <Field>
-              <FieldLabel htmlFor='miniStrategiDescription'>
-                Deskripsi Card
-              </FieldLabel>
+              <FieldLabel htmlFor='sejarahCardDescription'>Deskripsi Card</FieldLabel>
               <FieldContent>
                 <Textarea
-                  id='miniStrategiDescription'
-                  name='miniStrategiDescription'
-                  value={miniStrategiDescription}
-                  onChange={(e) => setMiniStrategiDescription(e.target.value)}
+                  id='sejarahCardDescription'
+                  name='sejarahCardDescription'
+                  value={sejarahCardDescription}
+                  onChange={(e) => setSejarahCardDescription(e.target.value)}
                   rows={3}
-                  placeholder='Membangun kader yang memiliki...'
+                  placeholder='Dari kampus ke kampus, KAMMI tumbuh...'
                 />
               </FieldContent>
               <FieldError
-                errors={fe.miniStrategiDescription?.map((m) => ({
-                  message: m
-                }))}
+                errors={fe.sejarahCardDescription?.map((m) => ({ message: m }))}
               />
             </Field>
             <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
               <Field>
-                <FieldLabel htmlFor='miniStrategiLinkLabel'>
-                  Label Link Card
-                </FieldLabel>
+                <FieldLabel htmlFor='sejarahCardLinkLabel'>Label Link Card</FieldLabel>
                 <FieldContent>
                   <Input
-                    id='miniStrategiLinkLabel'
-                    name='miniStrategiLinkLabel'
-                    value={miniStrategiLinkLabel}
-                    onChange={(e) => setMiniStrategiLinkLabel(e.target.value)}
-                    placeholder='Selengkapnya'
+                    id='sejarahCardLinkLabel'
+                    name='sejarahCardLinkLabel'
+                    value={sejarahCardLinkLabel}
+                    onChange={(e) => setSejarahCardLinkLabel(e.target.value)}
+                    placeholder='Baca sejarah lengkap'
                   />
                 </FieldContent>
               </Field>
               <Field>
-                <FieldLabel htmlFor='miniStrategiLinkHref'>
-                  Link Card
-                </FieldLabel>
+                <FieldLabel htmlFor='sejarahCardLinkHref'>Link Card</FieldLabel>
                 <FieldContent>
                   <Input
-                    id='miniStrategiLinkHref'
-                    name='miniStrategiLinkHref'
-                    value={miniStrategiLinkHref}
-                    onChange={(e) => setMiniStrategiLinkHref(e.target.value)}
-                    placeholder='#strategi'
+                    id='sejarahCardLinkHref'
+                    name='sejarahCardLinkHref'
+                    value={sejarahCardLinkHref}
+                    onChange={(e) => setSejarahCardLinkHref(e.target.value)}
+                    placeholder='/tentang#sejarah'
                   />
                 </FieldContent>
               </Field>
@@ -207,11 +211,7 @@ export const AboutForm = ({ initialData }: Props) => {
 
       <div className='flex items-center justify-end gap-3'>
         <UnsavedChangesBanner isDirty={isDirty} />
-        <Button
-          type='submit'
-          className='px-6'
-          disabled={isPending}
-        >
+        <Button type='submit' className='px-6' disabled={isPending}>
           {isPending ? 'Menyimpan...' : 'Simpan Pengaturan Tentang'}
         </Button>
       </div>

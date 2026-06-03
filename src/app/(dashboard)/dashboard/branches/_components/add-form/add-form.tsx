@@ -138,7 +138,13 @@ export const AddOrganizationForm = ({
 
         <Field data-invalid={!!state.errors?.type || undefined}>
           <FieldLabel htmlFor='type'>Tipe Organisasi</FieldLabel>
-          <Select name='type' value={type} onValueChange={(val) => { if (val) setType(val) }}>
+          <Select
+            name='type'
+            value={type}
+            onValueChange={(val) => {
+              if (val) setType(val)
+            }}
+          >
             <SelectTrigger id='type' className='w-full'>
               <SelectValue placeholder='Pilih tipe' />
             </SelectTrigger>

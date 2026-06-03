@@ -22,16 +22,36 @@ export type AboutSettings = {
   paragraph2: string
   readMoreLabel: string
   readMoreHref: string
-  miniStrategiTitle: string
-  miniStrategiDescription: string
-  miniStrategiLinkLabel: string
-  miniStrategiLinkHref: string
+  sejarahCardTitle: string
+  sejarahCardDescription: string
+  sejarahCardLinkLabel: string
+  sejarahCardLinkHref: string
+}
+
+export type LeaderMember = {
+  id: string
+  name: string
+  role: string
+  photoUrl: string
+}
+
+export type LeaderBlock = {
+  id: string
+  title: string
+  members: LeaderMember[]
 }
 
 export type LeadershipSettings = {
   periodLabel: string
   heading: string
+  triumvirate: {
+    ketua: { name: string; photoUrl: string }
+    sekretaris: { name: string; photoUrl: string }
+    bendahara: { name: string; photoUrl: string }
+  }
+  /** @deprecated Use leaderBlocks instead */
   leaders: Array<{ name: string; role: string; photoUrl: string }>
+  leaderBlocks: LeaderBlock[]
 }
 
 export type ActionsSettings = {
@@ -69,6 +89,28 @@ export type MetadataSettings = {
   ogImageUrl: string
 }
 
+export type TentangSettings = {
+  heroImageUrl: string
+  readonly prinsipImages: [string, string, string, string, string, string]
+  readonly paradigmaImages: [string, string, string, string]
+}
+
+export type HomeItem = {
+  id: string
+  imageUrl: string
+  title: string
+  description: string
+  badgeText: string
+}
+
+export type HomeHeroItemsSettings = {
+  items: HomeItem[]
+}
+
+export type HomeExtraItemsSettings = {
+  items: HomeItem[]
+}
+
 export const SETTINGS_DEFAULTS = {
   hero: {
     badgeText: 'Kesatuan Aksi Mahasiswa Muslim Indonesia',
@@ -93,18 +135,24 @@ export const SETTINGS_DEFAULTS = {
     paragraph2:
       'Didirikan pada 1998, KAMMI telah melahirkan ribuan kader yang kini berkontribusi di berbagai sektor kehidupan bangsa: pemerintahan, akademisi, wirausaha, dan masyarakat sipil.',
     readMoreLabel: 'Lebih jauh tentang kami',
-    readMoreHref: '#organisasi',
-    miniStrategiTitle: 'Mini Strategi',
-    miniStrategiDescription:
-      'Membangun kader yang memiliki kemampuan intelektual, kepemimpinan, dan semangat dakwah untuk menjadi agen perubahan di skala lokal hingga nasional.',
-    miniStrategiLinkLabel: 'Selengkapnya',
-    miniStrategiLinkHref: '#strategi'
+    readMoreHref: '/tentang',
+    sejarahCardTitle: 'Lahir dari Rahim Reformasi',
+    sejarahCardDescription:
+      'Dari kampus ke kampus, KAMMI tumbuh sebagai kekuatan moral yang konsisten menjaga arah perubahan tetap berada di jalur keadilan dan kebenaran.',
+    sejarahCardLinkLabel: 'Baca sejarah lengkap',
+    sejarahCardLinkHref: '/tentang#sejarah'
   } satisfies AboutSettings,
 
   leadership: {
     periodLabel: 'Masa Jabatan KAMMI',
     heading: 'Mengenal Pengurus Pusat KAMMI',
-    leaders: []
+    triumvirate: {
+      ketua: { name: '', photoUrl: '' },
+      sekretaris: { name: '', photoUrl: '' },
+      bendahara: { name: '', photoUrl: '' }
+    },
+    leaders: [],
+    leaderBlocks: []
   } satisfies LeadershipSettings,
 
   actions: {
@@ -189,18 +237,30 @@ export const SETTINGS_DEFAULTS = {
     metaDescription:
       'Kesatuan Aksi Mahasiswa Muslim Indonesia. Membangun peradaban dengan intelektualitas, integritas, dan amal nyata.',
     ogImageUrl: '/assets/logo.png'
-  } satisfies MetadataSettings
+  } satisfies MetadataSettings,
+
+  tentang: {
+    heroImageUrl: '',
+    prinsipImages: ['', '', '', '', '', ''],
+    paradigmaImages: ['', '', '', '']
+  } satisfies TentangSettings,
+
+  homeHeroItems: { items: [] } satisfies HomeHeroItemsSettings,
+  homeExtraItems: { items: [] } satisfies HomeExtraItemsSettings
 } as const
 
 export const readSiteSettings = async <T>(
   key: string,
-  fallback: T
+  fallback: T,
+  organizationId: string
 ): Promise<T> => {
   try {
     const rows = await db
       .select({ data: siteSettings.data })
       .from(siteSettings)
-      .where(eq(siteSettings.key, key))
+      .where(
+        sql`${siteSettings.key} = ${key} AND ${siteSettings.organizationId} = ${organizationId}`
+      )
       .limit(1)
 
     if (!rows.length) return fallback
@@ -212,13 +272,18 @@ export const readSiteSettings = async <T>(
 
 export const upsertSiteSettings = async (
   key: string,
-  data: unknown
+  data: unknown,
+  organizationId: string
 ): Promise<void> => {
   await db
     .insert(siteSettings)
-    .values({ key, data: data as Record<string, unknown> })
+    .values({
+      key,
+      organizationId,
+      data: data as Record<string, unknown>
+    })
     .onConflictDoUpdate({
-      target: siteSettings.key,
+      target: [siteSettings.key, siteSettings.organizationId],
       set: { data: data as Record<string, unknown>, updatedAt: sql`now()` }
     })
 }

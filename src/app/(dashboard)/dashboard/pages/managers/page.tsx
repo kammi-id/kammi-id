@@ -2,14 +2,6 @@ import { redirect } from 'next/navigation'
 import { readActiveSession } from '~/lib/auth/cookies'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { UserGroupIcon } from '@hugeicons/core-free-icons'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle
-} from '~/components/shadcn/ui/card'
-import { Separator } from '~/components/shadcn/ui/separator'
 import { LeadershipForm } from './_components/leadership-form'
 import { getLeadershipSettings } from './_data/settings'
 
@@ -19,11 +11,14 @@ const ManagersSettingsPage = async () => {
 
   const { role, connectedOrganization } = session.user
   const isRoot = role === 'root'
-  const isHumasPP = role === 'humas' && connectedOrganization?.type === 'pp'
+  const isHumas = role === 'humas'
 
-  if (!isRoot && !isHumasPP) redirect('/dashboard')
+  if (!isRoot && !isHumas) redirect('/dashboard')
 
-  const leadership = await getLeadershipSettings()
+  const orgId = connectedOrganization?.id
+  if (!orgId) redirect('/dashboard')
+
+  const leadership = await getLeadershipSettings(orgId)
 
   return (
     <div className='space-y-8 px-4 py-4 md:py-6 lg:px-6'>
@@ -46,30 +41,7 @@ const ManagersSettingsPage = async () => {
         </div>
       </div>
 
-      <Card className='rounded-3xl shadow-xs'>
-        <CardHeader className='border-b pb-5'>
-          <div className='flex items-start justify-between gap-4'>
-            <div className='space-y-1'>
-              <div className='flex items-center gap-2'>
-                <span className='text-muted-foreground font-mono text-xs'>
-                  01
-                </span>
-                <Separator orientation='vertical' className='h-3' />
-                <CardTitle className='text-base font-semibold'>
-                  Pengurus Pusat
-                </CardTitle>
-              </div>
-              <CardDescription>
-                Nama, jabatan, dan foto pengurus yang ditampilkan di halaman
-                utama.
-              </CardDescription>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent className='pt-6 pb-6'>
-          <LeadershipForm initialData={leadership} />
-        </CardContent>
-      </Card>
+      <LeadershipForm initialData={leadership} />
     </div>
   )
 }

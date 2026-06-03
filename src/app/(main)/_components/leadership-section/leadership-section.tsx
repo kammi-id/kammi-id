@@ -1,144 +1,39 @@
-import Image from 'next/image'
-import Link from 'next/link'
-import { buttonVariants } from '~/components/shadcn/ui/button/button'
-import { cn } from '~/lib/shadcn/utils'
 import { getLeadershipSettings } from '~/app/(main)/_data/site-settings'
 import { resolveSiteImage } from '~/lib/utils/site-image'
+import { LeadershipSectionClient } from './leadership-section-client'
 
-type Leader = {
-  name: string
-  role: string
-  photoUrl: string
-  photoSrc: string | null
+interface LeadershipSectionProps {
+  showMoreLink?: boolean
 }
 
-const findByRole = (
-  leaders: Leader[],
-  keyword: string,
-  fallback: Leader | undefined
-) =>
-  leaders.find((l) => l.role.toLowerCase().includes(keyword.toLowerCase())) ??
-  fallback
+export const LeadershipSection = async ({
+  showMoreLink = false
+}: LeadershipSectionProps) => {
+  const { periodLabel, heading, triumvirate } = await getLeadershipSettings()
 
-export const LeadershipSection = async () => {
-  const { periodLabel, heading, leaders } = await getLeadershipSettings()
+  const hasContent = [
+    triumvirate.ketua,
+    triumvirate.sekretaris,
+    triumvirate.bendahara
+  ].some((p) => p.name || p.photoUrl)
+  if (!hasContent) return null
 
-  if (!leaders.length) return null
-
-  const resolved: Leader[] = await Promise.all(
-    leaders.slice(0, 5).map(async (l) => ({
-      ...l,
-      photoSrc: await resolveSiteImage(l.photoUrl)
-    }))
-  )
-
-  const chairman = findByRole(resolved, 'ketua umum', resolved[0])
-  const secretary = findByRole(
-    resolved.filter((l) => l !== chairman),
-    'sekretaris',
-    resolved[1]
-  )
-  const treasurer = findByRole(
-    resolved.filter((l) => l !== chairman && l !== secretary),
-    'bendahara',
-    resolved[2]
-  )
-
-  const trio = [secretary, chairman, treasurer].filter(Boolean) as Leader[]
+  const [ketuaSrc, sekjSrc, bendSrc] = await Promise.all([
+    resolveSiteImage(triumvirate.ketua.photoUrl),
+    resolveSiteImage(triumvirate.sekretaris.photoUrl),
+    resolveSiteImage(triumvirate.bendahara.photoUrl)
+  ])
 
   return (
-    <section
-      className='bg-background relative flex min-h-screen flex-col overflow-hidden'
-      aria-labelledby='leadership-heading'
-    >
-      {/* Header */}
-      <div className='px-6 pt-14 pb-8 text-center sm:pt-16 lg:px-8 lg:pt-20'>
-        <p className='text-primary font-sans text-xs font-semibold tracking-widest uppercase'>
-          {periodLabel}
-        </p>
-        <h2
-          id='leadership-heading'
-          className='font-heading text-foreground mt-2 text-[clamp(1.5rem,3vw,2rem)] font-bold'
-        >
-          {heading}
-        </h2>
-        <div
-          className='bg-primary mx-auto mt-1 h-1 w-12 rounded-full'
-          aria-hidden='true'
-        />
-        <div className='mt-6'>
-          <Link
-            href='/pengurus'
-            className={cn(buttonVariants({ variant: 'outline' }))}
-          >
-            Pengurus Lengkap
-          </Link>
-        </div>
-      </div>
-
-      {/* Spacer — dorong foto ke bawah section */}
-      <div className='flex-1' />
-
-      {/* Photo + name trio — items-end aligns photo bottoms */}
-      <div className='flex items-end justify-center'>
-        {trio.map((leader) => {
-          const isChairman = leader === chairman
-          const isSecretary = leader === secretary
-          const isTreasurer = leader === treasurer
-
-          // Ketum = 65vh, sekjend + bendum = 95% tinggi ketum
-          const vhFactor = isChairman ? 65 : 65 * 0.95
-          const minPx = isChairman ? 220 : 209
-          const maxPx = isChairman ? 650 : 618
-
-          // Overlap ~30% dari lebar estimasi foto
-          const overlapClass = isSecretary
-            ? '-mr-[45px] sm:-mr-[60px] lg:-mr-[90px]'
-            : isTreasurer
-              ? '-ml-[45px] sm:-ml-[60px] lg:-ml-[90px]'
-              : ''
-
-          const zClass = isChairman ? 'z-10' : 'z-0'
-
-          return (
-            <div
-              key={leader.name}
-              className={`relative flex shrink-0 flex-col items-center ${overlapClass} ${zClass}`}
-            >
-              {/* Photo — height-controlled, width auto (rasio asli foto) */}
-              <div
-                style={{
-                  height: `clamp(${minPx}px, ${vhFactor}vh, ${maxPx}px)`
-                }}
-              >
-                {leader.photoSrc ? (
-                  <Image
-                    src={leader.photoSrc}
-                    alt={`Foto ${leader.name}`}
-                    width={400}
-                    height={534}
-                    className='h-full w-auto max-w-none'
-                    style={{ height: '100%', width: 'auto' }}
-                    unoptimized={leader.photoSrc.includes('?')}
-                  />
-                ) : (
-                  <div className='bg-muted h-full w-24' />
-                )}
-              </div>
-
-              {/* Name plate — below photo, flush to section bottom */}
-              <div className='px-1 pt-3 pb-0 text-center'>
-                <p className='text-primary font-sans text-[9px] leading-none font-semibold tracking-[0.18em] uppercase'>
-                  {leader.role}
-                </p>
-                <p className='font-heading text-foreground mt-1 text-sm leading-tight font-bold'>
-                  {leader.name}
-                </p>
-              </div>
-            </div>
-          )
-        })}
-      </div>
-    </section>
+    <LeadershipSectionClient
+      periodLabel={periodLabel}
+      heading={heading}
+      triumvirate={{
+        ketua: { name: triumvirate.ketua.name, photoSrc: ketuaSrc },
+        sekretaris: { name: triumvirate.sekretaris.name, photoSrc: sekjSrc },
+        bendahara: { name: triumvirate.bendahara.name, photoSrc: bendSrc }
+      }}
+      showMoreLink={showMoreLink}
+    />
   )
 }
