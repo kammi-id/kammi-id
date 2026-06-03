@@ -10,7 +10,9 @@ const getRandomWordFromDictionary = (): string | null => {
     .map((word) => word.trim())
     .filter(Boolean)
 
-  return words.length > 0 ? words[Math.floor(Math.random() * words.length)] : null
+  return words.length > 0
+    ? words[Math.floor(Math.random() * words.length)]
+    : null
 }
 
 /**
