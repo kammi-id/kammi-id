@@ -61,7 +61,10 @@ const OrgSheetForm = ({ memberId, entry, onClose }: OrgSheetFormProps) => {
       {entry && <input type='hidden' name='id' value={entry.id} />}
 
       <Field>
-        <FieldLabel htmlFor='position' className='font-geist-mono text-xs tracking-wide uppercase'>
+        <FieldLabel
+          htmlFor='position'
+          className='font-geist-mono text-xs tracking-wide uppercase'
+        >
           Jabatan
         </FieldLabel>
         <Input
@@ -71,11 +74,16 @@ const OrgSheetForm = ({ memberId, entry, onClose }: OrgSheetFormProps) => {
           defaultValue={entry?.position ?? ''}
           required
         />
-        <FieldError errors={state.errors?.position?.map((m) => ({ message: m }))} />
+        <FieldError
+          errors={state.errors?.position?.map((m) => ({ message: m }))}
+        />
       </Field>
 
       <Field>
-        <FieldLabel htmlFor='organization' className='font-geist-mono text-xs tracking-wide uppercase'>
+        <FieldLabel
+          htmlFor='organization'
+          className='font-geist-mono text-xs tracking-wide uppercase'
+        >
           Nama Organisasi
         </FieldLabel>
         <Input
@@ -85,12 +93,17 @@ const OrgSheetForm = ({ memberId, entry, onClose }: OrgSheetFormProps) => {
           defaultValue={entry?.organization ?? ''}
           required
         />
-        <FieldError errors={state.errors?.organization?.map((m) => ({ message: m }))} />
+        <FieldError
+          errors={state.errors?.organization?.map((m) => ({ message: m }))}
+        />
       </Field>
 
       <div className='flex gap-3'>
         <Field className='flex-1'>
-          <FieldLabel htmlFor='yearStart' className='font-geist-mono text-xs tracking-wide uppercase'>
+          <FieldLabel
+            htmlFor='yearStart'
+            className='font-geist-mono text-xs tracking-wide uppercase'
+          >
             Tahun Mulai
           </FieldLabel>
           <Input
@@ -102,11 +115,16 @@ const OrgSheetForm = ({ memberId, entry, onClose }: OrgSheetFormProps) => {
             defaultValue={entry?.yearStart ?? ''}
             required
           />
-          <FieldError errors={state.errors?.yearStart?.map((m) => ({ message: m }))} />
+          <FieldError
+            errors={state.errors?.yearStart?.map((m) => ({ message: m }))}
+          />
         </Field>
 
         <Field className='flex-1'>
-          <FieldLabel htmlFor='yearEnd' className='font-geist-mono text-xs tracking-wide uppercase'>
+          <FieldLabel
+            htmlFor='yearEnd'
+            className='font-geist-mono text-xs tracking-wide uppercase'
+          >
             Tahun Selesai
           </FieldLabel>
           <Input
@@ -118,7 +136,9 @@ const OrgSheetForm = ({ memberId, entry, onClose }: OrgSheetFormProps) => {
             defaultValue={entry?.yearEnd ?? ''}
             placeholder='Masih berjalan'
           />
-          <FieldError errors={state.errors?.yearEnd?.map((m) => ({ message: m }))} />
+          <FieldError
+            errors={state.errors?.yearEnd?.map((m) => ({ message: m }))}
+          />
         </Field>
       </div>
 
@@ -141,11 +161,24 @@ const OrgSheetForm = ({ memberId, entry, onClose }: OrgSheetFormProps) => {
               </Button>
             ) : (
               <div className='flex items-center gap-2'>
-                <span className='text-muted-foreground flex-1 text-xs'>Yakin ingin menghapus?</span>
-                <Button type='button' variant='destructive' size='sm' onClick={handleDelete} disabled={isDeleting}>
+                <span className='text-muted-foreground flex-1 text-xs'>
+                  Yakin ingin menghapus?
+                </span>
+                <Button
+                  type='button'
+                  variant='destructive'
+                  size='sm'
+                  onClick={handleDelete}
+                  disabled={isDeleting}
+                >
                   {isDeleting ? 'Menghapus...' : 'Ya, Hapus'}
                 </Button>
-                <Button type='button' variant='outline' size='sm' onClick={() => setConfirmDelete(false)}>
+                <Button
+                  type='button'
+                  variant='outline'
+                  size='sm'
+                  onClick={() => setConfirmDelete(false)}
+                >
                   Batal
                 </Button>
               </div>
@@ -160,7 +193,8 @@ const OrgSheetForm = ({ memberId, entry, onClose }: OrgSheetFormProps) => {
 export const OrganizationSection = () => {
   const { member, organizationHistory, canEdit, isEditing } = useProfileEdit()
   const [open, setOpen] = useState(false)
-  const [editingEntry, setEditingEntry] = useState<MemberOrganizationHistory | null>(null)
+  const [editingEntry, setEditingEntry] =
+    useState<MemberOrganizationHistory | null>(null)
   const [sheetKey, setSheetKey] = useState(0)
 
   const handleAdd = () => {
@@ -178,9 +212,18 @@ export const OrganizationSection = () => {
   return (
     <section>
       <div className='flex items-center justify-between'>
-        <SectionDivider title='Riwayat Organisasi Lain' count={organizationHistory.length} />
+        <SectionDivider
+          title='Riwayat Organisasi Lain'
+          count={organizationHistory.length}
+        />
         {canEdit && isEditing && (
-          <Button variant='ghost' size='sm' type='button' onClick={handleAdd} className='mt-5'>
+          <Button
+            variant='ghost'
+            size='sm'
+            type='button'
+            onClick={handleAdd}
+            className='mt-5'
+          >
             <HugeiconsIcon icon={Add01Icon} className='mr-1 size-3.5' />
             Tambah
           </Button>
@@ -189,56 +232,106 @@ export const OrganizationSection = () => {
 
       {organizationHistory.length === 0 ? (
         <div className='py-4'>
-          <p className='text-muted-foreground text-sm'>Belum ada riwayat organisasi lain.</p>
+          <p className='text-muted-foreground text-sm'>
+            Belum ada riwayat organisasi lain.
+          </p>
           {!canEdit && (
-            <p className='text-muted-foreground/60 mt-1 text-xs'>Data ini dikelola oleh pengurus yang berwenang.</p>
+            <p className='text-muted-foreground/60 mt-1 text-xs'>
+              Data ini dikelola oleh pengurus yang berwenang.
+            </p>
           )}
           {canEdit && !isEditing && (
-            <p className='text-muted-foreground/60 mt-1 text-xs'>Klik <span className='font-medium'>Edit Profil</span> untuk menambahkan.</p>
+            <p className='text-muted-foreground/60 mt-1 text-xs'>
+              Klik <span className='font-medium'>Edit Profil</span> untuk
+              menambahkan.
+            </p>
           )}
         </div>
       ) : (
         <div className='relative'>
-          <div className='pointer-events-none absolute top-0 right-0 bottom-0 z-10 w-8 rounded-r-lg bg-gradient-to-l from-[oklch(0.967_0.001_286.375/0.8)] to-transparent' aria-hidden='true' />
-          <div className='border-border overflow-x-auto rounded-lg border' role='region' aria-label='Riwayat organisasi'>
-          <table className='w-full min-w-[400px] text-sm'>
-            <thead>
-              <tr className='border-border border-b'>
-                {['Jabatan', 'Organisasi', 'Tahun'].map((h) => (
-                  <th key={h} scope='col' className='text-muted-foreground font-geist-mono px-4 py-2.5 text-left text-xs font-medium tracking-wide uppercase'>
-                    {h}
-                  </th>
-                ))}
-                {canEdit && isEditing && <th scope='col' className='px-4 py-2.5' />}
-              </tr>
-            </thead>
-            <tbody className='divide-border/60 divide-y'>
-              {organizationHistory.map((entry) => (
-                <tr key={entry.id} className='hover:bg-muted/30 transition-colors'>
-                  <td className='text-foreground px-4 py-3 font-medium'>{entry.position}</td>
-                  <td className='text-foreground/80 px-4 py-3 text-sm'>{entry.organization}</td>
-                  <td className='text-muted-foreground px-4 py-3 text-sm'>{yearDisplay(entry.yearStart, entry.yearEnd)}</td>
+          <div
+            className='pointer-events-none absolute top-0 right-0 bottom-0 z-10 w-8 rounded-r-lg bg-gradient-to-l from-[oklch(0.967_0.001_286.375/0.8)] to-transparent'
+            aria-hidden='true'
+          />
+          <div
+            className='border-border overflow-x-auto rounded-lg border'
+            role='region'
+            aria-label='Riwayat organisasi'
+          >
+            <table className='w-full min-w-[400px] text-sm'>
+              <thead>
+                <tr className='border-border border-b'>
+                  {['Jabatan', 'Organisasi', 'Tahun'].map((h) => (
+                    <th
+                      key={h}
+                      scope='col'
+                      className='text-muted-foreground font-geist-mono px-4 py-2.5 text-left text-xs font-medium tracking-wide uppercase'
+                    >
+                      {h}
+                    </th>
+                  ))}
                   {canEdit && isEditing && (
-                    <td className='px-4 py-3 text-right'>
-                      <Button variant='ghost' size='sm' type='button' onClick={() => handleEdit(entry)} aria-label='Edit riwayat organisasi'>
-                        <HugeiconsIcon icon={PencilEdit01Icon} className='size-3.5' />
-                      </Button>
-                    </td>
+                    <th scope='col' className='px-4 py-2.5' />
                   )}
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className='divide-border/60 divide-y'>
+                {organizationHistory.map((entry) => (
+                  <tr
+                    key={entry.id}
+                    className='hover:bg-muted/30 transition-colors'
+                  >
+                    <td className='text-foreground px-4 py-3 font-medium'>
+                      {entry.position}
+                    </td>
+                    <td className='text-foreground/80 px-4 py-3 text-sm'>
+                      {entry.organization}
+                    </td>
+                    <td className='text-muted-foreground px-4 py-3 text-sm'>
+                      {yearDisplay(entry.yearStart, entry.yearEnd)}
+                    </td>
+                    {canEdit && isEditing && (
+                      <td className='px-4 py-3 text-right'>
+                        <Button
+                          variant='ghost'
+                          size='sm'
+                          type='button'
+                          onClick={() => handleEdit(entry)}
+                          aria-label='Edit riwayat organisasi'
+                        >
+                          <HugeiconsIcon
+                            icon={PencilEdit01Icon}
+                            className='size-3.5'
+                          />
+                        </Button>
+                      </td>
+                    )}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       )}
 
       <Sheet open={open} onOpenChange={setOpen}>
-        <SheetContent side='right' className='w-full sm:max-w-md overflow-y-auto'>
+        <SheetContent
+          side='right'
+          className='w-full overflow-y-auto sm:max-w-md'
+        >
           <SheetHeader className='px-4 pt-4'>
-            <SheetTitle>{editingEntry ? 'Edit Riwayat Organisasi' : 'Tambah Riwayat Organisasi'}</SheetTitle>
+            <SheetTitle>
+              {editingEntry
+                ? 'Edit Riwayat Organisasi'
+                : 'Tambah Riwayat Organisasi'}
+            </SheetTitle>
           </SheetHeader>
-          <OrgSheetForm key={sheetKey} memberId={member.id} entry={editingEntry} onClose={() => setOpen(false)} />
+          <OrgSheetForm
+            key={sheetKey}
+            memberId={member.id}
+            entry={editingEntry}
+            onClose={() => setOpen(false)}
+          />
         </SheetContent>
       </Sheet>
     </section>

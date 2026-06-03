@@ -11,10 +11,7 @@ export const getCachedHomeHeroItemsSettings = async (
 ): Promise<HomeHeroItemsSettings> => {
   'use cache'
   cacheLife('days')
-  cacheTag(
-    'site-settings',
-    `site-settings-home-hero-items-${organizationId}`
-  )
+  cacheTag('site-settings', `site-settings-home-hero-items-${organizationId}`)
   return readSiteSettings<HomeHeroItemsSettings>(
     'home-hero-items',
     SETTINGS_DEFAULTS.homeHeroItems,
@@ -27,10 +24,7 @@ export const getCachedHomeExtraItemsSettings = async (
 ): Promise<HomeExtraItemsSettings> => {
   'use cache'
   cacheLife('days')
-  cacheTag(
-    'site-settings',
-    `site-settings-home-extra-items-${organizationId}`
-  )
+  cacheTag('site-settings', `site-settings-home-extra-items-${organizationId}`)
   return readSiteSettings<HomeExtraItemsSettings>(
     'home-extra-items',
     SETTINGS_DEFAULTS.homeExtraItems,

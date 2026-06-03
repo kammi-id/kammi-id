@@ -84,11 +84,15 @@ export const LeadershipSectionClient = ({
 
         // ── Exit: text fades up, all three photos fall down ─────────────────
         // (t ≈ 0.77 is when all photos have converged)
-        tl.to(textWrapper, { opacity: 0, y: -80, ease: 'none', duration: 0.22 }, 0.86)
+        tl.to(
+          textWrapper,
+          { opacity: 0, y: -80, ease: 'none', duration: 0.22 },
+          0.86
+        )
         tl.to(
           [ketuaEl, sekjEl, bendEl],
           { y: '110vh', opacity: 0, ease: 'none', duration: 0.32 },
-          0.90
+          0.9
         )
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -214,7 +218,7 @@ export const LeadershipSectionClient = ({
               key={key}
               data-ls-photo={key}
               className={cn(
-                'group relative shrink-0 cursor-pointer overflow-visible rounded-[2.5rem] bg-muted/60 px-4 pt-4 pb-0',
+                'group bg-muted/60 relative shrink-0 cursor-pointer overflow-visible rounded-[2.5rem] px-4 pt-4 pb-0',
                 'md:w-auto md:rounded-none md:bg-transparent md:p-0',
                 isLeft
                   ? 'md:-mr-[12vw] lg:-mr-[15vw]'
@@ -222,10 +226,10 @@ export const LeadershipSectionClient = ({
                     ? 'md:-ml-[12vw] lg:-ml-[15vw]'
                     : '',
                 isCenter
-                  ? 'order-1 z-10 md:order-none'
+                  ? 'z-10 order-1 md:order-none'
                   : isLeft
-                    ? 'order-2 z-0 md:order-none'
-                    : 'order-3 z-0 md:order-none',
+                    ? 'z-0 order-2 md:order-none'
+                    : 'z-0 order-3 md:order-none',
                 // Reduced photo sizes (-15% from original)
                 isCenter
                   ? 'h-[clamp(200px,38vh,320px)] md:h-[min(44vw,800px)]'
@@ -263,7 +267,7 @@ export const LeadershipSectionClient = ({
                     : isLeft
                       ? 'left-8 text-left'
                       : 'right-8 text-right',
-                  'max-md:right-[-24px] max-md:bottom-6 max-md:left-auto max-md:flex max-md:max-w-[80%] max-md:translate-y-0 max-md:translate-x-0 max-md:opacity-100 max-md:text-right'
+                  'max-md:right-[-24px] max-md:bottom-6 max-md:left-auto max-md:flex max-md:max-w-[80%] max-md:translate-x-0 max-md:translate-y-0 max-md:text-right max-md:opacity-100'
                 )}
               >
                 <p className='text-primary font-sans text-[10px] leading-none font-bold tracking-[0.2em] uppercase'>

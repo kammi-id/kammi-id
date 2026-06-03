@@ -19,7 +19,11 @@ import { storage } from '~/lib/api/storage'
 // Direct HTTP(S) URLs and empty strings are returned as-is.
 const resolveUrl = async (path: string): Promise<string> => {
   if (!path) return ''
-  if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('/'))
+  if (
+    path.startsWith('http://') ||
+    path.startsWith('https://') ||
+    path.startsWith('/')
+  )
     return path
   return storage.getSignedUrl(path)
 }
@@ -202,8 +206,12 @@ export const getTentangSettings = async (): Promise<TentangSettings> => {
   // Resolve S3 keys → signed URLs so TentangScene can use them directly as CSS urls.
   const [heroImageUrl, prinsipImages, paradigmaImages] = await Promise.all([
     resolveUrl(heroData.heroImageUrl),
-    Promise.all(prinsipData.prinsipImages.map(resolveUrl)) as Promise<TentangSettings['prinsipImages']>,
-    Promise.all(paradigmaData.paradigmaImages.map(resolveUrl)) as Promise<TentangSettings['paradigmaImages']>
+    Promise.all(prinsipData.prinsipImages.map(resolveUrl)) as Promise<
+      TentangSettings['prinsipImages']
+    >,
+    Promise.all(paradigmaData.paradigmaImages.map(resolveUrl)) as Promise<
+      TentangSettings['paradigmaImages']
+    >
   ])
 
   return { heroImageUrl, prinsipImages, paradigmaImages }

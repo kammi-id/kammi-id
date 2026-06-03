@@ -9,10 +9,7 @@ const booleanFromCell = z.preprocess((val) => {
   if (typeof val === 'string') {
     const lower = val.toLowerCase().trim()
     return (
-      lower === 'ya' ||
-      lower === 'yes' ||
-      lower === 'true' ||
-      lower === '1'
+      lower === 'ya' || lower === 'yes' || lower === 'true' || lower === '1'
     )
   }
   return false
@@ -402,7 +399,10 @@ export const generateTemplate = () => {
   XLSX.utils.book_append_sheet(wb, wsTemplate, 'Template')
 
   // Write to buffer so we can patch data validations
-  const rawBuf = XLSX.write(wb, { type: 'array', bookType: 'xlsx' }) as Uint8Array
+  const rawBuf = XLSX.write(wb, {
+    type: 'array',
+    bookType: 'xlsx'
+  }) as Uint8Array
 
   // ── Patch: inject data validation dropdowns into Template sheet ────────────
   // Template sheet = sheet2.xml (Instruksi is sheet1.xml)

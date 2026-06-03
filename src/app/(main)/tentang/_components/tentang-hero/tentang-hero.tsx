@@ -69,7 +69,9 @@ export const TentangHero = () => {
       <div
         ref={scrollCueRef}
         className='absolute left-1/2 flex -translate-x-1/2 flex-col items-center gap-1.5'
-        style={{ bottom: 'max(2.5rem, calc(env(safe-area-inset-bottom) + 1rem))' }}
+        style={{
+          bottom: 'max(2.5rem, calc(env(safe-area-inset-bottom) + 1rem))'
+        }}
         aria-hidden='true'
       >
         <span className='font-sans text-[0.6rem] tracking-[0.25em] text-white/55 uppercase'>

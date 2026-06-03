@@ -7,7 +7,10 @@ import { cn } from '~/lib/shadcn/utils'
 
 const loraHeading = Lora({ subsets: ['latin'], variable: '--font-heading' })
 const publicSans = Public_Sans({ subsets: ['latin'], variable: '--font-sans' })
-const caveatHand = Caveat({ subsets: ['latin'], variable: '--font-handwriting' })
+const caveatHand = Caveat({
+  subsets: ['latin'],
+  variable: '--font-handwriting'
+})
 
 const RootLayout = ({
   children
@@ -27,7 +30,12 @@ const RootLayout = ({
       <head>
         <meta name='apple-mobile-web-app-title' content='KAMMI.id' />
       </head>
-      <body className='flex min-h-full flex-col'>{children}</body>
+      <body className='flex min-h-full flex-col'>
+        {children}
+        {/* Stable portal root — imperative DOM portals target this instead of body
+            so React's <Activity> view-transition insertBefore never loses its reference node. */}
+        <div id='portal-root' aria-hidden='true' />
+      </body>
     </html>
   )
 }

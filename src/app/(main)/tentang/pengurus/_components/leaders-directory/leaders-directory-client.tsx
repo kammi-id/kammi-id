@@ -39,7 +39,7 @@ const Monogram = ({ name }: { name: string }) => {
 }
 
 export const LeadersDirectoryClient = ({
-  blocks,
+  blocks
 }: LeadersDirectoryClientProps) => {
   const sectionRef = useRef<HTMLElement>(null)
   const blockRefsMap = useRef(new Map<string, HTMLDivElement>())
@@ -58,10 +58,10 @@ export const LeadersDirectoryClient = ({
 
     // Each animation phase occupies an exclusive scroll window — no overlap.
     // Next card starts exactly when previous card is fully in place.
-    const TITLE_PX = 80    // scroll range for title sweep
-    const LINE_PX = 60     // scroll range for line expand (after title)
-    const CARD_PX = 140    // scroll range per card (deliberate, sequential)
-    const V = '85%'        // viewport reference line
+    const TITLE_PX = 80 // scroll range for title sweep
+    const LINE_PX = 60 // scroll range for line expand (after title)
+    const CARD_PX = 140 // scroll range per card (deliberate, sequential)
+    const V = '85%' // viewport reference line
 
     blocks.forEach((block) => {
       const blockEl = blockRefsMap.current.get(block.id)
@@ -74,7 +74,8 @@ export const LeadersDirectoryClient = ({
       // Set initial hidden states
       gsap.set(cards, { y: 52, opacity: 0 })
       if (titleEl) gsap.set(titleEl, { x: -36, opacity: 0 })
-      if (lineEl) gsap.set(lineEl, { scaleX: 0, transformOrigin: 'left center' })
+      if (lineEl)
+        gsap.set(lineEl, { scaleX: 0, transformOrigin: 'left center' })
 
       // Title sweeps in first
       if (titleEl) {
@@ -87,7 +88,7 @@ export const LeadersDirectoryClient = ({
             titleEl,
             { x: -36, opacity: 0 },
             { x: 0, opacity: 1, ease: 'none' }
-          ),
+          )
         })
         cleanups.push(() => t.kill())
       }
@@ -104,7 +105,7 @@ export const LeadersDirectoryClient = ({
             lineEl,
             { scaleX: 0 },
             { scaleX: 1, ease: 'none' }
-          ),
+          )
         })
         cleanups.push(() => t.kill())
       }
@@ -130,7 +131,7 @@ export const LeadersDirectoryClient = ({
             card,
             { y: 52, opacity: 0 },
             { y: 0, opacity: 1, ease: 'none' }
-          ),
+          )
         })
         cleanups.push(() => t.kill())
       })

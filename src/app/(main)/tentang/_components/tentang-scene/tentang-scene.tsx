@@ -144,22 +144,26 @@ export const TentangScene = ({ settings }: { settings: TentangSettings }) => {
         // Convert from scroll-pinned experience to linear flow so sighted users
         // who disable motion can still read all content sections.
         gsap.set(sceneRef.current, { height: 'auto', overflow: 'visible' })
-
-        ;[heroRef, visiRef, misiRef, prinsipRef, paradigmaRef, kredoRef].forEach(
-          (ref) => {
-            if (!ref.current) return
-            gsap.set(ref.current, {
-              position: 'relative',
-              inset: 'unset',
-              width: '100%',
-              height: 'auto',
-              minHeight: '100svh',
-              opacity: 1,
-              pointerEvents: 'auto',
-              zIndex: 'auto'
-            })
-          }
-        )
+        ;[
+          heroRef,
+          visiRef,
+          misiRef,
+          prinsipRef,
+          paradigmaRef,
+          kredoRef
+        ].forEach((ref) => {
+          if (!ref.current) return
+          gsap.set(ref.current, {
+            position: 'relative',
+            inset: 'unset',
+            width: '100%',
+            height: 'auto',
+            minHeight: '100svh',
+            opacity: 1,
+            pointerEvents: 'auto',
+            zIndex: 'auto'
+          })
+        })
 
         gsap.set(visiRef.current, { backgroundColor: MAROON })
         gsap.set(prinsipRef.current, { backgroundColor: WHITE })
@@ -254,14 +258,18 @@ export const TentangScene = ({ settings }: { settings: TentangSettings }) => {
         if (card) gsap.set(card, { rotation: deg })
       })
 
+      // Use the outer 1900vh wrapper as trigger (provides scroll distance) and
+      // rely on CSS sticky positioning instead of pin:true — this avoids GSAP
+      // inserting a pinSpacerDiv into the DOM, which breaks React Activity's
+      // insertBefore during view transitions.
+      const scrollWrapper = sceneRef.current?.parentElement ?? sceneRef.current
       const mainTl = gsap.timeline({
         scrollTrigger: {
           id: 'tentang-main',
-          trigger: sceneRef.current,
+          trigger: scrollWrapper,
           start: 'top top',
-          end: '+=1800%',
+          end: 'bottom bottom',
           scrub: true,
-          pin: true,
           invalidateOnRefresh: true
         }
       })
@@ -308,7 +316,11 @@ export const TentangScene = ({ settings }: { settings: TentangSettings }) => {
         )
         .addLabel('misiIn')
         .set(misiRef.current, { pointerEvents: 'auto' })
-        .to('.misi-scene-label', { opacity: 1, duration: 0.4, ease: 'power2.out' })
+        .to('.misi-scene-label', {
+          opacity: 1,
+          duration: 0.4,
+          ease: 'power2.out'
+        })
         // Cards slide in one by one; stagger > duration so each lands fully
         // before the next leaves the right edge.
         .fromTo(
@@ -494,7 +506,13 @@ export const TentangScene = ({ settings }: { settings: TentangSettings }) => {
           .fromTo(
             `.paradigma-photo-${i}`,
             { opacity: 0, y: 80, rotation: 1 },
-            { opacity: 1, y: 0, rotation: -3, duration: 0.7, ease: 'power3.out' },
+            {
+              opacity: 1,
+              y: 0,
+              rotation: -3,
+              duration: 0.7,
+              ease: 'power3.out'
+            },
             isFirst ? 'paradigmaIn+=0.35' : '>'
           )
           .fromTo(
@@ -629,7 +647,7 @@ export const TentangScene = ({ settings }: { settings: TentangSettings }) => {
   return (
     <div
       ref={sceneRef}
-      className='relative h-svh w-full overflow-hidden'
+      className='sticky top-0 h-svh w-full overflow-hidden'
       style={{ backgroundColor: WHITE }}
     >
       <div
@@ -654,10 +672,7 @@ export const TentangScene = ({ settings }: { settings: TentangSettings }) => {
       </div>
 
       {/* Misi layer — cards stack centered in viewport */}
-      <div
-        ref={misiRef}
-        className='pointer-events-none absolute inset-0 z-30'
-      >
+      <div ref={misiRef} className='pointer-events-none absolute inset-0 z-30'>
         {/* Eyebrow — sticky at top, matches other section labels */}
         <div className='absolute inset-x-0 top-[13vh] flex justify-center px-6'>
           <p className='misi-scene-label font-sans text-sm font-semibold tracking-widest text-white/70 uppercase opacity-0'>
@@ -701,7 +716,10 @@ export const TentangScene = ({ settings }: { settings: TentangSettings }) => {
       </div>
 
       {/* Prinsip layer — one principle at a time over white, photo bottom-right */}
-      <div ref={prinsipRef} className='pointer-events-none absolute inset-0 z-40'>
+      <div
+        ref={prinsipRef}
+        className='pointer-events-none absolute inset-0 z-40'
+      >
         {/* Background photos (placeholder; swap for real <Image> later) */}
         <div className='absolute inset-0 overflow-hidden'>
           {PRINSIP_ITEMS.map((_, i) => (
@@ -733,7 +751,10 @@ export const TentangScene = ({ settings }: { settings: TentangSettings }) => {
 
         {/* Statements — centered in viewport, one at a time */}
         <div className='absolute inset-0 flex items-center justify-center px-6 lg:px-8'>
-          <div data-id='prinsip-stack' className='relative h-[52vh] w-full max-w-5xl'>
+          <div
+            data-id='prinsip-stack'
+            className='relative h-[52vh] w-full max-w-5xl'
+          >
             {PRINSIP_ITEMS.map((item, i) => (
               <div
                 key={item.num}
@@ -745,7 +766,10 @@ export const TentangScene = ({ settings }: { settings: TentangSettings }) => {
                 </span>
                 <h2 className='font-heading text-foreground text-[clamp(2.25rem,6vw,4.75rem)] leading-[1.2] font-bold'>
                   <Marker>{item.x}</Marker>
-                  <span className='text-foreground/55 font-normal'> adalah </span>
+                  <span className='text-foreground/55 font-normal'>
+                    {' '}
+                    adalah{' '}
+                  </span>
                   <Underline>{item.y}</Underline>
                   <span className='text-foreground/55 font-normal'> KAMMI</span>
                 </h2>
@@ -756,7 +780,10 @@ export const TentangScene = ({ settings }: { settings: TentangSettings }) => {
       </div>
 
       {/* Paradigma layer — split layout over dark: statement left, framed photo right */}
-      <div ref={paradigmaRef} className='pointer-events-none absolute inset-0 z-50'>
+      <div
+        ref={paradigmaRef}
+        className='pointer-events-none absolute inset-0 z-50'
+      >
         {/* Eyebrow — top label */}
         <div className='absolute inset-x-0 top-[13vh] flex justify-center px-6'>
           <p className='paradigma-eyebrow text-primary font-sans text-sm font-semibold tracking-widest uppercase opacity-0'>
@@ -765,11 +792,14 @@ export const TentangScene = ({ settings }: { settings: TentangSettings }) => {
         </div>
 
         <div className='absolute inset-0 flex items-center justify-center px-6 lg:px-12'>
-          <div data-id='paradigma-stack' className='relative h-[64vh] w-full max-w-6xl'>
+          <div
+            data-id='paradigma-stack'
+            className='relative h-[64vh] w-full max-w-6xl'
+          >
             {PARADIGMA_ITEMS.map((item, i) => (
               <div
                 key={item.num}
-                className='absolute inset-0 grid grid-cols-1 items-center gap-6 [@media(max-height:600px)]:grid-cols-[1.1fr_0.9fr] [@media(max-height:600px)]:gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16'
+                className='absolute inset-0 grid grid-cols-1 items-center gap-6 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16 [@media(max-height:600px)]:grid-cols-[1.1fr_0.9fr] [@media(max-height:600px)]:gap-8'
               >
                 {/* Statement (left on desktop, first on mobile) */}
                 <div
@@ -779,7 +809,10 @@ export const TentangScene = ({ settings }: { settings: TentangSettings }) => {
                     {item.num}
                     <span className='text-white/20'> / 04</span>
                   </span>
-                  <h2 className='font-heading mt-6 hyphens-auto text-[clamp(2rem,4.2vw,3.75rem)] leading-[1.1] font-bold text-white' lang='id'>
+                  <h2
+                    className='font-heading mt-6 text-[clamp(2rem,4.2vw,3.75rem)] leading-[1.1] font-bold hyphens-auto text-white'
+                    lang='id'
+                  >
                     KAMMI adalah gerakan{' '}
                     <Marker opacity={0.55}>{item.n}</Marker>
                   </h2>
@@ -809,7 +842,10 @@ export const TentangScene = ({ settings }: { settings: TentangSettings }) => {
       </div>
 
       {/* Kredo layer — the full text written out like a constitution over parchment */}
-      <div ref={kredoRef} className='pointer-events-none absolute inset-0 z-[60]'>
+      <div
+        ref={kredoRef}
+        className='pointer-events-none absolute inset-0 z-[60]'
+      >
         {/* Eyebrow — outside the mask so it stays sticky at top */}
         <div className='absolute inset-x-0 top-[13vh] flex justify-center px-6'>
           <p className='kredo-eyebrow text-primary font-sans text-sm font-semibold tracking-widest uppercase opacity-0'>

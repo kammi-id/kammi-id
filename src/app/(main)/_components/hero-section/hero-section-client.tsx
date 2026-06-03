@@ -35,13 +35,25 @@ export const HeroSectionClient = ({
 
           // Stagger: badge exits first → h1 → description → image zooms + fades last
           if (badge) {
-            tl.to(badge, { opacity: 0, y: -28, ease: 'none', duration: 0.18 }, 0)
+            tl.to(
+              badge,
+              { opacity: 0, y: -28, ease: 'none', duration: 0.18 },
+              0
+            )
           }
           if (h1) {
-            tl.to(h1, { opacity: 0, y: -52, ease: 'none', duration: 0.26 }, 0.12)
+            tl.to(
+              h1,
+              { opacity: 0, y: -52, ease: 'none', duration: 0.26 },
+              0.12
+            )
           }
           if (desc) {
-            tl.to(desc, { opacity: 0, y: -36, ease: 'none', duration: 0.22 }, 0.22)
+            tl.to(
+              desc,
+              { opacity: 0, y: -36, ease: 'none', duration: 0.22 },
+              0.22
+            )
           }
           if (img) {
             tl.to(

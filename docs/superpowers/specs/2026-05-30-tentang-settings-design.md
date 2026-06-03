@@ -21,10 +21,10 @@ One new key `tentang` in the existing `site_settings` table (key + organizationI
 ```ts
 // src/db/query/site-settings.ts (additions)
 export type TentangSettings = {
-  heroImageUrl: string       // background for the hero viewport
-  prinsipImages: string[]    // length 6, index matches PRINSIP_ITEMS order
-  paradigmaImages: string[]  // length 4, index matches PARADIGMA_ITEMS order
-  kredoImageUrl: string      // background image behind the kredo parchment
+  heroImageUrl: string // background for the hero viewport
+  prinsipImages: string[] // length 6, index matches PRINSIP_ITEMS order
+  paradigmaImages: string[] // length 4, index matches PARADIGMA_ITEMS order
+  kredoImageUrl: string // background image behind the kredo parchment
 }
 ```
 
@@ -40,12 +40,12 @@ Server component. Auth + redirect guards identical to `home/page.tsx` (root or h
 
 All forms are `'use client'` components using `useActionState`. Pattern mirrors `HeroForm`. Image fields use the existing `<ImageUpload>` component.
 
-| Component | Fields | Upload folder |
-|---|---|---|
-| `HeroBgForm` | `heroImageUrl` (×1) | `site-settings/tentang/hero` |
-| `PrinsipForm` | `prinsipImages[0..5]` (×6) | `site-settings/tentang/prinsip` |
+| Component       | Fields                       | Upload folder                     |
+| --------------- | ---------------------------- | --------------------------------- |
+| `HeroBgForm`    | `heroImageUrl` (×1)          | `site-settings/tentang/hero`      |
+| `PrinsipForm`   | `prinsipImages[0..5]` (×6)   | `site-settings/tentang/prinsip`   |
 | `ParadigmaForm` | `paradigmaImages[0..3]` (×4) | `site-settings/tentang/paradigma` |
-| `KredoForm` | `kredoImageUrl` (×1) | `site-settings/tentang/kredo` |
+| `KredoForm`     | `kredoImageUrl` (×1)         | `site-settings/tentang/kredo`     |
 
 Multi-image fields (prinsip, paradigma) are serialized as JSON via a hidden input, the same technique used in `ActionsForm`.
 

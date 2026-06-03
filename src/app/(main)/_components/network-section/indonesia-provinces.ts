@@ -12,7 +12,14 @@ export type ProvinceData = {
   /** Centroid y for tooltip anchor */
   cy: number
   /** Island group for visual grouping */
-  island: 'sumatra' | 'java' | 'kalimantan' | 'sulawesi' | 'bali-ntt' | 'maluku' | 'papua'
+  island:
+    | 'sumatra'
+    | 'java'
+    | 'kalimantan'
+    | 'sulawesi'
+    | 'bali-ntt'
+    | 'maluku'
+    | 'papua'
 }
 
 // Province-name fragments used to fuzzy-match PW org names from the DB.
@@ -55,7 +62,7 @@ export const PROVINCE_MATCH_TOKENS: Record<string, string[]> = {
   'papua-tengah': ['Papua Tengah'],
   'papua-pegunungan': ['Papua Pegunungan'],
   papua: ['Papua'],
-  'papua-selatan': ['Papua Selatan'],
+  'papua-selatan': ['Papua Selatan']
 }
 
 export const INDONESIA_PROVINCES: ProvinceData[] = [

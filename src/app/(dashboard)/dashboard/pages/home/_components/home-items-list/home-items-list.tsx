@@ -97,7 +97,11 @@ const ItemThumbnail = ({ url }: { url: string }) =>
     />
   ) : (
     <div className='bg-muted text-muted-foreground flex size-10 shrink-0 items-center justify-center rounded-md'>
-      <HugeiconsIcon icon={ImageAdd01Icon} className='size-4' strokeWidth={1.5} />
+      <HugeiconsIcon
+        icon={ImageAdd01Icon}
+        className='size-4'
+        strokeWidth={1.5}
+      />
     </div>
   )
 
@@ -171,7 +175,9 @@ const SortableItemRow = ({
 
         <div className='min-w-0 flex-1'>
           <p className='text-foreground truncate text-sm font-semibold'>
-            {item.title || <span className='text-muted-foreground italic'>Tanpa judul</span>}
+            {item.title || (
+              <span className='text-muted-foreground italic'>Tanpa judul</span>
+            )}
           </p>
           {item.badgeText && (
             <p className='text-muted-foreground truncate font-mono text-[10px] tracking-wide uppercase'>
@@ -224,7 +230,9 @@ const SortableItemRow = ({
 
             <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
               <Field>
-                <FieldLabel htmlFor={`title-${item.id}`}>Judul Utama</FieldLabel>
+                <FieldLabel htmlFor={`title-${item.id}`}>
+                  Judul Utama
+                </FieldLabel>
                 <FieldContent>
                   <Input
                     id={`title-${item.id}`}
@@ -406,9 +414,7 @@ export const HomeItemsList = ({
                   item={item}
                   isExpanded={expandedId === item.id}
                   onToggle={() =>
-                    setExpandedId((prev) =>
-                      prev === item.id ? null : item.id
-                    )
+                    setExpandedId((prev) => (prev === item.id ? null : item.id))
                   }
                   onUpdate={(field, value) => updateItem(item.id, field, value)}
                   onRemove={() => removeItem(item.id)}

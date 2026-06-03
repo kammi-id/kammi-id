@@ -94,7 +94,8 @@ const PW_MULTI_PROVINCE_RULES: Array<{
 }> = [
   // PW Kalimantan Timur-Utara → Kaltim + Kaltara
   {
-    test: (u) => u.includes('KALIMANTAN') && u.includes('TIMUR') && u.includes('UTARA'),
+    test: (u) =>
+      u.includes('KALIMANTAN') && u.includes('TIMUR') && u.includes('UTARA'),
     slugs: ['east-kalimantan', 'north-kalimantan']
   },
   // PW Papua (bukan Papua Barat) → seluruh wilayah Papua termasuk Papua Barat

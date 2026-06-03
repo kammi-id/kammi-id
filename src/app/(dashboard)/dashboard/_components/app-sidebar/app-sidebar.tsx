@@ -198,7 +198,9 @@ export const AppSidebar = ({
               {
                 title: 'Halaman Tentang',
                 url: '/dashboard/pages/tentang',
-                icon: <HugeiconsIcon icon={InformationCircleIcon} strokeWidth={2} />
+                icon: (
+                  <HugeiconsIcon icon={InformationCircleIcon} strokeWidth={2} />
+                )
               }
             ]}
           />

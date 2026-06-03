@@ -28,7 +28,9 @@ export const UniversityCombobox = ({
 }: UniversityComboboxProps) => {
   const [query, setQuery] = useState(defaultInstitutionName)
   const [results, setResults] = useState<UniversityItem[]>([])
-  const [selected, setSelected] = useState<UniversityItem | null>(defaultInstitutionData)
+  const [selected, setSelected] = useState<UniversityItem | null>(
+    defaultInstitutionData
+  )
   const [loading, setLoading] = useState(false)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -82,7 +84,10 @@ export const UniversityCombobox = ({
             ) : (
               <ComboboxGroup>
                 {results.map((uni) => (
-                  <ComboboxItem key={`${uni.name}-${uni.regency_code}`} value={uni.name}>
+                  <ComboboxItem
+                    key={`${uni.name}-${uni.regency_code}`}
+                    value={uni.name}
+                  >
                     {uni.name}
                     {uni.short_name && uni.short_name !== uni.name && (
                       <span className='text-muted-foreground ml-1 text-xs'>

@@ -30,7 +30,7 @@ export const ExtraSection = async () => {
               unoptimized={item.resolvedImageUrl.includes('?')}
             />
           ) : (
-            <div className='absolute inset-0 bg-foreground/10' />
+            <div className='bg-foreground/10 absolute inset-0' />
           )}
 
           <div
@@ -50,7 +50,7 @@ export const ExtraSection = async () => {
 
               <h2
                 id={`extra-heading-${item.id}`}
-                className='font-heading text-[clamp(2.6rem,6vw,4.5rem)] font-bold leading-[1.05] tracking-tight text-white'
+                className='font-heading text-[clamp(2.6rem,6vw,4.5rem)] leading-[1.05] font-bold tracking-tight text-white'
               >
                 {item.title}
               </h2>

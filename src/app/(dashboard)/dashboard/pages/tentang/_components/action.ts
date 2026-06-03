@@ -64,14 +64,24 @@ export const saveTentangHeroAction = async (
   const result = heroBgSchema.safeParse(raw)
   if (!result.success) {
     return {
-      fieldErrors: result.error.flatten().fieldErrors as Record<string, string[]>,
+      fieldErrors: result.error.flatten().fieldErrors as Record<
+        string,
+        string[]
+      >,
       values: Object.fromEntries(
-        Object.entries(raw).filter(([, v]) => v != null && typeof v === 'string')
+        Object.entries(raw).filter(
+          ([, v]) => v != null && typeof v === 'string'
+        )
       ) as Record<string, string>
     }
   }
 
-  return persist('tentang-hero', result.data, access.orgId, 'Gagal menyimpan latar hero.')
+  return persist(
+    'tentang-hero',
+    result.data,
+    access.orgId,
+    'Gagal menyimpan latar hero.'
+  )
 }
 
 // ─── Prinsip images ───────────────────────────────────────────────────────────
@@ -98,14 +108,24 @@ export const saveTentangPrinsipAction = async (
   const result = prinsipSchema.safeParse({ prinsipImages })
   if (!result.success) {
     return {
-      fieldErrors: result.error.flatten().fieldErrors as Record<string, string[]>,
+      fieldErrors: result.error.flatten().fieldErrors as Record<
+        string,
+        string[]
+      >,
       values: Object.fromEntries(
-        Object.entries(raw).filter(([, v]) => v != null && typeof v === 'string')
+        Object.entries(raw).filter(
+          ([, v]) => v != null && typeof v === 'string'
+        )
       ) as Record<string, string>
     }
   }
 
-  return persist('tentang-prinsip', result.data, access.orgId, 'Gagal menyimpan gambar prinsip.')
+  return persist(
+    'tentang-prinsip',
+    result.data,
+    access.orgId,
+    'Gagal menyimpan gambar prinsip.'
+  )
 }
 
 // ─── Paradigma images ─────────────────────────────────────────────────────────
@@ -132,13 +152,22 @@ export const saveTentangParadigmaAction = async (
   const result = paradigmaSchema.safeParse({ paradigmaImages })
   if (!result.success) {
     return {
-      fieldErrors: result.error.flatten().fieldErrors as Record<string, string[]>,
+      fieldErrors: result.error.flatten().fieldErrors as Record<
+        string,
+        string[]
+      >,
       values: Object.fromEntries(
-        Object.entries(raw).filter(([, v]) => v != null && typeof v === 'string')
+        Object.entries(raw).filter(
+          ([, v]) => v != null && typeof v === 'string'
+        )
       ) as Record<string, string>
     }
   }
 
-  return persist('tentang-paradigma', result.data, access.orgId, 'Gagal menyimpan gambar paradigma.')
+  return persist(
+    'tentang-paradigma',
+    result.data,
+    access.orgId,
+    'Gagal menyimpan gambar paradigma.'
+  )
 }
-

@@ -22,7 +22,12 @@ const orgHistorySchema = z.object({
   yearStart: z.coerce.number().int().min(1900).max(new Date().getFullYear()),
   yearEnd: z.preprocess(
     (val) => (val === '' || val == null ? null : val),
-    z.coerce.number().int().min(1900).max(new Date().getFullYear() + 10).nullable()
+    z.coerce
+      .number()
+      .int()
+      .min(1900)
+      .max(new Date().getFullYear() + 10)
+      .nullable()
   )
 })
 
@@ -43,12 +48,16 @@ export const saveOrgHistoryAction = async (
 ): Promise<OrgHistoryActionState> => {
   const session = await readActiveSession()
   if (!session) return { success: false, message: 'Tidak terautentikasi.' }
-  if (!canEdit(session, memberId)) return { success: false, message: 'Akses ditolak.' }
+  if (!canEdit(session, memberId))
+    return { success: false, message: 'Akses ditolak.' }
 
   const raw = Object.fromEntries(formData.entries())
   const parsed = orgHistorySchema.safeParse(raw)
   if (!parsed.success) {
-    return { success: false, errors: parsed.error.flatten().fieldErrors as Record<string, string[]> }
+    return {
+      success: false,
+      errors: parsed.error.flatten().fieldErrors as Record<string, string[]>
+    }
   }
 
   const { id, ...data } = parsed.data
@@ -61,7 +70,9 @@ export const saveOrgHistoryAction = async (
   revalidatePath('/dashboard/profile')
   return {
     success: true,
-    message: id ? 'Riwayat organisasi diperbarui.' : 'Riwayat organisasi ditambahkan.'
+    message: id
+      ? 'Riwayat organisasi diperbarui.'
+      : 'Riwayat organisasi ditambahkan.'
   }
 }
 
@@ -71,7 +82,8 @@ export const deleteOrgHistoryAction = async (
 ): Promise<OrgHistoryActionState> => {
   const session = await readActiveSession()
   if (!session) return { success: false, message: 'Tidak terautentikasi.' }
-  if (!canEdit(session, memberId)) return { success: false, message: 'Akses ditolak.' }
+  if (!canEdit(session, memberId))
+    return { success: false, message: 'Akses ditolak.' }
 
   await deleteMemberOrganizationHistory(id, memberId)
   revalidatePath('/dashboard/profile')

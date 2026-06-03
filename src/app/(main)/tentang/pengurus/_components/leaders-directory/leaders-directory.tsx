@@ -20,9 +20,9 @@ export const LeadersDirectory = async () => {
             id: member.id,
             name: member.name,
             role: member.role,
-            photoSrc: await resolveSiteImage(member.photoUrl),
+            photoSrc: await resolveSiteImage(member.photoUrl)
           }))
-        ),
+        )
       }))
     )
     return <LeadersDirectoryClient blocks={resolvedBlocks} />
@@ -34,7 +34,7 @@ export const LeadersDirectory = async () => {
       id: `flat-${i}`,
       name: leader.name,
       role: leader.role,
-      photoSrc: await resolveSiteImage(leader.photoUrl),
+      photoSrc: await resolveSiteImage(leader.photoUrl)
     }))
   )
 

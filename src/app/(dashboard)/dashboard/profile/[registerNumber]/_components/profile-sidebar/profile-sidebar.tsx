@@ -7,7 +7,10 @@ import { RadioGroup, RadioGroupItem } from '~/components/shadcn/ui/radio-group'
 import { Field, FieldLabel } from '~/components/shadcn/ui/field'
 import { WarningTooltip } from '../warning-tooltip'
 import { useProfileEdit } from '../profile-edit-context'
-import { RiwayatDaurehSection, RiwayatKeinstrukturanSection } from '../profile-training-history'
+import {
+  RiwayatDaurehSection,
+  RiwayatKeinstrukturanSection
+} from '../profile-training-history'
 
 interface ProfileSidebarProps {
   orgHierarchySlot?: ReactNode
@@ -54,7 +57,7 @@ const ControlledToggle = ({
     >
       <span
         className={cn(
-          'pointer-events-none block h-4 w-4 rounded-full bg-background shadow-lg transition-transform',
+          'bg-background pointer-events-none block h-4 w-4 rounded-full shadow-lg transition-transform',
           checked ? 'translate-x-4' : 'translate-x-0'
         )}
       />
@@ -172,7 +175,9 @@ export const ProfileSidebar = ({ orgHierarchySlot }: ProfileSidebarProps) => {
           <h2 className='text-muted-foreground font-geist-mono mb-3 text-[11px] font-medium tracking-widest uppercase'>
             Status Keanggotaan
           </h2>
-          <p className='text-muted-foreground mb-2 text-xs'>Hanya satu yang dapat aktif sekaligus.</p>
+          <p className='text-muted-foreground mb-2 text-xs'>
+            Hanya satu yang dapat aktif sekaligus.
+          </p>
           <div className='divide-border/60 divide-y rounded-lg border px-3'>
             <ControlledToggle
               name='isAlumn'

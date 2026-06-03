@@ -22,7 +22,7 @@ interface PengurusHeroClientProps {
 export const PengurusHeroClient = ({
   periodLabel,
   heading,
-  triumvirate,
+  triumvirate
 }: PengurusHeroClientProps) => {
   const sectionRef = useRef<HTMLElement>(null)
 
@@ -54,7 +54,7 @@ export const PengurusHeroClient = ({
         gsap.set(textWrapper, {
           scale: 3.5,
           y: deltaY,
-          transformOrigin: 'center center',
+          transformOrigin: 'center center'
         })
         // Position-only hide: overflow:hidden on section clips them, no opacity fade
         // so there is no warm-tinted "ghost" effect during the entrance
@@ -65,11 +65,7 @@ export const PengurusHeroClient = ({
         const tl = gsap.timeline()
 
         // Text collapses from center to header position
-        tl.to(
-          textWrapper,
-          { scale: 1, y: 0, ease: 'none', duration: 0.38 },
-          0
-        )
+        tl.to(textWrapper, { scale: 1, y: 0, ease: 'none', duration: 0.38 }, 0)
         // Ketua rises from below — no opacity, section overflow:hidden clips it
         tl.fromTo(
           ketuaEl,
@@ -102,20 +98,21 @@ export const PengurusHeroClient = ({
           animation: tl,
           // Prevent scrub from extrapolating below progress 0 on overscroll —
           // keeps title centered and at scale 3.5 when scrolling past the top
-          clamp: true,
+          clamp: true
         })
       } else {
         // Mobile M1: vertical stage reveal — text then photos stagger from below
         gsap.set(textWrapper, { opacity: 0, scale: 1.5, y: '10vh' })
         gsap.set([ketuaEl, sekjEl, bendEl], { opacity: 0, y: 65 })
 
-        gsap.timeline({ delay: 0.2 })
+        gsap
+          .timeline({ delay: 0.2 })
           .to(textWrapper, {
             opacity: 1,
             scale: 1,
             y: 0,
             duration: 0.85,
-            ease: 'power3.out',
+            ease: 'power3.out'
           })
           .to(
             [ketuaEl, sekjEl, bendEl],
@@ -124,7 +121,7 @@ export const PengurusHeroClient = ({
               y: 0,
               duration: 0.65,
               ease: 'power3.out',
-              stagger: 0.15,
+              stagger: 0.15
             },
             '-=0.35'
           )
@@ -151,20 +148,20 @@ export const PengurusHeroClient = ({
       key: 'sekj' as const,
       label: 'Sekretaris Jenderal',
       member: triumvirate.sekretaris,
-      position: 'left' as const,
+      position: 'left' as const
     },
     {
       key: 'ketua' as const,
       label: 'Ketua Umum',
       member: triumvirate.ketua,
-      position: 'center' as const,
+      position: 'center' as const
     },
     {
       key: 'bend' as const,
       label: 'Bendahara Umum',
       member: triumvirate.bendahara,
-      position: 'right' as const,
-    },
+      position: 'right' as const
+    }
   ]
 
   return (
@@ -201,7 +198,7 @@ export const PengurusHeroClient = ({
               data-ph-photo={key}
               onMouseMove={handleMouseMove}
               className={cn(
-                'group relative shrink-0 cursor-pointer overflow-visible rounded-[2.5rem] bg-muted/60 px-4 pt-4 pb-0',
+                'group bg-muted/60 relative shrink-0 cursor-pointer overflow-visible rounded-[2.5rem] px-4 pt-4 pb-0',
                 'md:w-auto md:rounded-none md:bg-transparent md:p-0',
                 isLeft
                   ? 'md:-mr-[12vw] lg:-mr-[15vw]'
@@ -209,10 +206,10 @@ export const PengurusHeroClient = ({
                     ? 'md:-ml-[12vw] lg:-ml-[15vw]'
                     : '',
                 isCenter
-                  ? 'order-1 z-10 md:order-none'
+                  ? 'z-10 order-1 md:order-none'
                   : isLeft
-                    ? 'order-2 z-0 md:order-none'
-                    : 'order-3 z-0 md:order-none',
+                    ? 'z-0 order-2 md:order-none'
+                    : 'z-0 order-3 md:order-none',
                 isCenter
                   ? 'h-[clamp(240px,45vh,380px)] md:h-[min(52vw,950px)]'
                   : 'h-[clamp(210px,40vh,340px)] md:h-[min(48vw,880px)]'
@@ -234,7 +231,7 @@ export const PengurusHeroClient = ({
                       className='pointer-events-none absolute inset-0 z-[1] opacity-0 transition-opacity duration-200 group-hover:opacity-100 max-md:rounded-t-[2rem]'
                       style={{
                         background:
-                          'radial-gradient(circle at var(--ph-x, 50%) var(--ph-y, 50%), oklch(0.52 0.20 17 / 0.13) 0%, transparent 65%)',
+                          'radial-gradient(circle at var(--ph-x, 50%) var(--ph-y, 50%), oklch(0.52 0.20 17 / 0.13) 0%, transparent 65%)'
                       }}
                     />
                   </>
@@ -259,7 +256,7 @@ export const PengurusHeroClient = ({
                     : isLeft
                       ? 'left-8 text-left'
                       : 'right-8 text-right',
-                  'max-md:right-[-24px] max-md:bottom-6 max-md:left-auto max-md:flex max-md:max-w-[80%] max-md:translate-y-0 max-md:translate-x-0 max-md:opacity-100 max-md:text-right'
+                  'max-md:right-[-24px] max-md:bottom-6 max-md:left-auto max-md:flex max-md:max-w-[80%] max-md:translate-x-0 max-md:translate-y-0 max-md:text-right max-md:opacity-100'
                 )}
               >
                 <p className='text-primary font-sans text-[10px] leading-none font-bold tracking-[0.2em] uppercase'>

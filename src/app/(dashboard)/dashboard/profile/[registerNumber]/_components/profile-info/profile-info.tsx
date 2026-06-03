@@ -313,7 +313,11 @@ export const ProfileInfo = () => {
                   name='addressProvince'
                   value={getRegionName(provinces, province)}
                 />
-                <input type='hidden' name='addressProvinceCode' value={province} />
+                <input
+                  type='hidden'
+                  name='addressProvinceCode'
+                  value={province}
+                />
               </Field>
 
               <Field>
@@ -360,7 +364,11 @@ export const ProfileInfo = () => {
                   name='addressDistrict'
                   value={getRegionName(districts, district)}
                 />
-                <input type='hidden' name='addressDistrictCode' value={district} />
+                <input
+                  type='hidden'
+                  name='addressDistrictCode'
+                  value={district}
+                />
               </Field>
 
               <Field>
@@ -407,15 +415,51 @@ export const ProfileInfo = () => {
           {/* Pass existing address values when section is collapsed so they don't get cleared on save */}
           {!isAddressOpen && (
             <>
-              <input type='hidden' name='addressProvince' value={member.addressProvince ?? ''} />
-              <input type='hidden' name='addressProvinceCode' value={member.addressProvinceCode ?? ''} />
-              <input type='hidden' name='addressCity' value={member.addressCity ?? ''} />
-              <input type='hidden' name='addressCityCode' value={member.addressCityCode ?? ''} />
-              <input type='hidden' name='addressDistrict' value={member.addressDistrict ?? ''} />
-              <input type='hidden' name='addressDistrictCode' value={member.addressDistrictCode ?? ''} />
-              <input type='hidden' name='addressSubdistrict' value={member.addressSubdistrict ?? ''} />
-              <input type='hidden' name='addressSubdistrictCode' value={member.addressSubdistrictCode ?? ''} />
-              <input type='hidden' name='addressLine' value={member.addressLine ?? ''} />
+              <input
+                type='hidden'
+                name='addressProvince'
+                value={member.addressProvince ?? ''}
+              />
+              <input
+                type='hidden'
+                name='addressProvinceCode'
+                value={member.addressProvinceCode ?? ''}
+              />
+              <input
+                type='hidden'
+                name='addressCity'
+                value={member.addressCity ?? ''}
+              />
+              <input
+                type='hidden'
+                name='addressCityCode'
+                value={member.addressCityCode ?? ''}
+              />
+              <input
+                type='hidden'
+                name='addressDistrict'
+                value={member.addressDistrict ?? ''}
+              />
+              <input
+                type='hidden'
+                name='addressDistrictCode'
+                value={member.addressDistrictCode ?? ''}
+              />
+              <input
+                type='hidden'
+                name='addressSubdistrict'
+                value={member.addressSubdistrict ?? ''}
+              />
+              <input
+                type='hidden'
+                name='addressSubdistrictCode'
+                value={member.addressSubdistrictCode ?? ''}
+              />
+              <input
+                type='hidden'
+                name='addressLine'
+                value={member.addressLine ?? ''}
+              />
             </>
           )}
         </div>
@@ -479,15 +523,20 @@ export const ProfileInfo = () => {
           value={
             addressParts.length > 0 ? (
               <span className='flex flex-col gap-0.5 leading-relaxed'>
-                {member.addressLine && (
-                  <span>{member.addressLine}</span>
-                )}
-                {[member.addressSubdistrict, member.addressDistrict, member.addressCity, member.addressProvince]
+                {member.addressLine && <span>{member.addressLine}</span>}
+                {[
+                  member.addressSubdistrict,
+                  member.addressDistrict,
+                  member.addressCity,
+                  member.addressProvince
+                ]
                   .filter(Boolean)
                   .join(', ') || null}
               </span>
             ) : (
-              <span className='text-muted-foreground/60 italic text-sm'>Belum diisi</span>
+              <span className='text-muted-foreground/60 text-sm italic'>
+                Belum diisi
+              </span>
             )
           }
         />

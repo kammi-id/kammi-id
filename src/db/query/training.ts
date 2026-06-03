@@ -337,7 +337,10 @@ export const trainingQuery = {
       })
       .from(training)
       .where(
-        and(eq(training.organizationId, fields.organizationId), eq(training.year, year))
+        and(
+          eq(training.organizationId, fields.organizationId),
+          eq(training.year, year)
+        )
       )
 
     const nextIdentifier = (maxIdentifier ?? 0) + 1

@@ -8,6 +8,7 @@
 ## Masalah
 
 Section "Tentang KAMMI" di homepage (`about-section.tsx`) punya dua link yang broken:
+
 - `readMoreHref` → `#organisasi` (anchor tidak exist)
 - Card kanan "Mini Strategi" dengan `miniStrategiLinkHref` → `#strategi` (anchor tidak exist)
 
@@ -18,6 +19,7 @@ Card "Mini Strategi" juga kurang relevan sebagai komplemen section Tentang KAMMI
 ## Solusi
 
 ### 1. Fix `readMoreHref`
+
 `#organisasi` → `/tentang`
 
 Label tetap: `"Lebih jauh tentang kami"`
@@ -25,6 +27,7 @@ Label tetap: `"Lebih jauh tentang kami"`
 ### 2. Ganti Card Kanan: Mini Strategi → Sejarah Singkat
 
 **Konten card baru:**
+
 - Icon: kalender sederhana
 - Label kecil: `"Sejarah Singkat"`
 - Heading: `"Lahir dari Rahim Reformasi"`
@@ -34,12 +37,12 @@ Label tetap: `"Lebih jauh tentang kami"`
 
 ### 3. Rename Fields di `AboutSettings`
 
-| Lama | Baru |
-|------|------|
-| `miniStrategiTitle` | `sejarahCardTitle` |
+| Lama                      | Baru                     |
+| ------------------------- | ------------------------ |
+| `miniStrategiTitle`       | `sejarahCardTitle`       |
 | `miniStrategiDescription` | `sejarahCardDescription` |
-| `miniStrategiLinkLabel` | `sejarahCardLinkLabel` |
-| `miniStrategiLinkHref` | `sejarahCardLinkHref` |
+| `miniStrategiLinkLabel`   | `sejarahCardLinkLabel`   |
+| `miniStrategiLinkHref`    | `sejarahCardLinkHref`    |
 
 Field rename aman karena `readSiteSettings` merge dengan defaults — record DB lama yang pakai field lama akan diabaikan dan digantikan default baru.
 

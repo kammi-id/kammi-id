@@ -39,7 +39,9 @@ export const updateMemberAcademic = async (
   await db
     .update(memberAcademic)
     .set(data)
-    .where(and(eq(memberAcademic.id, id), eq(memberAcademic.memberId, memberId)))
+    .where(
+      and(eq(memberAcademic.id, id), eq(memberAcademic.memberId, memberId))
+    )
 }
 
 export const deleteMemberAcademic = async (
@@ -48,5 +50,7 @@ export const deleteMemberAcademic = async (
 ): Promise<void> => {
   await db
     .delete(memberAcademic)
-    .where(and(eq(memberAcademic.id, id), eq(memberAcademic.memberId, memberId)))
+    .where(
+      and(eq(memberAcademic.id, id), eq(memberAcademic.memberId, memberId))
+    )
 }

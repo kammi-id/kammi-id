@@ -15,7 +15,10 @@ export const fetchUniversitiesAction = async (
   } catch (error) {
     return {
       success: false,
-      message: error instanceof Error ? error.message : 'Gagal memuat data universitas.'
+      message:
+        error instanceof Error
+          ? error.message
+          : 'Gagal memuat data universitas.'
     }
   }
 }

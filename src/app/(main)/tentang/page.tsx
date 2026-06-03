@@ -36,7 +36,12 @@ const TentangPage = async () => {
         </ol>
       </nav>
 
-      <TentangScene settings={settings} />
+      {/* Outer wrapper provides the scroll distance (1900vh = 1800vh animation + 100vh scene).
+          TentangScene uses position:sticky so GSAP never needs pin:true, avoiding the
+          React <Activity> insertBefore conflict caused by ScrollTrigger's pinSpacerDiv. */}
+      <div style={{ height: '1900vh' }}>
+        <TentangScene settings={settings} />
+      </div>
     </>
   )
 }

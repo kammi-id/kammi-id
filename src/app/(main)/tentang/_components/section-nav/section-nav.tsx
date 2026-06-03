@@ -17,15 +17,11 @@ export const SectionNav = () => {
   const phaseScrollY = useStore($tentangPhaseScrollY)
 
   useEffect(() => {
-    // Dedicated container decouples this nav from any SSR-rendered body children.
-    // React treats it as a purely client-side subtree — no hydration mismatch.
-    const el = document.createElement('div')
-    el.setAttribute('data-tentang-nav', '')
-    document.body.appendChild(el)
-    portalRef.current = el
+    const root = document.getElementById('portal-root')
+    if (!root) return
+    portalRef.current = root
     setMounted(true)
     return () => {
-      document.body.removeChild(el)
       portalRef.current = null
     }
   }, [])
@@ -49,7 +45,7 @@ export const SectionNav = () => {
     >
       {/* Phase counter — shows current position in the journey */}
       <div className='mb-2 flex justify-center'>
-        <span className='font-mono text-[0.6rem] tabular-nums text-foreground/35'>
+        <span className='text-foreground/35 font-mono text-[0.6rem] tabular-nums'>
           {activePhase + 1}
           <span className='text-foreground/20'>/5</span>
         </span>

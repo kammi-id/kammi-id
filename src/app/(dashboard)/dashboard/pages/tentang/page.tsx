@@ -50,7 +50,7 @@ const TentangSettingsPage = async () => {
       description:
         'Foto untuk masing-masing dari empat poin paradigma gerakan.',
       content: <ParadigmaForm initialData={tentang} />
-    },
+    }
   ]
 
   return (
@@ -69,7 +69,9 @@ const TentangSettingsPage = async () => {
           </h1>
           <p className='text-muted-foreground text-sm leading-relaxed'>
             Kelola gambar yang ditampilkan di{' '}
-            <span className='text-foreground font-medium'>kammi.id/tentang</span>
+            <span className='text-foreground font-medium'>
+              kammi.id/tentang
+            </span>
             . Perubahan langsung aktif setelah disimpan.
           </p>
         </div>

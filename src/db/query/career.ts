@@ -11,7 +11,9 @@ export type MemberCareerInsert = {
   yearEnd: number | null
 }
 
-export const readMemberCareer = async (memberId: string): Promise<MemberCareer[]> => {
+export const readMemberCareer = async (
+  memberId: string
+): Promise<MemberCareer[]> => {
   return db
     .select()
     .from(memberCareer)

@@ -83,7 +83,10 @@ const Page = async () => {
   }
 
   return (
-    <>
+    // Stable root wrapper — React Activity uses this div as the reference node
+    // for insertBefore during navigation. Without it, GSAP's pin-spacer wrappers
+    // would be the reference node, causing React to throw "not a child of this node".
+    <div>
       <HomeScene
         heroItems={heroItems}
         about={about}
@@ -92,7 +95,7 @@ const Page = async () => {
         pwOrgs={pwOrgs}
       />
       <ExtraSection />
-    </>
+    </div>
   )
 }
 

@@ -77,7 +77,13 @@ const LeafletMap = ({ pwLookup, onTooltip, onMapHover }: LeafletMapProps) => {
       mapRef.current = map
 
       // Fit all of Indonesia in view
-      map.fitBounds([[-11, 94], [6.5, 142]], { padding: [6, 6], animate: false })
+      map.fitBounds(
+        [
+          [-11, 94],
+          [6.5, 142]
+        ],
+        { padding: [6, 6], animate: false }
+      )
 
       // ── OpenStreetMap base layer ─────────────────────────────────────────────
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -121,8 +127,16 @@ const LeafletMap = ({ pwLookup, onTooltip, onMapHover }: LeafletMapProps) => {
               })
             },
             mouseout() {
-              path.setStyle(pwLookup[slug] ? { ...STYLE_HAS_PW } : { ...STYLE_NO_PW })
-              onTooltip({ visible: false, clientX: 0, clientY: 0, idName: '', pwName: null })
+              path.setStyle(
+                pwLookup[slug] ? { ...STYLE_HAS_PW } : { ...STYLE_NO_PW }
+              )
+              onTooltip({
+                visible: false,
+                clientX: 0,
+                clientY: 0,
+                idName: '',
+                pwName: null
+              })
             }
           })
         }
@@ -151,7 +165,9 @@ const LeafletMap = ({ pwLookup, onTooltip, onMapHover }: LeafletMapProps) => {
     layer.eachLayer((l) => {
       const feature = (l as any).feature as Feature<Geometry, any>
       const slug: string = feature?.properties?.slug ?? ''
-      ;(l as L.Path).setStyle(pwLookup[slug] ? { ...STYLE_HAS_PW } : { ...STYLE_NO_PW })
+      ;(l as L.Path).setStyle(
+        pwLookup[slug] ? { ...STYLE_HAS_PW } : { ...STYLE_NO_PW }
+      )
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pwLookup])
@@ -174,10 +190,7 @@ const LeafletMap = ({ pwLookup, onTooltip, onMapHover }: LeafletMapProps) => {
         onMouseEnter={() => onMapHover(true)}
         onMouseLeave={() => onMapHover(false)}
       >
-        <div
-          ref={containerRef}
-          className='h-full w-full'
-        />
+        <div ref={containerRef} className='h-full w-full' />
       </div>
     </>
   )

@@ -29,10 +29,18 @@ export const AboutForm = ({ initialData }: Props) => {
   const [paragraph2, setParagraph2] = useState(initialData.paragraph2)
   const [readMoreLabel, setReadMoreLabel] = useState(initialData.readMoreLabel)
   const [readMoreHref, setReadMoreHref] = useState(initialData.readMoreHref)
-  const [sejarahCardTitle, setSejarahCardTitle] = useState(initialData.sejarahCardTitle)
-  const [sejarahCardDescription, setSejarahCardDescription] = useState(initialData.sejarahCardDescription)
-  const [sejarahCardLinkLabel, setSejarahCardLinkLabel] = useState(initialData.sejarahCardLinkLabel)
-  const [sejarahCardLinkHref, setSejarahCardLinkHref] = useState(initialData.sejarahCardLinkHref)
+  const [sejarahCardTitle, setSejarahCardTitle] = useState(
+    initialData.sejarahCardTitle
+  )
+  const [sejarahCardDescription, setSejarahCardDescription] = useState(
+    initialData.sejarahCardDescription
+  )
+  const [sejarahCardLinkLabel, setSejarahCardLinkLabel] = useState(
+    initialData.sejarahCardLinkLabel
+  )
+  const [sejarahCardLinkHref, setSejarahCardLinkHref] = useState(
+    initialData.sejarahCardLinkHref
+  )
 
   const { isDirty, markClean } = useUnsavedChanges({
     paragraph1,
@@ -161,10 +169,14 @@ export const AboutForm = ({ initialData }: Props) => {
                   placeholder='Lahir dari Rahim Reformasi'
                 />
               </FieldContent>
-              <FieldError errors={fe.sejarahCardTitle?.map((m) => ({ message: m }))} />
+              <FieldError
+                errors={fe.sejarahCardTitle?.map((m) => ({ message: m }))}
+              />
             </Field>
             <Field>
-              <FieldLabel htmlFor='sejarahCardDescription'>Deskripsi Card</FieldLabel>
+              <FieldLabel htmlFor='sejarahCardDescription'>
+                Deskripsi Card
+              </FieldLabel>
               <FieldContent>
                 <Textarea
                   id='sejarahCardDescription'
@@ -181,7 +193,9 @@ export const AboutForm = ({ initialData }: Props) => {
             </Field>
             <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
               <Field>
-                <FieldLabel htmlFor='sejarahCardLinkLabel'>Label Link Card</FieldLabel>
+                <FieldLabel htmlFor='sejarahCardLinkLabel'>
+                  Label Link Card
+                </FieldLabel>
                 <FieldContent>
                   <Input
                     id='sejarahCardLinkLabel'

@@ -39,22 +39,33 @@ export const RiwayatDaurehSection = () => {
       </h2>
 
       {history.asAttendant.length === 0 ? (
-        <p className='text-muted-foreground text-sm'>Belum ada riwayat dauroh.</p>
+        <p className='text-muted-foreground text-sm'>
+          Belum ada riwayat dauroh.
+        </p>
       ) : (
         <div className='divide-border/60 divide-y'>
           {history.asAttendant.map((record) => (
-            <div key={record.id} className='flex items-start justify-between gap-2 py-2.5'>
+            <div
+              key={record.id}
+              className='flex items-start justify-between gap-2 py-2.5'
+            >
               <div className='min-w-0 flex-1'>
-                <p className='text-foreground truncate text-sm font-medium'>{record.name}</p>
+                <p className='text-foreground truncate text-sm font-medium'>
+                  {record.name}
+                </p>
                 {record.organizationName && (
-                  <p className='text-muted-foreground truncate text-xs'>{record.organizationName}</p>
+                  <p className='text-muted-foreground truncate text-xs'>
+                    {record.organizationName}
+                  </p>
                 )}
               </div>
               <div className='flex shrink-0 items-center gap-1.5'>
                 <span className='font-geist-mono text-muted-foreground text-xs'>
                   {trainingTypeLabel[record.type]}
                 </span>
-                <span className='text-muted-foreground text-xs'>{record.year}</span>
+                <span className='text-muted-foreground text-xs'>
+                  {record.year}
+                </span>
                 {record.isPassing ? (
                   <HugeiconsIcon
                     icon={Tick01Icon}
@@ -92,16 +103,22 @@ export const RiwayatKeinstrukturanSection = () => {
       </h2>
 
       {history.asInstructor.length === 0 ? (
-        <p className='text-muted-foreground text-sm'>Belum ada riwayat keinstrukturan.</p>
+        <p className='text-muted-foreground text-sm'>
+          Belum ada riwayat keinstrukturan.
+        </p>
       ) : (
         <div className='divide-border/60 divide-y'>
           {history.asInstructor.map((record) => (
             <div key={`${record.id}-instructor`} className='py-2.5'>
               <div className='flex items-start justify-between gap-2'>
                 <div className='min-w-0 flex-1'>
-                  <p className='text-foreground truncate text-sm font-medium'>{record.name}</p>
+                  <p className='text-foreground truncate text-sm font-medium'>
+                    {record.name}
+                  </p>
                   {record.organizationName && (
-                    <p className='text-muted-foreground truncate text-xs'>{record.organizationName}</p>
+                    <p className='text-muted-foreground truncate text-xs'>
+                      {record.organizationName}
+                    </p>
                   )}
                 </div>
                 <div className='shrink-0 text-right'>

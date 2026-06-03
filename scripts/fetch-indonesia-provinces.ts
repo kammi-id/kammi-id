@@ -27,18 +27,25 @@ const truncCoord = (c: number) => Math.round(c * 100) / 100
 
 /** Simplify polygon coordinates — keep every nth point + always keep first/last */
 const simplifyRing = (ring: number[][], step = 4): number[][] => {
-  if (ring.length <= 4) return ring.map(([lon, lat]) => [truncCoord(lon), truncCoord(lat)])
+  if (ring.length <= 4)
+    return ring.map(([lon, lat]) => [truncCoord(lon), truncCoord(lat)])
   const result: number[][] = [[truncCoord(ring[0][0]), truncCoord(ring[0][1])]]
   for (let i = step; i < ring.length - 1; i += step) {
     result.push([truncCoord(ring[i][0]), truncCoord(ring[i][1])])
   }
-  result.push([truncCoord(ring[ring.length - 1][0]), truncCoord(ring[ring.length - 1][1])])
+  result.push([
+    truncCoord(ring[ring.length - 1][0]),
+    truncCoord(ring[ring.length - 1][1])
+  ])
   return result
 }
 
 const simplifyGeometry = (geom: any): any => {
   if (geom.type === 'Polygon') {
-    return { ...geom, coordinates: geom.coordinates.map((r: number[][]) => simplifyRing(r)) }
+    return {
+      ...geom,
+      coordinates: geom.coordinates.map((r: number[][]) => simplifyRing(r))
+    }
   }
   if (geom.type === 'MultiPolygon') {
     return {
@@ -65,16 +72,25 @@ const optimized = {
   features: raw.features.map((f: any) => ({
     type: 'Feature',
     properties: {
-      name: (f.properties?.state ?? f.properties?.Propinsi ?? f.properties?.NAME_1 ?? '').trim(),
+      name: (
+        f.properties?.state ??
+        f.properties?.Propinsi ??
+        f.properties?.NAME_1 ??
+        ''
+      ).trim(),
       slug: (f.properties?.slug ?? '').trim(),
-      code: String(f.properties?.id_1 ?? f.properties?.ID_1 ?? f.properties?.code ?? '')
+      code: String(
+        f.properties?.id_1 ?? f.properties?.ID_1 ?? f.properties?.code ?? ''
+      )
     },
     geometry: simplifyGeometry(f.geometry)
   }))
 }
 
 const json = JSON.stringify(optimized)
-console.log(`Optimized size: ${(json.length / 1024).toFixed(1)} KB (${optimized.features.length} features)`)
+console.log(
+  `Optimized size: ${(json.length / 1024).toFixed(1)} KB (${optimized.features.length} features)`
+)
 
 await mkdir(path.dirname(OUT_PATH), { recursive: true })
 await writeFile(OUT_PATH, json, 'utf-8')

@@ -60,7 +60,10 @@ export const saveHomeHeroItemsAction = async (
   const result = homeItemsSchema.safeParse(items)
   if (!result.success) {
     return {
-      fieldErrors: result.error.flatten().fieldErrors as unknown as Record<string, string[]>
+      fieldErrors: result.error.flatten().fieldErrors as unknown as Record<
+        string,
+        string[]
+      >
     }
   }
 
@@ -92,7 +95,10 @@ export const saveHomeExtraItemsAction = async (
   const result = homeItemsSchema.safeParse(items)
   if (!result.success) {
     return {
-      fieldErrors: result.error.flatten().fieldErrors as unknown as Record<string, string[]>
+      fieldErrors: result.error.flatten().fieldErrors as unknown as Record<
+        string,
+        string[]
+      >
     }
   }
 
@@ -170,7 +176,9 @@ const aboutSchema = z.object({
   readMoreLabel: z.string().min(1),
   readMoreHref: z.string().min(1),
   sejarahCardTitle: z.string().min(1, 'Judul card sejarah wajib diisi.'),
-  sejarahCardDescription: z.string().min(1, 'Deskripsi card sejarah wajib diisi.'),
+  sejarahCardDescription: z
+    .string()
+    .min(1, 'Deskripsi card sejarah wajib diisi.'),
   sejarahCardLinkLabel: z.string().min(1),
   sejarahCardLinkHref: z.string().min(1)
 })

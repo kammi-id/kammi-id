@@ -36,7 +36,8 @@ const HomeSettingsPage = async () => {
       id: 'hero',
       index: '01',
       title: 'Hero Sections',
-      description: 'Section pertama yang tampil di halaman utama sebagai background penuh.',
+      description:
+        'Section pertama yang tampil di halaman utama sebagai background penuh.',
       content: (
         <HomeItemsList
           label='Hero Sections'
@@ -51,7 +52,8 @@ const HomeSettingsPage = async () => {
       id: 'extra',
       index: '02',
       title: 'Extra Sections',
-      description: 'Section tambahan yang tampil setelah Peta Jaringan, berurutan dari atas.',
+      description:
+        'Section tambahan yang tampil setelah Peta Jaringan, berurutan dari atas.',
       content: (
         <HomeItemsList
           label='Extra Sections'

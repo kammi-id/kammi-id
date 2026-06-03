@@ -173,7 +173,8 @@ export const HomeScene = ({
       <p style="font-size:9px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;opacity:0.5;margin:0 0 4px">Pengurus Wilayah</p>
       <p data-tip-pw style="font-family:var(--font-heading,serif);font-size:14px;font-weight:700;line-height:1.25;margin:0"></p>
     `
-    document.body.appendChild(el)
+    const portalRoot = document.getElementById('portal-root') ?? document.body
+    portalRoot.appendChild(el)
     tooltipRef.current = el
 
     const onScroll = () => {
@@ -183,7 +184,7 @@ export const HomeScene = ({
 
     return () => {
       window.removeEventListener('scroll', onScroll)
-      document.body.removeChild(el)
+      portalRoot.removeChild(el)
       tooltipRef.current = null
     }
   }, [])
@@ -249,7 +250,10 @@ export const HomeScene = ({
       gsap.set(aboutLeftRef.current, { opacity: 0, x: -60 })
       gsap.set(aboutRightRef.current, { opacity: 0, x: 60 })
 
-      gsap.set(leadershipLayerRef.current, { opacity: 0, pointerEvents: 'none' })
+      gsap.set(leadershipLayerRef.current, {
+        opacity: 0,
+        pointerEvents: 'none'
+      })
 
       gsap.set(networkLayerRef.current, { opacity: 0, pointerEvents: 'none' })
       gsap.set(netMapRef.current, { scale: 1.5, opacity: 0 })
@@ -279,10 +283,10 @@ export const HomeScene = ({
         gsap.set(lsBendRef.current, { x: '55vw' })
       } else {
         gsap.set(lsTextRef.current, { opacity: 0, scale: 1.5, y: '10vh' })
-        gsap.set(
-          [lsKetuaRef.current, lsSekjRef.current, lsBendRef.current],
-          { opacity: 0, y: 65 }
-        )
+        gsap.set([lsKetuaRef.current, lsSekjRef.current, lsBendRef.current], {
+          opacity: 0,
+          y: 65
+        })
       }
 
       // ── Counter objects for network stats ──────────────────────────────────
@@ -425,7 +429,13 @@ export const HomeScene = ({
           )
           .to(
             [lsKetuaRef.current, lsSekjRef.current, lsBendRef.current],
-            { opacity: 1, y: 0, ease: 'power3.out', duration: 0.45, stagger: 0.12 },
+            {
+              opacity: 1,
+              y: 0,
+              ease: 'power3.out',
+              duration: 0.45,
+              stagger: 0.12
+            },
             3.1
           )
       }
@@ -489,7 +499,11 @@ export const HomeScene = ({
 
         cards.forEach((card, i) => {
           const s = 5.22 + i * 0.14
-          mainTl.to(card, { opacity: 1, y: 0, ease: 'power3.out', duration: 0.18 }, s)
+          mainTl.to(
+            card,
+            { opacity: 1, y: 0, ease: 'power3.out', duration: 0.18 },
+            s
+          )
           mainTl.to(
             counterObjs[i],
             {
@@ -498,8 +512,7 @@ export const HomeScene = ({
               duration: 0.18,
               onUpdate() {
                 const el = numEls[i]
-                if (el)
-                  el.textContent = String(Math.round(counterObjs[i].val))
+                if (el) el.textContent = String(Math.round(counterObjs[i].val))
               }
             },
             s
@@ -543,16 +556,28 @@ export const HomeScene = ({
   ]
 
   const statCards = [
-    { value: networkStats.wilayah, label: 'Pengurus Wilayah', dataAttr: 'wilayah' },
-    { value: networkStats.daerah, label: 'Pengurus Daerah', dataAttr: 'daerah' },
-    { value: networkStats.komisariat, label: 'Komisariat', dataAttr: 'komisariat' }
+    {
+      value: networkStats.wilayah,
+      label: 'Pengurus Wilayah',
+      dataAttr: 'wilayah'
+    },
+    {
+      value: networkStats.daerah,
+      label: 'Pengurus Daerah',
+      dataAttr: 'daerah'
+    },
+    {
+      value: networkStats.komisariat,
+      label: 'Komisariat',
+      dataAttr: 'komisariat'
+    }
   ]
 
   // ── Render ────────────────────────────────────────────────────────────────────
   return (
     <div
       ref={sceneRef}
-      className='relative h-svh w-full overflow-hidden -mt-20'
+      className='relative -mt-20 h-svh w-full overflow-hidden'
       aria-label='Beranda KAMMI'
     >
       {/*
@@ -579,7 +604,7 @@ export const HomeScene = ({
                   unoptimized={hero.resolvedImageUrl.includes('?')}
                 />
               ) : (
-                <div className='absolute inset-0 bg-foreground/10' />
+                <div className='bg-foreground/10 absolute inset-0' />
               )}
             </div>
 
@@ -606,7 +631,7 @@ export const HomeScene = ({
                 <h1
                   ref={heroH1Ref}
                   id='hero-heading'
-                  className='font-heading text-[clamp(2.6rem,6vw,4.5rem)] font-bold leading-[1.05] tracking-tight text-white'
+                  className='font-heading text-[clamp(2.6rem,6vw,4.5rem)] leading-[1.05] font-bold tracking-tight text-white'
                 >
                   {hero.title}
                 </h1>
@@ -798,75 +823,77 @@ export const HomeScene = ({
 
         {/* Photo trio — converge from edges, then exit downward */}
         <div className='mt-auto flex flex-col items-start gap-10 px-6 sm:px-8 md:flex-row md:items-end md:justify-center md:gap-0 lg:px-12'>
-          {trio.map(({ key, label, name, photoSrc, position, ref: photoRef }) => {
-            const isCenter = position === 'center'
-            const isLeft = position === 'left'
+          {trio.map(
+            ({ key, label, name, photoSrc, position, ref: photoRef }) => {
+              const isCenter = position === 'center'
+              const isLeft = position === 'left'
 
-            return (
-              <div
-                key={key}
-                ref={photoRef}
-                data-ls-photo={key}
-                className={cn(
-                  'group relative shrink-0 cursor-pointer overflow-visible rounded-[2.5rem] bg-muted/60 px-4 pt-4 pb-0',
-                  'md:w-auto md:rounded-none md:bg-transparent md:p-0',
-                  isLeft
-                    ? 'md:-mr-[12vw] lg:-mr-[15vw]'
-                    : !isCenter
-                      ? 'md:-ml-[12vw] lg:-ml-[15vw]'
-                      : '',
-                  isCenter
-                    ? 'order-1 z-10 md:order-none'
-                    : isLeft
-                      ? 'order-2 z-0 md:order-none'
-                      : 'order-3 z-0 md:order-none',
-                  isCenter
-                    ? 'h-[clamp(200px,38vh,320px)] md:h-[min(44vw,800px)]'
-                    : 'h-[clamp(175px,33vh,280px)] md:h-[min(40vw,740px)]'
-                )}
-              >
-                {photoSrc ? (
-                  <Image
-                    src={photoSrc}
-                    alt={`Foto ${name}`}
-                    width={800}
-                    height={1067}
-                    className='h-full w-auto max-w-none object-contain object-bottom transition-transform duration-500 ease-out group-hover:scale-[1.02] max-md:rounded-t-[2rem] max-md:object-left-bottom'
-                    unoptimized={photoSrc.startsWith('http')}
-                  />
-                ) : (
-                  <div
-                    className='bg-muted/30 h-full rounded-t-[2rem]'
-                    style={{ aspectRatio: '3/4' }}
-                  />
-                )}
-
-                {/* Frosted name plate */}
+              return (
                 <div
+                  key={key}
+                  ref={photoRef}
+                  data-ls-photo={key}
                   className={cn(
-                    'absolute rounded-xl px-4 py-2.5',
-                    'bg-white/85 shadow-[0_8px_32px_rgba(0,0,0,0.12)] ring-1 ring-white/50 backdrop-blur-md',
-                    'w-max max-w-[85%] transition-[opacity,transform] duration-200 ease-out',
-                    'bottom-12 translate-y-1 opacity-70 max-md:hidden',
-                    'group-hover:translate-y-0 group-hover:opacity-100',
+                    'group bg-muted/60 relative shrink-0 cursor-pointer overflow-visible rounded-[2.5rem] px-4 pt-4 pb-0',
+                    'md:w-auto md:rounded-none md:bg-transparent md:p-0',
+                    isLeft
+                      ? 'md:-mr-[12vw] lg:-mr-[15vw]'
+                      : !isCenter
+                        ? 'md:-ml-[12vw] lg:-ml-[15vw]'
+                        : '',
                     isCenter
-                      ? 'left-1/2 -translate-x-1/2 text-center'
+                      ? 'z-10 order-1 md:order-none'
                       : isLeft
-                        ? 'left-8 text-left'
-                        : 'right-8 text-right',
-                    'max-md:right-[-24px] max-md:bottom-6 max-md:left-auto max-md:flex max-md:max-w-[80%] max-md:translate-y-0 max-md:translate-x-0 max-md:opacity-100 max-md:text-right'
+                        ? 'z-0 order-2 md:order-none'
+                        : 'z-0 order-3 md:order-none',
+                    isCenter
+                      ? 'h-[clamp(200px,38vh,320px)] md:h-[min(44vw,800px)]'
+                      : 'h-[clamp(175px,33vh,280px)] md:h-[min(40vw,740px)]'
                   )}
                 >
-                  <p className='text-primary font-sans text-[10px] leading-none font-bold tracking-[0.2em] uppercase'>
-                    {label}
-                  </p>
-                  <p className='font-heading text-foreground mt-1.5 text-sm leading-tight font-bold md:text-base'>
-                    {name}
-                  </p>
+                  {photoSrc ? (
+                    <Image
+                      src={photoSrc}
+                      alt={`Foto ${name}`}
+                      width={800}
+                      height={1067}
+                      className='h-full w-auto max-w-none object-contain object-bottom transition-transform duration-500 ease-out group-hover:scale-[1.02] max-md:rounded-t-[2rem] max-md:object-left-bottom'
+                      unoptimized={photoSrc.startsWith('http')}
+                    />
+                  ) : (
+                    <div
+                      className='bg-muted/30 h-full rounded-t-[2rem]'
+                      style={{ aspectRatio: '3/4' }}
+                    />
+                  )}
+
+                  {/* Frosted name plate */}
+                  <div
+                    className={cn(
+                      'absolute rounded-xl px-4 py-2.5',
+                      'bg-white/85 shadow-[0_8px_32px_rgba(0,0,0,0.12)] ring-1 ring-white/50 backdrop-blur-md',
+                      'w-max max-w-[85%] transition-[opacity,transform] duration-200 ease-out',
+                      'bottom-12 translate-y-1 opacity-70 max-md:hidden',
+                      'group-hover:translate-y-0 group-hover:opacity-100',
+                      isCenter
+                        ? 'left-1/2 -translate-x-1/2 text-center'
+                        : isLeft
+                          ? 'left-8 text-left'
+                          : 'right-8 text-right',
+                      'max-md:right-[-24px] max-md:bottom-6 max-md:left-auto max-md:flex max-md:max-w-[80%] max-md:translate-x-0 max-md:translate-y-0 max-md:text-right max-md:opacity-100'
+                    )}
+                  >
+                    <p className='text-primary font-sans text-[10px] leading-none font-bold tracking-[0.2em] uppercase'>
+                      {label}
+                    </p>
+                    <p className='font-heading text-foreground mt-1.5 text-sm leading-tight font-bold md:text-base'>
+                      {name}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            )
-          })}
+              )
+            }
+          )}
         </div>
       </div>
 
@@ -892,13 +919,13 @@ export const HomeScene = ({
 
         {/* Top gradient for header readability */}
         <div
-          className='pointer-events-none absolute inset-x-0 top-0 z-[5] h-56 bg-gradient-to-b from-background/92 via-background/50 to-transparent'
+          className='from-background/92 via-background/50 pointer-events-none absolute inset-x-0 top-0 z-[5] h-56 bg-gradient-to-b to-transparent'
           aria-hidden='true'
         />
 
         {/* Bottom gradient for cards readability */}
         <div
-          className='pointer-events-none absolute inset-x-0 bottom-0 z-[5] h-56 bg-gradient-to-t from-background/92 via-background/50 to-transparent'
+          className='from-background/92 via-background/50 pointer-events-none absolute inset-x-0 bottom-0 z-[5] h-56 bg-gradient-to-t to-transparent'
           aria-hidden='true'
         />
 
@@ -932,7 +959,7 @@ export const HomeScene = ({
                 'bg-primary text-primary-foreground font-sans text-sm font-semibold',
                 'transition-[transform,box-shadow] duration-200 ease-out',
                 'hover:scale-[1.02] hover:shadow-[0_8px_24px_oklch(0.52_0.20_17_/_0.35)]',
-                'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary',
+                'focus-visible:outline-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2',
                 'mt-5'
               )}
             >

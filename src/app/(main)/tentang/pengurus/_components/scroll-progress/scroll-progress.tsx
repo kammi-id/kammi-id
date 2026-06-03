@@ -19,7 +19,7 @@ export const ScrollProgress = () => {
       end: 'max',
       onUpdate: ({ progress }) => {
         gsap.set(bar, { scaleY: progress })
-      },
+      }
     })
 
     return () => st.kill()

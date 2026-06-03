@@ -36,7 +36,9 @@ export const universityApi = {
     })
 
     if (!response.ok) {
-      throw new Error(`University API error: ${response.status} ${response.statusText}`)
+      throw new Error(
+        `University API error: ${response.status} ${response.statusText}`
+      )
     }
 
     try {

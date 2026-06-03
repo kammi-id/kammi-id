@@ -279,7 +279,7 @@ export const getColumns = (
           <div className='flex justify-center'>
             <HugeiconsIcon
               icon={Tick01Icon}
-              className='[color:var(--status-pass-text)] size-4'
+              className='size-4 [color:var(--status-pass-text)]'
             />
           </div>
         ) : (
@@ -303,7 +303,7 @@ export const getColumns = (
           <div className='flex justify-center'>
             <HugeiconsIcon
               icon={Tick01Icon}
-              className='[color:var(--status-pass-text)] size-4'
+              className='size-4 [color:var(--status-pass-text)]'
             />
           </div>
         ) : (

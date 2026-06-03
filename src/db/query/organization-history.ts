@@ -2,7 +2,8 @@ import { db } from '../db'
 import { memberOrganizationHistory } from '../schema/organization-history.sql'
 import { and, eq, desc } from 'drizzle-orm'
 
-export type MemberOrganizationHistory = typeof memberOrganizationHistory.$inferSelect
+export type MemberOrganizationHistory =
+  typeof memberOrganizationHistory.$inferSelect
 
 export type MemberOrganizationHistoryInsert = {
   position: string

@@ -39,16 +39,21 @@ const ProfilePage = async ({
 
   if (!member) notFound()
 
-  const [trainingHistory, orgChain, academicHistory, careerHistory, organizationHistory] =
-    await Promise.all([
-      readMemberTrainingHistory(member.id),
-      member.organization?.id
-        ? readOrgHierarchyChain(member.organization.id)
-        : Promise.resolve([]),
-      readMemberAcademic(member.id),
-      readMemberCareer(member.id),
-      readMemberOrganizationHistory(member.id)
-    ])
+  const [
+    trainingHistory,
+    orgChain,
+    academicHistory,
+    careerHistory,
+    organizationHistory
+  ] = await Promise.all([
+    readMemberTrainingHistory(member.id),
+    member.organization?.id
+      ? readOrgHierarchyChain(member.organization.id)
+      : Promise.resolve([]),
+    readMemberAcademic(member.id),
+    readMemberCareer(member.id),
+    readMemberOrganizationHistory(member.id)
+  ])
 
   const userCanEdit = canEdit(session, member.id)
 

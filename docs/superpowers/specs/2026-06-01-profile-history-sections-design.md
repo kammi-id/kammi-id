@@ -34,6 +34,7 @@ is_graduated     boolean NOT NULL
 **degree enum values:** `d1`, `d2`, `d3`, `d4`, `s1`, `s2`, `s3`, `profesi`
 
 **institution_data JSONB shape** (all fields from `GET /regional/indonesia/universities`):
+
 ```json
 {
   "group": "UNIVERSITAS",
@@ -99,18 +100,21 @@ GET /regional/indonesia/universities?name={query}
 ## Database Query Layer
 
 **`src/db/query/academic.ts`**
+
 - `readMemberAcademic(memberId: string): Promise<MemberAcademic[]>`
 - `createMemberAcademic(data, memberId): Promise<void>`
 - `updateMemberAcademic(data, id, memberId): Promise<void>`
 - `deleteMemberAcademic(id, memberId): Promise<void>`
 
 **`src/db/query/career.ts`**
+
 - `readMemberCareer(memberId: string): Promise<MemberCareer[]>`
 - `createMemberCareer(data, memberId): Promise<void>`
 - `updateMemberCareer(data, id, memberId): Promise<void>`
 - `deleteMemberCareer(id, memberId): Promise<void>`
 
 **`src/db/query/organization-history.ts`**
+
 - `readMemberOrganizationHistory(memberId: string): Promise<MemberOrganizationHistory[]>`
 - `createMemberOrganizationHistory(data, memberId): Promise<void>`
 - `updateMemberOrganizationHistory(data, id, memberId): Promise<void>`
@@ -153,6 +157,7 @@ Riwayat Dauroh      ← existing (moved down)
 Each section (`academic-section`, `career-section`, `organization-section`) follows the same structure:
 
 **View state:**
+
 - `SectionDivider` with title + count badge
 - Table listing entries (columns vary per section, see below)
 - Empty state text if no entries
@@ -160,29 +165,34 @@ Each section (`academic-section`, `career-section`, `organization-section`) foll
 - Each row has an edit icon/click handler
 
 **Edit state (Sheet):**
+
 - Sheet opens from the right
 - Form inside Sheet handles both add and edit (pre-filled for edit)
 - "Hapus" button inside Sheet with inline confirm (two-step: click → confirm text appears)
 - On submit: calls server action, closes sheet on success, shows toast
 
 ### Academic Section Table Columns
-| NIK | Jenjang | Program Studi | Institusi | Tahun | Status |
-|---|---|---|---|---|---|
-| — | S1 | Teknik Informatika | Universitas Indonesia (UI) | 2020–2024 | Lulus |
+
+| NIK | Jenjang | Program Studi      | Institusi                  | Tahun     | Status |
+| --- | ------- | ------------------ | -------------------------- | --------- | ------ |
+| —   | S1      | Teknik Informatika | Universitas Indonesia (UI) | 2020–2024 | Lulus  |
 
 ### Career Section Table Columns
-| Profesi | Perusahaan | Tahun |
-|---|---|---|
+
+| Profesi           | Perusahaan       | Tahun         |
+| ----------------- | ---------------- | ------------- |
 | Software Engineer | PT. Maju Bersama | 2022–sekarang |
 
 ### Organization History Table Columns
-| Jabatan | Organisasi | Tahun |
-|---|---|---|
-| Ketua | HMI Komisariat Teknik | 2021–2022 |
+
+| Jabatan | Organisasi            | Tahun     |
+| ------- | --------------------- | --------- |
+| Ketua   | HMI Komisariat Teknik | 2021–2022 |
 
 ### University Combobox (`university-combobox/`)
 
 New component mirroring `RegionCombobox`:
+
 - Search input inside a Popover
 - Debounced fetch via `fetchUniversitiesAction` on input change (≥2 chars)
 - Shows `name (short_name)` in list, e.g. "UNIVERSITAS INDONESIA (UI)"
@@ -191,6 +201,7 @@ New component mirroring `RegionCombobox`:
 ### Sheet Form: Riwayat Akademik
 
 Fields (in order):
+
 1. **Jenjang** — Select with 8 options:
    - Diploma 1 (D1), Diploma 2 (D2), Diploma 3 (D3), Diploma 4/Sarjana Terapan (D4), Sarjana (S1), Magister (S2), Doktor (S3), Profesi/Spesialis
 2. **Program Studi** — Input text
@@ -204,6 +215,7 @@ Fields (in order):
 ### Sheet Form: Riwayat Karir
 
 Fields:
+
 1. **Profesi** — Input text
 2. **Perusahaan/Institusi** — Input text
 3. **Tahun Mulai** — Input number
@@ -212,6 +224,7 @@ Fields:
 ### Sheet Form: Riwayat Organisasi
 
 Fields:
+
 1. **Jabatan** — Input text
 2. **Nama Organisasi** — Input text
 3. **Tahun Mulai** — Input number

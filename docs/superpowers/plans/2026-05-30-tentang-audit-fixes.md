@@ -12,18 +12,19 @@
 
 ## Files Modified
 
-| File | Changes |
-|------|---------|
+| File                                                                 | Changes                                                                                                   |
+| -------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
 | `src/app/(main)/tentang/_components/tentang-scene/tentang-scene.tsx` | Reduced-motion fallback, data-id attrs, lazy-load images, yPercent fix, double-rAF, paradigma mobile grid |
-| `src/app/(main)/tentang/_components/visi-section/visi-section.tsx` | `<p>` → `<h2>` for visi heading |
-| `src/app/(main)/tentang/_components/tentang-hero/tentang-hero.tsx` | Narrative subheading, scroll cue visibility + safe area |
-| `src/app/(main)/tentang/_components/section-nav/section-nav.tsx` | Phase counter above dots |
+| `src/app/(main)/tentang/_components/visi-section/visi-section.tsx`   | `<p>` → `<h2>` for visi heading                                                                           |
+| `src/app/(main)/tentang/_components/tentang-hero/tentang-hero.tsx`   | Narrative subheading, scroll cue visibility + safe area                                                   |
+| `src/app/(main)/tentang/_components/section-nav/section-nav.tsx`     | Phase counter above dots                                                                                  |
 
 ---
 
 ## Task 1 (P0): Reduced-motion fallback + Visi semantic HTML
 
 **Files:**
+
 - Modify: `visi-section.tsx`
 - Modify: `tentang-scene.tsx` lines 143–150 (reduced-motion block) + add `data-id` to 3 containers
 
@@ -69,7 +70,6 @@ if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
   // Convert from scroll-pinned experience to linear flow so sighted
   // users who disable motion can still read all content sections.
   gsap.set(sceneRef.current, { height: 'auto', overflow: 'visible' })
-
   ;[heroRef, visiRef, misiRef, prinsipRef, paradigmaRef, kredoRef].forEach(
     (ref) => {
       if (!ref.current) return
@@ -100,7 +100,9 @@ if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
 
   // Prinsip — convert stacked absolute items to flow
   gsap.set('.prinsip-eyebrow', { opacity: 1 })
-  const prinsipStack = sceneRef.current?.querySelector('[data-id="prinsip-stack"]') as HTMLElement | null
+  const prinsipStack = sceneRef.current?.querySelector(
+    '[data-id="prinsip-stack"]'
+  ) as HTMLElement | null
   if (prinsipStack) gsap.set(prinsipStack, { height: 'auto' })
   PRINSIP_ITEMS.forEach((_, i) => {
     gsap.set(`.prinsip-point-${i}`, {
@@ -115,7 +117,9 @@ if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
 
   // Paradigma — convert stacked items to flow, inject photos
   gsap.set('.paradigma-eyebrow', { opacity: 1 })
-  const paradigmaStack = sceneRef.current?.querySelector('[data-id="paradigma-stack"]') as HTMLElement | null
+  const paradigmaStack = sceneRef.current?.querySelector(
+    '[data-id="paradigma-stack"]'
+  ) as HTMLElement | null
   if (paradigmaStack) gsap.set(paradigmaStack, { height: 'auto' })
   PARADIGMA_ITEMS.forEach((_, i) => {
     gsap.set(`.paradigma-text-${i}`, {
@@ -145,7 +149,9 @@ if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
 
   // Kredo — remove scroll mask, show full text
   gsap.set('.kredo-eyebrow', { opacity: 1 })
-  const kredoMask = sceneRef.current?.querySelector('[data-id="kredo-mask"]') as HTMLElement | null
+  const kredoMask = sceneRef.current?.querySelector(
+    '[data-id="kredo-mask"]'
+  ) as HTMLElement | null
   if (kredoMask) {
     gsap.set(kredoMask, {
       maskImage: 'none',
@@ -172,23 +178,29 @@ if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
 ## Task 2 (P1): Lazy-load prinsip + paradigma images
 
 **Files:**
+
 - Modify: `tentang-scene.tsx`
 
 - [ ] **Step 1: Add `data-photo` attr + remove backgroundImage from paradigma photo inner div**
 
 In the paradigma photo figure, change the inner `<div>` from:
+
 ```tsx
 <div
   className='aspect-video w-full'
   style={{
-    backgroundImage: settings.paradigmaImages[i] ? `url(...)` : `linear-gradient(...)`,
+    backgroundImage: settings.paradigmaImages[i]
+      ? `url(...)`
+      : `linear-gradient(...)`,
     backgroundSize: 'cover',
     backgroundPosition: 'center'
   }}
   aria-hidden='true'
 />
 ```
+
 To:
+
 ```tsx
 <div
   data-photo={`paradigma-${i}`}
@@ -201,6 +213,7 @@ To:
 - [ ] **Step 2: Remove backgroundImage from prinsip photo divs**
 
 In prinsip photo divs, change:
+
 ```tsx
 style={{
   backgroundImage: settings.prinsipImages[i] ? `url(...)` : `linear-gradient(...)`,
@@ -210,7 +223,9 @@ style={{
   WebkitMaskImage: '...'
 }}
 ```
+
 To:
+
 ```tsx
 style={{
   backgroundSize: 'cover',
@@ -223,11 +238,14 @@ style={{
 - [ ] **Step 3: Add GSAP `call()` lazy-injection at phase labels**
 
 After the `prinsipIn` label setup in the timeline, add:
+
 ```tsx
 mainTl.call(
   () => {
     PRINSIP_ITEMS.forEach((_, i) => {
-      const el = sceneRef.current?.querySelector(`.prinsip-photo-${i}`) as HTMLElement | null
+      const el = sceneRef.current?.querySelector(
+        `.prinsip-photo-${i}`
+      ) as HTMLElement | null
       if (!el) return
       el.style.backgroundImage = settings.prinsipImages[i]
         ? `url(${settings.prinsipImages[i]})`
@@ -240,11 +258,14 @@ mainTl.call(
 ```
 
 After the `paradigmaIn` label setup, add:
+
 ```tsx
 mainTl.call(
   () => {
     PARADIGMA_ITEMS.forEach((_, i) => {
-      const el = sceneRef.current?.querySelector(`[data-photo="paradigma-${i}"]`) as HTMLElement | null
+      const el = sceneRef.current?.querySelector(
+        `[data-photo="paradigma-${i}"]`
+      ) as HTMLElement | null
       if (!el) return
       el.style.backgroundImage = settings.paradigmaImages[i]
         ? `url(${settings.paradigmaImages[i]})`
@@ -261,17 +282,23 @@ mainTl.call(
 ## Task 3 (P1): Paradigma mobile grid + misc polish fixes
 
 **Files:**
+
 - Modify: `tentang-scene.tsx`
 
 - [ ] **Step 1: Fix Paradigma grid for landscape mobile**
 
 Change the paradigma grid div from:
+
 ```tsx
-className='absolute inset-0 grid grid-cols-1 items-center gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16'
+className =
+  'absolute inset-0 grid grid-cols-1 items-center gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16'
 ```
+
 To:
+
 ```tsx
-className='absolute inset-0 grid grid-cols-1 items-center gap-6 [@media(max-height:600px)]:grid-cols-[1.1fr_0.9fr] [@media(max-height:600px)]:gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16'
+className =
+  'absolute inset-0 grid grid-cols-1 items-center gap-6 [@media(max-height:600px)]:grid-cols-[1.1fr_0.9fr] [@media(max-height:600px)]:gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16'
 ```
 
 This makes the layout two-column on short viewports (landscape phones) without needing the `lg:` breakpoint.
@@ -279,10 +306,13 @@ This makes the layout two-column on short viewports (landscape phones) without n
 - [ ] **Step 2: Fix yPercent → y on last prinsip photo exit**
 
 Find the `.prinsip-photo-${lastPrinsip}` exit tween (Phase 5 transition) and change:
+
 ```tsx
 { yPercent: -60, opacity: 0, duration: 0.5, ease: 'power2.in' }
 ```
+
 To:
+
 ```tsx
 { y: -60, opacity: 0, duration: 0.5, ease: 'power2.in' }
 ```
@@ -290,6 +320,7 @@ To:
 - [ ] **Step 3: Improve rAF reliability (double-frame)**
 
 Change single `requestAnimationFrame` to double:
+
 ```tsx
 // Before:
 requestAnimationFrame(() => {
@@ -311,6 +342,7 @@ requestAnimationFrame(() =>
 ## Task 4 (P1): Hero — narrative hook + scroll cue
 
 **Files:**
+
 - Modify: `tentang-hero.tsx`
 
 - [ ] **Step 1: Add subheading ref and improve scroll cue**
@@ -410,15 +442,19 @@ export const TentangHero = () => {
 ## Task 5 (P3): SectionNav phase counter
 
 **Files:**
+
 - Modify: `section-nav.tsx`
 
 - [ ] **Step 1: Add phase counter above the dots**
 
 Inside the `<nav>`, before the `<ol>`, add:
+
 ```tsx
-{/* Phase counter — shows current position in the journey */}
-<div className='mb-2 flex justify-center'>
-  <span className='font-mono text-[0.6rem] tabular-nums text-foreground/35'>
+{
+  /* Phase counter — shows current position in the journey */
+}
+;<div className='mb-2 flex justify-center'>
+  <span className='text-foreground/35 font-mono text-[0.6rem] tabular-nums'>
     {activePhase + 1}
     <span className='text-foreground/20'>/5</span>
   </span>

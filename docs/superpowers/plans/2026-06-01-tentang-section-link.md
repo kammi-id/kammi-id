@@ -12,18 +12,19 @@
 
 ## File Map
 
-| File | Perubahan |
-|------|-----------|
-| `src/db/query/site-settings.ts` | Rename `miniStrategi*` → `sejarahCard*` di type `AboutSettings` + update `SETTINGS_DEFAULTS.about` |
-| `src/app/(main)/_components/about-section/about-section.tsx` | Update field references + ganti markup card kanan |
-| `src/app/(dashboard)/dashboard/pages/home/_components/action.ts` | Rename field keys di `aboutSchema` |
-| `src/app/(dashboard)/dashboard/pages/home/_components/about-form/about-form.tsx` | Rename state vars, `name` attrs, label, placeholder |
+| File                                                                             | Perubahan                                                                                          |
+| -------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| `src/db/query/site-settings.ts`                                                  | Rename `miniStrategi*` → `sejarahCard*` di type `AboutSettings` + update `SETTINGS_DEFAULTS.about` |
+| `src/app/(main)/_components/about-section/about-section.tsx`                     | Update field references + ganti markup card kanan                                                  |
+| `src/app/(dashboard)/dashboard/pages/home/_components/action.ts`                 | Rename field keys di `aboutSchema`                                                                 |
+| `src/app/(dashboard)/dashboard/pages/home/_components/about-form/about-form.tsx` | Rename state vars, `name` attrs, label, placeholder                                                |
 
 ---
 
 ## Task 1: Update Type + Defaults di `site-settings.ts`
 
 **Files:**
+
 - Modify: `src/db/query/site-settings.ts`
 
 - [ ] **Step 1: Update `AboutSettings` type**
@@ -83,6 +84,7 @@ git commit -m "refactor: rename miniStrategi→sejarahCard in AboutSettings type
 ## Task 2: Update Markup Homepage `about-section.tsx`
 
 **Files:**
+
 - Modify: `src/app/(main)/_components/about-section/about-section.tsx`
 
 - [ ] **Step 1: Update field references di Link "baca lebih jauh"**
@@ -94,8 +96,10 @@ Di baris 35–52, `about.readMoreHref` dan `about.readMoreLabel` tidak berubah n
 Ganti blok `{/* Right: Mini Strategi card */}` (baris 55–115) dengan:
 
 ```tsx
-{/* Right: Sejarah Singkat card */}
-<div className='flex flex-col gap-4'>
+{
+  /* Right: Sejarah Singkat card */
+}
+;<div className='flex flex-col gap-4'>
   <div className='bg-primary text-primary-foreground rounded-2xl p-6'>
     {/* Calendar icon */}
     <div className='bg-primary-foreground/15 mb-4 flex size-10 items-center justify-center rounded-xl'>
@@ -175,6 +179,7 @@ Expected: tidak ada error.
 - [ ] **Step 4: Buka browser dan lihat hasilnya**
 
 Navigasi ke `http://localhost:3000/` dan scroll ke section "Tentang KAMMI". Pastikan:
+
 - Card kanan menampilkan icon kalender, tanggal, judul, deskripsi, dan link
 - Link "Lebih jauh tentang kami" mengarah ke `/tentang`
 - Link "Baca sejarah lengkap" mengarah ke `/tentang#sejarah`
@@ -191,6 +196,7 @@ git commit -m "feat: replace Mini Strategi card with Sejarah Singkat card in abo
 ## Task 3: Update Dashboard — `action.ts` + `about-form.tsx`
 
 **Files:**
+
 - Modify: `src/app/(dashboard)/dashboard/pages/home/_components/action.ts`
 - Modify: `src/app/(dashboard)/dashboard/pages/home/_components/about-form/about-form.tsx`
 
@@ -205,7 +211,9 @@ const aboutSchema = z.object({
   readMoreLabel: z.string().min(1),
   readMoreHref: z.string().min(1),
   sejarahCardTitle: z.string().min(1, 'Judul card sejarah wajib diisi.'),
-  sejarahCardDescription: z.string().min(1, 'Deskripsi card sejarah wajib diisi.'),
+  sejarahCardDescription: z
+    .string()
+    .min(1, 'Deskripsi card sejarah wajib diisi.'),
   sejarahCardLinkLabel: z.string().min(1),
   sejarahCardLinkHref: z.string().min(1)
 })
@@ -217,10 +225,18 @@ Ganti semua referensi `miniStrategi*` di `about-form.tsx`:
 
 ```typescript
 // State vars (ganti 4 baris lama)
-const [sejarahCardTitle, setSejarahCardTitle] = useState(initialData.sejarahCardTitle)
-const [sejarahCardDescription, setSejarahCardDescription] = useState(initialData.sejarahCardDescription)
-const [sejarahCardLinkLabel, setSejarahCardLinkLabel] = useState(initialData.sejarahCardLinkLabel)
-const [sejarahCardLinkHref, setSejarahCardLinkHref] = useState(initialData.sejarahCardLinkHref)
+const [sejarahCardTitle, setSejarahCardTitle] = useState(
+  initialData.sejarahCardTitle
+)
+const [sejarahCardDescription, setSejarahCardDescription] = useState(
+  initialData.sejarahCardDescription
+)
+const [sejarahCardLinkLabel, setSejarahCardLinkLabel] = useState(
+  initialData.sejarahCardLinkLabel
+)
+const [sejarahCardLinkHref, setSejarahCardLinkHref] = useState(
+  initialData.sejarahCardLinkHref
+)
 ```
 
 Ganti `useUnsavedChanges` object:
@@ -331,6 +347,7 @@ Expected: tidak ada error.
 - [ ] **Step 5: Test dashboard form di browser**
 
 Navigasi ke `http://localhost:3000/dashboard/pages/home`. Pastikan:
+
 - Section "Card Sejarah Singkat" muncul dengan field yang benar
 - Tidak ada field "Mini Strategi" tersisa
 - Placeholder link sudah `/tentang#sejarah`

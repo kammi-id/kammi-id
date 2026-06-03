@@ -12,29 +12,30 @@
 
 ## File Map
 
-| Action | Path |
-|--------|------|
-| Modify | `src/db/query/site-settings.ts` |
-| Create | `src/app/(dashboard)/dashboard/pages/tentang/_data/settings.ts` |
-| Create | `src/app/(dashboard)/dashboard/pages/tentang/_components/action.ts` |
-| Create | `src/app/(dashboard)/dashboard/pages/tentang/_components/hero-bg-form/hero-bg-form.tsx` |
-| Create | `src/app/(dashboard)/dashboard/pages/tentang/_components/hero-bg-form/index.ts` |
-| Create | `src/app/(dashboard)/dashboard/pages/tentang/_components/prinsip-form/prinsip-form.tsx` |
-| Create | `src/app/(dashboard)/dashboard/pages/tentang/_components/prinsip-form/index.ts` |
+| Action | Path                                                                                        |
+| ------ | ------------------------------------------------------------------------------------------- |
+| Modify | `src/db/query/site-settings.ts`                                                             |
+| Create | `src/app/(dashboard)/dashboard/pages/tentang/_data/settings.ts`                             |
+| Create | `src/app/(dashboard)/dashboard/pages/tentang/_components/action.ts`                         |
+| Create | `src/app/(dashboard)/dashboard/pages/tentang/_components/hero-bg-form/hero-bg-form.tsx`     |
+| Create | `src/app/(dashboard)/dashboard/pages/tentang/_components/hero-bg-form/index.ts`             |
+| Create | `src/app/(dashboard)/dashboard/pages/tentang/_components/prinsip-form/prinsip-form.tsx`     |
+| Create | `src/app/(dashboard)/dashboard/pages/tentang/_components/prinsip-form/index.ts`             |
 | Create | `src/app/(dashboard)/dashboard/pages/tentang/_components/paradigma-form/paradigma-form.tsx` |
-| Create | `src/app/(dashboard)/dashboard/pages/tentang/_components/paradigma-form/index.ts` |
-| Create | `src/app/(dashboard)/dashboard/pages/tentang/_components/kredo-form/kredo-form.tsx` |
-| Create | `src/app/(dashboard)/dashboard/pages/tentang/_components/kredo-form/index.ts` |
-| Create | `src/app/(dashboard)/dashboard/pages/tentang/page.tsx` |
-| Modify | `src/app/(dashboard)/dashboard/_components/app-sidebar/app-sidebar.tsx` |
-| Modify | `src/app/(main)/tentang/_components/tentang-scene/tentang-scene.tsx` |
-| Modify | `src/app/(main)/tentang/page.tsx` |
+| Create | `src/app/(dashboard)/dashboard/pages/tentang/_components/paradigma-form/index.ts`           |
+| Create | `src/app/(dashboard)/dashboard/pages/tentang/_components/kredo-form/kredo-form.tsx`         |
+| Create | `src/app/(dashboard)/dashboard/pages/tentang/_components/kredo-form/index.ts`               |
+| Create | `src/app/(dashboard)/dashboard/pages/tentang/page.tsx`                                      |
+| Modify | `src/app/(dashboard)/dashboard/_components/app-sidebar/app-sidebar.tsx`                     |
+| Modify | `src/app/(main)/tentang/_components/tentang-scene/tentang-scene.tsx`                        |
+| Modify | `src/app/(main)/tentang/page.tsx`                                                           |
 
 ---
 
 ## Task 1: Add `TentangSettings` type + defaults to the data layer
 
 **Files:**
+
 - Modify: `src/db/query/site-settings.ts`
 
 - [ ] **Step 1: Add the type after `MetadataSettings` (around line 91)**
@@ -42,8 +43,8 @@
 ```ts
 export type TentangSettings = {
   heroImageUrl: string
-  prinsipImages: string[]    // length 6
-  paradigmaImages: string[]  // length 4
+  prinsipImages: string[] // length 6
+  paradigmaImages: string[] // length 4
   kredoImageUrl: string
 }
 ```
@@ -79,6 +80,7 @@ git commit -m "feat(tentang-settings): add TentangSettings type and defaults"
 ## Task 2: Create cached data getter
 
 **Files:**
+
 - Create: `src/app/(dashboard)/dashboard/pages/tentang/_data/settings.ts`
 
 - [ ] **Step 1: Create the file**
@@ -123,6 +125,7 @@ git commit -m "feat(tentang-settings): add cached getter for tentang settings"
 ## Task 3: Create server actions
 
 **Files:**
+
 - Create: `src/app/(dashboard)/dashboard/pages/tentang/_components/action.ts`
 
 - [ ] **Step 1: Create the file**
@@ -193,14 +196,24 @@ export const saveTentangHeroAction = async (
   const result = heroBgSchema.safeParse(raw)
   if (!result.success) {
     return {
-      fieldErrors: result.error.flatten().fieldErrors as Record<string, string[]>,
+      fieldErrors: result.error.flatten().fieldErrors as Record<
+        string,
+        string[]
+      >,
       values: Object.fromEntries(
-        Object.entries(raw).filter(([, v]) => v != null && typeof v === 'string')
+        Object.entries(raw).filter(
+          ([, v]) => v != null && typeof v === 'string'
+        )
       ) as Record<string, string>
     }
   }
 
-  return persist('tentang-hero', result.data, access.orgId, 'Gagal menyimpan latar hero.')
+  return persist(
+    'tentang-hero',
+    result.data,
+    access.orgId,
+    'Gagal menyimpan latar hero.'
+  )
 }
 
 // ─── Prinsip images ───────────────────────────────────────────────────────────
@@ -227,14 +240,24 @@ export const saveTentangPrinsipAction = async (
   const result = prinsipSchema.safeParse({ prinsipImages })
   if (!result.success) {
     return {
-      fieldErrors: result.error.flatten().fieldErrors as Record<string, string[]>,
+      fieldErrors: result.error.flatten().fieldErrors as Record<
+        string,
+        string[]
+      >,
       values: Object.fromEntries(
-        Object.entries(raw).filter(([, v]) => v != null && typeof v === 'string')
+        Object.entries(raw).filter(
+          ([, v]) => v != null && typeof v === 'string'
+        )
       ) as Record<string, string>
     }
   }
 
-  return persist('tentang-prinsip', result.data, access.orgId, 'Gagal menyimpan gambar prinsip.')
+  return persist(
+    'tentang-prinsip',
+    result.data,
+    access.orgId,
+    'Gagal menyimpan gambar prinsip.'
+  )
 }
 
 // ─── Paradigma images ─────────────────────────────────────────────────────────
@@ -261,14 +284,24 @@ export const saveTentangParadigmaAction = async (
   const result = paradigmaSchema.safeParse({ paradigmaImages })
   if (!result.success) {
     return {
-      fieldErrors: result.error.flatten().fieldErrors as Record<string, string[]>,
+      fieldErrors: result.error.flatten().fieldErrors as Record<
+        string,
+        string[]
+      >,
       values: Object.fromEntries(
-        Object.entries(raw).filter(([, v]) => v != null && typeof v === 'string')
+        Object.entries(raw).filter(
+          ([, v]) => v != null && typeof v === 'string'
+        )
       ) as Record<string, string>
     }
   }
 
-  return persist('tentang-paradigma', result.data, access.orgId, 'Gagal menyimpan gambar paradigma.')
+  return persist(
+    'tentang-paradigma',
+    result.data,
+    access.orgId,
+    'Gagal menyimpan gambar paradigma.'
+  )
 }
 
 // ─── Kredo background ─────────────────────────────────────────────────────────
@@ -288,14 +321,24 @@ export const saveTentangKredoAction = async (
   const result = kredoBgSchema.safeParse(raw)
   if (!result.success) {
     return {
-      fieldErrors: result.error.flatten().fieldErrors as Record<string, string[]>,
+      fieldErrors: result.error.flatten().fieldErrors as Record<
+        string,
+        string[]
+      >,
       values: Object.fromEntries(
-        Object.entries(raw).filter(([, v]) => v != null && typeof v === 'string')
+        Object.entries(raw).filter(
+          ([, v]) => v != null && typeof v === 'string'
+        )
       ) as Record<string, string>
     }
   }
 
-  return persist('tentang-kredo', result.data, access.orgId, 'Gagal menyimpan latar kredo.')
+  return persist(
+    'tentang-kredo',
+    result.data,
+    access.orgId,
+    'Gagal menyimpan latar kredo.'
+  )
 }
 ```
 
@@ -319,6 +362,7 @@ git commit -m "feat(tentang-settings): add server actions for tentang settings"
 ## Task 4: Create `HeroBgForm`
 
 **Files:**
+
 - Create: `src/app/(dashboard)/dashboard/pages/tentang/_components/hero-bg-form/hero-bg-form.tsx`
 - Create: `src/app/(dashboard)/dashboard/pages/tentang/_components/hero-bg-form/index.ts`
 
@@ -424,6 +468,7 @@ git commit -m "feat(tentang-settings): add HeroBgForm component"
 ## Task 5: Create `PrinsipForm`
 
 **Files:**
+
 - Create: `src/app/(dashboard)/dashboard/pages/tentang/_components/prinsip-form/prinsip-form.tsx`
 - Create: `src/app/(dashboard)/dashboard/pages/tentang/_components/prinsip-form/index.ts`
 
@@ -435,11 +480,7 @@ git commit -m "feat(tentang-settings): add HeroBgForm component"
 import { useActionState, useCallback, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { Button } from '~/components/shadcn/ui/button'
-import {
-  Field,
-  FieldContent,
-  FieldLabel
-} from '~/components/shadcn/ui/field'
+import { Field, FieldContent, FieldLabel } from '~/components/shadcn/ui/field'
 import { ImageUpload } from '~/components/image-upload'
 import { saveTentangPrinsipAction, type SettingsActionState } from '../action'
 import { useUnsavedChanges } from '~/hooks/use-unsaved-changes'
@@ -552,6 +593,7 @@ git commit -m "feat(tentang-settings): add PrinsipForm component"
 ## Task 6: Create `ParadigmaForm`
 
 **Files:**
+
 - Create: `src/app/(dashboard)/dashboard/pages/tentang/_components/paradigma-form/paradigma-form.tsx`
 - Create: `src/app/(dashboard)/dashboard/pages/tentang/_components/paradigma-form/index.ts`
 
@@ -563,11 +605,7 @@ git commit -m "feat(tentang-settings): add PrinsipForm component"
 import { useActionState, useCallback, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { Button } from '~/components/shadcn/ui/button'
-import {
-  Field,
-  FieldContent,
-  FieldLabel
-} from '~/components/shadcn/ui/field'
+import { Field, FieldContent, FieldLabel } from '~/components/shadcn/ui/field'
 import { ImageUpload } from '~/components/image-upload'
 import { saveTentangParadigmaAction, type SettingsActionState } from '../action'
 import { useUnsavedChanges } from '~/hooks/use-unsaved-changes'
@@ -678,6 +716,7 @@ git commit -m "feat(tentang-settings): add ParadigmaForm component"
 ## Task 7: Create `KredoForm`
 
 **Files:**
+
 - Create: `src/app/(dashboard)/dashboard/pages/tentang/_components/kredo-form/kredo-form.tsx`
 - Create: `src/app/(dashboard)/dashboard/pages/tentang/_components/kredo-form/index.ts`
 
@@ -783,6 +822,7 @@ git commit -m "feat(tentang-settings): add KredoForm component"
 ## Task 8: Create the settings page
 
 **Files:**
+
 - Create: `src/app/(dashboard)/dashboard/pages/tentang/page.tsx`
 
 - [ ] **Step 1: Create `page.tsx`**
@@ -866,7 +906,9 @@ const TentangSettingsPage = async () => {
           </h1>
           <p className='text-muted-foreground text-sm leading-relaxed'>
             Kelola gambar yang ditampilkan di{' '}
-            <span className='text-foreground font-medium'>kammi.id/tentang</span>
+            <span className='text-foreground font-medium'>
+              kammi.id/tentang
+            </span>
             . Perubahan langsung aktif setelah disimpan.
           </p>
         </div>
@@ -920,6 +962,7 @@ git commit -m "feat(tentang-settings): add TentangSettingsPage"
 ## Task 9: Add sidebar navigation entry
 
 **Files:**
+
 - Modify: `src/app/(dashboard)/dashboard/_components/app-sidebar/app-sidebar.tsx`
 
 - [ ] **Step 1: Add `InformationCircleIcon` to the import**
@@ -948,28 +991,30 @@ import {
 Find the existing items array for "Halaman Publik" (around line 186) and add the third entry:
 
 ```tsx
-{canAccessHalamanPublik && (
-  <NavMain
-    title='Halaman Publik'
-    items={[
-      {
-        title: 'Halaman Utama',
-        url: '/dashboard/pages/home',
-        icon: <HugeiconsIcon icon={Home01Icon} strokeWidth={2} />
-      },
-      {
-        title: 'Pengurus Pusat',
-        url: '/dashboard/pages/managers',
-        icon: <HugeiconsIcon icon={UserGroupIcon} strokeWidth={2} />
-      },
-      {
-        title: 'Halaman Tentang',
-        url: '/dashboard/pages/tentang',
-        icon: <HugeiconsIcon icon={InformationCircleIcon} strokeWidth={2} />
-      }
-    ]}
-  />
-)}
+{
+  canAccessHalamanPublik && (
+    <NavMain
+      title='Halaman Publik'
+      items={[
+        {
+          title: 'Halaman Utama',
+          url: '/dashboard/pages/home',
+          icon: <HugeiconsIcon icon={Home01Icon} strokeWidth={2} />
+        },
+        {
+          title: 'Pengurus Pusat',
+          url: '/dashboard/pages/managers',
+          icon: <HugeiconsIcon icon={UserGroupIcon} strokeWidth={2} />
+        },
+        {
+          title: 'Halaman Tentang',
+          url: '/dashboard/pages/tentang',
+          icon: <HugeiconsIcon icon={InformationCircleIcon} strokeWidth={2} />
+        }
+      ]}
+    />
+  )
+}
 ```
 
 - [ ] **Step 3: Verify TypeScript compiles**
@@ -990,11 +1035,13 @@ git commit -m "feat(tentang-settings): add Halaman Tentang to sidebar"
 ## Task 10: Update `TentangScene` to consume settings
 
 **Files:**
+
 - Modify: `src/app/(main)/tentang/_components/tentang-scene/tentang-scene.tsx`
 
 This task wires up the visual changes. The GSAP animation logic is untouched — only the rendered JSX changes.
 
 **Important context:**
+
 - Prinsip background: `.prinsip-photo-{i}` divs — replace CSS gradient `backgroundImage` with real URL when non-empty, keep gradient as fallback.
 - Paradigma photo: inner `<div>` inside each `<figure>` — same pattern.
 - Hero background: apply as `backgroundImage` on the `heroRef` wrapper div.
@@ -1086,39 +1133,47 @@ Replace with:
 Find the prinsip background photos block inside the prinsipRef div:
 
 ```tsx
-{PRINSIP_ITEMS.map((_, i) => (
-  <div
-    key={i}
-    className={`prinsip-photo-${i} absolute inset-0 h-full w-full opacity-0`}
-    style={{
-      backgroundImage: `linear-gradient(155deg, oklch(0.45 0.06 ${17 + i * 28}), oklch(0.2 0.03 ${17 + i * 28}))`,
-      maskImage: 'linear-gradient(315deg, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 68%)',
-      WebkitMaskImage: 'linear-gradient(315deg, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 68%)'
-    }}
-    aria-hidden='true'
-  />
-))}
+{
+  PRINSIP_ITEMS.map((_, i) => (
+    <div
+      key={i}
+      className={`prinsip-photo-${i} absolute inset-0 h-full w-full opacity-0`}
+      style={{
+        backgroundImage: `linear-gradient(155deg, oklch(0.45 0.06 ${17 + i * 28}), oklch(0.2 0.03 ${17 + i * 28}))`,
+        maskImage:
+          'linear-gradient(315deg, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 68%)',
+        WebkitMaskImage:
+          'linear-gradient(315deg, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 68%)'
+      }}
+      aria-hidden='true'
+    />
+  ))
+}
 ```
 
 Replace with:
 
 ```tsx
-{PRINSIP_ITEMS.map((_, i) => (
-  <div
-    key={i}
-    className={`prinsip-photo-${i} absolute inset-0 h-full w-full opacity-0`}
-    style={{
-      backgroundImage: settings.prinsipImages[i]
-        ? `url(${settings.prinsipImages[i]})`
-        : `linear-gradient(155deg, oklch(0.45 0.06 ${17 + i * 28}), oklch(0.2 0.03 ${17 + i * 28}))`,
-      backgroundSize: 'cover',
-      backgroundPosition: 'center',
-      maskImage: 'linear-gradient(315deg, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 68%)',
-      WebkitMaskImage: 'linear-gradient(315deg, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 68%)'
-    }}
-    aria-hidden='true'
-  />
-))}
+{
+  PRINSIP_ITEMS.map((_, i) => (
+    <div
+      key={i}
+      className={`prinsip-photo-${i} absolute inset-0 h-full w-full opacity-0`}
+      style={{
+        backgroundImage: settings.prinsipImages[i]
+          ? `url(${settings.prinsipImages[i]})`
+          : `linear-gradient(155deg, oklch(0.45 0.06 ${17 + i * 28}), oklch(0.2 0.03 ${17 + i * 28}))`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        maskImage:
+          'linear-gradient(315deg, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 68%)',
+        WebkitMaskImage:
+          'linear-gradient(315deg, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 68%)'
+      }}
+      aria-hidden='true'
+    />
+  ))
+}
 ```
 
 - [ ] **Step 5: Update paradigma photo figure divs to use `settings.paradigmaImages`**
@@ -1197,6 +1252,7 @@ git commit -m "feat(tentang-settings): wire TentangScene to consume settings pro
 ## Task 11: Update public `/tentang` page to fetch and pass settings
 
 **Files:**
+
 - Modify: `src/app/(main)/tentang/page.tsx`
 
 - [ ] **Step 1: Add settings fetch + prop pass**
@@ -1209,7 +1265,11 @@ Replace the entire file:
 import type { Metadata } from 'next'
 import { TentangScene } from './_components/tentang-scene'
 import { SectionNav } from './_components/section-nav'
-import { readSiteSettings, SETTINGS_DEFAULTS, type TentangSettings } from '~/db/query/site-settings'
+import {
+  readSiteSettings,
+  SETTINGS_DEFAULTS,
+  type TentangSettings
+} from '~/db/query/site-settings'
 
 export const metadata: Metadata = {
   title: 'Tentang KAMMI',
@@ -1305,6 +1365,7 @@ Check that "Halaman Tentang" appears under "Halaman Publik" in the sidebar.
 - [ ] **Step 4: Navigate to `/dashboard/pages/tentang`**
 
 Confirm:
+
 - Page header shows "Pengaturan Halaman Tentang"
 - Four card sections visible: Latar Hero, Prinsip Gerakan KAMMI, Paradigma Gerakan KAMMI, Kredo Gerakan KAMMI
 - Prinsip section shows 6 image upload fields with correct labels

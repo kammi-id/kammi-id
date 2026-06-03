@@ -108,7 +108,8 @@ export const NetworkSectionClient = ({
         <p style="font-size:10px;opacity:0.4;margin:0">Belum ada PW</p>
       </div>
     `
-    document.body.appendChild(el)
+    const portalRoot = document.getElementById('portal-root') ?? document.body
+    portalRoot.appendChild(el)
     tooltipRef.current = el
 
     const onScroll = () => {
@@ -118,7 +119,7 @@ export const NetworkSectionClient = ({
 
     return () => {
       window.removeEventListener('scroll', onScroll)
-      document.body.removeChild(el)
+      portalRoot.removeChild(el)
       tooltipRef.current = null
     }
   }, [])
@@ -182,11 +183,7 @@ export const NetworkSectionClient = ({
       const tl = gsap.timeline()
 
       // Map dramatically zooms in from scale(1.5) to scale(1)
-      tl.to(
-        mapArea,
-        { opacity: 1, scale: 1, ease: 'none', duration: 0.32 },
-        0
-      )
+      tl.to(mapArea, { opacity: 1, scale: 1, ease: 'none', duration: 0.32 }, 0)
 
       // Header slides down + fades in
       tl.to(header, { opacity: 1, y: 0, ease: 'none', duration: 0.2 }, 0.1)
@@ -279,13 +276,13 @@ export const NetworkSectionClient = ({
 
       {/* Top gradient overlay for header text readability */}
       <div
-        className='pointer-events-none absolute inset-x-0 top-0 z-[5] h-56 bg-gradient-to-b from-background/92 via-background/50 to-transparent'
+        className='from-background/92 via-background/50 pointer-events-none absolute inset-x-0 top-0 z-[5] h-56 bg-gradient-to-b to-transparent'
         aria-hidden='true'
       />
 
       {/* Bottom gradient overlay for stat cards readability */}
       <div
-        className='pointer-events-none absolute inset-x-0 bottom-0 z-[5] h-56 bg-gradient-to-t from-background/92 via-background/50 to-transparent'
+        className='from-background/92 via-background/50 pointer-events-none absolute inset-x-0 bottom-0 z-[5] h-56 bg-gradient-to-t to-transparent'
         aria-hidden='true'
       />
 
@@ -315,7 +312,7 @@ export const NetworkSectionClient = ({
                 'bg-primary text-primary-foreground font-sans text-sm font-semibold',
                 'transition-[transform,box-shadow] duration-200 ease-out',
                 'hover:scale-[1.02] hover:shadow-[0_8px_24px_oklch(0.52_0.20_17_/_0.35)]',
-                'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary'
+                'focus-visible:outline-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2'
               )}
             >
               Jelajahi Jaringan KAMMI

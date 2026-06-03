@@ -12,7 +12,9 @@ export const SectionDivider = ({ title, count }: SectionDividerProps) => (
         {title}
       </h2>
       {count !== undefined && count > 0 && (
-        <span className='font-geist-mono text-muted-foreground/60 text-xs'>({count})</span>
+        <span className='font-geist-mono text-muted-foreground/60 text-xs'>
+          ({count})
+        </span>
       )}
     </div>
     <Separator className='mt-2' />

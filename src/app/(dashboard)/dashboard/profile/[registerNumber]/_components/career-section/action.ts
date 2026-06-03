@@ -3,7 +3,11 @@
 import { z } from 'zod'
 import { revalidatePath } from 'next/cache'
 import { readActiveSession } from '~/lib/auth/cookies'
-import { createMemberCareer, updateMemberCareer, deleteMemberCareer } from '~/db/query/career'
+import {
+  createMemberCareer,
+  updateMemberCareer,
+  deleteMemberCareer
+} from '~/db/query/career'
 
 export type CareerActionState = {
   success?: boolean
@@ -18,7 +22,12 @@ const careerSchema = z.object({
   yearStart: z.coerce.number().int().min(1900).max(new Date().getFullYear()),
   yearEnd: z.preprocess(
     (val) => (val === '' || val == null ? null : val),
-    z.coerce.number().int().min(1900).max(new Date().getFullYear() + 10).nullable()
+    z.coerce
+      .number()
+      .int()
+      .min(1900)
+      .max(new Date().getFullYear() + 10)
+      .nullable()
   )
 })
 
@@ -39,12 +48,16 @@ export const saveCareerAction = async (
 ): Promise<CareerActionState> => {
   const session = await readActiveSession()
   if (!session) return { success: false, message: 'Tidak terautentikasi.' }
-  if (!canEdit(session, memberId)) return { success: false, message: 'Akses ditolak.' }
+  if (!canEdit(session, memberId))
+    return { success: false, message: 'Akses ditolak.' }
 
   const raw = Object.fromEntries(formData.entries())
   const parsed = careerSchema.safeParse(raw)
   if (!parsed.success) {
-    return { success: false, errors: parsed.error.flatten().fieldErrors as Record<string, string[]> }
+    return {
+      success: false,
+      errors: parsed.error.flatten().fieldErrors as Record<string, string[]>
+    }
   }
 
   const { id, ...data } = parsed.data
@@ -55,7 +68,10 @@ export const saveCareerAction = async (
   }
 
   revalidatePath('/dashboard/profile')
-  return { success: true, message: id ? 'Riwayat karir diperbarui.' : 'Riwayat karir ditambahkan.' }
+  return {
+    success: true,
+    message: id ? 'Riwayat karir diperbarui.' : 'Riwayat karir ditambahkan.'
+  }
 }
 
 export const deleteCareerAction = async (
@@ -64,7 +80,8 @@ export const deleteCareerAction = async (
 ): Promise<CareerActionState> => {
   const session = await readActiveSession()
   if (!session) return { success: false, message: 'Tidak terautentikasi.' }
-  if (!canEdit(session, memberId)) return { success: false, message: 'Akses ditolak.' }
+  if (!canEdit(session, memberId))
+    return { success: false, message: 'Akses ditolak.' }
 
   await deleteMemberCareer(id, memberId)
   revalidatePath('/dashboard/profile')

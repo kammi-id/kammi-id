@@ -15,27 +15,50 @@ export type AcademicActionState = {
   errors?: Record<string, string[]>
 }
 
-const degreeEnum = ['d1', 'd2', 'd3', 'd4', 's1', 's2', 's3', 'profesi'] as const
+const degreeEnum = [
+  'd1',
+  'd2',
+  'd3',
+  'd4',
+  's1',
+  's2',
+  's3',
+  'profesi'
+] as const
 
 const academicSchema = z.object({
   id: z.string().uuid().optional(),
   degree: z.enum(degreeEnum),
   studyProgram: z.string().min(1, 'Program studi wajib diisi.'),
   institutionName: z.string().min(1, 'Institusi wajib diisi.'),
-  institutionData: z.string().min(1, 'Data institusi wajib diisi.').transform((val, ctx) => {
-    try {
-      return JSON.parse(val) as Record<string, unknown>
-    } catch {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Data institusi tidak valid.' })
-      return z.NEVER
-    }
-  }),
+  institutionData: z
+    .string()
+    .min(1, 'Data institusi wajib diisi.')
+    .transform((val, ctx) => {
+      try {
+        return JSON.parse(val) as Record<string, unknown>
+      } catch {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Data institusi tidak valid.'
+        })
+        return z.NEVER
+      }
+    }),
   yearStart: z.coerce.number().int().min(1900).max(new Date().getFullYear()),
   yearEnd: z.preprocess(
     (val) => (val === '' || val == null ? null : val),
-    z.coerce.number().int().min(1900).max(new Date().getFullYear() + 10).nullable()
+    z.coerce
+      .number()
+      .int()
+      .min(1900)
+      .max(new Date().getFullYear() + 10)
+      .nullable()
   ),
-  isGraduated: z.preprocess((val) => val === 'true' || val === true, z.boolean())
+  isGraduated: z.preprocess(
+    (val) => val === 'true' || val === true,
+    z.boolean()
+  )
 })
 
 const canEdit = (
@@ -55,12 +78,16 @@ export const saveAcademicAction = async (
 ): Promise<AcademicActionState> => {
   const session = await readActiveSession()
   if (!session) return { success: false, message: 'Tidak terautentikasi.' }
-  if (!canEdit(session, memberId)) return { success: false, message: 'Akses ditolak.' }
+  if (!canEdit(session, memberId))
+    return { success: false, message: 'Akses ditolak.' }
 
   const raw = Object.fromEntries(formData.entries())
   const parsed = academicSchema.safeParse(raw)
   if (!parsed.success) {
-    return { success: false, errors: parsed.error.flatten().fieldErrors as Record<string, string[]> }
+    return {
+      success: false,
+      errors: parsed.error.flatten().fieldErrors as Record<string, string[]>
+    }
   }
 
   const { id, ...data } = parsed.data
@@ -71,7 +98,10 @@ export const saveAcademicAction = async (
   }
 
   revalidatePath('/dashboard/profile')
-  return { success: true, message: id ? 'Data akademik diperbarui.' : 'Data akademik ditambahkan.' }
+  return {
+    success: true,
+    message: id ? 'Data akademik diperbarui.' : 'Data akademik ditambahkan.'
+  }
 }
 
 export const deleteAcademicAction = async (
@@ -80,7 +110,8 @@ export const deleteAcademicAction = async (
 ): Promise<AcademicActionState> => {
   const session = await readActiveSession()
   if (!session) return { success: false, message: 'Tidak terautentikasi.' }
-  if (!canEdit(session, memberId)) return { success: false, message: 'Akses ditolak.' }
+  if (!canEdit(session, memberId))
+    return { success: false, message: 'Akses ditolak.' }
 
   await deleteMemberAcademic(id, memberId)
   revalidatePath('/dashboard/profile')

@@ -64,9 +64,13 @@ export const AboutSectionClient = ({
 
       // ── Exit (t: 0.60 → 1.0) ──────────────────────────────────────────────
       // Left exits to the LEFT
-      tl.to(left, { opacity: 0, x: '-68vw', ease: 'none', duration: 0.32 }, 0.60)
+      tl.to(left, { opacity: 0, x: '-68vw', ease: 'none', duration: 0.32 }, 0.6)
       // Right ("Lahir") exits to the RIGHT — slight stagger after left
-      tl.to(right, { opacity: 0, x: '68vw', ease: 'none', duration: 0.32 }, 0.66)
+      tl.to(
+        right,
+        { opacity: 0, x: '68vw', ease: 'none', duration: 0.32 },
+        0.66
+      )
       // Section fades out last
       tl.to(section, { opacity: 0, ease: 'none', duration: 0.1 }, 0.9)
 

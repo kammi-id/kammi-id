@@ -12,36 +12,37 @@
 
 ## File Map
 
-| Action | Path |
-|--------|------|
-| CREATE | `src/db/schema/academic.sql.ts` |
-| CREATE | `src/db/schema/career.sql.ts` |
-| CREATE | `src/db/schema/organization-history.sql.ts` |
-| CREATE | `src/db/query/academic.ts` |
-| CREATE | `src/db/query/career.ts` |
-| CREATE | `src/db/query/organization-history.ts` |
-| CREATE | `src/lib/api/university.ts` |
-| CREATE | `src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/university-combobox/university-combobox.tsx` |
-| CREATE | `src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/university-combobox/action.ts` |
-| CREATE | `src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/university-combobox/index.ts` |
-| CREATE | `src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/academic-section/academic-section.tsx` |
-| CREATE | `src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/academic-section/action.ts` |
-| CREATE | `src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/academic-section/index.ts` |
-| CREATE | `src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/career-section/career-section.tsx` |
-| CREATE | `src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/career-section/action.ts` |
-| CREATE | `src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/career-section/index.ts` |
-| CREATE | `src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/organization-section/organization-section.tsx` |
-| CREATE | `src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/organization-section/action.ts` |
-| CREATE | `src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/organization-section/index.ts` |
-| MODIFY | `src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-edit-context/profile-edit-context.tsx` |
+| Action | Path                                                                                                                       |
+| ------ | -------------------------------------------------------------------------------------------------------------------------- |
+| CREATE | `src/db/schema/academic.sql.ts`                                                                                            |
+| CREATE | `src/db/schema/career.sql.ts`                                                                                              |
+| CREATE | `src/db/schema/organization-history.sql.ts`                                                                                |
+| CREATE | `src/db/query/academic.ts`                                                                                                 |
+| CREATE | `src/db/query/career.ts`                                                                                                   |
+| CREATE | `src/db/query/organization-history.ts`                                                                                     |
+| CREATE | `src/lib/api/university.ts`                                                                                                |
+| CREATE | `src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/university-combobox/university-combobox.tsx`           |
+| CREATE | `src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/university-combobox/action.ts`                         |
+| CREATE | `src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/university-combobox/index.ts`                          |
+| CREATE | `src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/academic-section/academic-section.tsx`                 |
+| CREATE | `src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/academic-section/action.ts`                            |
+| CREATE | `src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/academic-section/index.ts`                             |
+| CREATE | `src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/career-section/career-section.tsx`                     |
+| CREATE | `src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/career-section/action.ts`                              |
+| CREATE | `src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/career-section/index.ts`                               |
+| CREATE | `src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/organization-section/organization-section.tsx`         |
+| CREATE | `src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/organization-section/action.ts`                        |
+| CREATE | `src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/organization-section/index.ts`                         |
+| MODIFY | `src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-edit-context/profile-edit-context.tsx`         |
 | MODIFY | `src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-inline-edit-form/profile-inline-edit-form.tsx` |
-| MODIFY | `src/app/(dashboard)/dashboard/profile/[registerNumber]/page.tsx` |
+| MODIFY | `src/app/(dashboard)/dashboard/profile/[registerNumber]/page.tsx`                                                          |
 
 ---
 
 ## Task 1: DB Schema — Three New Tables
 
 **Files:**
+
 - Create: `src/db/schema/academic.sql.ts`
 - Create: `src/db/schema/career.sql.ts`
 - Create: `src/db/schema/organization-history.sql.ts`
@@ -145,6 +146,7 @@ git commit -m "feat(db): add member_academic, member_career, member_organization
 ## Task 2: University API Lib + Fetch Action
 
 **Files:**
+
 - Create: `src/lib/api/university.ts`
 - Create: `src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/university-combobox/action.ts`
 
@@ -188,7 +190,9 @@ export const universityApi = {
     })
 
     if (!response.ok) {
-      throw new Error(`University API error: ${response.status} ${response.statusText}`)
+      throw new Error(
+        `University API error: ${response.status} ${response.statusText}`
+      )
     }
 
     const result = (await response.json()) as UniversityApiResponse
@@ -226,7 +230,10 @@ export const fetchUniversitiesAction = async (
   } catch (error) {
     return {
       success: false,
-      message: error instanceof Error ? error.message : 'Gagal memuat data universitas.'
+      message:
+        error instanceof Error
+          ? error.message
+          : 'Gagal memuat data universitas.'
     }
   }
 }
@@ -252,6 +259,7 @@ git commit -m "feat(api): add university search API lib and server action"
 ## Task 3: UniversityCombobox Component
 
 **Files:**
+
 - Create: `src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/university-combobox/university-combobox.tsx`
 - Create: `src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/university-combobox/index.ts`
 
@@ -288,7 +296,9 @@ export const UniversityCombobox = ({
 }: UniversityComboboxProps) => {
   const [query, setQuery] = useState(defaultInstitutionName)
   const [results, setResults] = useState<UniversityItem[]>([])
-  const [selected, setSelected] = useState<UniversityItem | null>(defaultInstitutionData)
+  const [selected, setSelected] = useState<UniversityItem | null>(
+    defaultInstitutionData
+  )
   const [loading, setLoading] = useState(false)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -342,7 +352,10 @@ export const UniversityCombobox = ({
             ) : (
               <ComboboxGroup>
                 {results.map((uni) => (
-                  <ComboboxItem key={`${uni.name}-${uni.regency_code}`} value={uni.name}>
+                  <ComboboxItem
+                    key={`${uni.name}-${uni.regency_code}`}
+                    value={uni.name}
+                  >
                     {uni.name}
                     {uni.short_name && uni.short_name !== uni.name && (
                       <span className='text-muted-foreground ml-1 text-xs'>
@@ -391,6 +404,7 @@ git commit -m "feat(profile): add UniversityCombobox component with debounced se
 ## Task 4: Academic — Query Layer + Server Actions
 
 **Files:**
+
 - Create: `src/db/query/academic.ts`
 - Create: `src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/academic-section/action.ts`
 
@@ -438,7 +452,9 @@ export const updateMemberAcademic = async (
   await db
     .update(memberAcademic)
     .set(data)
-    .where(and(eq(memberAcademic.id, id), eq(memberAcademic.memberId, memberId)))
+    .where(
+      and(eq(memberAcademic.id, id), eq(memberAcademic.memberId, memberId))
+    )
 }
 
 export const deleteMemberAcademic = async (
@@ -447,7 +463,9 @@ export const deleteMemberAcademic = async (
 ): Promise<void> => {
   await db
     .delete(memberAcademic)
-    .where(and(eq(memberAcademic.id, id), eq(memberAcademic.memberId, memberId)))
+    .where(
+      and(eq(memberAcademic.id, id), eq(memberAcademic.memberId, memberId))
+    )
 }
 ```
 
@@ -477,27 +495,50 @@ export type AcademicActionState = {
   errors?: Record<string, string[]>
 }
 
-const degreeEnum = ['d1', 'd2', 'd3', 'd4', 's1', 's2', 's3', 'profesi'] as const
+const degreeEnum = [
+  'd1',
+  'd2',
+  'd3',
+  'd4',
+  's1',
+  's2',
+  's3',
+  'profesi'
+] as const
 
 const academicSchema = z.object({
   id: z.string().uuid().optional(),
   degree: z.enum(degreeEnum),
   studyProgram: z.string().min(1, 'Program studi wajib diisi.'),
   institutionName: z.string().min(1, 'Institusi wajib diisi.'),
-  institutionData: z.string().min(1, 'Data institusi wajib diisi.').transform((val, ctx) => {
-    try {
-      return JSON.parse(val) as Record<string, unknown>
-    } catch {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Data institusi tidak valid.' })
-      return z.NEVER
-    }
-  }),
+  institutionData: z
+    .string()
+    .min(1, 'Data institusi wajib diisi.')
+    .transform((val, ctx) => {
+      try {
+        return JSON.parse(val) as Record<string, unknown>
+      } catch {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Data institusi tidak valid.'
+        })
+        return z.NEVER
+      }
+    }),
   yearStart: z.coerce.number().int().min(1900).max(new Date().getFullYear()),
   yearEnd: z.preprocess(
     (val) => (val === '' || val == null ? null : val),
-    z.coerce.number().int().min(1900).max(new Date().getFullYear() + 10).nullable()
+    z.coerce
+      .number()
+      .int()
+      .min(1900)
+      .max(new Date().getFullYear() + 10)
+      .nullable()
   ),
-  isGraduated: z.preprocess((val) => val === 'true' || val === true, z.boolean())
+  isGraduated: z.preprocess(
+    (val) => val === 'true' || val === true,
+    z.boolean()
+  )
 })
 
 const canEdit = (
@@ -517,12 +558,16 @@ export const saveAcademicAction = async (
 ): Promise<AcademicActionState> => {
   const session = await readActiveSession()
   if (!session) return { success: false, message: 'Tidak terautentikasi.' }
-  if (!canEdit(session, memberId)) return { success: false, message: 'Akses ditolak.' }
+  if (!canEdit(session, memberId))
+    return { success: false, message: 'Akses ditolak.' }
 
   const raw = Object.fromEntries(formData.entries())
   const parsed = academicSchema.safeParse(raw)
   if (!parsed.success) {
-    return { success: false, errors: parsed.error.flatten().fieldErrors as Record<string, string[]> }
+    return {
+      success: false,
+      errors: parsed.error.flatten().fieldErrors as Record<string, string[]>
+    }
   }
 
   const { id, ...data } = parsed.data
@@ -533,7 +578,10 @@ export const saveAcademicAction = async (
   }
 
   revalidatePath(`/dashboard/profile/${memberId}`)
-  return { success: true, message: id ? 'Data akademik diperbarui.' : 'Data akademik ditambahkan.' }
+  return {
+    success: true,
+    message: id ? 'Data akademik diperbarui.' : 'Data akademik ditambahkan.'
+  }
 }
 
 export const deleteAcademicAction = async (
@@ -542,7 +590,8 @@ export const deleteAcademicAction = async (
 ): Promise<AcademicActionState> => {
   const session = await readActiveSession()
   if (!session) return { success: false, message: 'Tidak terautentikasi.' }
-  if (!canEdit(session, memberId)) return { success: false, message: 'Akses ditolak.' }
+  if (!canEdit(session, memberId))
+    return { success: false, message: 'Akses ditolak.' }
 
   await deleteMemberAcademic(id, memberId)
   revalidatePath(`/dashboard/profile/${memberId}`)
@@ -568,6 +617,7 @@ git commit -m "feat(profile): add academic query layer and server actions"
 ## Task 5: Career — Query Layer + Server Actions
 
 **Files:**
+
 - Create: `src/db/query/career.ts`
 - Create: `src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/career-section/action.ts`
 
@@ -587,7 +637,9 @@ export type MemberCareerInsert = {
   yearEnd: number | null
 }
 
-export const readMemberCareer = async (memberId: string): Promise<MemberCareer[]> => {
+export const readMemberCareer = async (
+  memberId: string
+): Promise<MemberCareer[]> => {
   return db
     .select()
     .from(memberCareer)
@@ -637,7 +689,11 @@ mkdir -p "src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/car
 import { z } from 'zod'
 import { revalidatePath } from 'next/cache'
 import { readActiveSession } from '~/lib/auth/cookies'
-import { createMemberCareer, updateMemberCareer, deleteMemberCareer } from '~/db/query/career'
+import {
+  createMemberCareer,
+  updateMemberCareer,
+  deleteMemberCareer
+} from '~/db/query/career'
 
 export type CareerActionState = {
   success?: boolean
@@ -652,7 +708,12 @@ const careerSchema = z.object({
   yearStart: z.coerce.number().int().min(1900).max(new Date().getFullYear()),
   yearEnd: z.preprocess(
     (val) => (val === '' || val == null ? null : val),
-    z.coerce.number().int().min(1900).max(new Date().getFullYear() + 10).nullable()
+    z.coerce
+      .number()
+      .int()
+      .min(1900)
+      .max(new Date().getFullYear() + 10)
+      .nullable()
   )
 })
 
@@ -673,12 +734,16 @@ export const saveCareerAction = async (
 ): Promise<CareerActionState> => {
   const session = await readActiveSession()
   if (!session) return { success: false, message: 'Tidak terautentikasi.' }
-  if (!canEdit(session, memberId)) return { success: false, message: 'Akses ditolak.' }
+  if (!canEdit(session, memberId))
+    return { success: false, message: 'Akses ditolak.' }
 
   const raw = Object.fromEntries(formData.entries())
   const parsed = careerSchema.safeParse(raw)
   if (!parsed.success) {
-    return { success: false, errors: parsed.error.flatten().fieldErrors as Record<string, string[]> }
+    return {
+      success: false,
+      errors: parsed.error.flatten().fieldErrors as Record<string, string[]>
+    }
   }
 
   const { id, ...data } = parsed.data
@@ -689,7 +754,10 @@ export const saveCareerAction = async (
   }
 
   revalidatePath(`/dashboard/profile/${memberId}`)
-  return { success: true, message: id ? 'Riwayat karir diperbarui.' : 'Riwayat karir ditambahkan.' }
+  return {
+    success: true,
+    message: id ? 'Riwayat karir diperbarui.' : 'Riwayat karir ditambahkan.'
+  }
 }
 
 export const deleteCareerAction = async (
@@ -698,7 +766,8 @@ export const deleteCareerAction = async (
 ): Promise<CareerActionState> => {
   const session = await readActiveSession()
   if (!session) return { success: false, message: 'Tidak terautentikasi.' }
-  if (!canEdit(session, memberId)) return { success: false, message: 'Akses ditolak.' }
+  if (!canEdit(session, memberId))
+    return { success: false, message: 'Akses ditolak.' }
 
   await deleteMemberCareer(id, memberId)
   revalidatePath(`/dashboard/profile/${memberId}`)
@@ -724,6 +793,7 @@ git commit -m "feat(profile): add career query layer and server actions"
 ## Task 6: Organization History — Query Layer + Server Actions
 
 **Files:**
+
 - Create: `src/db/query/organization-history.ts`
 - Create: `src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/organization-section/action.ts`
 
@@ -734,7 +804,8 @@ import { db } from '../db'
 import { memberOrganizationHistory } from '../schema/organization-history.sql'
 import { and, eq, desc } from 'drizzle-orm'
 
-export type MemberOrganizationHistory = typeof memberOrganizationHistory.$inferSelect
+export type MemberOrganizationHistory =
+  typeof memberOrganizationHistory.$inferSelect
 
 export type MemberOrganizationHistoryInsert = {
   position: string
@@ -824,7 +895,12 @@ const orgHistorySchema = z.object({
   yearStart: z.coerce.number().int().min(1900).max(new Date().getFullYear()),
   yearEnd: z.preprocess(
     (val) => (val === '' || val == null ? null : val),
-    z.coerce.number().int().min(1900).max(new Date().getFullYear() + 10).nullable()
+    z.coerce
+      .number()
+      .int()
+      .min(1900)
+      .max(new Date().getFullYear() + 10)
+      .nullable()
   )
 })
 
@@ -845,12 +921,16 @@ export const saveOrgHistoryAction = async (
 ): Promise<OrgHistoryActionState> => {
   const session = await readActiveSession()
   if (!session) return { success: false, message: 'Tidak terautentikasi.' }
-  if (!canEdit(session, memberId)) return { success: false, message: 'Akses ditolak.' }
+  if (!canEdit(session, memberId))
+    return { success: false, message: 'Akses ditolak.' }
 
   const raw = Object.fromEntries(formData.entries())
   const parsed = orgHistorySchema.safeParse(raw)
   if (!parsed.success) {
-    return { success: false, errors: parsed.error.flatten().fieldErrors as Record<string, string[]> }
+    return {
+      success: false,
+      errors: parsed.error.flatten().fieldErrors as Record<string, string[]>
+    }
   }
 
   const { id, ...data } = parsed.data
@@ -863,7 +943,9 @@ export const saveOrgHistoryAction = async (
   revalidatePath(`/dashboard/profile/${memberId}`)
   return {
     success: true,
-    message: id ? 'Riwayat organisasi diperbarui.' : 'Riwayat organisasi ditambahkan.'
+    message: id
+      ? 'Riwayat organisasi diperbarui.'
+      : 'Riwayat organisasi ditambahkan.'
   }
 }
 
@@ -873,7 +955,8 @@ export const deleteOrgHistoryAction = async (
 ): Promise<OrgHistoryActionState> => {
   const session = await readActiveSession()
   if (!session) return { success: false, message: 'Tidak terautentikasi.' }
-  if (!canEdit(session, memberId)) return { success: false, message: 'Akses ditolak.' }
+  if (!canEdit(session, memberId))
+    return { success: false, message: 'Akses ditolak.' }
 
   await deleteMemberOrganizationHistory(id, memberId)
   revalidatePath(`/dashboard/profile/${memberId}`)
@@ -899,6 +982,7 @@ git commit -m "feat(profile): add organization history query layer and server ac
 ## Task 7: Extend ProfileEditContext + page.tsx
 
 **Files:**
+
 - Modify: `src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-edit-context/profile-edit-context.tsx`
 - Modify: `src/app/(dashboard)/dashboard/profile/[registerNumber]/page.tsx`
 
@@ -986,16 +1070,21 @@ const ProfilePage = async ({
 
   if (!member) notFound()
 
-  const [trainingHistory, orgChain, academicHistory, careerHistory, organizationHistory] =
-    await Promise.all([
-      readMemberTrainingHistory(member.id),
-      member.organization?.id
-        ? readOrgHierarchyChain(member.organization.id)
-        : Promise.resolve([]),
-      readMemberAcademic(member.id),
-      readMemberCareer(member.id),
-      readMemberOrganizationHistory(member.id)
-    ])
+  const [
+    trainingHistory,
+    orgChain,
+    academicHistory,
+    careerHistory,
+    organizationHistory
+  ] = await Promise.all([
+    readMemberTrainingHistory(member.id),
+    member.organization?.id
+      ? readOrgHierarchyChain(member.organization.id)
+      : Promise.resolve([]),
+    readMemberAcademic(member.id),
+    readMemberCareer(member.id),
+    readMemberOrganizationHistory(member.id)
+  ])
 
   const userCanEdit = canEdit(session, member.id)
 
@@ -1053,6 +1142,7 @@ git commit -m "feat(profile): extend ProfileEditContext and page.tsx with academ
 ## Task 8: AcademicSection Component
 
 **Files:**
+
 - Create: `src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/academic-section/academic-section.tsx`
 - Create: `src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/academic-section/index.ts`
 
@@ -1064,7 +1154,12 @@ git commit -m "feat(profile): extend ProfileEditContext and page.tsx with academ
 import { useActionState, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Add01Icon, PencilEdit01Icon, Tick01Icon, Cancel01Icon } from '@hugeicons/core-free-icons'
+import {
+  Add01Icon,
+  PencilEdit01Icon,
+  Tick01Icon,
+  Cancel01Icon
+} from '@hugeicons/core-free-icons'
 import { Button } from '~/components/shadcn/ui/button'
 import { Input } from '~/components/shadcn/ui/input'
 import { Separator } from '~/components/shadcn/ui/separator'
@@ -1101,14 +1196,22 @@ const degreeLabels: Record<string, string> = {
   profesi: 'Profesi / Spesialis'
 }
 
-const SectionDivider = ({ title, count }: { title: string; count?: number }) => (
+const SectionDivider = ({
+  title,
+  count
+}: {
+  title: string
+  count?: number
+}) => (
   <div className='mt-6 mb-1 first:mt-0'>
     <div className='flex items-center gap-2'>
       <h2 className='text-foreground/60 font-geist-mono text-[11px] font-medium tracking-widest uppercase'>
         {title}
       </h2>
       {count !== undefined && count > 0 && (
-        <span className='font-geist-mono text-muted-foreground/60 text-xs'>({count})</span>
+        <span className='font-geist-mono text-muted-foreground/60 text-xs'>
+          ({count})
+        </span>
       )}
     </div>
     <Separator className='mt-2' />
@@ -1124,7 +1227,11 @@ interface AcademicSheetFormProps {
   onClose: () => void
 }
 
-const AcademicSheetForm = ({ memberId, entry, onClose }: AcademicSheetFormProps) => {
+const AcademicSheetForm = ({
+  memberId,
+  entry,
+  onClose
+}: AcademicSheetFormProps) => {
   const boundAction = saveAcademicAction.bind(null, memberId)
   const [state, formAction, isPending] = useActionState(boundAction, {})
   const [confirmDelete, setConfirmDelete] = useState(false)
@@ -1161,8 +1268,9 @@ const AcademicSheetForm = ({ memberId, entry, onClose }: AcademicSheetFormProps)
     }
   }
 
-  const defaultInstitutionData =
-    entry?.institutionData ? (entry.institutionData as UniversityItem) : null
+  const defaultInstitutionData = entry?.institutionData
+    ? (entry.institutionData as UniversityItem)
+    : null
 
   return (
     <form action={formAction} className='flex flex-col gap-4 p-4'>
@@ -1185,11 +1293,16 @@ const AcademicSheetForm = ({ memberId, entry, onClose }: AcademicSheetFormProps)
           </SelectContent>
         </Select>
         <input type='hidden' name='degree' value={selectedDegree} />
-        <FieldError errors={state.errors?.degree?.map((m) => ({ message: m }))} />
+        <FieldError
+          errors={state.errors?.degree?.map((m) => ({ message: m }))}
+        />
       </Field>
 
       <Field>
-        <FieldLabel htmlFor='studyProgram' className='font-geist-mono text-xs tracking-wide uppercase'>
+        <FieldLabel
+          htmlFor='studyProgram'
+          className='font-geist-mono text-xs tracking-wide uppercase'
+        >
           Program Studi
         </FieldLabel>
         <Input
@@ -1199,7 +1312,9 @@ const AcademicSheetForm = ({ memberId, entry, onClose }: AcademicSheetFormProps)
           defaultValue={entry?.studyProgram ?? ''}
           required
         />
-        <FieldError errors={state.errors?.studyProgram?.map((m) => ({ message: m }))} />
+        <FieldError
+          errors={state.errors?.studyProgram?.map((m) => ({ message: m }))}
+        />
       </Field>
 
       <Field>
@@ -1212,12 +1327,17 @@ const AcademicSheetForm = ({ memberId, entry, onClose }: AcademicSheetFormProps)
           defaultInstitutionName={entry?.institutionName ?? ''}
           defaultInstitutionData={defaultInstitutionData}
         />
-        <FieldError errors={state.errors?.institutionName?.map((m) => ({ message: m }))} />
+        <FieldError
+          errors={state.errors?.institutionName?.map((m) => ({ message: m }))}
+        />
       </Field>
 
       <div className='flex gap-3'>
         <Field className='flex-1'>
-          <FieldLabel htmlFor='yearStart' className='font-geist-mono text-xs tracking-wide uppercase'>
+          <FieldLabel
+            htmlFor='yearStart'
+            className='font-geist-mono text-xs tracking-wide uppercase'
+          >
             Tahun Mulai
           </FieldLabel>
           <Input
@@ -1229,11 +1349,16 @@ const AcademicSheetForm = ({ memberId, entry, onClose }: AcademicSheetFormProps)
             defaultValue={entry?.yearStart ?? ''}
             required
           />
-          <FieldError errors={state.errors?.yearStart?.map((m) => ({ message: m }))} />
+          <FieldError
+            errors={state.errors?.yearStart?.map((m) => ({ message: m }))}
+          />
         </Field>
 
         <Field className='flex-1'>
-          <FieldLabel htmlFor='yearEnd' className='font-geist-mono text-xs tracking-wide uppercase'>
+          <FieldLabel
+            htmlFor='yearEnd'
+            className='font-geist-mono text-xs tracking-wide uppercase'
+          >
             Tahun Selesai
           </FieldLabel>
           <Input
@@ -1246,7 +1371,9 @@ const AcademicSheetForm = ({ memberId, entry, onClose }: AcademicSheetFormProps)
             onChange={handleYearEndChange}
             placeholder='Masih berjalan'
           />
-          <FieldError errors={state.errors?.yearEnd?.map((m) => ({ message: m }))} />
+          <FieldError
+            errors={state.errors?.yearEnd?.map((m) => ({ message: m }))}
+          />
         </Field>
       </div>
 
@@ -1256,7 +1383,11 @@ const AcademicSheetForm = ({ memberId, entry, onClose }: AcademicSheetFormProps)
             checked={isGraduated}
             onCheckedChange={(checked) => setIsGraduated(checked === true)}
           />
-          <input type='hidden' name='isGraduated' value={isGraduated ? 'true' : 'false'} />
+          <input
+            type='hidden'
+            name='isGraduated'
+            value={isGraduated ? 'true' : 'false'}
+          />
           <span className='text-sm'>Lulus</span>
         </label>
       </Field>
@@ -1280,7 +1411,9 @@ const AcademicSheetForm = ({ memberId, entry, onClose }: AcademicSheetFormProps)
               </Button>
             ) : (
               <div className='flex items-center gap-2'>
-                <span className='text-muted-foreground flex-1 text-xs'>Yakin ingin menghapus?</span>
+                <span className='text-muted-foreground flex-1 text-xs'>
+                  Yakin ingin menghapus?
+                </span>
                 <Button
                   type='button'
                   variant='destructive'
@@ -1330,9 +1463,18 @@ export const AcademicSection = () => {
   return (
     <section>
       <div className='flex items-center justify-between'>
-        <SectionDivider title='Riwayat Akademik' count={academicHistory.length} />
+        <SectionDivider
+          title='Riwayat Akademik'
+          count={academicHistory.length}
+        />
         {canEdit && (
-          <Button variant='ghost' size='sm' type='button' onClick={handleAdd} className='mt-5'>
+          <Button
+            variant='ghost'
+            size='sm'
+            type='button'
+            onClick={handleAdd}
+            className='mt-5'
+          >
             <HugeiconsIcon icon={Add01Icon} className='mr-1 size-3.5' />
             Tambah
           </Button>
@@ -1340,7 +1482,9 @@ export const AcademicSection = () => {
       </div>
 
       {academicHistory.length === 0 ? (
-        <p className='text-muted-foreground py-4 text-sm'>Belum ada riwayat akademik.</p>
+        <p className='text-muted-foreground py-4 text-sm'>
+          Belum ada riwayat akademik.
+        </p>
       ) : (
         <div
           className='border-border overflow-x-auto rounded-lg border'
@@ -1350,7 +1494,13 @@ export const AcademicSection = () => {
           <table className='w-full min-w-[520px] text-sm'>
             <thead>
               <tr className='border-border border-b'>
-                {['Jenjang', 'Program Studi', 'Institusi', 'Tahun', 'Lulus'].map((h) => (
+                {[
+                  'Jenjang',
+                  'Program Studi',
+                  'Institusi',
+                  'Tahun',
+                  'Lulus'
+                ].map((h) => (
                   <th
                     key={h}
                     scope='col'
@@ -1364,20 +1514,33 @@ export const AcademicSection = () => {
             </thead>
             <tbody className='divide-border/60 divide-y'>
               {academicHistory.map((entry) => (
-                <tr key={entry.id} className='hover:bg-muted/30 transition-colors'>
+                <tr
+                  key={entry.id}
+                  className='hover:bg-muted/30 transition-colors'
+                >
                   <td className='text-muted-foreground font-geist-mono px-4 py-3 text-xs'>
                     {entry.degree.toUpperCase()}
                   </td>
-                  <td className='text-foreground px-4 py-3 font-medium'>{entry.studyProgram}</td>
-                  <td className='text-foreground/80 px-4 py-3 text-sm'>{entry.institutionName}</td>
+                  <td className='text-foreground px-4 py-3 font-medium'>
+                    {entry.studyProgram}
+                  </td>
+                  <td className='text-foreground/80 px-4 py-3 text-sm'>
+                    {entry.institutionName}
+                  </td>
                   <td className='text-muted-foreground px-4 py-3 text-sm'>
                     {yearDisplay(entry.yearStart, entry.yearEnd)}
                   </td>
                   <td className='px-4 py-3 text-center'>
                     {entry.isGraduated ? (
-                      <HugeiconsIcon icon={Tick01Icon} className='size-4 text-[var(--status-training-pass)] mx-auto' />
+                      <HugeiconsIcon
+                        icon={Tick01Icon}
+                        className='mx-auto size-4 text-[var(--status-training-pass)]'
+                      />
                     ) : (
-                      <HugeiconsIcon icon={Cancel01Icon} className='size-4 text-[var(--status-training-fail)] mx-auto' />
+                      <HugeiconsIcon
+                        icon={Cancel01Icon}
+                        className='mx-auto size-4 text-[var(--status-training-fail)]'
+                      />
                     )}
                   </td>
                   {canEdit && (
@@ -1389,7 +1552,10 @@ export const AcademicSection = () => {
                         onClick={() => handleEdit(entry)}
                         aria-label='Edit riwayat akademik'
                       >
-                        <HugeiconsIcon icon={PencilEdit01Icon} className='size-3.5' />
+                        <HugeiconsIcon
+                          icon={PencilEdit01Icon}
+                          className='size-3.5'
+                        />
                       </Button>
                     </td>
                   )}
@@ -1401,10 +1567,15 @@ export const AcademicSection = () => {
       )}
 
       <Sheet open={open} onOpenChange={setOpen}>
-        <SheetContent side='right' className='w-full sm:max-w-md overflow-y-auto'>
+        <SheetContent
+          side='right'
+          className='w-full overflow-y-auto sm:max-w-md'
+        >
           <SheetHeader className='px-4 pt-4'>
             <SheetTitle>
-              {editingEntry ? 'Edit Riwayat Akademik' : 'Tambah Riwayat Akademik'}
+              {editingEntry
+                ? 'Edit Riwayat Akademik'
+                : 'Tambah Riwayat Akademik'}
             </SheetTitle>
           </SheetHeader>
           <AcademicSheetForm
@@ -1444,6 +1615,7 @@ git commit -m "feat(profile): add AcademicSection component with Sheet form"
 ## Task 9: CareerSection Component
 
 **Files:**
+
 - Create: `src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/career-section/career-section.tsx`
 - Create: `src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/career-section/index.ts`
 
@@ -1471,14 +1643,22 @@ import { saveCareerAction, deleteCareerAction } from './action'
 import { useProfileEdit } from '../profile-edit-context'
 import type { MemberCareer } from '~/db/query/career'
 
-const SectionDivider = ({ title, count }: { title: string; count?: number }) => (
+const SectionDivider = ({
+  title,
+  count
+}: {
+  title: string
+  count?: number
+}) => (
   <div className='mt-6 mb-1 first:mt-0'>
     <div className='flex items-center gap-2'>
       <h2 className='text-foreground/60 font-geist-mono text-[11px] font-medium tracking-widest uppercase'>
         {title}
       </h2>
       {count !== undefined && count > 0 && (
-        <span className='font-geist-mono text-muted-foreground/60 text-xs'>({count})</span>
+        <span className='font-geist-mono text-muted-foreground/60 text-xs'>
+          ({count})
+        </span>
       )}
     </div>
     <Separator className='mt-2' />
@@ -1494,7 +1674,11 @@ interface CareerSheetFormProps {
   onClose: () => void
 }
 
-const CareerSheetForm = ({ memberId, entry, onClose }: CareerSheetFormProps) => {
+const CareerSheetForm = ({
+  memberId,
+  entry,
+  onClose
+}: CareerSheetFormProps) => {
   const boundAction = saveCareerAction.bind(null, memberId)
   const [state, formAction, isPending] = useActionState(boundAction, {})
   const [confirmDelete, setConfirmDelete] = useState(false)
@@ -1527,7 +1711,10 @@ const CareerSheetForm = ({ memberId, entry, onClose }: CareerSheetFormProps) => 
       {entry && <input type='hidden' name='id' value={entry.id} />}
 
       <Field>
-        <FieldLabel htmlFor='profession' className='font-geist-mono text-xs tracking-wide uppercase'>
+        <FieldLabel
+          htmlFor='profession'
+          className='font-geist-mono text-xs tracking-wide uppercase'
+        >
           Profesi
         </FieldLabel>
         <Input
@@ -1537,11 +1724,16 @@ const CareerSheetForm = ({ memberId, entry, onClose }: CareerSheetFormProps) => 
           defaultValue={entry?.profession ?? ''}
           required
         />
-        <FieldError errors={state.errors?.profession?.map((m) => ({ message: m }))} />
+        <FieldError
+          errors={state.errors?.profession?.map((m) => ({ message: m }))}
+        />
       </Field>
 
       <Field>
-        <FieldLabel htmlFor='company' className='font-geist-mono text-xs tracking-wide uppercase'>
+        <FieldLabel
+          htmlFor='company'
+          className='font-geist-mono text-xs tracking-wide uppercase'
+        >
           Perusahaan / Institusi
         </FieldLabel>
         <Input
@@ -1551,12 +1743,17 @@ const CareerSheetForm = ({ memberId, entry, onClose }: CareerSheetFormProps) => 
           defaultValue={entry?.company ?? ''}
           required
         />
-        <FieldError errors={state.errors?.company?.map((m) => ({ message: m }))} />
+        <FieldError
+          errors={state.errors?.company?.map((m) => ({ message: m }))}
+        />
       </Field>
 
       <div className='flex gap-3'>
         <Field className='flex-1'>
-          <FieldLabel htmlFor='yearStart' className='font-geist-mono text-xs tracking-wide uppercase'>
+          <FieldLabel
+            htmlFor='yearStart'
+            className='font-geist-mono text-xs tracking-wide uppercase'
+          >
             Tahun Mulai
           </FieldLabel>
           <Input
@@ -1568,11 +1765,16 @@ const CareerSheetForm = ({ memberId, entry, onClose }: CareerSheetFormProps) => 
             defaultValue={entry?.yearStart ?? ''}
             required
           />
-          <FieldError errors={state.errors?.yearStart?.map((m) => ({ message: m }))} />
+          <FieldError
+            errors={state.errors?.yearStart?.map((m) => ({ message: m }))}
+          />
         </Field>
 
         <Field className='flex-1'>
-          <FieldLabel htmlFor='yearEnd' className='font-geist-mono text-xs tracking-wide uppercase'>
+          <FieldLabel
+            htmlFor='yearEnd'
+            className='font-geist-mono text-xs tracking-wide uppercase'
+          >
             Tahun Selesai
           </FieldLabel>
           <Input
@@ -1584,7 +1786,9 @@ const CareerSheetForm = ({ memberId, entry, onClose }: CareerSheetFormProps) => 
             defaultValue={entry?.yearEnd ?? ''}
             placeholder='Masih berjalan'
           />
-          <FieldError errors={state.errors?.yearEnd?.map((m) => ({ message: m }))} />
+          <FieldError
+            errors={state.errors?.yearEnd?.map((m) => ({ message: m }))}
+          />
         </Field>
       </div>
 
@@ -1607,11 +1811,24 @@ const CareerSheetForm = ({ memberId, entry, onClose }: CareerSheetFormProps) => 
               </Button>
             ) : (
               <div className='flex items-center gap-2'>
-                <span className='text-muted-foreground flex-1 text-xs'>Yakin ingin menghapus?</span>
-                <Button type='button' variant='destructive' size='sm' onClick={handleDelete} disabled={isDeleting}>
+                <span className='text-muted-foreground flex-1 text-xs'>
+                  Yakin ingin menghapus?
+                </span>
+                <Button
+                  type='button'
+                  variant='destructive'
+                  size='sm'
+                  onClick={handleDelete}
+                  disabled={isDeleting}
+                >
                   {isDeleting ? 'Menghapus...' : 'Ya, Hapus'}
                 </Button>
-                <Button type='button' variant='outline' size='sm' onClick={() => setConfirmDelete(false)}>
+                <Button
+                  type='button'
+                  variant='outline'
+                  size='sm'
+                  onClick={() => setConfirmDelete(false)}
+                >
                   Batal
                 </Button>
               </div>
@@ -1646,7 +1863,13 @@ export const CareerSection = () => {
       <div className='flex items-center justify-between'>
         <SectionDivider title='Riwayat Karir' count={careerHistory.length} />
         {canEdit && (
-          <Button variant='ghost' size='sm' type='button' onClick={handleAdd} className='mt-5'>
+          <Button
+            variant='ghost'
+            size='sm'
+            type='button'
+            onClick={handleAdd}
+            className='mt-5'
+          >
             <HugeiconsIcon icon={Add01Icon} className='mr-1 size-3.5' />
             Tambah
           </Button>
@@ -1654,14 +1877,24 @@ export const CareerSection = () => {
       </div>
 
       {careerHistory.length === 0 ? (
-        <p className='text-muted-foreground py-4 text-sm'>Belum ada riwayat karir.</p>
+        <p className='text-muted-foreground py-4 text-sm'>
+          Belum ada riwayat karir.
+        </p>
       ) : (
-        <div className='border-border overflow-x-auto rounded-lg border' role='region' aria-label='Riwayat karir'>
+        <div
+          className='border-border overflow-x-auto rounded-lg border'
+          role='region'
+          aria-label='Riwayat karir'
+        >
           <table className='w-full min-w-[400px] text-sm'>
             <thead>
               <tr className='border-border border-b'>
                 {['Profesi', 'Perusahaan', 'Tahun'].map((h) => (
-                  <th key={h} scope='col' className='text-muted-foreground font-geist-mono px-4 py-2.5 text-left text-xs font-medium tracking-wide uppercase'>
+                  <th
+                    key={h}
+                    scope='col'
+                    className='text-muted-foreground font-geist-mono px-4 py-2.5 text-left text-xs font-medium tracking-wide uppercase'
+                  >
                     {h}
                   </th>
                 ))}
@@ -1670,14 +1903,32 @@ export const CareerSection = () => {
             </thead>
             <tbody className='divide-border/60 divide-y'>
               {careerHistory.map((entry) => (
-                <tr key={entry.id} className='hover:bg-muted/30 transition-colors'>
-                  <td className='text-foreground px-4 py-3 font-medium'>{entry.profession}</td>
-                  <td className='text-foreground/80 px-4 py-3 text-sm'>{entry.company}</td>
-                  <td className='text-muted-foreground px-4 py-3 text-sm'>{yearDisplay(entry.yearStart, entry.yearEnd)}</td>
+                <tr
+                  key={entry.id}
+                  className='hover:bg-muted/30 transition-colors'
+                >
+                  <td className='text-foreground px-4 py-3 font-medium'>
+                    {entry.profession}
+                  </td>
+                  <td className='text-foreground/80 px-4 py-3 text-sm'>
+                    {entry.company}
+                  </td>
+                  <td className='text-muted-foreground px-4 py-3 text-sm'>
+                    {yearDisplay(entry.yearStart, entry.yearEnd)}
+                  </td>
                   {canEdit && (
                     <td className='px-4 py-3 text-right'>
-                      <Button variant='ghost' size='icon-sm' type='button' onClick={() => handleEdit(entry)} aria-label='Edit riwayat karir'>
-                        <HugeiconsIcon icon={PencilEdit01Icon} className='size-3.5' />
+                      <Button
+                        variant='ghost'
+                        size='icon-sm'
+                        type='button'
+                        onClick={() => handleEdit(entry)}
+                        aria-label='Edit riwayat karir'
+                      >
+                        <HugeiconsIcon
+                          icon={PencilEdit01Icon}
+                          className='size-3.5'
+                        />
                       </Button>
                     </td>
                   )}
@@ -1689,11 +1940,21 @@ export const CareerSection = () => {
       )}
 
       <Sheet open={open} onOpenChange={setOpen}>
-        <SheetContent side='right' className='w-full sm:max-w-md overflow-y-auto'>
+        <SheetContent
+          side='right'
+          className='w-full overflow-y-auto sm:max-w-md'
+        >
           <SheetHeader className='px-4 pt-4'>
-            <SheetTitle>{editingEntry ? 'Edit Riwayat Karir' : 'Tambah Riwayat Karir'}</SheetTitle>
+            <SheetTitle>
+              {editingEntry ? 'Edit Riwayat Karir' : 'Tambah Riwayat Karir'}
+            </SheetTitle>
           </SheetHeader>
-          <CareerSheetForm key={sheetKey} memberId={member.id} entry={editingEntry} onClose={() => setOpen(false)} />
+          <CareerSheetForm
+            key={sheetKey}
+            memberId={member.id}
+            entry={editingEntry}
+            onClose={() => setOpen(false)}
+          />
         </SheetContent>
       </Sheet>
     </section>
@@ -1725,6 +1986,7 @@ git commit -m "feat(profile): add CareerSection component with Sheet form"
 ## Task 10: OrganizationSection Component
 
 **Files:**
+
 - Create: `src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/organization-section/organization-section.tsx`
 - Create: `src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/organization-section/index.ts`
 
@@ -1752,14 +2014,22 @@ import { saveOrgHistoryAction, deleteOrgHistoryAction } from './action'
 import { useProfileEdit } from '../profile-edit-context'
 import type { MemberOrganizationHistory } from '~/db/query/organization-history'
 
-const SectionDivider = ({ title, count }: { title: string; count?: number }) => (
+const SectionDivider = ({
+  title,
+  count
+}: {
+  title: string
+  count?: number
+}) => (
   <div className='mt-6 mb-1 first:mt-0'>
     <div className='flex items-center gap-2'>
       <h2 className='text-foreground/60 font-geist-mono text-[11px] font-medium tracking-widest uppercase'>
         {title}
       </h2>
       {count !== undefined && count > 0 && (
-        <span className='font-geist-mono text-muted-foreground/60 text-xs'>({count})</span>
+        <span className='font-geist-mono text-muted-foreground/60 text-xs'>
+          ({count})
+        </span>
       )}
     </div>
     <Separator className='mt-2' />
@@ -1808,7 +2078,10 @@ const OrgSheetForm = ({ memberId, entry, onClose }: OrgSheetFormProps) => {
       {entry && <input type='hidden' name='id' value={entry.id} />}
 
       <Field>
-        <FieldLabel htmlFor='position' className='font-geist-mono text-xs tracking-wide uppercase'>
+        <FieldLabel
+          htmlFor='position'
+          className='font-geist-mono text-xs tracking-wide uppercase'
+        >
           Jabatan
         </FieldLabel>
         <Input
@@ -1818,11 +2091,16 @@ const OrgSheetForm = ({ memberId, entry, onClose }: OrgSheetFormProps) => {
           defaultValue={entry?.position ?? ''}
           required
         />
-        <FieldError errors={state.errors?.position?.map((m) => ({ message: m }))} />
+        <FieldError
+          errors={state.errors?.position?.map((m) => ({ message: m }))}
+        />
       </Field>
 
       <Field>
-        <FieldLabel htmlFor='organization' className='font-geist-mono text-xs tracking-wide uppercase'>
+        <FieldLabel
+          htmlFor='organization'
+          className='font-geist-mono text-xs tracking-wide uppercase'
+        >
           Nama Organisasi
         </FieldLabel>
         <Input
@@ -1832,12 +2110,17 @@ const OrgSheetForm = ({ memberId, entry, onClose }: OrgSheetFormProps) => {
           defaultValue={entry?.organization ?? ''}
           required
         />
-        <FieldError errors={state.errors?.organization?.map((m) => ({ message: m }))} />
+        <FieldError
+          errors={state.errors?.organization?.map((m) => ({ message: m }))}
+        />
       </Field>
 
       <div className='flex gap-3'>
         <Field className='flex-1'>
-          <FieldLabel htmlFor='yearStart' className='font-geist-mono text-xs tracking-wide uppercase'>
+          <FieldLabel
+            htmlFor='yearStart'
+            className='font-geist-mono text-xs tracking-wide uppercase'
+          >
             Tahun Mulai
           </FieldLabel>
           <Input
@@ -1849,11 +2132,16 @@ const OrgSheetForm = ({ memberId, entry, onClose }: OrgSheetFormProps) => {
             defaultValue={entry?.yearStart ?? ''}
             required
           />
-          <FieldError errors={state.errors?.yearStart?.map((m) => ({ message: m }))} />
+          <FieldError
+            errors={state.errors?.yearStart?.map((m) => ({ message: m }))}
+          />
         </Field>
 
         <Field className='flex-1'>
-          <FieldLabel htmlFor='yearEnd' className='font-geist-mono text-xs tracking-wide uppercase'>
+          <FieldLabel
+            htmlFor='yearEnd'
+            className='font-geist-mono text-xs tracking-wide uppercase'
+          >
             Tahun Selesai
           </FieldLabel>
           <Input
@@ -1865,7 +2153,9 @@ const OrgSheetForm = ({ memberId, entry, onClose }: OrgSheetFormProps) => {
             defaultValue={entry?.yearEnd ?? ''}
             placeholder='Masih berjalan'
           />
-          <FieldError errors={state.errors?.yearEnd?.map((m) => ({ message: m }))} />
+          <FieldError
+            errors={state.errors?.yearEnd?.map((m) => ({ message: m }))}
+          />
         </Field>
       </div>
 
@@ -1888,11 +2178,24 @@ const OrgSheetForm = ({ memberId, entry, onClose }: OrgSheetFormProps) => {
               </Button>
             ) : (
               <div className='flex items-center gap-2'>
-                <span className='text-muted-foreground flex-1 text-xs'>Yakin ingin menghapus?</span>
-                <Button type='button' variant='destructive' size='sm' onClick={handleDelete} disabled={isDeleting}>
+                <span className='text-muted-foreground flex-1 text-xs'>
+                  Yakin ingin menghapus?
+                </span>
+                <Button
+                  type='button'
+                  variant='destructive'
+                  size='sm'
+                  onClick={handleDelete}
+                  disabled={isDeleting}
+                >
                   {isDeleting ? 'Menghapus...' : 'Ya, Hapus'}
                 </Button>
-                <Button type='button' variant='outline' size='sm' onClick={() => setConfirmDelete(false)}>
+                <Button
+                  type='button'
+                  variant='outline'
+                  size='sm'
+                  onClick={() => setConfirmDelete(false)}
+                >
                   Batal
                 </Button>
               </div>
@@ -1907,7 +2210,8 @@ const OrgSheetForm = ({ memberId, entry, onClose }: OrgSheetFormProps) => {
 export const OrganizationSection = () => {
   const { member, organizationHistory, canEdit } = useProfileEdit()
   const [open, setOpen] = useState(false)
-  const [editingEntry, setEditingEntry] = useState<MemberOrganizationHistory | null>(null)
+  const [editingEntry, setEditingEntry] =
+    useState<MemberOrganizationHistory | null>(null)
   const [sheetKey, setSheetKey] = useState(0)
 
   const handleAdd = () => {
@@ -1925,9 +2229,18 @@ export const OrganizationSection = () => {
   return (
     <section>
       <div className='flex items-center justify-between'>
-        <SectionDivider title='Riwayat Organisasi' count={organizationHistory.length} />
+        <SectionDivider
+          title='Riwayat Organisasi'
+          count={organizationHistory.length}
+        />
         {canEdit && (
-          <Button variant='ghost' size='sm' type='button' onClick={handleAdd} className='mt-5'>
+          <Button
+            variant='ghost'
+            size='sm'
+            type='button'
+            onClick={handleAdd}
+            className='mt-5'
+          >
             <HugeiconsIcon icon={Add01Icon} className='mr-1 size-3.5' />
             Tambah
           </Button>
@@ -1935,14 +2248,24 @@ export const OrganizationSection = () => {
       </div>
 
       {organizationHistory.length === 0 ? (
-        <p className='text-muted-foreground py-4 text-sm'>Belum ada riwayat organisasi.</p>
+        <p className='text-muted-foreground py-4 text-sm'>
+          Belum ada riwayat organisasi.
+        </p>
       ) : (
-        <div className='border-border overflow-x-auto rounded-lg border' role='region' aria-label='Riwayat organisasi'>
+        <div
+          className='border-border overflow-x-auto rounded-lg border'
+          role='region'
+          aria-label='Riwayat organisasi'
+        >
           <table className='w-full min-w-[400px] text-sm'>
             <thead>
               <tr className='border-border border-b'>
                 {['Jabatan', 'Organisasi', 'Tahun'].map((h) => (
-                  <th key={h} scope='col' className='text-muted-foreground font-geist-mono px-4 py-2.5 text-left text-xs font-medium tracking-wide uppercase'>
+                  <th
+                    key={h}
+                    scope='col'
+                    className='text-muted-foreground font-geist-mono px-4 py-2.5 text-left text-xs font-medium tracking-wide uppercase'
+                  >
                     {h}
                   </th>
                 ))}
@@ -1951,14 +2274,32 @@ export const OrganizationSection = () => {
             </thead>
             <tbody className='divide-border/60 divide-y'>
               {organizationHistory.map((entry) => (
-                <tr key={entry.id} className='hover:bg-muted/30 transition-colors'>
-                  <td className='text-foreground px-4 py-3 font-medium'>{entry.position}</td>
-                  <td className='text-foreground/80 px-4 py-3 text-sm'>{entry.organization}</td>
-                  <td className='text-muted-foreground px-4 py-3 text-sm'>{yearDisplay(entry.yearStart, entry.yearEnd)}</td>
+                <tr
+                  key={entry.id}
+                  className='hover:bg-muted/30 transition-colors'
+                >
+                  <td className='text-foreground px-4 py-3 font-medium'>
+                    {entry.position}
+                  </td>
+                  <td className='text-foreground/80 px-4 py-3 text-sm'>
+                    {entry.organization}
+                  </td>
+                  <td className='text-muted-foreground px-4 py-3 text-sm'>
+                    {yearDisplay(entry.yearStart, entry.yearEnd)}
+                  </td>
                   {canEdit && (
                     <td className='px-4 py-3 text-right'>
-                      <Button variant='ghost' size='icon-sm' type='button' onClick={() => handleEdit(entry)} aria-label='Edit riwayat organisasi'>
-                        <HugeiconsIcon icon={PencilEdit01Icon} className='size-3.5' />
+                      <Button
+                        variant='ghost'
+                        size='icon-sm'
+                        type='button'
+                        onClick={() => handleEdit(entry)}
+                        aria-label='Edit riwayat organisasi'
+                      >
+                        <HugeiconsIcon
+                          icon={PencilEdit01Icon}
+                          className='size-3.5'
+                        />
                       </Button>
                     </td>
                   )}
@@ -1970,11 +2311,23 @@ export const OrganizationSection = () => {
       )}
 
       <Sheet open={open} onOpenChange={setOpen}>
-        <SheetContent side='right' className='w-full sm:max-w-md overflow-y-auto'>
+        <SheetContent
+          side='right'
+          className='w-full overflow-y-auto sm:max-w-md'
+        >
           <SheetHeader className='px-4 pt-4'>
-            <SheetTitle>{editingEntry ? 'Edit Riwayat Organisasi' : 'Tambah Riwayat Organisasi'}</SheetTitle>
+            <SheetTitle>
+              {editingEntry
+                ? 'Edit Riwayat Organisasi'
+                : 'Tambah Riwayat Organisasi'}
+            </SheetTitle>
           </SheetHeader>
-          <OrgSheetForm key={sheetKey} memberId={member.id} entry={editingEntry} onClose={() => setOpen(false)} />
+          <OrgSheetForm
+            key={sheetKey}
+            memberId={member.id}
+            entry={editingEntry}
+            onClose={() => setOpen(false)}
+          />
         </SheetContent>
       </Sheet>
     </section>
@@ -2006,6 +2359,7 @@ git commit -m "feat(profile): add OrganizationSection component with Sheet form"
 ## Task 11: Wire Into ProfileInlineEditForm
 
 **Files:**
+
 - Modify: `src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-inline-edit-form/profile-inline-edit-form.tsx`
 
 - [ ] **Step 1: Update `profile-inline-edit-form.tsx`** — add new props and render sections
@@ -2187,6 +2541,7 @@ Expected: No errors.
 Navigate to `http://localhost:3000/dashboard/profile/13012026001` in Chrome.
 
 Verify:
+
 - Three new empty sections appear: "Riwayat Akademik", "Riwayat Karir", "Riwayat Organisasi"
 - "Tambah" buttons are visible (logged in as bpk-kammi with canEdit)
 - "Riwayat Dauroh" is still below the three new sections
@@ -2211,6 +2566,7 @@ git commit -m "feat(profile): wire AcademicSection, CareerSection, OrganizationS
 ## Done
 
 All 11 tasks complete. The profile page now has:
+
 - **Riwayat Akademik** with university combobox (api.co.id), degree select, is_graduated auto-sync
 - **Riwayat Karir** with profession + company + year range
 - **Riwayat Organisasi** with position + org name + year range
