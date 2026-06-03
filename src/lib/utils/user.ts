@@ -1,30 +1,16 @@
 import { readFileSync, existsSync } from 'node:fs'
 import { join } from 'node:path'
 
-/**
- * Membaca kamus dari dictionary.txt dan mengambil satu kata secara acak.
- * Melemparkan error jika file tidak ditemukan atau kosong.
- */
-const getRandomWordFromDictionary = (): string => {
+const getRandomWordFromDictionary = (): string | null => {
   const filePath = join(process.cwd(), 'dictionary.txt')
+  if (!existsSync(filePath)) return null
 
-  if (!existsSync(filePath)) {
-    throw new Error('File dictionary.txt tidak ditemukan di root project!')
-  }
-
-  const content = readFileSync(filePath, 'utf-8')
-  const words = content
+  const words = readFileSync(filePath, 'utf-8')
     .split(',')
     .map((word) => word.trim())
     .filter(Boolean)
 
-  if (words.length === 0) {
-    throw new Error(
-      'File dictionary.txt kosong atau tidak memiliki kata yang valid!'
-    )
-  }
-
-  return words[Math.floor(Math.random() * words.length)]
+  return words.length > 0 ? words[Math.floor(Math.random() * words.length)] : null
 }
 
 /**
@@ -41,11 +27,12 @@ export const getRandomAlphanumeric = (length: number = 5): string => {
 
 /**
  * Password generator: [kata-kamus]-[5 karakter acak]
+ * Falls back to pure random if dictionary.txt is not present (build/test env).
  */
 export const generatePassword = (): string => {
   const word = getRandomWordFromDictionary()
   const random = getRandomAlphanumeric(5)
-  return `${word}-${random}`
+  return word ? `${word}-${random}` : getRandomAlphanumeric(12)
 }
 
 /**
