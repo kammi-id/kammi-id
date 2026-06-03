@@ -446,7 +446,7 @@ export const generateTemplate = () => {
   })
 
   // ── Trigger download ───────────────────────────────────────────────────────
-  const blob = new Blob([patched], {
+  const blob = new Blob([new Uint8Array(patched)], {
     type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
   })
   const url = URL.createObjectURL(blob)
