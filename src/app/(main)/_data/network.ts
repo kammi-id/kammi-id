@@ -57,12 +57,20 @@ export const getNetworkStats = async (): Promise<NetworkStats> => {
   'use cache'
   cacheLife('hours')
   cacheTag('network-stats')
-  return _fetchNetworkStats()
+  try {
+    return await _fetchNetworkStats()
+  } catch {
+    return { wilayah: 0, daerah: 0, komisariat: 0 }
+  }
 }
 
 export const getPWOrganizations = async (): Promise<PWOrg[]> => {
   'use cache'
   cacheLife('hours')
   cacheTag('pw-orgs')
-  return _fetchPWOrganizations()
+  try {
+    return await _fetchPWOrganizations()
+  } catch {
+    return []
+  }
 }
