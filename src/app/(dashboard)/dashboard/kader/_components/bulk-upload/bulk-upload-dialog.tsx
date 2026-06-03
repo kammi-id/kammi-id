@@ -64,8 +64,11 @@ export const BulkUploadDialog = ({
       .map((r) => ({
         name: r.data.name!,
         gender: r.data.gender as 'ikhwan' | 'akhwat',
+        status: (r.data.status ?? 'ab1') as 'ab1' | 'ab2' | 'ab3',
         yearOfEntry: r.data.yearOfEntry!,
-        phone: r.data.phone ?? null
+        phone: r.data.phone ?? null,
+        isCertifiedMentor: r.data.isCertifiedMentor ?? false,
+        isCertifiedInstructor: r.data.isCertifiedInstructor ?? false
       }))
 
     startTransition(async () => {

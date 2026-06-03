@@ -30,6 +30,7 @@ import {
   SelectTrigger,
   SelectValue
 } from '~/components/shadcn/ui/select'
+import { Checkbox } from '~/components/shadcn/ui/checkbox'
 
 interface Organization {
   id: string
@@ -149,7 +150,7 @@ const InlineRow = ({
           }
         >
           <SelectTrigger className='h-8 text-xs'>
-            <SelectValue placeholder='Status'>
+            <SelectValue placeholder='Jenjang'>
               {member.status === 'ab1' && 'AB 1'}
               {member.status === 'ab2' && 'AB 2'}
               {member.status === 'ab3' && 'AB 3'}
@@ -170,7 +171,7 @@ const InlineRow = ({
           }
         >
           <SelectTrigger className='h-8 text-xs'>
-            <SelectValue placeholder='Gender'>
+            <SelectValue placeholder='Jenis Kelamin'>
               {member.gender === 'ikhwan' && 'Ikhwan'}
               {member.gender === 'akhwat' && 'Akhwat'}
             </SelectValue>
@@ -180,6 +181,28 @@ const InlineRow = ({
             <SelectItem value='akhwat'>Akhwat</SelectItem>
           </SelectContent>
         </Select>
+      </TableCell>
+      <TableCell className='p-2'>
+        <div className='flex justify-center'>
+          <Checkbox
+            checked={member.isCertifiedMentor ?? false}
+            onCheckedChange={(val) =>
+              updateInlineRow(index, { isCertifiedMentor: !!val })
+            }
+            aria-label='Pemandu'
+          />
+        </div>
+      </TableCell>
+      <TableCell className='p-2'>
+        <div className='flex justify-center'>
+          <Checkbox
+            checked={member.isCertifiedInstructor ?? false}
+            onCheckedChange={(val) =>
+              updateInlineRow(index, { isCertifiedInstructor: !!val })
+            }
+            aria-label='Instruktur'
+          />
+        </div>
       </TableCell>
       <TableCell className='p-2'>
         <Input
@@ -235,7 +258,7 @@ export const InlineQuickAddRow = ({
   const orgColCount = getOrgColCount(orgType)
   const isPk = orgType === 'pk'
   const hasStatusCol = type !== 'pemandu' && type !== 'instruktur'
-  const totalColCount = 6 + orgColCount + (hasStatusCol ? 0 : -1)
+  const totalColCount = 8 + orgColCount + (hasStatusCol ? 0 : -1)
 
   const filteredOrganizations = React.useMemo(() => {
     if (isPk) return []
@@ -260,7 +283,9 @@ export const InlineQuickAddRow = ({
         gender: 'ikhwan' as const,
         phone: '',
         yearOfEntry: currentYear,
-        isAlumn: type === 'alumni'
+        isAlumn: type === 'alumni',
+        isCertifiedMentor: false,
+        isCertifiedInstructor: false
       } as InlineRow
     ])
   }

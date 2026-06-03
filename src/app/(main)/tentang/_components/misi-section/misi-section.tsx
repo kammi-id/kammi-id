@@ -59,12 +59,6 @@ export const MisiSection = () => {
           <p className='text-primary font-sans text-xs font-semibold tracking-widest uppercase'>
             Misi KAMMI
           </p>
-          <h2
-            id='misi-heading'
-            className='font-heading mt-3 text-[clamp(2rem,4vw,3.5rem)] leading-tight font-bold text-white'
-          >
-            Lima Poros Gerak
-          </h2>
         </div>
 
         <ol className='space-y-0' aria-label='Misi KAMMI'>

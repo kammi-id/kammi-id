@@ -95,6 +95,22 @@ export type TentangSettings = {
   readonly paradigmaImages: [string, string, string, string]
 }
 
+export type HomeItem = {
+  id: string
+  imageUrl: string
+  title: string
+  description: string
+  badgeText: string
+}
+
+export type HomeHeroItemsSettings = {
+  items: HomeItem[]
+}
+
+export type HomeExtraItemsSettings = {
+  items: HomeItem[]
+}
+
 export const SETTINGS_DEFAULTS = {
   hero: {
     badgeText: 'Kesatuan Aksi Mahasiswa Muslim Indonesia',
@@ -227,7 +243,10 @@ export const SETTINGS_DEFAULTS = {
     heroImageUrl: '',
     prinsipImages: ['', '', '', '', '', ''],
     paradigmaImages: ['', '', '', '']
-  } satisfies TentangSettings
+  } satisfies TentangSettings,
+
+  homeHeroItems: { items: [] } satisfies HomeHeroItemsSettings,
+  homeExtraItems: { items: [] } satisfies HomeExtraItemsSettings
 } as const
 
 export const readSiteSettings = async <T>(

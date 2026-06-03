@@ -53,6 +53,7 @@ export const HeroBgForm = ({ initialData }: Props) => {
             value={heroImageUrl}
             onChange={setHeroImageUrl}
             folder='site-settings/tentang/hero'
+            variant='background'
           />
         </FieldContent>
         <FieldDescription>

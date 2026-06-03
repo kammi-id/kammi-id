@@ -2,27 +2,15 @@ import { redirect } from 'next/navigation'
 import { readActiveSession } from '~/lib/auth/cookies'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Settings02Icon } from '@hugeicons/core-free-icons'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle
-} from '~/components/shadcn/ui/card'
 import { Separator } from '~/components/shadcn/ui/separator'
-import { HeroForm } from './_components/hero-form'
-import { AboutForm } from './_components/about-form'
-import { ActionsForm } from './_components/actions-form'
-import { NavForm } from './_components/nav-form'
-import { FooterForm } from './_components/footer-form'
-import { MetadataForm } from './_components/metadata-form'
+import { HomeItemsList } from './_components/home-items-list'
 import {
-  getCachedHeroSettings,
-  getCachedAboutSettings,
-  getCachedActionsSettings,
-  getCachedNavSettings,
-  getCachedFooterSettings,
-  getCachedMetadataSettings
+  saveHomeHeroItemsAction,
+  saveHomeExtraItemsAction
+} from './_components/action'
+import {
+  getCachedHomeHeroItemsSettings,
+  getCachedHomeExtraItemsSettings
 } from './_data/settings'
 
 const HomeSettingsPage = async () => {
@@ -38,53 +26,41 @@ const HomeSettingsPage = async () => {
   const orgId = connectedOrganization?.id
   if (!orgId) redirect('/dashboard')
 
-  const [hero, about, actions, nav, footer, metadata] = await Promise.all([
-    getCachedHeroSettings(orgId),
-    getCachedAboutSettings(orgId),
-    getCachedActionsSettings(orgId),
-    getCachedNavSettings(orgId),
-    getCachedFooterSettings(orgId),
-    getCachedMetadataSettings(orgId)
+  const [heroSettings, extraSettings] = await Promise.all([
+    getCachedHomeHeroItemsSettings(orgId),
+    getCachedHomeExtraItemsSettings(orgId)
   ])
 
   const sections = [
     {
       id: 'hero',
-      title: 'Seksi Hero',
-      description: 'Judul utama, foto, kutipan, dan tombol CTA halaman depan.',
-      content: <HeroForm initialData={hero} />
+      index: '01',
+      title: 'Hero Sections',
+      description: 'Section pertama yang tampil di halaman utama sebagai background penuh.',
+      content: (
+        <HomeItemsList
+          label='Hero Sections'
+          description='Setiap item tampil sebagai section full-screen di bagian atas halaman utama.'
+          initialItems={heroSettings.items}
+          folder='site-settings/hero'
+          action={saveHomeHeroItemsAction}
+        />
+      )
     },
     {
-      id: 'about',
-      title: 'Tentang KAMMI',
-      description: 'Paragraf deskripsi organisasi dan card Mini Strategi.',
-      content: <AboutForm initialData={about} />
-    },
-    {
-      id: 'actions',
-      title: 'Aksi & Program',
-      description:
-        'Daftar program aksi nyata KAMMI beserta foto dan deskripsinya.',
-      content: <ActionsForm initialData={actions} />
-    },
-    {
-      id: 'nav',
-      title: 'Navigasi',
-      description: 'Link menu navbar dan tombol CTA bergabung.',
-      content: <NavForm initialData={nav} />
-    },
-    {
-      id: 'footer',
-      title: 'Footer',
-      description: 'Link sosial media dan kelompok tautan di footer halaman.',
-      content: <FooterForm initialData={footer} />
-    },
-    {
-      id: 'metadata',
-      title: 'Metadata & SEO',
-      description:
-        'Judul halaman, deskripsi meta, dan gambar Open Graph untuk media sosial.',
-      content: <MetadataForm initialData={metadata} />
+      id: 'extra',
+      index: '02',
+      title: 'Extra Sections',
+      description: 'Section tambahan yang tampil setelah Peta Jaringan, berurutan dari atas.',
+      content: (
+        <HomeItemsList
+          label='Extra Sections'
+          description='Setiap item tampil sebagai section full-screen setelah bagian Peta Jaringan.'
+          initialItems={extraSettings.items}
+          folder='site-settings/extra'
+          action={saveHomeExtraItemsAction}
+        />
+      )
     }
   ]
 
@@ -111,26 +87,29 @@ const HomeSettingsPage = async () => {
       </div>
 
       <div className='space-y-6'>
-        {sections.map((section, i) => (
-          <Card key={section.id} className='rounded-3xl shadow-xs'>
-            <CardHeader className='border-b pb-5'>
-              <div className='flex items-start justify-between gap-4'>
-                <div className='space-y-1'>
-                  <div className='flex items-center gap-2'>
-                    <span className='text-muted-foreground font-mono text-xs'>
-                      {String(i + 1).padStart(2, '0')}
-                    </span>
-                    <Separator orientation='vertical' className='h-3' />
-                    <CardTitle className='text-base font-semibold'>
-                      {section.title}
-                    </CardTitle>
-                  </div>
-                  <CardDescription>{section.description}</CardDescription>
+        {sections.map((section) => (
+          <div
+            key={section.id}
+            className='border-border rounded-3xl border bg-white shadow-xs'
+          >
+            <div className='border-b px-6 py-5'>
+              <div className='flex items-start gap-3'>
+                <span className='text-muted-foreground mt-0.5 font-mono text-xs'>
+                  {section.index}
+                </span>
+                <Separator orientation='vertical' className='mt-0.5 h-3.5' />
+                <div>
+                  <p className='text-foreground text-base font-semibold'>
+                    {section.title}
+                  </p>
+                  <p className='text-muted-foreground mt-0.5 text-sm'>
+                    {section.description}
+                  </p>
                 </div>
               </div>
-            </CardHeader>
-            <CardContent className='pt-6 pb-6'>{section.content}</CardContent>
-          </Card>
+            </div>
+            <div className='px-6 py-6'>{section.content}</div>
+          </div>
         ))}
       </div>
     </div>

@@ -61,6 +61,7 @@ export const LeadershipSectionClient = ({
 
         const tl = gsap.timeline()
 
+        // ── Enter: text zooms to normal, photos converge ────────────────────
         tl.to(textWrapper, { scale: 1, y: 0, ease: 'none', duration: 0.38 }, 0)
         tl.fromTo(
           ketuaEl,
@@ -81,11 +82,20 @@ export const LeadershipSectionClient = ({
           0.32
         )
 
+        // ── Exit: text fades up, all three photos fall down ─────────────────
+        // (t ≈ 0.77 is when all photos have converged)
+        tl.to(textWrapper, { opacity: 0, y: -80, ease: 'none', duration: 0.22 }, 0.86)
+        tl.to(
+          [ketuaEl, sekjEl, bendEl],
+          { y: '110vh', opacity: 0, ease: 'none', duration: 0.32 },
+          0.90
+        )
+
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         ScrollTrigger.create({
           trigger: section,
           start: 'top top',
-          end: '+=200%',
+          end: '+=250%',
           pin: true,
           scrub: 1,
           anticipatePin: 1,
@@ -121,18 +131,6 @@ export const LeadershipSectionClient = ({
 
     return () => ctx.revert()
   }, [])
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect()
-    e.currentTarget.style.setProperty(
-      '--ls-x',
-      `${((e.clientX - rect.left) / rect.width) * 100}%`
-    )
-    e.currentTarget.style.setProperty(
-      '--ls-y',
-      `${((e.clientY - rect.top) / rect.height) * 100}%`
-    )
-  }
 
   const trio = [
     {
@@ -205,7 +203,7 @@ export const LeadershipSectionClient = ({
         )}
       </div>
 
-      {/* Photo trio — converge from edges as scroll progresses */}
+      {/* Photo trio — converge from edges as scroll progresses, then exit down */}
       <div className='mt-auto flex flex-col items-start gap-10 px-6 sm:px-8 md:flex-row md:items-end md:justify-center md:gap-0 lg:px-12'>
         {trio.map(({ key, label, name, photoSrc, position }) => {
           const isCenter = position === 'center'
@@ -215,7 +213,6 @@ export const LeadershipSectionClient = ({
             <div
               key={key}
               data-ls-photo={key}
-              onMouseMove={handleMouseMove}
               className={cn(
                 'group relative shrink-0 cursor-pointer overflow-visible rounded-[2.5rem] bg-muted/60 px-4 pt-4 pb-0',
                 'md:w-auto md:rounded-none md:bg-transparent md:p-0',
@@ -229,31 +226,22 @@ export const LeadershipSectionClient = ({
                   : isLeft
                     ? 'order-2 z-0 md:order-none'
                     : 'order-3 z-0 md:order-none',
+                // Reduced photo sizes (-15% from original)
                 isCenter
-                  ? 'h-[clamp(240px,45vh,380px)] md:h-[min(52vw,950px)]'
-                  : 'h-[clamp(210px,40vh,340px)] md:h-[min(48vw,880px)]'
+                  ? 'h-[clamp(200px,38vh,320px)] md:h-[min(44vw,800px)]'
+                  : 'h-[clamp(175px,33vh,280px)] md:h-[min(40vw,740px)]'
               )}
             >
               {photoSrc ? (
                 <ViewTransition name={`leadership-photo-${key}`}>
-                  <>
-                    <Image
-                      src={photoSrc}
-                      alt={`Foto ${name}`}
-                      width={800}
-                      height={1067}
-                      className='h-full w-auto max-w-none object-contain object-bottom transition-transform duration-500 ease-out group-hover:scale-[1.02] max-md:rounded-t-[2rem] max-md:object-left-bottom'
-                      unoptimized={photoSrc.startsWith('http')}
-                    />
-                    {/* Radial cursor glow */}
-                    <div
-                      className='pointer-events-none absolute inset-0 z-[1] opacity-0 transition-opacity duration-200 group-hover:opacity-100 max-md:rounded-t-[2rem]'
-                      style={{
-                        background:
-                          'radial-gradient(circle at var(--ls-x, 50%) var(--ls-y, 50%), oklch(0.52 0.20 17 / 0.13) 0%, transparent 65%)'
-                      }}
-                    />
-                  </>
+                  <Image
+                    src={photoSrc}
+                    alt={`Foto ${name}`}
+                    width={800}
+                    height={1067}
+                    className='h-full w-auto max-w-none object-contain object-bottom transition-transform duration-500 ease-out group-hover:scale-[1.02] max-md:rounded-t-[2rem] max-md:object-left-bottom'
+                    unoptimized={photoSrc.startsWith('http')}
+                  />
                 </ViewTransition>
               ) : (
                 <div

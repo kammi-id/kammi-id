@@ -176,7 +176,7 @@ const LeafletMap = ({ pwLookup, onTooltip, onMapHover }: LeafletMapProps) => {
       >
         <div
           ref={containerRef}
-          className='h-full w-full rounded-2xl overflow-hidden'
+          className='h-full w-full'
         />
       </div>
     </>

@@ -1,8 +1,9 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useRef, useState, useEffect } from 'react'
 import { Input } from '~/components/shadcn/ui/input'
 import {
+  ImageUploadIcon,
   Loading01Icon,
   Upload01Icon,
   UserIcon
@@ -16,16 +17,19 @@ interface ImageUploadProps {
   onChange: (path: string) => void
   label?: string
   folder?: string
+  variant?: 'avatar' | 'background'
 }
 
 const ImageUpload = ({
   value,
   onChange,
   label,
-  folder = 'uploads'
+  folder = 'uploads',
+  variant = 'avatar'
 }: ImageUploadProps) => {
   const [preview, setPreview] = useState<string | null>(null)
   const [isUploading, setIsUploading] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     const updatePreview = async () => {
@@ -85,10 +89,89 @@ const ImageUpload = ({
       URL.revokeObjectURL(localPreview)
     } catch (error) {
       console.error('Upload failed:', error)
-      setPreview(null) // Reset if upload fails, or keep local preview but show error
+      setPreview(null)
     } finally {
       setIsUploading(false)
     }
+  }
+
+  if (variant === 'background') {
+    return (
+      <div className='space-y-2'>
+        {label && (
+          <label className='text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70'>
+            {label}
+          </label>
+        )}
+
+        <input
+          ref={fileInputRef}
+          type='file'
+          accept='image/*'
+          onChange={handleFileChange}
+          disabled={isUploading}
+          className='hidden'
+        />
+
+        <button
+          type='button'
+          onClick={() => fileInputRef.current?.click()}
+          disabled={isUploading}
+          className={cn(
+            'group relative w-full overflow-hidden rounded-lg border-2 border-dashed transition-all',
+            'aspect-video',
+            preview
+              ? 'border-transparent'
+              : 'border-muted-foreground/25 bg-muted hover:border-primary/50 hover:bg-muted/80'
+          )}
+        >
+          {preview ? (
+            <>
+              <img
+                src={preview}
+                alt='Preview'
+                className='h-full w-full object-cover'
+              />
+              <div className='absolute inset-0 flex flex-col items-center justify-center gap-2 bg-black/0 transition-all group-hover:bg-black/40'>
+                <div className='flex flex-col items-center gap-1.5 opacity-0 transition-opacity group-hover:opacity-100'>
+                  <HugeiconsIcon
+                    icon={Upload01Icon}
+                    className='h-6 w-6 text-white'
+                  />
+                  <span className='text-sm font-medium text-white'>
+                    Ganti Gambar
+                  </span>
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className='flex flex-col items-center justify-center gap-2 py-8'>
+              <HugeiconsIcon
+                icon={ImageUploadIcon}
+                className='text-muted-foreground h-10 w-10'
+              />
+              <div className='text-center'>
+                <p className='text-muted-foreground text-sm font-medium'>
+                  Klik untuk upload
+                </p>
+                <p className='text-muted-foreground/70 mt-0.5 text-[11px]'>
+                  JPG, PNG, WebP · Maks. 5MB
+                </p>
+              </div>
+            </div>
+          )}
+
+          {isUploading && (
+            <div className='absolute inset-0 flex items-center justify-center bg-black/40'>
+              <HugeiconsIcon
+                icon={Loading01Icon}
+                className='h-8 w-8 animate-spin text-white'
+              />
+            </div>
+          )}
+        </button>
+      </div>
+    )
   }
 
   return (

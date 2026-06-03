@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import { TentangScene } from './_components/tentang-scene'
 import { SectionNav } from './_components/section-nav'
 import { getTentangSettings } from '~/app/(main)/_data/site-settings'
@@ -15,6 +16,26 @@ const TentangPage = async () => {
   return (
     <>
       <SectionNav />
+
+      {/* Breadcrumb */}
+      <nav aria-label='Breadcrumb' className='px-6 py-3 lg:px-8'>
+        <ol className='text-muted-foreground flex items-center gap-2 text-sm'>
+          <li>
+            <Link href='/' className='hover:text-foreground transition-colors'>
+              Beranda
+            </Link>
+          </li>
+          <li aria-hidden='true' className='select-none'>
+            /
+          </li>
+          <li>
+            <span aria-current='page' className='text-foreground font-medium'>
+              Tentang KAMMI
+            </span>
+          </li>
+        </ol>
+      </nav>
+
       <TentangScene settings={settings} />
     </>
   )

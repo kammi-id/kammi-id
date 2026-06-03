@@ -15,8 +15,11 @@ import { trainingAttendants } from '~/db/schema/training.sql'
 const BulkMemberInputSchema = z.object({
   name: z.string().min(1, 'Nama wajib diisi'),
   gender: z.enum(['ikhwan', 'akhwat']),
+  status: z.enum(['ab1', 'ab2', 'ab3']).default('ab1'),
   yearOfEntry: z.number().min(1998).max(new Date().getFullYear()),
-  phone: z.string().optional().nullable()
+  phone: z.string().optional().nullable(),
+  isCertifiedMentor: z.boolean().default(false),
+  isCertifiedInstructor: z.boolean().default(false)
 })
 
 const BulkCreateInputSchema = z.object({
@@ -162,12 +165,12 @@ export const bulkCreateMembersAction = async (
             phone: memberInput.phone ?? null,
             organizationId,
             registerNumber,
-            status: 'ab1',
+            status: memberInput.status ?? 'ab1',
             isAlumn: false,
             isSuspended: false,
             isNonActive: false,
-            isCertifiedMentor: false,
-            isCertifiedInstructor: false
+            isCertifiedMentor: memberInput.isCertifiedMentor ?? false,
+            isCertifiedInstructor: memberInput.isCertifiedInstructor ?? false
           })
           .returning({
             id: memberTable.id,

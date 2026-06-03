@@ -30,6 +30,82 @@ const checkAccess = async (): Promise<{ orgId: string } | null> => {
   return { orgId }
 }
 
+// ─── Home Hero Items ──────────────────────────────────────────────────────────
+
+const homeItemSchema = z.object({
+  id: z.string().min(1),
+  imageUrl: z.string(),
+  title: z.string().min(1, 'Judul wajib diisi.'),
+  description: z.string(),
+  badgeText: z.string()
+})
+
+const homeItemsSchema = z.array(homeItemSchema)
+
+export const saveHomeHeroItemsAction = async (
+  _prev: SettingsActionState,
+  formData: FormData
+): Promise<SettingsActionState> => {
+  const access = await checkAccess()
+  if (!access) return { error: 'Akses ditolak.' }
+  const { orgId } = access
+
+  let items
+  try {
+    items = JSON.parse(formData.get('items') as string)
+  } catch {
+    return { error: 'Data tidak valid.' }
+  }
+
+  const result = homeItemsSchema.safeParse(items)
+  if (!result.success) {
+    return {
+      fieldErrors: result.error.flatten().fieldErrors as unknown as Record<string, string[]>
+    }
+  }
+
+  try {
+    await upsertSiteSettings('home-hero-items', { items: result.data }, orgId)
+    revalidatePath('/')
+    updateTag(`site-settings-home-hero-items-${orgId}`)
+    return { success: true }
+  } catch {
+    return { error: 'Gagal menyimpan hero sections.' }
+  }
+}
+
+export const saveHomeExtraItemsAction = async (
+  _prev: SettingsActionState,
+  formData: FormData
+): Promise<SettingsActionState> => {
+  const access = await checkAccess()
+  if (!access) return { error: 'Akses ditolak.' }
+  const { orgId } = access
+
+  let items
+  try {
+    items = JSON.parse(formData.get('items') as string)
+  } catch {
+    return { error: 'Data tidak valid.' }
+  }
+
+  const result = homeItemsSchema.safeParse(items)
+  if (!result.success) {
+    return {
+      fieldErrors: result.error.flatten().fieldErrors as unknown as Record<string, string[]>
+    }
+  }
+
+  try {
+    await upsertSiteSettings('home-extra-items', { items: result.data }, orgId)
+    revalidatePath('/')
+    updateTag(`site-settings-home-extra-items-${orgId}`)
+    return { success: true }
+  } catch {
+    return { error: 'Gagal menyimpan extra sections.' }
+  }
+}
+
 const linkSchema = z.object({
   label: z.string().min(1),
   href: z.string().min(1)

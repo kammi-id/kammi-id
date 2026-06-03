@@ -6,7 +6,7 @@ import Link from 'next/link'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { cn } from '~/lib/shadcn/utils'
-import { matchSlugForPW, type ProvinceTooltip } from './leaflet-map-utils'
+import { matchSlugsForPW, type ProvinceTooltip } from './leaflet-map-utils'
 import type { NetworkStats, PWOrg } from '~/app/(main)/_data/network'
 
 gsap.registerPlugin(ScrollTrigger)
@@ -16,7 +16,7 @@ const LeafletMap = dynamic(() => import('./leaflet-map'), {
   ssr: false,
   loading: () => (
     <div
-      className='h-full w-full animate-pulse rounded-2xl'
+      className='h-full w-full animate-pulse'
       style={{ background: 'oklch(0.94 0.018 240)' }}
     />
   )
@@ -25,8 +25,9 @@ const LeafletMap = dynamic(() => import('./leaflet-map'), {
 const buildPWLookup = (pwOrgs: PWOrg[]): Record<string, string> => {
   const map: Record<string, string> = {}
   for (const pw of pwOrgs) {
-    const slug = matchSlugForPW(pw.name)
-    if (slug && !map[slug]) map[slug] = pw.name
+    for (const slug of matchSlugsForPW(pw.name)) {
+      if (!map[slug]) map[slug] = pw.name
+    }
   }
   return map
 }
@@ -66,6 +67,7 @@ export const NetworkSectionClient = ({
 }: NetworkSectionClientProps) => {
   const sectionRef = useRef<HTMLElement>(null)
   const mapAreaRef = useRef<HTMLDivElement>(null)
+  const headerRef = useRef<HTMLDivElement>(null)
   const cardsRowRef = useRef<HTMLDivElement>(null)
   const ctaBtnRef = useRef<HTMLDivElement>(null)
   // Tooltip element lives in document.body — never in React's tree.
@@ -77,7 +79,6 @@ export const NetworkSectionClient = ({
   // Create tooltip imperatively in document.body — client only, zero SSR footprint
   useEffect(() => {
     const el = document.createElement('div')
-    // Base styles
     Object.assign(el.style, {
       position: 'fixed',
       zIndex: '9999',
@@ -110,8 +111,9 @@ export const NetworkSectionClient = ({
     document.body.appendChild(el)
     tooltipRef.current = el
 
-    // Hide tooltip on any scroll — section may move away from cursor without a mouseleave event
-    const onScroll = () => { el.style.visibility = 'hidden' }
+    const onScroll = () => {
+      el.style.visibility = 'hidden'
+    }
     window.addEventListener('scroll', onScroll, { passive: true })
 
     return () => {
@@ -150,37 +152,58 @@ export const NetworkSectionClient = ({
   // GSAP scroll-scrub entrance animation
   useEffect(() => {
     const section = sectionRef.current
+    const header = headerRef.current
     const cardsRow = cardsRowRef.current
     const ctaBtn = ctaBtnRef.current
     const mapArea = mapAreaRef.current
-    if (!section || !cardsRow || !ctaBtn || !mapArea) return
+    if (!section || !header || !cardsRow || !ctaBtn || !mapArea) return
 
-    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const prefersReduced = window.matchMedia(
+      '(prefers-reduced-motion: reduce)'
+    ).matches
     if (prefersReduced) return
 
     const ctx = gsap.context(() => {
-      const cards = Array.from(cardsRow.querySelectorAll<HTMLElement>('[data-stat]'))
-      const numEls = Array.from(cardsRow.querySelectorAll<HTMLElement>('[data-target]'))
+      const cards = Array.from(
+        cardsRow.querySelectorAll<HTMLElement>('[data-stat]')
+      )
+      const numEls = Array.from(
+        cardsRow.querySelectorAll<HTMLElement>('[data-target]')
+      )
       const statValues = [stats.wilayah, stats.daerah, stats.komisariat]
       const counterObjs = statValues.map((v) => ({ val: 0, target: v }))
 
-      gsap.set(mapArea, { opacity: 0, scale: 0.97 })
+      // Initial states — map zooms IN from large, everything else starts invisible
+      gsap.set(mapArea, { opacity: 0, scale: 1.5 })
+      gsap.set(header, { opacity: 0, y: -24 })
+      gsap.set(ctaBtn, { opacity: 0, y: -12 })
       gsap.set(cards, { opacity: 0, y: 56 })
-      gsap.set(ctaBtn, { opacity: 0, y: 20 })
 
       const tl = gsap.timeline()
 
-      tl.to(mapArea, { opacity: 1, scale: 1, ease: 'none', duration: 0.18 }, 0)
+      // Map dramatically zooms in from scale(1.5) to scale(1)
+      tl.to(
+        mapArea,
+        { opacity: 1, scale: 1, ease: 'none', duration: 0.32 },
+        0
+      )
 
+      // Header slides down + fades in
+      tl.to(header, { opacity: 1, y: 0, ease: 'none', duration: 0.2 }, 0.1)
+
+      // CTA button fades in just after header
+      tl.to(ctaBtn, { opacity: 1, y: 0, ease: 'none', duration: 0.14 }, 0.24)
+
+      // Stat cards stagger up from bottom
       cards.forEach((card, i) => {
-        const s = 0.18 + i * 0.2
-        tl.to(card, { opacity: 1, y: 0, ease: 'none', duration: 0.2 }, s)
+        const s = 0.32 + i * 0.14
+        tl.to(card, { opacity: 1, y: 0, ease: 'none', duration: 0.18 }, s)
         tl.to(
           counterObjs[i],
           {
             val: counterObjs[i].target,
             ease: 'none',
-            duration: 0.2,
+            duration: 0.18,
             onUpdate() {
               const el = numEls[i]
               if (el) el.textContent = String(Math.round(counterObjs[i].val))
@@ -189,8 +212,6 @@ export const NetworkSectionClient = ({
           s
         )
       })
-
-      tl.to(ctaBtn, { opacity: 1, y: 0, ease: 'none', duration: 0.14 }, 0.82)
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ScrollTrigger.create({
@@ -208,14 +229,16 @@ export const NetworkSectionClient = ({
     return () => ctx.revert()
   }, [stats])
 
-  // Map hover: cards slide down + map zooms
+  // Map hover: cards slide down + map breathes slightly
   const handleMapHover = useCallback((hovering: boolean) => {
     if (hovering === mapHoveredRef.current) return
     mapHoveredRef.current = hovering
-    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const prefersReduced = window.matchMedia(
+      '(prefers-reduced-motion: reduce)'
+    ).matches
     if (prefersReduced) return
     gsap.to(cardsRowRef.current, {
-      y: hovering ? 68 : 0,
+      y: hovering ? 72 : 0,
       duration: 0.45,
       ease: 'power3.out',
       overwrite: 'auto'
@@ -240,31 +263,13 @@ export const NetworkSectionClient = ({
   return (
     <section
       ref={sectionRef}
-      className='bg-background relative flex h-dvh max-h-dvh flex-col overflow-hidden'
+      className='bg-background relative h-dvh max-h-dvh overflow-hidden'
       aria-labelledby='network-heading'
     >
-      {/* Tooltip is created imperatively in document.body (see useEffect above).
-          It never lives in the React tree, preventing SSR/hydration mismatches
-          caused by next/dynamic partial bailouts during server rendering. */}
+      {/* Tooltip is created imperatively in document.body (see useEffect above). */}
 
-      {/* Header */}
-      <div className='relative z-10 shrink-0 pt-8 text-center lg:pt-10'>
-        <p
-          id='network-heading'
-          className='text-primary font-sans text-xs font-semibold tracking-widest uppercase'
-        >
-          Jaringan Nasional
-        </p>
-        <h2 className='font-heading text-foreground mt-2 text-[clamp(1.5rem,3vw,2rem)] font-bold'>
-          Peta Jaringan KAMMI
-        </h2>
-      </div>
-
-      {/* Map */}
-      <div
-        ref={mapAreaRef}
-        className='relative z-0 min-h-0 flex-1 px-6 pt-3 pb-0 lg:px-12'
-      >
+      {/* Map: full-cover background — like a hero image, interactive */}
+      <div ref={mapAreaRef} className='absolute inset-0 z-0'>
         <LeafletMap
           pwLookup={pwLookup.current}
           onTooltip={handleTooltip}
@@ -272,49 +277,84 @@ export const NetworkSectionClient = ({
         />
       </div>
 
-      {/* Stat cards */}
+      {/* Top gradient overlay for header text readability */}
       <div
-        ref={cardsRowRef}
-        className='relative z-10 shrink-0 -mt-6 px-6 pb-3 lg:-mt-8 lg:px-12'
-      >
-        <div className='grid grid-cols-3 gap-3 lg:gap-4'>
-          {statCards.map((card) => (
-            <StatCard
-              key={card.dataAttr}
-              value={card.value}
-              label={card.label}
-              dataAttr={card.dataAttr}
-            />
-          ))}
+        className='pointer-events-none absolute inset-x-0 top-0 z-[5] h-56 bg-gradient-to-b from-background/92 via-background/50 to-transparent'
+        aria-hidden='true'
+      />
+
+      {/* Bottom gradient overlay for stat cards readability */}
+      <div
+        className='pointer-events-none absolute inset-x-0 bottom-0 z-[5] h-56 bg-gradient-to-t from-background/92 via-background/50 to-transparent'
+        aria-hidden='true'
+      />
+
+      {/* Content overlay — everything lives on top of the map (z-axis, not y-axis) */}
+      <div className='pointer-events-none absolute inset-0 z-10 flex flex-col'>
+        {/* Header: eyebrow + title + CTA button */}
+        <div
+          ref={headerRef}
+          className='pointer-events-auto shrink-0 pt-8 pb-2 text-center lg:pt-10'
+        >
+          <p className='text-primary font-sans text-xs font-semibold tracking-widest uppercase'>
+            Jaringan Nasional
+          </p>
+          <h2
+            id='network-heading'
+            className='font-heading text-foreground mt-2 text-[clamp(1.5rem,3vw,2rem)] font-bold'
+          >
+            PW/PD KAMMI se-Indonesia
+          </h2>
+
+          {/* CTA button sits below title */}
+          <div ref={ctaBtnRef} className='mt-5 flex justify-center'>
+            <Link
+              href='/wilayah-daerah'
+              className={cn(
+                'group inline-flex items-center gap-2 rounded-xl px-6 py-3',
+                'bg-primary text-primary-foreground font-sans text-sm font-semibold',
+                'transition-[transform,box-shadow] duration-200 ease-out',
+                'hover:scale-[1.02] hover:shadow-[0_8px_24px_oklch(0.52_0.20_17_/_0.35)]',
+                'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary'
+              )}
+            >
+              Jelajahi Jaringan KAMMI
+              <svg
+                className='size-4 transition-transform duration-200 group-hover:translate-x-1'
+                viewBox='0 0 16 16'
+                fill='none'
+                aria-hidden='true'
+              >
+                <path
+                  d='M3 8h10M9 4l4 4-4 4'
+                  stroke='currentColor'
+                  strokeWidth='1.5'
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                />
+              </svg>
+            </Link>
+          </div>
         </div>
 
-        <div ref={ctaBtnRef} className='mt-4 flex justify-center lg:mt-5'>
-          <Link
-            href='/wilayah-daerah'
-            className={cn(
-              'group inline-flex items-center gap-2 rounded-xl px-6 py-3',
-              'bg-primary text-primary-foreground font-sans text-sm font-semibold',
-              'transition-[transform,box-shadow] duration-200 ease-out',
-              'hover:scale-[1.02] hover:shadow-[0_8px_24px_oklch(0.52_0.20_17_/_0.35)]',
-              'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary'
-            )}
-          >
-            Jelajahi Jaringan KAMMI
-            <svg
-              className='size-4 transition-transform duration-200 group-hover:translate-x-1'
-              viewBox='0 0 16 16'
-              fill='none'
-              aria-hidden='true'
-            >
-              <path
-                d='M3 8h10M9 4l4 4-4 4'
-                stroke='currentColor'
-                strokeWidth='1.5'
-                strokeLinecap='round'
-                strokeLinejoin='round'
+        {/* Spacer — map fills the middle */}
+        <div className='flex-1' />
+
+        {/* Stat cards at the bottom */}
+        <div
+          ref={cardsRowRef}
+          className='pointer-events-auto shrink-0 px-6 pb-6 lg:px-12'
+        >
+          <div className='grid grid-cols-3 gap-3 lg:gap-4'>
+            {statCards.map((card) => (
+              <StatCard
+                key={card.dataAttr}
+                value={card.value}
+                label={card.label}
+                dataAttr={card.dataAttr}
               />
-            </svg>
-          </Link>
+            ))}
+          </div>
         </div>
       </div>
     </section>

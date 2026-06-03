@@ -1,0 +1,446 @@
+- generic [ref=e2]:
+  - region "Skip to main content":
+    - link "Skip to main content" [ref=e3] [cursor=pointer]:
+      - /url: "#__docusaurus_skipToContent_fallback"
+  - navigation "Main" [ref=e4]:
+    - generic [ref=e5]:
+      - link "API Docs Logo" [ref=e7] [cursor=pointer]:
+        - /url: /
+        - img "API Docs Logo" [ref=e9]
+      - button "Switch between dark and light mode (currently system mode)" [ref=e12] [cursor=pointer]:
+        - img [ref=e13]
+  - generic [ref=e17]:
+    - complementary [ref=e18]:
+      - navigation "Docs sidebar" [ref=e21]:
+        - list [ref=e22]:
+          - listitem [ref=e23]:
+            - link "Overview" [ref=e24] [cursor=pointer]:
+              - /url: /
+              - generic "Overview" [ref=e25]
+          - listitem [ref=e26]:
+            - link "Quickstart" [ref=e27] [cursor=pointer]:
+              - /url: /quickstart
+              - generic "Quickstart" [ref=e28]
+          - listitem [ref=e29]:
+            - link "Authentication" [ref=e30] [cursor=pointer]:
+              - /url: /authentication
+              - generic "Authentication" [ref=e31]
+          - listitem [ref=e32]:
+            - button "Products" [expanded] [ref=e34] [cursor=pointer]:
+              - generic "Products" [ref=e35]
+            - list [ref=e36]:
+              - listitem [ref=e37]:
+                - link "Api Ocr Sim" [ref=e38] [cursor=pointer]:
+                  - /url: /products/sim-extractor
+                  - generic "Api Ocr Sim" [ref=e39]
+              - listitem [ref=e40]:
+                - link "Api Ocr Ktp" [ref=e41] [cursor=pointer]:
+                  - /url: /products/ktp-extractor
+                  - generic "Api Ocr Ktp" [ref=e42]
+              - listitem [ref=e43]:
+                - link "Api Face Matching" [ref=e44] [cursor=pointer]:
+                  - /url: /products/face-matching
+                  - generic "Api Face Matching" [ref=e45]
+              - listitem [ref=e46]:
+                - link "Api Background Remover" [ref=e47] [cursor=pointer]:
+                  - /url: /products/bg-remover
+                  - generic "Api Background Remover" [ref=e48]
+              - listitem [ref=e49]:
+                - link "Api Article Generator" [ref=e50] [cursor=pointer]:
+                  - /url: /products/article-generator
+                  - generic "Api Article Generator" [ref=e51]
+              - listitem [ref=e52]:
+                - link "Api CV Extractor" [ref=e53] [cursor=pointer]:
+                  - /url: /products/cv-extractor
+                  - generic "Api CV Extractor" [ref=e54]
+              - listitem [ref=e55]:
+                - link "Api Global Exchange Rate" [ref=e56] [cursor=pointer]:
+                  - /url: /products/exchange-rate
+                  - generic "Api Global Exchange Rate" [ref=e57]
+              - listitem [ref=e58]:
+                - link "Api IP Geolocation" [ref=e59] [cursor=pointer]:
+                  - /url: /products/ip-geolocation
+                  - generic "Api IP Geolocation" [ref=e60]
+              - listitem [ref=e61]:
+                - link "Api Reverse Geocoding" [ref=e62] [cursor=pointer]:
+                  - /url: /products/location
+                  - generic "Api Reverse Geocoding" [ref=e63]
+              - listitem [ref=e64]:
+                - link "Api Hari Libur Nasional" [ref=e65] [cursor=pointer]:
+                  - /url: /products/indonesian-holidays
+                  - generic "Api Hari Libur Nasional" [ref=e66]
+              - listitem [ref=e67]:
+                - link "Api Regional Wilayah Indonesia" [ref=e68] [cursor=pointer]:
+                  - /url: /products/indonesia-regional
+                  - generic "Api Regional Wilayah Indonesia" [ref=e69]
+              - listitem [ref=e70]:
+                - link "Api Data Sekolah Indonesia" [ref=e71] [cursor=pointer]:
+                  - /url: /products/indonesia-schools
+                  - generic "Api Data Sekolah Indonesia" [ref=e72]
+              - listitem [ref=e73]:
+                - link "Api Data Universitas Indonesia" [ref=e74] [cursor=pointer]:
+                  - /url: /products/indonesia-universities
+                  - generic "Api Data Universitas Indonesia" [ref=e75]
+              - listitem [ref=e76]:
+                - link "Api Jadwal Sholat Indonesia" [ref=e77] [cursor=pointer]:
+                  - /url: /products/indonesia-prayer-time
+                  - generic "Api Jadwal Sholat Indonesia" [ref=e78]
+              - listitem [ref=e79]:
+                - link "Api Validasi Rekening/Cek Rekening" [ref=e80] [cursor=pointer]:
+                  - /url: /products/bank-validation
+                  - generic "Api Validasi Rekening/Cek Rekening" [ref=e81]
+              - listitem [ref=e82]:
+                - link "Api Cek Ongkos Kirim" [ref=e83] [cursor=pointer]:
+                  - /url: /products/indonesia-expedition-cost
+                  - generic "Api Cek Ongkos Kirim" [ref=e84]
+              - listitem [ref=e85]:
+                - link "Api Rate Bank Indonesia" [ref=e86] [cursor=pointer]:
+                  - /url: /products/indonesia-bank-rate
+                  - generic "Api Rate Bank Indonesia" [ref=e87]
+              - listitem [ref=e88]:
+                - link "Api Data Rumah Sakit Indonesia" [ref=e89] [cursor=pointer]:
+                  - /url: /products/indonesia-hospitals
+                  - generic "Api Data Rumah Sakit Indonesia" [ref=e90]
+    - main [ref=e91]:
+      - generic [ref=e93]:
+        - generic [ref=e95]:
+          - article [ref=e96]:
+            - navigation "Breadcrumbs" [ref=e97]:
+              - list [ref=e98]:
+                - listitem [ref=e99]:
+                  - link "Home page" [ref=e100] [cursor=pointer]:
+                    - /url: /
+                    - img [ref=e101]
+                - listitem [ref=e103]:
+                  - generic [ref=e104]: Products
+                - listitem [ref=e105]:
+                  - generic [ref=e106]: Api Data Universitas Indonesia
+            - generic [ref=e107]:
+              - heading "Api Data Universitas Indonesia" [level=1] [ref=e109]
+              - paragraph [ref=e110]: Search and retrieve Indonesian university data.
+              - list [ref=e111]:
+                - listitem [ref=e112]: "Input: Query parameters for location, accreditation, or name (see reference)."
+                - listitem [ref=e113]: "Output: University identifiers and metadata."
+                - listitem [ref=e114]:
+                  - text: "Authentication:"
+                  - code [ref=e115]: x-api-co-id
+                  - text: header is required.
+              - paragraph [ref=e116]:
+                - strong [ref=e117]: "📖 Product Page:"
+                - link "View full product details →" [ref=e118] [cursor=pointer]:
+                  - /url: https://api.co.id/free-indonesia-university-data-api/
+              - group [ref=e119]:
+                - generic "OpenAPI options and Download Postman Collection" [ref=e120] [cursor=pointer]
+              - heading "Try it outDirect link to Try it out" [level=2] [ref=e121]:
+                - text: Try it out
+                - link "Direct link to Try it out" [ref=e122] [cursor=pointer]:
+                  - /url: "#try-it-out"
+                  - text: "#"
+              - generic [ref=e123]:
+                - generic [ref=e124]:
+                  - heading "Try it out" [level=3] [ref=e125]
+                  - generic [ref=e127]:
+                    - generic [ref=e128]:
+                      - generic [ref=e129]: API Key
+                      - paragraph [ref=e130]:
+                        - text: Enter your
+                        - code [ref=e131]: x-api-co-id
+                        - text: key to authenticate API requests
+                    - generic [ref=e132]:
+                      - textbox "API Key" [ref=e134]:
+                        - /placeholder: sk-...
+                      - button "Save Key" [disabled] [ref=e135]
+                - generic [ref=e137]:
+                  - generic:
+                    - img
+                  - generic [ref=e138]:
+                    - generic [ref=e142]:
+                      - generic [ref=e143]:
+                        - heading "Api Data Universitas Indonesia 1.0.0 OAS 3.0" [level=1] [ref=e144]:
+                          - text: Api Data Universitas Indonesia
+                          - generic [ref=e145]:
+                            - generic [ref=e147]: 1.0.0
+                            - generic [ref=e149]: OAS 3.0
+                        - link "/openapi/indonesia-universities.yaml" [ref=e150] [cursor=pointer]:
+                          - /url: /openapi/indonesia-universities.yaml
+                          - generic [ref=e151]: /openapi/indonesia-universities.yaml
+                      - paragraph [ref=e154]:
+                        - text: Complete API collection for Indonesian universities data with comprehensive filtering capabilities. Access to all universities in Indonesia with filtering by location (province, regency), searching by name or short name, filtering by group and university type, with pagination support.
+                        - strong [ref=e155]: "Note:"
+                        - text: Pagination size is fixed at 100 items per page and cannot be configured. Integrated with Api Regional Wilayah Indonesia for location data.
+                    - generic [ref=e159]:
+                      - text: Servers
+                      - combobox [ref=e162]:
+                        - option "https://use.api.co.id" [selected]
+                    - generic [ref=e166]:
+                      - heading "Universities Endpoints for accessing Indonesian universities data. Collapse operation" [level=3] [ref=e167] [cursor=pointer]:
+                        - link "Universities" [ref=e168]:
+                          - /url: "#/Universities"
+                        - paragraph [ref=e171]: Endpoints for accessing Indonesian universities data.
+                        - button "Collapse operation" [expanded] [ref=e172]:
+                          - img [ref=e173]
+                      - generic [ref=e177]:
+                        - generic [ref=e178] [cursor=pointer]:
+                          - button "GET /regional/indonesia/universities List Universities" [expanded] [ref=e179]:
+                            - generic [ref=e180]: GET
+                            - generic [ref=e181]:
+                              - link "/regional/indonesia/universities" [ref=e183]:
+                                - /url: "#/Universities/get_regional_indonesia_universities"
+                                - generic [ref=e184]:
+                                  - text: /regional
+                                  - text: /indonesia
+                                  - text: /universities
+                              - generic [ref=e185]: List Universities
+                          - generic "Copy to clipboard"
+                          - button "get /regional/indonesia/universities" [expanded] [ref=e188]:
+                            - img [ref=e189]
+                        - generic [ref=e192]:
+                          - paragraph [ref=e196]:
+                            - text: Get all universities in Indonesia with comprehensive filtering options. Supports filtering by location (province, regency), searching by name or short name, filtering by group and university type, with pagination support.
+                            - strong [ref=e197]: "Note:"
+                            - text: Pagination size is fixed at 100 items per page and cannot be configured.
+                          - generic [ref=e198]:
+                            - generic [ref=e199]:
+                              - heading "Parameters" [level=4] [ref=e202] [cursor=pointer]
+                              - button "Cancel" [ref=e204] [cursor=pointer]
+                            - table [ref=e207]:
+                              - rowgroup [ref=e208]:
+                                - row "Name Description" [ref=e209]:
+                                  - columnheader "Name" [ref=e210]
+                                  - columnheader "Description" [ref=e211]
+                              - rowgroup [ref=e212]:
+                                - 'row "x-api-co-id string (header) Your API key for authentication {{api_key}}" [ref=e213]':
+                                  - cell "x-api-co-id string (header)" [ref=e214]:
+                                    - generic [ref=e215]: x-api-co-id
+                                    - generic [ref=e216]: string
+                                    - generic [ref=e217]: (header)
+                                  - 'cell "Your API key for authentication {{api_key}}" [ref=e218]':
+                                    - paragraph [ref=e220]: Your API key for authentication
+                                    - textbox "x-api-co-id" [ref=e221]: "{{api_key}}"
+                                - row "province_code string (query) Filter by province code 31" [ref=e222]:
+                                  - cell "province_code string (query)" [ref=e223]:
+                                    - generic [ref=e224]: province_code
+                                    - generic [ref=e225]: string
+                                    - generic [ref=e226]: (query)
+                                  - cell "Filter by province code 31" [ref=e227]:
+                                    - paragraph [ref=e229]: Filter by province code
+                                    - textbox "province_code" [ref=e230]: "31"
+                                - row "regency_code string (query) Filter by regency/city code 3171" [ref=e231]:
+                                  - cell "regency_code string (query)" [ref=e232]:
+                                    - generic [ref=e233]: regency_code
+                                    - generic [ref=e234]: string
+                                    - generic [ref=e235]: (query)
+                                  - cell "Filter by regency/city code 3171" [ref=e236]:
+                                    - paragraph [ref=e238]: Filter by regency/city code
+                                    - textbox "regency_code" [ref=e239]: "3171"
+                                - row "name string (query) Search by university name or short name (case-insensitive partial match) UNIVERSITAS INDONESIA" [ref=e240]:
+                                  - cell "name string (query)" [ref=e241]:
+                                    - generic [ref=e242]: name
+                                    - generic [ref=e243]: string
+                                    - generic [ref=e244]: (query)
+                                  - cell "Search by university name or short name (case-insensitive partial match) UNIVERSITAS INDONESIA" [ref=e245]:
+                                    - paragraph [ref=e247]: Search by university name or short name (case-insensitive partial match)
+                                    - textbox "name" [ref=e248]: UNIVERSITAS INDONESIA
+                                - row "group string (query) Filter by group (case-insensitive partial match) UNIVERSITAS" [ref=e249]:
+                                  - cell "group string (query)" [ref=e250]:
+                                    - generic [ref=e251]: group
+                                    - generic [ref=e252]: string
+                                    - generic [ref=e253]: (query)
+                                  - cell "Filter by group (case-insensitive partial match) UNIVERSITAS" [ref=e254]:
+                                    - paragraph [ref=e256]: Filter by group (case-insensitive partial match)
+                                    - textbox "group" [ref=e257]: UNIVERSITAS
+                                - row "university_type string (query) Filter by university type (case-insensitive partial match) PERGURUAN TINGGI" [ref=e258]:
+                                  - cell "university_type string (query)" [ref=e259]:
+                                    - generic [ref=e260]: university_type
+                                    - generic [ref=e261]: string
+                                    - generic [ref=e262]: (query)
+                                  - cell "Filter by university type (case-insensitive partial match) PERGURUAN TINGGI" [ref=e263]:
+                                    - paragraph [ref=e265]: Filter by university type (case-insensitive partial match)
+                                    - textbox "university_type" [ref=e266]: PERGURUAN TINGGI
+                                - row "page integer (query) Page number 1" [ref=e267]:
+                                  - cell "page integer (query)" [ref=e268]:
+                                    - generic [ref=e269]: page
+                                    - generic [ref=e270]: integer
+                                    - generic [ref=e271]: (query)
+                                  - cell "Page number 1" [ref=e272]:
+                                    - paragraph [ref=e274]: Page number
+                                    - textbox "page" [ref=e275]: "1"
+                          - button "Execute" [ref=e277] [cursor=pointer]
+                          - generic [ref=e278]:
+                            - heading "Responses" [level=4] [ref=e280]
+                            - region [ref=e282]:
+                              - rowgroup [ref=e283]:
+                                - row "Code Description Links" [ref=e284]:
+                                  - cell "Code" [ref=e285]
+                                  - cell "Description" [ref=e286]
+                                  - cell "Links" [ref=e287]
+                              - rowgroup [ref=e288]:
+                                - row "200 Success - Universities Listed Media type application/json Controls Accept header. Examples Success - Universities Listed Example Value No links" [ref=e289]:
+                                  - cell "200" [ref=e290]
+                                  - cell "Success - Universities Listed Media type application/json Controls Accept header. Examples Success - Universities Listed Example Value" [ref=e291]:
+                                    - paragraph [ref=e294]: Success - Universities Listed
+                                    - generic [ref=e295]:
+                                      - generic [ref=e296]:
+                                        - generic [ref=e297]: Media type
+                                        - combobox "Media Type" [ref=e299]:
+                                          - option "application/json" [selected]
+                                        - generic [ref=e300]:
+                                          - text: Controls
+                                          - code [ref=e301]: Accept
+                                          - text: header.
+                                      - generic [ref=e302]:
+                                        - generic [ref=e303]: Examples
+                                        - combobox [ref=e305]:
+                                          - option "Success - Universities Listed" [selected]
+                                          - option "Success - Filtered Universities"
+                                    - generic [ref=e306]:
+                                      - tablist [ref=e307]:
+                                        - tab "Example Value" [selected] [ref=e308] [cursor=pointer]
+                                        - tab "Schema" [ref=e309] [cursor=pointer]
+                                      - tabpanel "Example Value" [ref=e310]:
+                                        - code [ref=e314]: "{ \"is_success\": true, \"message\": \"Success\", \"data\": [ { \"group\": \"UNIVERSITAS\", \"address\": \"JLN. SALEMBA RAYA NO. 4\", \"name\": \"UNIVERSITAS INDONESIA\", \"short_name\": \"UI\", \"province\": \"DKI JAKARTA\", \"province_code\": \"31\", \"regency\": \"KOTA ADM. JAKARTA PUSAT\", \"regency_code\": \"3171\", \"long\": 106.8301, \"lat\": -6.3619, \"university_type\": \"PERGURUAN TINGGI\" }, { \"group\": \"INSTITUT\", \"address\": \"JLN. GANESHA NO. 10\", \"name\": \"INSTITUT TEKNOLOGI BANDUNG\", \"short_name\": \"ITB\", \"province\": \"JAWA BARAT\", \"province_code\": \"32\", \"regency\": \"KOTA BANDUNG\", \"regency_code\": \"3273\", \"long\": 107.6106, \"lat\": -6.8915, \"university_type\": \"PERGURUAN TINGGI\" } ], \"paging\": { \"page\": 1, \"size\": 100, \"total_item\": 5000, \"total_page\": 50 } }"
+                                  - cell "No links" [ref=e315]
+                                - row "400 Bad Request Media type application/json Examples Invalid Page Parameter Example Value No links" [ref=e316]:
+                                  - cell "400" [ref=e317]
+                                  - cell "Bad Request Media type application/json Examples Invalid Page Parameter Example Value" [ref=e318]:
+                                    - paragraph [ref=e321]: Bad Request
+                                    - generic [ref=e322]:
+                                      - generic [ref=e323]:
+                                        - generic [ref=e324]: Media type
+                                        - combobox "Media Type" [ref=e326]:
+                                          - option "application/json" [selected]
+                                      - generic [ref=e327]:
+                                        - generic [ref=e328]: Examples
+                                        - combobox [ref=e330]:
+                                          - option "Invalid Page Parameter" [selected]
+                                    - generic [ref=e331]:
+                                      - tablist [ref=e332]:
+                                        - tab "Example Value" [selected] [ref=e333] [cursor=pointer]
+                                      - tabpanel "Example Value" [ref=e334]:
+                                        - code [ref=e338]: "{ \"is_success\": false, \"message\": \"Invalid parameter: page must be greater than or equal to 1\" }"
+                                  - cell "No links" [ref=e339]
+                                - row "401 Unauthorized Media type application/json Examples Missing API Key Example Value No links" [ref=e340]:
+                                  - cell "401" [ref=e341]
+                                  - cell "Unauthorized Media type application/json Examples Missing API Key Example Value" [ref=e342]:
+                                    - paragraph [ref=e345]: Unauthorized
+                                    - generic [ref=e346]:
+                                      - generic [ref=e347]:
+                                        - generic [ref=e348]: Media type
+                                        - combobox "Media Type" [ref=e350]:
+                                          - option "application/json" [selected]
+                                      - generic [ref=e351]:
+                                        - generic [ref=e352]: Examples
+                                        - combobox [ref=e354]:
+                                          - option "Missing API Key" [selected]
+                                          - option "Invalid API Key"
+                                    - generic [ref=e355]:
+                                      - tablist [ref=e356]:
+                                        - tab "Example Value" [selected] [ref=e357] [cursor=pointer]
+                                      - tabpanel "Example Value" [ref=e358]:
+                                        - code [ref=e362]: "{ \"is_success\": false, \"message\": \"Missing API key in x-api-co-id header\" }"
+                                  - cell "No links" [ref=e363]
+                                - row "429 Too Many Requests Media type application/json Examples Rate Limit Exceeded Example Value No links" [ref=e364]:
+                                  - cell "429" [ref=e365]
+                                  - cell "Too Many Requests Media type application/json Examples Rate Limit Exceeded Example Value" [ref=e366]:
+                                    - paragraph [ref=e369]: Too Many Requests
+                                    - generic [ref=e370]:
+                                      - generic [ref=e371]:
+                                        - generic [ref=e372]: Media type
+                                        - combobox "Media Type" [ref=e374]:
+                                          - option "application/json" [selected]
+                                      - generic [ref=e375]:
+                                        - generic [ref=e376]: Examples
+                                        - combobox [ref=e378]:
+                                          - option "Rate Limit Exceeded" [selected]
+                                    - generic [ref=e379]:
+                                      - tablist [ref=e380]:
+                                        - tab "Example Value" [selected] [ref=e381] [cursor=pointer]
+                                      - tabpanel "Example Value" [ref=e382]:
+                                        - code [ref=e386]: "{ \"is_success\": false, \"message\": \"Rate limit exceeded. Please try again later\" }"
+                                  - cell "No links" [ref=e387]
+          - navigation "Docs pages" [ref=e388]:
+            - link "Previous « Api Data Sekolah Indonesia" [ref=e389] [cursor=pointer]:
+              - /url: /products/indonesia-schools
+              - generic [ref=e390]: Previous
+              - generic [ref=e391]: « Api Data Sekolah Indonesia
+            - link "Next Api Jadwal Sholat Indonesia »" [ref=e392] [cursor=pointer]:
+              - /url: /products/indonesia-prayer-time
+              - generic [ref=e393]: Next
+              - generic [ref=e394]: Api Jadwal Sholat Indonesia »
+        - list [ref=e397]:
+          - listitem [ref=e398]:
+            - link "Try it out" [ref=e399] [cursor=pointer]:
+              - /url: "#try-it-out"
+  - contentinfo [ref=e400]:
+    - generic [ref=e401]:
+      - generic [ref=e402]:
+        - generic [ref=e403]:
+          - generic [ref=e404]: Docs
+          - list [ref=e405]:
+            - listitem [ref=e406]:
+              - link "Overview" [ref=e407] [cursor=pointer]:
+                - /url: /
+            - listitem [ref=e408]:
+              - link "Quickstart" [ref=e409] [cursor=pointer]:
+                - /url: /quickstart
+            - listitem [ref=e410]:
+              - link "Authentication" [ref=e411] [cursor=pointer]:
+                - /url: /authentication
+        - generic [ref=e412]:
+          - generic [ref=e413]: API Reference
+          - list [ref=e414]:
+            - listitem [ref=e415]:
+              - link "SIM Extractor" [ref=e416] [cursor=pointer]:
+                - /url: /api/sim-extractor
+            - listitem [ref=e417]:
+              - link "KTP Extractor" [ref=e418] [cursor=pointer]:
+                - /url: /api/ktp-extractor
+            - listitem [ref=e419]:
+              - link "Face Matching" [ref=e420] [cursor=pointer]:
+                - /url: /api/face-matching
+            - listitem [ref=e421]:
+              - link "BG Remover" [ref=e422] [cursor=pointer]:
+                - /url: /api/bg-remover
+            - listitem [ref=e423]:
+              - link "Article Generator" [ref=e424] [cursor=pointer]:
+                - /url: /api/article-generator
+            - listitem [ref=e425]:
+              - link "CV Extractor" [ref=e426] [cursor=pointer]:
+                - /url: /api/cv-extractor
+            - listitem [ref=e427]:
+              - link "Exchange Rate" [ref=e428] [cursor=pointer]:
+                - /url: /api/exchange-rate
+            - listitem [ref=e429]:
+              - link "IP Geolocation" [ref=e430] [cursor=pointer]:
+                - /url: /api/ip-geolocation
+            - listitem [ref=e431]:
+              - link "Api Reverse Geocoding" [ref=e432] [cursor=pointer]:
+                - /url: /api/location
+            - listitem [ref=e433]:
+              - link "Indonesian Holidays" [ref=e434] [cursor=pointer]:
+                - /url: /api/indonesian-holidays
+            - listitem [ref=e435]:
+              - link "Indonesia Regional" [ref=e436] [cursor=pointer]:
+                - /url: /api/indonesia-regional
+            - listitem [ref=e437]:
+              - link "Indonesia Schools" [ref=e438] [cursor=pointer]:
+                - /url: /api/indonesia-schools
+            - listitem [ref=e439]:
+              - link "Indonesia Universities" [ref=e440] [cursor=pointer]:
+                - /url: /api/indonesia-universities
+            - listitem [ref=e441]:
+              - link "Indonesia Prayer Time" [ref=e442] [cursor=pointer]:
+                - /url: /api/indonesia-prayer-time
+            - listitem [ref=e443]:
+              - link "Indonesia Expedition Cost" [ref=e444] [cursor=pointer]:
+                - /url: /api/indonesia-expedition-cost
+            - listitem [ref=e445]:
+              - link "Indonesia Bank Rate" [ref=e446] [cursor=pointer]:
+                - /url: /api/indonesia-bank-rate
+            - listitem [ref=e447]:
+              - link "Indonesia Hospitals" [ref=e448] [cursor=pointer]:
+                - /url: /api/indonesia-hospitals
+      - generic [ref=e450]:
+        - text: Copyright © 2026
+        - link "Api.co.id" [ref=e451] [cursor=pointer]:
+          - /url: https://api.co.id

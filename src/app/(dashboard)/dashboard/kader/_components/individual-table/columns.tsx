@@ -7,7 +7,7 @@ import Link from 'next/link'
 import { Badge } from '~/components/shadcn/ui/badge'
 import { cn } from '~/lib/shadcn/utils'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Chat01Icon } from '@hugeicons/core-free-icons'
+import { Chat01Icon, Tick01Icon } from '@hugeicons/core-free-icons'
 
 import {
   Tooltip,
@@ -175,9 +175,9 @@ export const getColumns = (
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger>
-              <span className='cursor-help'>Status</span>
+              <span className='cursor-help'>Jenjang</span>
             </TooltipTrigger>
-            <TooltipContent>Tahap Kaderisasi (AB 1, 2, 3)</TooltipContent>
+            <TooltipContent>Jenjang Pengkaderan (AB 1, 2, 3)</TooltipContent>
           </Tooltip>
         </TooltipProvider>
       ),
@@ -204,7 +204,7 @@ export const getColumns = (
           <button
             type='button'
             onClick={() => onFilterChange?.('status', status)}
-            aria-label={`Filter status: ${status.toUpperCase()}`}
+            aria-label={`Filter jenjang: ${status.toUpperCase()}`}
             className='cursor-pointer transition-opacity hover:opacity-80'
           >
             <Badge
@@ -224,7 +224,7 @@ export const getColumns = (
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger>
-              <span className='cursor-help'>Gender</span>
+              <span className='cursor-help'>Jenis Kelamin</span>
             </TooltipTrigger>
             <TooltipContent>Jenis Kelamin (Ikhwan / Akhwat)</TooltipContent>
           </Tooltip>
@@ -248,7 +248,7 @@ export const getColumns = (
           <button
             type='button'
             onClick={() => onFilterChange?.('gender', gender)}
-            aria-label={`Filter gender: ${gender}`}
+            aria-label={`Filter jenis kelamin: ${gender}`}
             className='cursor-pointer transition-opacity hover:opacity-80'
           >
             <Badge
@@ -261,6 +261,54 @@ export const getColumns = (
           </button>
         )
       }
+    },
+    {
+      accessorKey: 'isCertifiedMentor',
+      header: () => (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger>
+              <span className='cursor-help'>Pemandu</span>
+            </TooltipTrigger>
+            <TooltipContent>Bersertifikat Pemandu</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      ),
+      cell: ({ row }) =>
+        row.original.isCertifiedMentor ? (
+          <div className='flex justify-center'>
+            <HugeiconsIcon
+              icon={Tick01Icon}
+              className='[color:var(--status-pass-text)] size-4'
+            />
+          </div>
+        ) : (
+          <span className='text-muted-foreground flex justify-center'>—</span>
+        )
+    },
+    {
+      accessorKey: 'isCertifiedInstructor',
+      header: () => (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger>
+              <span className='cursor-help'>Instruktur</span>
+            </TooltipTrigger>
+            <TooltipContent>Bersertifikat Instruktur</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      ),
+      cell: ({ row }) =>
+        row.original.isCertifiedInstructor ? (
+          <div className='flex justify-center'>
+            <HugeiconsIcon
+              icon={Tick01Icon}
+              className='[color:var(--status-pass-text)] size-4'
+            />
+          </div>
+        ) : (
+          <span className='text-muted-foreground flex justify-center'>—</span>
+        )
     },
     {
       accessorKey: 'phone',

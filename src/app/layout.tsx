@@ -2,11 +2,12 @@ import './globals.css'
 
 import type { ReactNode } from 'react'
 import type { Metadata } from 'next'
-import { Public_Sans, Lora } from 'next/font/google'
+import { Public_Sans, Lora, Caveat } from 'next/font/google'
 import { cn } from '~/lib/shadcn/utils'
 
 const loraHeading = Lora({ subsets: ['latin'], variable: '--font-heading' })
 const publicSans = Public_Sans({ subsets: ['latin'], variable: '--font-sans' })
+const caveatHand = Caveat({ subsets: ['latin'], variable: '--font-handwriting' })
 
 const RootLayout = ({
   children
@@ -19,7 +20,8 @@ const RootLayout = ({
       className={cn(
         'font-sans antialiased',
         publicSans.variable,
-        loraHeading.variable
+        loraHeading.variable,
+        caveatHand.variable
       )}
     >
       <head>

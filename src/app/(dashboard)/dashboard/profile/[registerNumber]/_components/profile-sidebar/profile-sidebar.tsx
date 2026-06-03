@@ -7,6 +7,7 @@ import { RadioGroup, RadioGroupItem } from '~/components/shadcn/ui/radio-group'
 import { Field, FieldLabel } from '~/components/shadcn/ui/field'
 import { WarningTooltip } from '../warning-tooltip'
 import { useProfileEdit } from '../profile-edit-context'
+import { RiwayatDaurehSection, RiwayatKeinstrukturanSection } from '../profile-training-history'
 
 interface ProfileSidebarProps {
   orgHierarchySlot?: ReactNode
@@ -17,6 +18,50 @@ const statusLabel: Record<string, string> = {
   ab2: 'Anggota Biasa II',
   ab3: 'Anggota Biasa III'
 }
+
+interface ControlledToggleProps {
+  name: string
+  label: string
+  description?: string
+  checked: boolean
+  onChange: (checked: boolean) => void
+}
+
+const ControlledToggle = ({
+  name,
+  label,
+  description,
+  checked,
+  onChange
+}: ControlledToggleProps) => (
+  <div className='flex items-center justify-between py-2.5'>
+    <div>
+      <p className='text-foreground text-sm font-medium'>{label}</p>
+      {description && (
+        <p className='text-muted-foreground text-xs'>{description}</p>
+      )}
+    </div>
+    <button
+      type='button'
+      role='switch'
+      aria-checked={checked ? 'true' : 'false'}
+      aria-label={label}
+      onClick={() => onChange(!checked)}
+      className={cn(
+        'focus-visible:ring-primary relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none',
+        checked ? 'bg-primary' : 'bg-input'
+      )}
+    >
+      <span
+        className={cn(
+          'pointer-events-none block h-4 w-4 rounded-full bg-background shadow-lg transition-transform',
+          checked ? 'translate-x-4' : 'translate-x-0'
+        )}
+      />
+    </button>
+    <input type='hidden' name={name} value={checked ? 'true' : 'false'} />
+  </div>
+)
 
 const Toggle = ({
   name,
@@ -31,33 +76,13 @@ const Toggle = ({
 }) => {
   const [checked, setChecked] = useState(defaultChecked ?? false)
   return (
-    <div className='flex items-center justify-between py-2.5'>
-      <div>
-        <p className='text-foreground text-sm font-medium'>{label}</p>
-        {description && (
-          <p className='text-muted-foreground text-xs'>{description}</p>
-        )}
-      </div>
-      <button
-        type='button'
-        role='switch'
-        aria-checked={checked ? 'true' : 'false'}
-        aria-label={label}
-        onClick={() => setChecked(!checked)}
-        className={cn(
-          'focus-visible:ring-primary relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none',
-          checked ? 'bg-primary' : 'bg-input'
-        )}
-      >
-        <span
-          className={cn(
-            'pointer-events-none block h-4 w-4 rounded-full bg-white shadow-lg transition-transform',
-            checked ? 'translate-x-4' : 'translate-x-0'
-          )}
-        />
-      </button>
-      <input type='hidden' name={name} value={checked ? 'true' : 'false'} />
-    </div>
+    <ControlledToggle
+      name={name}
+      label={label}
+      description={description}
+      checked={checked}
+      onChange={setChecked}
+    />
   )
 }
 
@@ -75,6 +100,22 @@ export const ProfileSidebar = ({ orgHierarchySlot }: ProfileSidebarProps) => {
     trainingHistory?.asAttendant.some((r) => r.type === 'tfi') ?? false
 
   const [selectedStatus, setSelectedStatus] = useState(member.status)
+
+  // Status keanggotaan — mutual exclusive: hanya satu yang bisa aktif
+  type MembershipStatus = 'alumn' | 'nonActive' | 'suspended' | null
+  const deriveInitialMembershipStatus = (): MembershipStatus => {
+    if (member.isSuspended) return 'suspended'
+    if (member.isNonActive) return 'nonActive'
+    if (member.isAlumn) return 'alumn'
+    return null
+  }
+  const [membershipStatus, setMembershipStatus] = useState<MembershipStatus>(
+    deriveInitialMembershipStatus
+  )
+
+  const toggleMembership = (key: MembershipStatus) => {
+    setMembershipStatus((prev) => (prev === key ? null : key))
+  }
 
   if (isEditing) {
     return (
@@ -131,24 +172,28 @@ export const ProfileSidebar = ({ orgHierarchySlot }: ProfileSidebarProps) => {
           <h2 className='text-muted-foreground font-geist-mono mb-3 text-[11px] font-medium tracking-widest uppercase'>
             Status Keanggotaan
           </h2>
+          <p className='text-muted-foreground mb-2 text-xs'>Hanya satu yang dapat aktif sekaligus.</p>
           <div className='divide-border/60 divide-y rounded-lg border px-3'>
-            <Toggle
+            <ControlledToggle
               name='isAlumn'
               label='Alumni'
               description='Tandai sebagai alumni KAMMI'
-              defaultChecked={member.isAlumn}
+              checked={membershipStatus === 'alumn'}
+              onChange={() => toggleMembership('alumn')}
             />
-            <Toggle
+            <ControlledToggle
               name='isNonActive'
               label='Non-Aktif'
               description='Tidak aktif berorganisasi'
-              defaultChecked={member.isNonActive}
+              checked={membershipStatus === 'nonActive'}
+              onChange={() => toggleMembership('nonActive')}
             />
-            <Toggle
+            <ControlledToggle
               name='isSuspended'
               label='Dipecat/Diskorsing'
               description='Keanggotaan ditangguhkan'
-              defaultChecked={member.isSuspended}
+              checked={membershipStatus === 'suspended'}
+              onChange={() => toggleMembership('suspended')}
             />
           </div>
         </div>
@@ -228,6 +273,9 @@ export const ProfileSidebar = ({ orgHierarchySlot }: ProfileSidebarProps) => {
       </div>
 
       {orgHierarchySlot}
+
+      <RiwayatDaurehSection />
+      <RiwayatKeinstrukturanSection />
 
       {hasSpecialStatus && (
         <div>

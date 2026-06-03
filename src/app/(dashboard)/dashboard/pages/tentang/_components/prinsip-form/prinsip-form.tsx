@@ -82,6 +82,7 @@ export const PrinsipForm = ({ initialData }: Props) => {
                 value={images[i] ?? ''}
                 onChange={(url) => updateImage(i, url)}
                 folder='site-settings/tentang/prinsip'
+                variant='background'
               />
             </FieldContent>
           </Field>

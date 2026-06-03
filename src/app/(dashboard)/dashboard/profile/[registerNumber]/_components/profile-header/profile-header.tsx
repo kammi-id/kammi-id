@@ -3,9 +3,21 @@
 import type { ReactNode, CSSProperties } from 'react'
 import Link from 'next/link'
 import { Badge } from '~/components/shadcn/ui/badge'
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+  TooltipProvider
+} from '~/components/shadcn/ui/tooltip'
 import { ProfileAvatar } from '../profile-avatar'
 import { WarningTooltip } from '../warning-tooltip'
 import { useProfileEdit } from '../profile-edit-context'
+
+const statusLabel: Record<string, string> = {
+  ab1: 'Anggota Biasa I — jenjang kader pertama',
+  ab2: 'Anggota Biasa II — jenjang kader menengah',
+  ab3: 'Anggota Biasa III — jenjang kader senior'
+}
 
 interface ProfileHeaderProps {
   editSlot?: ReactNode
@@ -86,16 +98,25 @@ export const ProfileHeader = ({
               <p className='font-geist-mono text-muted-foreground text-sm tracking-wide'>
                 {member.registerNumber}
               </p>
-              <Badge
-                variant='outline'
-                className='font-bold'
-                style={statusStyles[member.status]}
-              >
-                {member.status.toUpperCase()}
-              </Badge>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger className='inline-flex'>
+                    <Badge
+                      variant='outline'
+                      className='cursor-default font-bold'
+                      style={statusStyles[member.status]}
+                    >
+                      {member.status.toUpperCase()}
+                    </Badge>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    {statusLabel[member.status] ?? member.status.toUpperCase()}
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
               {!hasDm && requiredDm && (
                 <WarningTooltip
-                  message={`Belum ada entry ${requiredDm.toUpperCase()} di riwayat dauroh`}
+                  message={`Status ${member.status.toUpperCase()} memerlukan ${requiredDm.toUpperCase()}, tapi belum ada di riwayat dauroh. Tambahkan melalui menu Dauroh.`}
                 />
               )}
             </div>

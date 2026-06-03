@@ -15,7 +15,6 @@ import { ProfileEditProvider } from '../profile-edit-context'
 import { ProfileHeader } from '../profile-header'
 import { ProfileInfo } from '../profile-info'
 import { ProfileSidebar } from '../profile-sidebar'
-import { ProfileTrainingHistory } from '../profile-training-history'
 import { AcademicSection } from '../academic-section'
 import { CareerSection } from '../career-section'
 import { OrganizationSection } from '../organization-section'
@@ -138,9 +137,6 @@ export const ProfileInlineEditForm = ({
                 </div>
                 <div className='mt-8'>
                   <OrganizationSection />
-                </div>
-                <div className='mt-8'>
-                  <ProfileTrainingHistory />
                 </div>
               </main>
 

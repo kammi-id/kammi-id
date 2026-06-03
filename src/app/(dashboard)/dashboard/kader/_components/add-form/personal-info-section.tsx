@@ -117,7 +117,7 @@ export const PersonalInfoSection = ({
 
       <div className='mt-4 flex flex-col gap-6'>
         <Field>
-          <FieldLabel>Gender</FieldLabel>
+          <FieldLabel>Jenis Kelamin</FieldLabel>
           <RadioGroup
             name='gender'
             value={selectedGender}
@@ -164,7 +164,7 @@ export const PersonalInfoSection = ({
         </Field>
 
         <Field>
-          <FieldLabel>Status</FieldLabel>
+          <FieldLabel>Jenjang</FieldLabel>
           <RadioGroup
             name='status'
             value={selectedStatus}

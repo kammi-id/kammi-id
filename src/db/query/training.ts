@@ -327,18 +327,31 @@ export const trainingQuery = {
     }))
   },
 
-  // identifier assigned by DB trigger — use raw SQL to exclude the column so trigger can set it
   create: async (data: TrainingCreateInput) => {
     const { identifier: _omitted, id: _id, ...fields } = data
+    const year = new Date(fields.startDate).getFullYear()
+
+    const [{ maxIdentifier }] = await db
+      .select({
+        maxIdentifier: sql<number>`COALESCE(MAX(${training.identifier}), 0)`
+      })
+      .from(training)
+      .where(
+        and(eq(training.organizationId, fields.organizationId), eq(training.year, year))
+      )
+
+    const nextIdentifier = (maxIdentifier ?? 0) + 1
+
     const rows = await db.execute(sql`
-      INSERT INTO training (organization_id, name, start_date, end_date, registration_deadline, type)
+      INSERT INTO training (organization_id, name, start_date, end_date, registration_deadline, type, identifier)
       VALUES (
         ${fields.organizationId},
         ${fields.name},
         ${fields.startDate},
         ${fields.endDate},
         ${fields.registrationDeadline ?? null},
-        ${fields.type}
+        ${fields.type},
+        ${nextIdentifier}
       )
       RETURNING *
     `)

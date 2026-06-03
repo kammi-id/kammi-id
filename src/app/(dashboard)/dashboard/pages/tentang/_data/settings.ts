@@ -12,7 +12,7 @@ export const getCachedTentangSettings = async (
   cacheLife('days')
   cacheTag('site-settings', `site-settings-tentang-${organizationId}`)
 
-  const [heroData, prinsipData, paradigmaData, kredoData] = await Promise.all([
+  const [heroData, prinsipData, paradigmaData] = await Promise.all([
     readSiteSettings<{ heroImageUrl: string }>(
       'tentang-hero',
       { heroImageUrl: SETTINGS_DEFAULTS.tentang.heroImageUrl },
@@ -27,18 +27,12 @@ export const getCachedTentangSettings = async (
       'tentang-paradigma',
       { paradigmaImages: SETTINGS_DEFAULTS.tentang.paradigmaImages },
       organizationId
-    ),
-    readSiteSettings<{ kredoImageUrl: string }>(
-      'tentang-kredo',
-      { kredoImageUrl: SETTINGS_DEFAULTS.tentang.kredoImageUrl },
-      organizationId
     )
   ])
 
   return {
     heroImageUrl: heroData.heroImageUrl,
     prinsipImages: prinsipData.prinsipImages,
-    paradigmaImages: paradigmaData.paradigmaImages,
-    kredoImageUrl: kredoData.kredoImageUrl
+    paradigmaImages: paradigmaData.paradigmaImages
   }
 }

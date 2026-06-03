@@ -3,10 +3,12 @@
 import { useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { WhatsappIcon } from '@hugeicons/core-free-icons'
+import { WhatsappIcon, ArrowDown01Icon } from '@hugeicons/core-free-icons'
 import { Input } from '~/components/shadcn/ui/input'
+import { Button } from '~/components/shadcn/ui/button'
 import { Separator } from '~/components/shadcn/ui/separator'
 import { Field, FieldError, FieldLabel } from '~/components/shadcn/ui/field'
+import { SectionDivider } from '../section-divider'
 import { RadioGroup, RadioGroupItem } from '~/components/shadcn/ui/radio-group'
 import { cn } from '~/lib/shadcn/utils'
 import { RegionCombobox } from '~/app/(dashboard)/dashboard/kader/_components/region-combobox'
@@ -45,15 +47,6 @@ const InfoRow = ({
   </div>
 )
 
-const SectionDivider = ({ title }: { title: string }) => (
-  <div className='mt-6 mb-1 first:mt-0'>
-    <h2 className='text-foreground/60 font-geist-mono text-[11px] font-medium tracking-widest uppercase'>
-      {title}
-    </h2>
-    <Separator className='mt-2' />
-  </div>
-)
-
 const genderLabel: Record<string, string> = {
   ikhwan: 'Ikhwan (Laki-laki)',
   akhwat: 'Akhwat (Perempuan)'
@@ -85,6 +78,7 @@ const Placeholder = () => (
 export const ProfileInfo = () => {
   const { member, isEditing, fieldErrors } = useProfileEdit()
   const [selectedGender, setSelectedGender] = useState(member.gender)
+  const [isAddressOpen, setIsAddressOpen] = useState(false)
   const [province, setProvince] = useState(member.addressProvinceCode ?? '')
   const [city, setCity] = useState(member.addressCityCode ?? '')
   const [district, setDistrict] = useState(member.addressDistrictCode ?? '')
@@ -100,8 +94,10 @@ export const ProfileInfo = () => {
   const [loadingDistrict, setLoadingDistrict] = useState(false)
   const [loadingSubdistrict, setLoadingSubdistrict] = useState(false)
 
+  // Provinces only load when address section is opened — not on every edit mode entry
   useEffect(() => {
-    if (!isEditing) return
+    if (!isAddressOpen) return
+    if (provinces.length > 0) return // already loaded
     let cancelled = false
     setLoadingProvince(true)
     fetchProvincesAction().then((res) => {
@@ -112,7 +108,7 @@ export const ProfileInfo = () => {
     return () => {
       cancelled = true
     }
-  }, [isEditing])
+  }, [isAddressOpen, provinces.length])
 
   useEffect(() => {
     if (!province) {
@@ -265,124 +261,163 @@ export const ProfileInfo = () => {
             <Input
               id='phone'
               name='phone'
-              placeholder='08123456789'
+              placeholder='08123456789 atau +62...'
               defaultValue={member.phone ?? ''}
             />
           </Field>
         </div>
 
-        <SectionDivider title='Alamat' />
+        {/* Alamat — collapsible agar tidak membebani edit data diri */}
+        <div className='mt-6'>
+          <button
+            type='button'
+            onClick={() => setIsAddressOpen((v) => !v)}
+            className='flex w-full items-center justify-between pb-1'
+            aria-expanded={isAddressOpen}
+          >
+            <div className='mb-1'>
+              <h2 className='text-foreground/60 font-geist-mono text-[11px] font-medium tracking-widest uppercase'>
+                Alamat
+              </h2>
+              <Separator className='mt-2' />
+            </div>
+            <HugeiconsIcon
+              icon={ArrowDown01Icon}
+              className={cn(
+                'text-muted-foreground mb-1 size-3.5 shrink-0 transition-transform duration-200',
+                isAddressOpen && 'rotate-180'
+              )}
+            />
+          </button>
 
-        <div className='flex flex-col gap-4'>
-          <Field>
-            <FieldLabel className='font-geist-mono text-xs tracking-wide uppercase'>
-              Provinsi
-            </FieldLabel>
-            <RegionCombobox
-              value={province}
-              options={provinces}
-              placeholder='Pilih Provinsi'
-              isLoading={loadingProvince}
-              onValueChange={(val) => {
-                setProvince(val)
-                setCity('')
-                setDistrict('')
-                setSubdistrict('')
-              }}
-            />
-            <input
-              type='hidden'
-              name='addressProvince'
-              value={getRegionName(provinces, province)}
-            />
-            <input type='hidden' name='addressProvinceCode' value={province} />
-          </Field>
+          {isAddressOpen && (
+            <div className='flex flex-col gap-4 pt-2'>
+              <Field>
+                <FieldLabel className='font-geist-mono text-xs tracking-wide uppercase'>
+                  Provinsi
+                </FieldLabel>
+                <RegionCombobox
+                  value={province}
+                  options={provinces}
+                  placeholder='Pilih Provinsi'
+                  isLoading={loadingProvince}
+                  onValueChange={(val) => {
+                    setProvince(val)
+                    setCity('')
+                    setDistrict('')
+                    setSubdistrict('')
+                  }}
+                />
+                <input
+                  type='hidden'
+                  name='addressProvince'
+                  value={getRegionName(provinces, province)}
+                />
+                <input type='hidden' name='addressProvinceCode' value={province} />
+              </Field>
 
-          <Field>
-            <FieldLabel className='font-geist-mono text-xs tracking-wide uppercase'>
-              Kota/Kabupaten
-            </FieldLabel>
-            <RegionCombobox
-              value={city}
-              options={cities}
-              placeholder='Pilih Kota/Kabupaten'
-              isLoading={loadingCity}
-              onValueChange={(val) => {
-                setCity(val)
-                setDistrict('')
-                setSubdistrict('')
-              }}
-              disabled={!province}
-            />
-            <input
-              type='hidden'
-              name='addressCity'
-              value={getRegionName(cities, city)}
-            />
-            <input type='hidden' name='addressCityCode' value={city} />
-          </Field>
+              <Field>
+                <FieldLabel className='font-geist-mono text-xs tracking-wide uppercase'>
+                  Kota/Kabupaten
+                </FieldLabel>
+                <RegionCombobox
+                  value={city}
+                  options={cities}
+                  placeholder='Pilih Kota/Kabupaten'
+                  isLoading={loadingCity}
+                  onValueChange={(val) => {
+                    setCity(val)
+                    setDistrict('')
+                    setSubdistrict('')
+                  }}
+                  disabled={!province}
+                />
+                <input
+                  type='hidden'
+                  name='addressCity'
+                  value={getRegionName(cities, city)}
+                />
+                <input type='hidden' name='addressCityCode' value={city} />
+              </Field>
 
-          <Field>
-            <FieldLabel className='font-geist-mono text-xs tracking-wide uppercase'>
-              Kecamatan
-            </FieldLabel>
-            <RegionCombobox
-              value={district}
-              options={districts}
-              placeholder='Pilih Kecamatan'
-              isLoading={loadingDistrict}
-              onValueChange={(val) => {
-                setDistrict(val)
-                setSubdistrict('')
-              }}
-              disabled={!city}
-            />
-            <input
-              type='hidden'
-              name='addressDistrict'
-              value={getRegionName(districts, district)}
-            />
-            <input type='hidden' name='addressDistrictCode' value={district} />
-          </Field>
+              <Field>
+                <FieldLabel className='font-geist-mono text-xs tracking-wide uppercase'>
+                  Kecamatan
+                </FieldLabel>
+                <RegionCombobox
+                  value={district}
+                  options={districts}
+                  placeholder='Pilih Kecamatan'
+                  isLoading={loadingDistrict}
+                  onValueChange={(val) => {
+                    setDistrict(val)
+                    setSubdistrict('')
+                  }}
+                  disabled={!city}
+                />
+                <input
+                  type='hidden'
+                  name='addressDistrict'
+                  value={getRegionName(districts, district)}
+                />
+                <input type='hidden' name='addressDistrictCode' value={district} />
+              </Field>
 
-          <Field>
-            <FieldLabel className='font-geist-mono text-xs tracking-wide uppercase'>
-              Kelurahan/Desa
-            </FieldLabel>
-            <RegionCombobox
-              value={subdistrict}
-              options={subdistricts}
-              placeholder='Pilih Kelurahan/Desa'
-              isLoading={loadingSubdistrict}
-              onValueChange={setSubdistrict}
-              disabled={!district}
-            />
-            <input
-              type='hidden'
-              name='addressSubdistrict'
-              value={getRegionName(subdistricts, subdistrict)}
-            />
-            <input
-              type='hidden'
-              name='addressSubdistrictCode'
-              value={subdistrict}
-            />
-          </Field>
+              <Field>
+                <FieldLabel className='font-geist-mono text-xs tracking-wide uppercase'>
+                  Kelurahan/Desa
+                </FieldLabel>
+                <RegionCombobox
+                  value={subdistrict}
+                  options={subdistricts}
+                  placeholder='Pilih Kelurahan/Desa'
+                  isLoading={loadingSubdistrict}
+                  onValueChange={setSubdistrict}
+                  disabled={!district}
+                />
+                <input
+                  type='hidden'
+                  name='addressSubdistrict'
+                  value={getRegionName(subdistricts, subdistrict)}
+                />
+                <input
+                  type='hidden'
+                  name='addressSubdistrictCode'
+                  value={subdistrict}
+                />
+              </Field>
 
-          <Field>
-            <FieldLabel
-              htmlFor='addressLine'
-              className='font-geist-mono text-xs tracking-wide uppercase'
-            >
-              Alamat Lengkap
-            </FieldLabel>
-            <Input
-              id='addressLine'
-              name='addressLine'
-              placeholder='Nama jalan, No. Rumah, RT/RW, dll'
-              defaultValue={member.addressLine ?? ''}
-            />
-          </Field>
+              <Field>
+                <FieldLabel
+                  htmlFor='addressLine'
+                  className='font-geist-mono text-xs tracking-wide uppercase'
+                >
+                  Alamat Lengkap
+                </FieldLabel>
+                <Input
+                  id='addressLine'
+                  name='addressLine'
+                  placeholder='Nama jalan, No. Rumah, RT/RW, dll'
+                  defaultValue={member.addressLine ?? ''}
+                />
+              </Field>
+            </div>
+          )}
+
+          {/* Pass existing address values when section is collapsed so they don't get cleared on save */}
+          {!isAddressOpen && (
+            <>
+              <input type='hidden' name='addressProvince' value={member.addressProvince ?? ''} />
+              <input type='hidden' name='addressProvinceCode' value={member.addressProvinceCode ?? ''} />
+              <input type='hidden' name='addressCity' value={member.addressCity ?? ''} />
+              <input type='hidden' name='addressCityCode' value={member.addressCityCode ?? ''} />
+              <input type='hidden' name='addressDistrict' value={member.addressDistrict ?? ''} />
+              <input type='hidden' name='addressDistrictCode' value={member.addressDistrictCode ?? ''} />
+              <input type='hidden' name='addressSubdistrict' value={member.addressSubdistrict ?? ''} />
+              <input type='hidden' name='addressSubdistrictCode' value={member.addressSubdistrictCode ?? ''} />
+              <input type='hidden' name='addressLine' value={member.addressLine ?? ''} />
+            </>
+          )}
         </div>
       </section>
     )
@@ -393,7 +428,7 @@ export const ProfileInfo = () => {
       <SectionDivider title='Data Diri' />
       <div className='divide-border/60 divide-y'>
         <InfoRow
-          label='Gender'
+          label='Jenis Kelamin'
           value={genderLabel[member.gender] ?? member.gender}
         />
         <InfoRow
@@ -401,7 +436,7 @@ export const ProfileInfo = () => {
           value={member.yearOfEntry ?? <Placeholder />}
         />
         <InfoRow
-          label='Status'
+          label='Jenjang'
           value={
             <span className={deriveMemberStatusStyle(member)}>
               {deriveMemberStatusLabel(member)}
@@ -440,30 +475,19 @@ export const ProfileInfo = () => {
           }
         />
         <InfoRow
-          label='Provinsi'
-          value={member.addressProvince || <Placeholder />}
-        />
-        <InfoRow
-          label='Kota/Kab'
-          value={member.addressCity || <Placeholder />}
-        />
-        <InfoRow
-          label='Kecamatan'
-          value={member.addressDistrict || <Placeholder />}
-        />
-        <InfoRow
-          label='Kelurahan'
-          value={member.addressSubdistrict || <Placeholder />}
-        />
-        <InfoRow
           label='Alamat'
           value={
             addressParts.length > 0 ? (
-              <span className='leading-relaxed'>
-                {member.addressLine ?? addressParts.join(', ')}
+              <span className='flex flex-col gap-0.5 leading-relaxed'>
+                {member.addressLine && (
+                  <span>{member.addressLine}</span>
+                )}
+                {[member.addressSubdistrict, member.addressDistrict, member.addressCity, member.addressProvince]
+                  .filter(Boolean)
+                  .join(', ') || null}
               </span>
             ) : (
-              <Placeholder />
+              <span className='text-muted-foreground/60 italic text-sm'>Belum diisi</span>
             )
           }
         />

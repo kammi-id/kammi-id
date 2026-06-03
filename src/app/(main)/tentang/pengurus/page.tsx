@@ -1,8 +1,9 @@
 import type { Metadata } from 'next'
 import { Suspense } from 'react'
 import Link from 'next/link'
-import { LeadershipSection } from '~/app/(main)/_components/leadership-section'
+import { PengurusHero } from './_components/pengurus-hero'
 import { LeadersDirectory } from './_components/leaders-directory'
+import { ScrollProgress } from './_components/scroll-progress'
 
 export const metadata: Metadata = {
   title: 'Pengurus Pusat — KAMMI.id',
@@ -62,6 +63,8 @@ const DirectorySkeleton = () => (
 const PengurusPage = () => {
   return (
     <>
+      <ScrollProgress />
+
       {/* Breadcrumb */}
       <nav aria-label='Breadcrumb' className='px-6 py-3 lg:px-8'>
         <ol className='text-muted-foreground flex items-center gap-2 text-sm'>
@@ -82,7 +85,7 @@ const PengurusPage = () => {
       </nav>
 
       <Suspense fallback={<LeadershipSkeleton />}>
-        <LeadershipSection />
+        <PengurusHero />
       </Suspense>
 
       <Suspense fallback={<DirectorySkeleton />}>

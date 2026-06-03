@@ -7,7 +7,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 const PARADIGMA_ITEMS = [
   { num: '01', title: 'KAMMI adalah gerakan dakwah tauhid' },
-  { num: '02', title: 'KAMMI adalah intelektual profetik' },
+  { num: '02', title: 'KAMMI adalah gerakan intelektual profetik' },
   { num: '03', title: 'KAMMI adalah gerakan sosial independen' },
   { num: '04', title: 'KAMMI adalah gerakan politik ekstraparlementer' }
 ]

@@ -6,7 +6,6 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { Add01Icon, PencilEdit01Icon } from '@hugeicons/core-free-icons'
 import { Button } from '~/components/shadcn/ui/button'
 import { Input } from '~/components/shadcn/ui/input'
-import { Separator } from '~/components/shadcn/ui/separator'
 import { Field, FieldLabel, FieldError } from '~/components/shadcn/ui/field'
 import {
   Sheet,
@@ -15,23 +14,10 @@ import {
   SheetTitle,
   SheetFooter
 } from '~/components/shadcn/ui/sheet'
+import { SectionDivider } from '../section-divider'
 import { saveCareerAction, deleteCareerAction } from './action'
 import { useProfileEdit } from '../profile-edit-context'
 import type { MemberCareer } from '~/db/query/career'
-
-const SectionDivider = ({ title, count }: { title: string; count?: number }) => (
-  <div className='mt-6 mb-1 first:mt-0'>
-    <div className='flex items-center gap-2'>
-      <h2 className='text-foreground/60 font-geist-mono text-[11px] font-medium tracking-widest uppercase'>
-        {title}
-      </h2>
-      {count !== undefined && count > 0 && (
-        <span className='font-geist-mono text-muted-foreground/60 text-xs'>({count})</span>
-      )}
-    </div>
-    <Separator className='mt-2' />
-  </div>
-)
 
 const yearDisplay = (yearStart: number, yearEnd: number | null) =>
   yearEnd ? `${yearStart}–${yearEnd}` : `${yearStart}–sekarang`
@@ -172,7 +158,7 @@ const CareerSheetForm = ({ memberId, entry, onClose }: CareerSheetFormProps) => 
 }
 
 export const CareerSection = () => {
-  const { member, careerHistory, canEdit } = useProfileEdit()
+  const { member, careerHistory, canEdit, isEditing } = useProfileEdit()
   const [open, setOpen] = useState(false)
   const [editingEntry, setEditingEntry] = useState<MemberCareer | null>(null)
   const [sheetKey, setSheetKey] = useState(0)
@@ -193,7 +179,7 @@ export const CareerSection = () => {
     <section>
       <div className='flex items-center justify-between'>
         <SectionDivider title='Riwayat Karir' count={careerHistory.length} />
-        {canEdit && (
+        {canEdit && isEditing && (
           <Button variant='ghost' size='sm' type='button' onClick={handleAdd} className='mt-5'>
             <HugeiconsIcon icon={Add01Icon} className='mr-1 size-3.5' />
             Tambah
@@ -202,9 +188,19 @@ export const CareerSection = () => {
       </div>
 
       {careerHistory.length === 0 ? (
-        <p className='text-muted-foreground py-4 text-sm'>Belum ada riwayat karir.</p>
+        <div className='py-4'>
+          <p className='text-muted-foreground text-sm'>Belum ada riwayat karir.</p>
+          {!canEdit && (
+            <p className='text-muted-foreground/60 mt-1 text-xs'>Data ini dikelola oleh pengurus yang berwenang.</p>
+          )}
+          {canEdit && !isEditing && (
+            <p className='text-muted-foreground/60 mt-1 text-xs'>Klik <span className='font-medium'>Edit Profil</span> untuk menambahkan.</p>
+          )}
+        </div>
       ) : (
-        <div className='border-border overflow-x-auto rounded-lg border' role='region' aria-label='Riwayat karir'>
+        <div className='relative'>
+          <div className='pointer-events-none absolute top-0 right-0 bottom-0 z-10 w-8 rounded-r-lg bg-gradient-to-l from-[oklch(0.967_0.001_286.375/0.8)] to-transparent' aria-hidden='true' />
+          <div className='border-border overflow-x-auto rounded-lg border' role='region' aria-label='Riwayat karir'>
           <table className='w-full min-w-[400px] text-sm'>
             <thead>
               <tr className='border-border border-b'>
@@ -213,7 +209,7 @@ export const CareerSection = () => {
                     {h}
                   </th>
                 ))}
-                {canEdit && <th scope='col' className='px-4 py-2.5' />}
+                {canEdit && isEditing && <th scope='col' className='px-4 py-2.5' />}
               </tr>
             </thead>
             <tbody className='divide-border/60 divide-y'>
@@ -222,7 +218,7 @@ export const CareerSection = () => {
                   <td className='text-foreground px-4 py-3 font-medium'>{entry.profession}</td>
                   <td className='text-foreground/80 px-4 py-3 text-sm'>{entry.company}</td>
                   <td className='text-muted-foreground px-4 py-3 text-sm'>{yearDisplay(entry.yearStart, entry.yearEnd)}</td>
-                  {canEdit && (
+                  {canEdit && isEditing && (
                     <td className='px-4 py-3 text-right'>
                       <Button variant='ghost' size='sm' type='button' onClick={() => handleEdit(entry)} aria-label='Edit riwayat karir'>
                         <HugeiconsIcon icon={PencilEdit01Icon} className='size-3.5' />
@@ -233,6 +229,7 @@ export const CareerSection = () => {
               ))}
             </tbody>
           </table>
+          </div>
         </div>
       )}
 

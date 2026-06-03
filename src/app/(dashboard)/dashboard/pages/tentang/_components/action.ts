@@ -142,29 +142,3 @@ export const saveTentangParadigmaAction = async (
   return persist('tentang-paradigma', result.data, access.orgId, 'Gagal menyimpan gambar paradigma.')
 }
 
-// ─── Kredo background ─────────────────────────────────────────────────────────
-
-const kredoBgSchema = z.object({
-  kredoImageUrl: z.string()
-})
-
-export const saveTentangKredoAction = async (
-  _prev: SettingsActionState,
-  formData: FormData
-): Promise<SettingsActionState> => {
-  const access = await checkAccess()
-  if (!access) return { error: 'Akses ditolak.' }
-
-  const raw = Object.fromEntries(formData)
-  const result = kredoBgSchema.safeParse(raw)
-  if (!result.success) {
-    return {
-      fieldErrors: result.error.flatten().fieldErrors as Record<string, string[]>,
-      values: Object.fromEntries(
-        Object.entries(raw).filter(([, v]) => v != null && typeof v === 'string')
-      ) as Record<string, string>
-    }
-  }
-
-  return persist('tentang-kredo', result.data, access.orgId, 'Gagal menyimpan latar kredo.')
-}

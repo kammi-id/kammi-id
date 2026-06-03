@@ -9,7 +9,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 gsap.registerPlugin(ScrollTrigger)
 
 type LenisContextType = {
-  scrollTo: (target: HTMLElement | string) => void
+  scrollTo: (target: HTMLElement | string | number) => void
 }
 
 const LenisContext = createContext<LenisContextType>({
@@ -45,7 +45,7 @@ export const LenisProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [])
 
-  const scrollTo = (target: HTMLElement | string) => {
+  const scrollTo = (target: HTMLElement | string | number) => {
     lenisRef.current?.scrollTo(target as Parameters<Lenis['scrollTo']>[0])
   }
 

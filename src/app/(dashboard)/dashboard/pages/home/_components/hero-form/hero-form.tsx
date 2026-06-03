@@ -163,6 +163,7 @@ export const HeroForm = ({ initialData }: Props) => {
                 value={heroImageUrl}
                 onChange={setHeroImageUrl}
                 folder='site-settings/hero'
+                variant='background'
               />
             </FieldContent>
             <FieldError

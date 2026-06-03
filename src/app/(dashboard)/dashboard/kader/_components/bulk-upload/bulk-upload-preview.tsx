@@ -8,6 +8,7 @@ import {
   SelectTrigger,
   SelectValue
 } from '~/components/shadcn/ui/select'
+import { Checkbox } from '~/components/shadcn/ui/checkbox'
 import { Badge } from '~/components/shadcn/ui/badge'
 import { cn } from '~/lib/shadcn/utils'
 import { BulkMemberRowSchema, type ParsedRow } from './bulk-upload-utils'
@@ -69,8 +70,13 @@ export const BulkUploadPreview = ({
               <th className='px-3 py-2 text-left font-medium'>
                 Jenis Kelamin *
               </th>
+              <th className='px-3 py-2 text-left font-medium'>
+                Jenjang Pengkaderan *
+              </th>
               <th className='px-3 py-2 text-left font-medium'>Tahun Masuk *</th>
               <th className='px-3 py-2 text-left font-medium'>No HP</th>
+              <th className='px-3 py-2 text-center font-medium'>Pemandu</th>
+              <th className='px-3 py-2 text-center font-medium'>Instruktur</th>
             </tr>
           </thead>
           <tbody>
@@ -124,6 +130,31 @@ export const BulkUploadPreview = ({
                   )}
                 </td>
                 <td className='px-3 py-1.5'>
+                  <Select
+                    value={String(row.data.status ?? 'ab1')}
+                    onValueChange={(v) => updateRow(row.index, 'status', v)}
+                  >
+                    <SelectTrigger
+                      className={cn(
+                        'h-7 text-xs',
+                        row.errors.status && 'border-destructive'
+                      )}
+                    >
+                      <SelectValue placeholder='Pilih' />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value='ab1'>AB 1</SelectItem>
+                      <SelectItem value='ab2'>AB 2</SelectItem>
+                      <SelectItem value='ab3'>AB 3</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {row.errors.status && (
+                    <p className='text-destructive mt-0.5 text-xs'>
+                      {row.errors.status}
+                    </p>
+                  )}
+                </td>
+                <td className='px-3 py-1.5'>
                   <Input
                     type='number'
                     min={1998}
@@ -156,6 +187,28 @@ export const BulkUploadPreview = ({
                     className='h-7 text-xs'
                     placeholder='Opsional'
                   />
+                </td>
+                <td className='px-3 py-1.5'>
+                  <div className='flex justify-center'>
+                    <Checkbox
+                      checked={row.data.isCertifiedMentor ?? false}
+                      onCheckedChange={(v) =>
+                        updateRow(row.index, 'isCertifiedMentor', !!v)
+                      }
+                      aria-label='Pemandu'
+                    />
+                  </div>
+                </td>
+                <td className='px-3 py-1.5'>
+                  <div className='flex justify-center'>
+                    <Checkbox
+                      checked={row.data.isCertifiedInstructor ?? false}
+                      onCheckedChange={(v) =>
+                        updateRow(row.index, 'isCertifiedInstructor', !!v)
+                      }
+                      aria-label='Instruktur'
+                    />
+                  </div>
                 </td>
               </tr>
             ))}

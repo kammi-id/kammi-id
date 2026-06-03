@@ -197,7 +197,7 @@ const genderConfig = {
 
 const KaderGenderDonut = ({ data }: { data: KaderBentoStatsData }) => (
   <KaderDonut
-    title='Gender'
+    title='Jenis Kelamin'
     config={genderConfig}
     slices={[
       {

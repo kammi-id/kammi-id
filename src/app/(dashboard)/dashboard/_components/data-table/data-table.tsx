@@ -221,9 +221,9 @@ export function DataTable<TData, TValue>({
                   onClick={() => updateURL({ [key]: null, [pageKey]: '1' })}
                 >
                   {key === 'status'
-                    ? 'Status'
+                    ? 'Jenjang'
                     : key === 'gender'
-                      ? 'Gender'
+                      ? 'Jenis Kelamin'
                       : key}
                   : {value}
                   <HugeiconsIcon icon={FilterIcon} className='size-3' />

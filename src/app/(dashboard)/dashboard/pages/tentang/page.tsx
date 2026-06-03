@@ -13,7 +13,6 @@ import { Separator } from '~/components/shadcn/ui/separator'
 import { HeroBgForm } from './_components/hero-bg-form'
 import { PrinsipForm } from './_components/prinsip-form'
 import { ParadigmaForm } from './_components/paradigma-form'
-import { KredoForm } from './_components/kredo-form'
 import { getCachedTentangSettings } from './_data/settings'
 
 const TentangSettingsPage = async () => {
@@ -52,12 +51,6 @@ const TentangSettingsPage = async () => {
         'Foto untuk masing-masing dari empat poin paradigma gerakan.',
       content: <ParadigmaForm initialData={tentang} />
     },
-    {
-      id: 'kredo',
-      title: 'Kredo Gerakan KAMMI',
-      description: 'Gambar latar di belakang teks Kredo KAMMI.',
-      content: <KredoForm initialData={tentang} />
-    }
   ]
 
   return (

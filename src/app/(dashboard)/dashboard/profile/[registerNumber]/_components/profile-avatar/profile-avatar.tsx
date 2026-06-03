@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useRef, useState, useEffect, useTransition } from 'react'
+import { toast } from 'sonner'
 import { cn } from '~/lib/shadcn/utils'
 import { uploadImageAction, getSignedUrlAction } from '~/lib/actions/storage'
 import { updateMemberPhotoAction } from '../action'
@@ -56,6 +57,7 @@ export const ProfileAvatar = ({
     const file = e.target.files?.[0]
     if (!file) return
 
+    const previousPreview = preview
     const localUrl = URL.createObjectURL(file)
     setPreview(localUrl)
 
@@ -75,8 +77,9 @@ export const ProfileAvatar = ({
         await updateMemberPhotoAction(memberId, uploadedPath)
         URL.revokeObjectURL(localUrl)
       } catch {
-        setPreview(photoPath ? null : null)
+        setPreview(previousPreview)
         URL.revokeObjectURL(localUrl)
+        toast.error('Gagal mengupload foto. Silakan coba lagi.')
       }
     })
   }

@@ -15,7 +15,7 @@ import { UnsavedChangesBanner } from '~/components/unsaved-changes-banner'
 
 const PARADIGMA_LABELS = [
   'KAMMI adalah gerakan dakwah tauhid',
-  'KAMMI adalah intelektual profetik',
+  'KAMMI adalah gerakan intelektual profetik',
   'KAMMI adalah gerakan sosial independen',
   'KAMMI adalah gerakan politik ekstraparlementer'
 ]
@@ -80,6 +80,7 @@ export const ParadigmaForm = ({ initialData }: Props) => {
                 value={images[i] ?? ''}
                 onChange={(url) => updateImage(i, url)}
                 folder='site-settings/tentang/paradigma'
+                variant='background'
               />
             </FieldContent>
           </Field>

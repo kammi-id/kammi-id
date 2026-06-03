@@ -6,13 +6,11 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { Add01Icon, PencilEdit01Icon, Tick01Icon, Cancel01Icon } from '@hugeicons/core-free-icons'
 import { Button } from '~/components/shadcn/ui/button'
 import { Input } from '~/components/shadcn/ui/input'
-import { Separator } from '~/components/shadcn/ui/separator'
 import { Field, FieldLabel, FieldError } from '~/components/shadcn/ui/field'
 import { Checkbox } from '~/components/shadcn/ui/checkbox'
 import {
   Select,
   SelectTrigger,
-  SelectValue,
   SelectContent,
   SelectItem
 } from '~/components/shadcn/ui/select'
@@ -24,6 +22,7 @@ import {
   SheetFooter
 } from '~/components/shadcn/ui/sheet'
 import { UniversityCombobox } from '../university-combobox'
+import { SectionDivider } from '../section-divider'
 import { saveAcademicAction, deleteAcademicAction } from './action'
 import { useProfileEdit } from '../profile-edit-context'
 import type { MemberAcademic } from '~/db/query/academic'
@@ -39,20 +38,6 @@ const degreeLabels: Record<string, string> = {
   s3: 'Doktor (S3)',
   profesi: 'Profesi / Spesialis'
 }
-
-const SectionDivider = ({ title, count }: { title: string; count?: number }) => (
-  <div className='mt-6 mb-1 first:mt-0'>
-    <div className='flex items-center gap-2'>
-      <h2 className='text-foreground/60 font-geist-mono text-[11px] font-medium tracking-widest uppercase'>
-        {title}
-      </h2>
-      {count !== undefined && count > 0 && (
-        <span className='font-geist-mono text-muted-foreground/60 text-xs'>({count})</span>
-      )}
-    </div>
-    <Separator className='mt-2' />
-  </div>
-)
 
 const yearDisplay = (yearStart: number, yearEnd: number | null) =>
   yearEnd ? `${yearStart}–${yearEnd}` : `${yearStart}–sekarang`
@@ -113,7 +98,9 @@ const AcademicSheetForm = ({ memberId, entry, onClose }: AcademicSheetFormProps)
         </FieldLabel>
         <Select value={selectedDegree} onValueChange={(value) => setSelectedDegree(value as string)}>
           <SelectTrigger>
-            <SelectValue placeholder='Pilih jenjang' />
+            <span className={selectedDegree ? '' : 'text-muted-foreground'}>
+              {selectedDegree ? degreeLabels[selectedDegree] : 'Pilih jenjang'}
+            </span>
           </SelectTrigger>
           <SelectContent>
             {Object.entries(degreeLabels).map(([value, label]) => (
@@ -247,7 +234,7 @@ const AcademicSheetForm = ({ memberId, entry, onClose }: AcademicSheetFormProps)
 }
 
 export const AcademicSection = () => {
-  const { member, academicHistory, canEdit } = useProfileEdit()
+  const { member, academicHistory, canEdit, isEditing } = useProfileEdit()
   const [open, setOpen] = useState(false)
   const [editingEntry, setEditingEntry] = useState<MemberAcademic | null>(null)
   const [sheetKey, setSheetKey] = useState(0)
@@ -270,7 +257,7 @@ export const AcademicSection = () => {
     <section>
       <div className='flex items-center justify-between'>
         <SectionDivider title='Riwayat Akademik' count={academicHistory.length} />
-        {canEdit && (
+        {canEdit && isEditing && (
           <Button variant='ghost' size='sm' type='button' onClick={handleAdd} className='mt-5'>
             <HugeiconsIcon icon={Add01Icon} className='mr-1 size-3.5' />
             Tambah
@@ -279,13 +266,24 @@ export const AcademicSection = () => {
       </div>
 
       {academicHistory.length === 0 ? (
-        <p className='text-muted-foreground py-4 text-sm'>Belum ada riwayat akademik.</p>
+        <div className='py-4'>
+          <p className='text-muted-foreground text-sm'>Belum ada riwayat akademik.</p>
+          {!canEdit && (
+            <p className='text-muted-foreground/60 mt-1 text-xs'>Data ini dikelola oleh pengurus yang berwenang.</p>
+          )}
+          {canEdit && !isEditing && (
+            <p className='text-muted-foreground/60 mt-1 text-xs'>Klik <span className='font-medium'>Edit Profil</span> untuk menambahkan.</p>
+          )}
+        </div>
       ) : (
-        <div
-          className='border-border overflow-x-auto rounded-lg border'
-          role='region'
-          aria-label='Riwayat akademik'
-        >
+        <div className='relative'>
+          {/* Scroll fade indicator */}
+          <div className='pointer-events-none absolute top-0 right-0 bottom-0 z-10 w-8 rounded-r-lg bg-gradient-to-l from-[oklch(0.967_0.001_286.375/0.8)] to-transparent' aria-hidden='true' />
+          <div
+            className='border-border overflow-x-auto rounded-lg border'
+            role='region'
+            aria-label='Riwayat akademik'
+          >
           <table className='w-full min-w-[520px] text-sm'>
             <thead>
               <tr className='border-border border-b'>
@@ -298,7 +296,7 @@ export const AcademicSection = () => {
                     {h}
                   </th>
                 ))}
-                {canEdit && <th scope='col' className='px-4 py-2.5' />}
+                {canEdit && isEditing && <th scope='col' className='px-4 py-2.5' />}
               </tr>
             </thead>
             <tbody className='divide-border/60 divide-y'>
@@ -319,7 +317,7 @@ export const AcademicSection = () => {
                       <HugeiconsIcon icon={Cancel01Icon} className='size-4 text-[var(--status-training-fail)] mx-auto' />
                     )}
                   </td>
-                  {canEdit && (
+                  {canEdit && isEditing && (
                     <td className='px-4 py-3 text-right'>
                       <Button
                         variant='ghost'
@@ -336,6 +334,7 @@ export const AcademicSection = () => {
               ))}
             </tbody>
           </table>
+          </div>
         </div>
       )}
 

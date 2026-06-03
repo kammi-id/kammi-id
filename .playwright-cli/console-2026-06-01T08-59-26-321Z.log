@@ -1,0 +1,368 @@
+[    1678ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[    2416ms] [LOG] [Fast Refresh] done in 843ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[    2522ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[    3196ms] [LOG] [Fast Refresh] done in 779ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[   12678ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[   15265ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[   24836ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[   25962ms] [LOG] [Fast Refresh] done in 1227ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[   26096ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[   27280ms] [LOG] [Fast Refresh] done in 1285ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[   27445ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[   27559ms] [LOG] [Fast Refresh] done in 215ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[   28700ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[   28734ms] [LOG] [Fast Refresh] done in 135ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[   30186ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[   30989ms] [LOG] [Fast Refresh] done in 904ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[   54108ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[   54364ms] [LOG] [Fast Refresh] done in 359ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[   60922ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[   61010ms] [LOG] [Fast Refresh] done in 189ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[   69500ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[   69782ms] [LOG] [Fast Refresh] done in 390ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[  410303ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[  411282ms] [LOG] [Fast Refresh] done in 1051ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[  423068ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[  423087ms] [LOG] [Fast Refresh] done in 123ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[  427197ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[  432199ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[  438745ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[  438937ms] [LOG] [Fast Refresh] done in 301ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[  439384ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[  439655ms] [LOG] [Fast Refresh] done in 374ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[  439878ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[  439944ms] [LOG] [Fast Refresh] done in 166ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[  451357ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[  451445ms] [LOG] [Fast Refresh] done in 189ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[  660916ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[  663472ms] [ERROR] ./src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-inline-edit-form/profile-inline-edit-form.tsx:18:1
+Export ProfileTrainingHistory doesn't exist in target module
+  16 | import { ProfileInfo } from '../profile-info'
+  17 | import { ProfileSidebar } from '../profile-sidebar'
+> 18 | import { ProfileTrainingHistory } from '../profile-training-history'
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  19 | import { AcademicSection } from '../academic-section'
+  20 | import { CareerSection } from '../career-section'
+  21 | import { OrganizationSection } from '../organization-section'
+
+The export ProfileTrainingHistory was not found in module [project]/src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-training-history/index.ts [app-client] (ecmascript).
+Did you mean to import RiwayatKeinstrukturanSection?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import trace:
+  Server Component:
+    ./src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-inline-edit-form/profile-inline-edit-form.tsx
+    ./src/app/(dashboard)/dashboard/profile/[registerNumber]/page.tsx @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:3766
+[  663473ms] [ERROR] ./src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-inline-edit-form/profile-inline-edit-form.tsx:18:1
+Export ProfileTrainingHistory doesn't exist in target module
+  16 | import { ProfileInfo } from '../profile-info'
+  17 | import { ProfileSidebar } from '../profile-sidebar'
+> 18 | import { ProfileTrainingHistory } from '../profile-training-history'
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  19 | import { AcademicSection } from '../academic-section'
+  20 | import { CareerSection } from '../career-section'
+  21 | import { OrganizationSection } from '../organization-section'
+
+The export ProfileTrainingHistory was not found in module [project]/src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-training-history/index.ts [app-ssr] (ecmascript).
+Did you mean to import RiwayatKeinstrukturanSection?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import trace:
+  Server Component:
+    ./src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-inline-edit-form/profile-inline-edit-form.tsx
+    ./src/app/(dashboard)/dashboard/profile/[registerNumber]/page.tsx @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:3766
+[  663681ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[  664900ms] [ERROR] ./src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-inline-edit-form/profile-inline-edit-form.tsx:18:1
+Export ProfileTrainingHistory doesn't exist in target module
+  16 | import { ProfileInfo } from '../profile-info'
+  17 | import { ProfileSidebar } from '../profile-sidebar'
+> 18 | import { ProfileTrainingHistory } from '../profile-training-history'
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  19 | import { AcademicSection } from '../academic-section'
+  20 | import { CareerSection } from '../career-section'
+  21 | import { OrganizationSection } from '../organization-section'
+
+The export ProfileTrainingHistory was not found in module [project]/src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-training-history/index.ts [app-client] (ecmascript).
+Did you mean to import RiwayatKeinstrukturanSection?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import trace:
+  Server Component:
+    ./src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-inline-edit-form/profile-inline-edit-form.tsx
+    ./src/app/(dashboard)/dashboard/profile/[registerNumber]/page.tsx @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:3766
+[  664900ms] [ERROR] ./src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-inline-edit-form/profile-inline-edit-form.tsx:18:1
+Export ProfileTrainingHistory doesn't exist in target module
+  16 | import { ProfileInfo } from '../profile-info'
+  17 | import { ProfileSidebar } from '../profile-sidebar'
+> 18 | import { ProfileTrainingHistory } from '../profile-training-history'
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  19 | import { AcademicSection } from '../academic-section'
+  20 | import { CareerSection } from '../career-section'
+  21 | import { OrganizationSection } from '../organization-section'
+
+The export ProfileTrainingHistory was not found in module [project]/src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-training-history/index.ts [app-ssr] (ecmascript).
+Did you mean to import RiwayatKeinstrukturanSection?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import trace:
+  Server Component:
+    ./src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-inline-edit-form/profile-inline-edit-form.tsx
+    ./src/app/(dashboard)/dashboard/profile/[registerNumber]/page.tsx @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:3766
+[  665001ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[  666201ms] [ERROR] ./src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-inline-edit-form/profile-inline-edit-form.tsx:18:1
+Export ProfileTrainingHistory doesn't exist in target module
+  16 | import { ProfileInfo } from '../profile-info'
+  17 | import { ProfileSidebar } from '../profile-sidebar'
+> 18 | import { ProfileTrainingHistory } from '../profile-training-history'
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  19 | import { AcademicSection } from '../academic-section'
+  20 | import { CareerSection } from '../career-section'
+  21 | import { OrganizationSection } from '../organization-section'
+
+The export ProfileTrainingHistory was not found in module [project]/src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-training-history/index.ts [app-client] (ecmascript).
+Did you mean to import RiwayatKeinstrukturanSection?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import trace:
+  Server Component:
+    ./src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-inline-edit-form/profile-inline-edit-form.tsx
+    ./src/app/(dashboard)/dashboard/profile/[registerNumber]/page.tsx @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:3766
+[  666201ms] [ERROR] ./src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-inline-edit-form/profile-inline-edit-form.tsx:18:1
+Export ProfileTrainingHistory doesn't exist in target module
+  16 | import { ProfileInfo } from '../profile-info'
+  17 | import { ProfileSidebar } from '../profile-sidebar'
+> 18 | import { ProfileTrainingHistory } from '../profile-training-history'
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  19 | import { AcademicSection } from '../academic-section'
+  20 | import { CareerSection } from '../career-section'
+  21 | import { OrganizationSection } from '../organization-section'
+
+The export ProfileTrainingHistory was not found in module [project]/src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-training-history/index.ts [app-ssr] (ecmascript).
+Did you mean to import RiwayatKeinstrukturanSection?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import trace:
+  Server Component:
+    ./src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-inline-edit-form/profile-inline-edit-form.tsx
+    ./src/app/(dashboard)/dashboard/profile/[registerNumber]/page.tsx @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:3766
+[  666664ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3000/dashboard/profile/13012026001?_rsc=1cfl9:0
+[  666832ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[  667040ms] [ERROR] ./src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-inline-edit-form/profile-inline-edit-form.tsx:18:1
+Export ProfileTrainingHistory doesn't exist in target module
+  16 | import { ProfileInfo } from '../profile-info'
+  17 | import { ProfileSidebar } from '../profile-sidebar'
+> 18 | import { ProfileTrainingHistory } from '../profile-training-history'
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  19 | import { AcademicSection } from '../academic-section'
+  20 | import { CareerSection } from '../career-section'
+  21 | import { OrganizationSection } from '../organization-section'
+
+The export ProfileTrainingHistory was not found in module [project]/src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-training-history/index.ts [app-client] (ecmascript).
+Did you mean to import RiwayatKeinstrukturanSection?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import trace:
+  Server Component:
+    ./src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-inline-edit-form/profile-inline-edit-form.tsx
+    ./src/app/(dashboard)/dashboard/profile/[registerNumber]/page.tsx @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:3766
+[  667040ms] [ERROR] ./src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-inline-edit-form/profile-inline-edit-form.tsx:18:1
+Export ProfileTrainingHistory doesn't exist in target module
+  16 | import { ProfileInfo } from '../profile-info'
+  17 | import { ProfileSidebar } from '../profile-sidebar'
+> 18 | import { ProfileTrainingHistory } from '../profile-training-history'
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  19 | import { AcademicSection } from '../academic-section'
+  20 | import { CareerSection } from '../career-section'
+  21 | import { OrganizationSection } from '../organization-section'
+
+The export ProfileTrainingHistory was not found in module [project]/src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-training-history/index.ts [app-ssr] (ecmascript).
+Did you mean to import RiwayatKeinstrukturanSection?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import trace:
+  Server Component:
+    ./src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-inline-edit-form/profile-inline-edit-form.tsx
+    ./src/app/(dashboard)/dashboard/profile/[registerNumber]/page.tsx @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:3766
+[  667197ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[  667510ms] [ERROR] ./src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-inline-edit-form/profile-inline-edit-form.tsx:18:1
+Export ProfileTrainingHistory doesn't exist in target module
+  16 | import { ProfileInfo } from '../profile-info'
+  17 | import { ProfileSidebar } from '../profile-sidebar'
+> 18 | import { ProfileTrainingHistory } from '../profile-training-history'
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  19 | import { AcademicSection } from '../academic-section'
+  20 | import { CareerSection } from '../career-section'
+  21 | import { OrganizationSection } from '../organization-section'
+
+The export ProfileTrainingHistory was not found in module [project]/src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-training-history/index.ts [app-client] (ecmascript).
+Did you mean to import RiwayatKeinstrukturanSection?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import trace:
+  Server Component:
+    ./src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-inline-edit-form/profile-inline-edit-form.tsx
+    ./src/app/(dashboard)/dashboard/profile/[registerNumber]/page.tsx @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:3766
+[  667510ms] [ERROR] ./src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-inline-edit-form/profile-inline-edit-form.tsx:18:1
+Export ProfileTrainingHistory doesn't exist in target module
+  16 | import { ProfileInfo } from '../profile-info'
+  17 | import { ProfileSidebar } from '../profile-sidebar'
+> 18 | import { ProfileTrainingHistory } from '../profile-training-history'
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  19 | import { AcademicSection } from '../academic-section'
+  20 | import { CareerSection } from '../career-section'
+  21 | import { OrganizationSection } from '../organization-section'
+
+The export ProfileTrainingHistory was not found in module [project]/src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-training-history/index.ts [app-ssr] (ecmascript).
+Did you mean to import RiwayatKeinstrukturanSection?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import trace:
+  Server Component:
+    ./src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-inline-edit-form/profile-inline-edit-form.tsx
+    ./src/app/(dashboard)/dashboard/profile/[registerNumber]/page.tsx @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:3766
+[  667612ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[  667786ms] [ERROR] ./src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-inline-edit-form/profile-inline-edit-form.tsx:18:1
+Export ProfileTrainingHistory doesn't exist in target module
+  16 | import { ProfileInfo } from '../profile-info'
+  17 | import { ProfileSidebar } from '../profile-sidebar'
+> 18 | import { ProfileTrainingHistory } from '../profile-training-history'
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  19 | import { AcademicSection } from '../academic-section'
+  20 | import { CareerSection } from '../career-section'
+  21 | import { OrganizationSection } from '../organization-section'
+
+The export ProfileTrainingHistory was not found in module [project]/src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-training-history/index.ts [app-client] (ecmascript).
+Did you mean to import RiwayatKeinstrukturanSection?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import trace:
+  Server Component:
+    ./src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-inline-edit-form/profile-inline-edit-form.tsx
+    ./src/app/(dashboard)/dashboard/profile/[registerNumber]/page.tsx @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:3766
+[  667786ms] [ERROR] ./src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-inline-edit-form/profile-inline-edit-form.tsx:18:1
+Export ProfileTrainingHistory doesn't exist in target module
+  16 | import { ProfileInfo } from '../profile-info'
+  17 | import { ProfileSidebar } from '../profile-sidebar'
+> 18 | import { ProfileTrainingHistory } from '../profile-training-history'
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  19 | import { AcademicSection } from '../academic-section'
+  20 | import { CareerSection } from '../career-section'
+  21 | import { OrganizationSection } from '../organization-section'
+
+The export ProfileTrainingHistory was not found in module [project]/src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-training-history/index.ts [app-ssr] (ecmascript).
+Did you mean to import RiwayatKeinstrukturanSection?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import trace:
+  Server Component:
+    ./src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-inline-edit-form/profile-inline-edit-form.tsx
+    ./src/app/(dashboard)/dashboard/profile/[registerNumber]/page.tsx @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:3766
+[  667786ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3000/dashboard/profile/13012026001?_rsc=1cfl9:0
+[  667918ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[  668144ms] [ERROR] ./src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-inline-edit-form/profile-inline-edit-form.tsx:18:1
+Export ProfileTrainingHistory doesn't exist in target module
+  16 | import { ProfileInfo } from '../profile-info'
+  17 | import { ProfileSidebar } from '../profile-sidebar'
+> 18 | import { ProfileTrainingHistory } from '../profile-training-history'
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  19 | import { AcademicSection } from '../academic-section'
+  20 | import { CareerSection } from '../career-section'
+  21 | import { OrganizationSection } from '../organization-section'
+
+The export ProfileTrainingHistory was not found in module [project]/src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-training-history/index.ts [app-client] (ecmascript).
+Did you mean to import RiwayatKeinstrukturanSection?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import trace:
+  Server Component:
+    ./src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-inline-edit-form/profile-inline-edit-form.tsx
+    ./src/app/(dashboard)/dashboard/profile/[registerNumber]/page.tsx @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:3766
+[  668145ms] [ERROR] ./src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-inline-edit-form/profile-inline-edit-form.tsx:18:1
+Export ProfileTrainingHistory doesn't exist in target module
+  16 | import { ProfileInfo } from '../profile-info'
+  17 | import { ProfileSidebar } from '../profile-sidebar'
+> 18 | import { ProfileTrainingHistory } from '../profile-training-history'
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  19 | import { AcademicSection } from '../academic-section'
+  20 | import { CareerSection } from '../career-section'
+  21 | import { OrganizationSection } from '../organization-section'
+
+The export ProfileTrainingHistory was not found in module [project]/src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-training-history/index.ts [app-ssr] (ecmascript).
+Did you mean to import RiwayatKeinstrukturanSection?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import trace:
+  Server Component:
+    ./src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-inline-edit-form/profile-inline-edit-form.tsx
+    ./src/app/(dashboard)/dashboard/profile/[registerNumber]/page.tsx @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:3766
+[  668354ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3000/dashboard/profile/13012026001:0
+[  681887ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3000/_next/static/chunks/node_modules_react-dom_0bruynb._.js:15305
+[  681995ms] Error: ./src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-inline-edit-form/profile-inline-edit-form.tsx:18:1
+Export ProfileTrainingHistory doesn't exist in target module
+  16 | import { ProfileInfo } from '../profile-info'
+  17 | import { ProfileSidebar } from '../profile-sidebar'
+> 18 | import { ProfileTrainingHistory } from '../profile-training-history'
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  19 | import { AcademicSection } from '../academic-section'
+  20 | import { CareerSection } from '../career-section'
+  21 | import { OrganizationSection } from '../organization-section'
+
+The export ProfileTrainingHistory was not found in module [project]/src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-training-history/index.ts [app-client] (ecmascript).
+Did you mean to import RiwayatKeinstrukturanSection?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import trace:
+  Server Component:
+    ./src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-inline-edit-form/profile-inline-edit-form.tsx
+    ./src/app/(dashboard)/dashboard/profile/[registerNumber]/page.tsx
+
+
+    at <unknown> (Error: ./src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-inline-edit-form/profile-inline-edit-form.tsx:18:1)
+    at getCompilationErrors (file:///Users/radenpioneer/projects/kammi-id/.claude/worktrees/great-franklin-fb3c14/node_modules/next/dist/server/dev/hot-reloader-turbopack.js:1186:63)
+    at getCompilationError (file:///Users/radenpioneer/projects/kammi-id/.claude/worktrees/great-franklin-fb3c14/node_modules/next/dist/server/lib/dev-bundler-service.js:44:55)
+    at getCompilationError (file:///Users/radenpioneer/projects/kammi-id/.claude/worktrees/great-franklin-fb3c14/node_modules/next/dist/server/dev/next-dev-server.js:719:42)
+    at findPageComponents (file:///Users/radenpioneer/projects/kammi-id/.claude/worktrees/great-franklin-fb3c14/node_modules/next/dist/server/dev/next-dev-server.js:689:43)
+    at renderErrorToResponseImpl (file:///Users/radenpioneer/projects/kammi-id/.claude/worktrees/great-franklin-fb3c14/node_modules/next/dist/server/base-server.js:1745:37)
+    at processTicksAndRejections
+[  682600ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0u_w_5s._.js:1226
+[  691244ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0u_w_5s._.js:1226
+[  691363ms] [LOG] [Fast Refresh] done in 220ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0u_w_5s._.js:1226
+[  691771ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0u_w_5s._.js:1226
+[  692247ms] [LOG] [Fast Refresh] done in 577ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0u_w_5s._.js:1226
+[  697863ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0u_w_5s._.js:1226
+[  698575ms] [LOG] [Fast Refresh] done in 365ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0u_w_5s._.js:1226
+[  699102ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0u_w_5s._.js:1226
+[  699292ms] [LOG] [Fast Refresh] done in 291ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0u_w_5s._.js:1226
+[  704225ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[  705381ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[  711911ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[  715365ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[  716687ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[  725140ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[  725431ms] [LOG] [Fast Refresh] done in 393ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[  725985ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[  726351ms] [LOG] [Fast Refresh] done in 476ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[  727064ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[  727442ms] [LOG] [Fast Refresh] done in 480ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[  729977ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[  730355ms] [LOG] [Fast Refresh] done in 479ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[ 1081331ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[ 1082869ms] [LOG] [Fast Refresh] done in 1573ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[ 1087992ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[ 1088566ms] [LOG] [Fast Refresh] done in 601ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[ 1098095ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[ 1098953ms] [LOG] [Fast Refresh] done in 926ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[ 1106721ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[ 1106755ms] [LOG] [Fast Refresh] done in 137ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[ 1110972ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[ 1113403ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[ 1122939ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[ 1123075ms] [LOG] [Fast Refresh] done in 237ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[ 1123361ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[ 1123507ms] [LOG] [Fast Refresh] done in 253ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[ 1123897ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[ 1124193ms] [LOG] [Fast Refresh] done in 397ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[ 1127584ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[ 1127647ms] [LOG] [Fast Refresh] done in 165ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[ 1128878ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925
+[ 1128953ms] [LOG] [Fast Refresh] done in 177ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0ifwd0~._.js:2925

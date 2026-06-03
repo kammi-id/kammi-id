@@ -2,16 +2,27 @@ import { cacheLife, cacheTag } from 'next/cache'
 import {
   readSiteSettings,
   SETTINGS_DEFAULTS,
-  type HeroSettings,
   type AboutSettings,
   type LeadershipSettings,
   type ActionsSettings,
   type NavSettings,
   type FooterSettings,
   type MetadataSettings,
-  type TentangSettings
+  type TentangSettings,
+  type HomeHeroItemsSettings,
+  type HomeExtraItemsSettings
 } from '~/db/query/site-settings'
 import { readOrganizationIdByType } from '~/db/query/organization'
+import { storage } from '~/lib/api/storage'
+
+// Resolve an S3 key to a signed URL (1-hour expiry).
+// Direct HTTP(S) URLs and empty strings are returned as-is.
+const resolveUrl = async (path: string): Promise<string> => {
+  if (!path) return ''
+  if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('/'))
+    return path
+  return storage.getSignedUrl(path)
+}
 
 // Cached PP org ID lookup — the PP org is stable, expires daily.
 const resolvePPOrgId = async (): Promise<string | null> => {
@@ -21,17 +32,43 @@ const resolvePPOrgId = async (): Promise<string | null> => {
   return readOrganizationIdByType('pp')
 }
 
-export const getHeroSettings = async (): Promise<HeroSettings> => {
-  'use cache'
-  cacheLife('days')
-  const orgId = await resolvePPOrgId()
-  cacheTag(
-    'site-settings',
-    orgId ? `site-settings-hero-${orgId}` : 'site-settings-hero'
-  )
-  if (!orgId) return SETTINGS_DEFAULTS.hero
-  return readSiteSettings<HeroSettings>('hero', SETTINGS_DEFAULTS.hero, orgId)
-}
+export const getHomeHeroItemsSettings =
+  async (): Promise<HomeHeroItemsSettings> => {
+    'use cache'
+    cacheLife('days')
+    const orgId = await resolvePPOrgId()
+    cacheTag(
+      'site-settings',
+      orgId
+        ? `site-settings-home-hero-items-${orgId}`
+        : 'site-settings-home-hero-items'
+    )
+    if (!orgId) return SETTINGS_DEFAULTS.homeHeroItems
+    return readSiteSettings<HomeHeroItemsSettings>(
+      'home-hero-items',
+      SETTINGS_DEFAULTS.homeHeroItems,
+      orgId
+    )
+  }
+
+export const getHomeExtraItemsSettings =
+  async (): Promise<HomeExtraItemsSettings> => {
+    'use cache'
+    cacheLife('days')
+    const orgId = await resolvePPOrgId()
+    cacheTag(
+      'site-settings',
+      orgId
+        ? `site-settings-home-extra-items-${orgId}`
+        : 'site-settings-home-extra-items'
+    )
+    if (!orgId) return SETTINGS_DEFAULTS.homeExtraItems
+    return readSiteSettings<HomeExtraItemsSettings>(
+      'home-extra-items',
+      SETTINGS_DEFAULTS.homeExtraItems,
+      orgId
+    )
+  }
 
 export const getAboutSettings = async (): Promise<AboutSettings> => {
   'use cache'
@@ -135,7 +172,8 @@ export const getMetadataSettings = async (): Promise<MetadataSettings> => {
 
 export const getTentangSettings = async (): Promise<TentangSettings> => {
   'use cache'
-  cacheLife('days')
+  // Signed URLs expire in 1 hour — cache for 45 min so we always serve fresh URLs.
+  cacheLife({ stale: 0, revalidate: 2700, expire: 3600 })
   const orgId = await resolvePPOrgId()
   cacheTag(
     'site-settings',
@@ -143,7 +181,7 @@ export const getTentangSettings = async (): Promise<TentangSettings> => {
   )
   if (!orgId) return SETTINGS_DEFAULTS.tentang
 
-  const [heroData, prinsipData, paradigmaData, kredoData] = await Promise.all([
+  const [heroData, prinsipData, paradigmaData] = await Promise.all([
     readSiteSettings<{ heroImageUrl: string }>(
       'tentang-hero',
       { heroImageUrl: SETTINGS_DEFAULTS.tentang.heroImageUrl },
@@ -158,18 +196,15 @@ export const getTentangSettings = async (): Promise<TentangSettings> => {
       'tentang-paradigma',
       { paradigmaImages: SETTINGS_DEFAULTS.tentang.paradigmaImages },
       orgId
-    ),
-    readSiteSettings<{ kredoImageUrl: string }>(
-      'tentang-kredo',
-      { kredoImageUrl: SETTINGS_DEFAULTS.tentang.kredoImageUrl },
-      orgId
     )
   ])
 
-  return {
-    heroImageUrl: heroData.heroImageUrl,
-    prinsipImages: prinsipData.prinsipImages,
-    paradigmaImages: paradigmaData.paradigmaImages,
-    kredoImageUrl: kredoData.kredoImageUrl
-  }
+  // Resolve S3 keys → signed URLs so TentangScene can use them directly as CSS urls.
+  const [heroImageUrl, prinsipImages, paradigmaImages] = await Promise.all([
+    resolveUrl(heroData.heroImageUrl),
+    Promise.all(prinsipData.prinsipImages.map(resolveUrl)) as Promise<TentangSettings['prinsipImages']>,
+    Promise.all(paradigmaData.paradigmaImages.map(resolveUrl)) as Promise<TentangSettings['paradigmaImages']>
+  ])
+
+  return { heroImageUrl, prinsipImages, paradigmaImages }
 }

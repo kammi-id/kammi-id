@@ -1,0 +1,545 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e5]:
+      - list [ref=e7]:
+        - listitem [ref=e8]:
+          - link "KAMMI.id KAMMI.id" [ref=e9] [cursor=pointer]:
+            - /url: /dashboard
+            - img "KAMMI.id" [ref=e10]
+            - generic [ref=e11]: KAMMI.id
+      - generic [ref=e12]:
+        - list [ref=e15]:
+          - listitem [ref=e16]:
+            - link "Dashboard" [ref=e17] [cursor=pointer]:
+              - /url: /dashboard
+              - img [ref=e18]
+              - generic [ref=e23]: Dashboard
+        - generic [ref=e24]:
+          - generic [ref=e25]: Pembinaan Kader
+          - list [ref=e27]:
+            - listitem [ref=e28]:
+              - link "Data Kader" [ref=e29] [cursor=pointer]:
+                - /url: /dashboard/kader
+                - img [ref=e30]
+                - generic [ref=e33]: Data Kader
+            - listitem [ref=e34]:
+              - link "Dauroh" [ref=e35] [cursor=pointer]:
+                - /url: /dashboard/trainings
+                - img [ref=e36]
+                - generic [ref=e40]: Dauroh
+            - listitem [ref=e41]:
+              - link "Perangkat Kaderisasi" [ref=e42] [cursor=pointer]:
+                - /url: /dashboard/perangkat
+                - img [ref=e43]
+                - generic [ref=e47]: Perangkat Kaderisasi
+            - listitem [ref=e48]:
+              - link "Data Alumni" [ref=e49] [cursor=pointer]:
+                - /url: /dashboard/alumni
+                - img [ref=e50]
+                - generic [ref=e54]: Data Alumni
+      - list [ref=e56]:
+        - listitem [ref=e57]:
+          - button "BP BPK PP KAMMI PP KAMMI" [ref=e58]:
+            - generic [ref=e60]: BP
+            - generic [ref=e61]:
+              - generic [ref=e62]: BPK PP KAMMI
+              - generic [ref=e63]: PP KAMMI
+            - img [ref=e64]
+    - main [ref=e68]:
+      - generic [ref=e70]:
+        - button "Toggle Sidebar" [ref=e71]:
+          - img
+          - generic [ref=e72]: Toggle Sidebar
+        - separator [ref=e73]
+        - generic [ref=e74]: Data Kader
+        - button "Lihat credential tersimpan" [ref=e76]:
+          - img
+      - generic [ref=e79]:
+        - generic [ref=e81]:
+          - img [ref=e83]
+          - generic [ref=e86]:
+            - heading "Data Kader se-Indonesia" [level=1] [ref=e87]
+            - paragraph [ref=e88]: Menampilkan statistik anggota dari seluruh wilayah dan daerah luar negeri.
+        - button "Import XLSX" [ref=e90]:
+          - img
+          - text: Import XLSX
+        - generic [ref=e91]:
+          - generic [ref=e93]:
+            - generic [ref=e94]:
+              - paragraph [ref=e95]: Jenjang
+              - generic [ref=e97]:
+                - generic:
+                  - generic: "2"
+              - generic [ref=e99]:
+                - generic [ref=e100]:
+                  - generic [ref=e103]: AB 1
+                  - generic [ref=e104]: "0"
+                - generic [ref=e105]:
+                  - generic [ref=e108]: AB 2
+                  - generic [ref=e109]: "0"
+                - generic [ref=e110]:
+                  - generic [ref=e113]: AB 3
+                  - generic [ref=e114]: "2"
+            - generic [ref=e115]:
+              - paragraph [ref=e116]: Komposisi Gender
+              - generic [ref=e118]:
+                - generic:
+                  - generic: "2"
+              - generic [ref=e120]:
+                - generic [ref=e121]:
+                  - generic [ref=e124]: Ikhwan
+                  - generic [ref=e125]: "1"
+                - generic [ref=e126]:
+                  - generic [ref=e129]: Akhwat
+                  - generic [ref=e130]: "1"
+            - generic [ref=e131]:
+              - paragraph [ref=e132]: Total Kader
+              - generic [ref=e134]: "2"
+          - region "Daftar Kader" [ref=e135]:
+            - heading "Daftar Kader" [level=2] [ref=e136]
+            - generic [ref=e138]:
+              - generic [ref=e141]:
+                - textbox "Cari nama kader..." [ref=e142]
+                - img [ref=e144]
+              - table [ref=e148]:
+                - rowgroup [ref=e149]:
+                  - row "Urutkan berdasarkan NIK Urutkan berdasarkan Nama Wilayah Daerah Komisariat Jenjang Jenis Kelamin Pemandu Instruktur No. HP Urutkan berdasarkan Tahun Masuk" [ref=e150]:
+                    - columnheader "Urutkan berdasarkan NIK" [ref=e151]:
+                      - button "Urutkan berdasarkan NIK" [ref=e153] [cursor=pointer]:
+                        - generic [ref=e154]: NIK
+                    - columnheader "Urutkan berdasarkan Nama" [ref=e155]:
+                      - button "Urutkan berdasarkan Nama" [ref=e157] [cursor=pointer]: Nama
+                    - columnheader "Wilayah" [ref=e158]:
+                      - generic [ref=e159]: Wilayah
+                    - columnheader "Daerah" [ref=e160]:
+                      - generic [ref=e161]: Daerah
+                    - columnheader "Komisariat" [ref=e162]:
+                      - generic [ref=e163]: Komisariat
+                    - columnheader "Jenjang" [ref=e164]:
+                      - button "Jenjang" [ref=e166]
+                    - columnheader "Jenis Kelamin" [ref=e167]:
+                      - button "Jenis Kelamin" [ref=e169]
+                    - columnheader "Pemandu" [ref=e170]:
+                      - button "Pemandu" [ref=e172]
+                    - columnheader "Instruktur" [ref=e173]:
+                      - button "Instruktur" [ref=e175]
+                    - columnheader "No. HP" [ref=e176]:
+                      - generic [ref=e177]: No. HP
+                    - columnheader "Urutkan berdasarkan Tahun Masuk" [ref=e178]:
+                      - button "Urutkan berdasarkan Tahun Masuk" [ref=e180] [cursor=pointer]: Tahun Masuk
+                - rowgroup [ref=e181]:
+                  - 'row "13012026001 MI Mita PW KAMMI D.I. Yogyakarta PD KAMMI Bantul - Filter jenjang: AB3 Filter jenis kelamin: akhwat — — 085211695606 WhatsApp 085211695606 2026" [ref=e182]':
+                    - cell "13012026001" [ref=e183]
+                    - cell "MI Mita" [ref=e184]:
+                      - generic [ref=e185]:
+                        - generic [ref=e187]: MI
+                        - link "Mita" [ref=e188] [cursor=pointer]:
+                          - /url: /dashboard/profile/13012026001
+                    - cell "PW KAMMI D.I. Yogyakarta" [ref=e189]:
+                      - link "PW KAMMI D.I. Yogyakarta" [ref=e190] [cursor=pointer]:
+                        - /url: /dashboard/kader/diy
+                    - cell "PD KAMMI Bantul" [ref=e191]:
+                      - link "PD KAMMI Bantul" [ref=e192] [cursor=pointer]:
+                        - /url: /dashboard/kader/bantul
+                    - cell "-" [ref=e193]
+                    - 'cell "Filter jenjang: AB3" [ref=e194]':
+                      - 'button "Filter jenjang: AB3" [ref=e195] [cursor=pointer]':
+                        - generic: AB3
+                    - 'cell "Filter jenis kelamin: akhwat" [ref=e196]':
+                      - 'button "Filter jenis kelamin: akhwat" [ref=e197] [cursor=pointer]':
+                        - generic: akhwat
+                    - cell "—" [ref=e198]:
+                      - generic [ref=e199]: —
+                    - cell "—" [ref=e200]:
+                      - generic [ref=e201]: —
+                    - cell "085211695606 WhatsApp 085211695606" [ref=e202]:
+                      - generic [ref=e203]:
+                        - link "085211695606" [ref=e204] [cursor=pointer]:
+                          - /url: tel:085211695606
+                        - link "WhatsApp 085211695606" [ref=e205] [cursor=pointer]:
+                          - /url: https://wa.me/6285211695606
+                          - img [ref=e206]
+                    - cell "2026" [ref=e209]:
+                      - generic [ref=e210]: "2026"
+                  - 'row "20012015001 MA Muhammad Alfiansyah PW KAMMI Kalimantan Selatan PD KAMMI Banjarmasin - Filter jenjang: AB3 Filter jenis kelamin: ikhwan — — 082255964107 WhatsApp 082255964107 2015" [ref=e211]':
+                    - cell "20012015001" [ref=e212]
+                    - cell "MA Muhammad Alfiansyah" [ref=e213]:
+                      - generic [ref=e214]:
+                        - generic [ref=e216]: MA
+                        - link "Muhammad Alfiansyah" [ref=e217] [cursor=pointer]:
+                          - /url: /dashboard/profile/20012015001
+                    - cell "PW KAMMI Kalimantan Selatan" [ref=e218]:
+                      - link "PW KAMMI Kalimantan Selatan" [ref=e219] [cursor=pointer]:
+                        - /url: /dashboard/kader/kalsel
+                    - cell "PD KAMMI Banjarmasin" [ref=e220]:
+                      - link "PD KAMMI Banjarmasin" [ref=e221] [cursor=pointer]:
+                        - /url: /dashboard/kader/banjarmasin
+                    - cell "-" [ref=e222]
+                    - 'cell "Filter jenjang: AB3" [ref=e223]':
+                      - 'button "Filter jenjang: AB3" [ref=e224] [cursor=pointer]':
+                        - generic: AB3
+                    - 'cell "Filter jenis kelamin: ikhwan" [ref=e225]':
+                      - 'button "Filter jenis kelamin: ikhwan" [ref=e226] [cursor=pointer]':
+                        - generic: ikhwan
+                    - cell "—" [ref=e227]:
+                      - generic [ref=e228]: —
+                    - cell "—" [ref=e229]:
+                      - generic [ref=e230]: —
+                    - cell "082255964107 WhatsApp 082255964107" [ref=e231]:
+                      - generic [ref=e232]:
+                        - link "082255964107" [ref=e233] [cursor=pointer]:
+                          - /url: tel:082255964107
+                        - link "WhatsApp 082255964107" [ref=e234] [cursor=pointer]:
+                          - /url: https://wa.me/6282255964107
+                          - img [ref=e235]
+                    - cell "2015" [ref=e238]:
+                      - generic [ref=e239]: "2015"
+                  - row "Tambah Data Kader" [ref=e240]:
+                    - cell "Tambah Data Kader" [ref=e241]:
+                      - button "Tambah Data Kader" [ref=e242]:
+                        - img
+                        - text: Tambah Data Kader
+              - generic [ref=e243]:
+                - generic [ref=e244]:
+                  - text: 0 dari 2 baris terpilih.
+                  - generic [ref=e245]: (Menampilkan 1-2 data)
+                - generic [ref=e246]:
+                  - link "Sebelumnya" [disabled]:
+                    - /url: /dashboard/kader
+                  - generic [ref=e247]: Halaman 1 dari 1
+                  - link "Berikutnya" [disabled]:
+                    - /url: /dashboard/kader?mpage=2
+          - region "Ringkasan per Wilayah" [ref=e248]:
+            - heading "Ringkasan per Wilayah" [level=2] [ref=e249]
+            - generic [ref=e250]:
+              - generic [ref=e251]:
+                - group [ref=e252]:
+                  - group [ref=e253]:
+                    - img [ref=e254]
+                  - textbox "Cari nama organisasi..." [ref=e257]
+                - generic [ref=e258]:
+                  - button "Semua" [ref=e259]
+                  - button "Wilayah" [ref=e260]
+                  - button "Luar Negeri" [ref=e261]
+              - generic [ref=e262]: Menampilkan 12 dari 40 organisasi
+              - generic [ref=e263]:
+                - generic [ref=e265]:
+                  - generic [ref=e267]: Wilayah
+                  - link "PW KAMMI Aceh" [ref=e269] [cursor=pointer]:
+                    - /url: /dashboard/kader/aceh
+                    - generic [ref=e270]: PW KAMMI Aceh
+                    - img [ref=e271]
+                  - generic [ref=e273]:
+                    - generic [ref=e274]:
+                      - generic [ref=e275]: Ikhwan
+                      - generic [ref=e276]: "0"
+                    - generic [ref=e277]:
+                      - generic [ref=e278]: Akhwat
+                      - generic [ref=e279]: "0"
+                    - generic [ref=e280]:
+                      - generic [ref=e281]: Total
+                      - generic [ref=e282]: "0"
+                  - generic [ref=e283]:
+                    - generic [ref=e284]:
+                      - generic [ref=e285]: AB 1
+                      - generic [ref=e286]: "0"
+                    - generic [ref=e287]:
+                      - generic [ref=e288]: AB 2
+                      - generic [ref=e289]: "0"
+                    - generic [ref=e290]:
+                      - generic [ref=e291]: AB 3
+                      - generic [ref=e292]: "0"
+                - generic [ref=e294]:
+                  - generic [ref=e296]: Wilayah
+                  - link "PW KAMMI Sumatera Utara" [ref=e298] [cursor=pointer]:
+                    - /url: /dashboard/kader/sumut
+                    - generic [ref=e299]: PW KAMMI Sumatera Utara
+                    - img [ref=e300]
+                  - generic [ref=e302]:
+                    - generic [ref=e303]:
+                      - generic [ref=e304]: Ikhwan
+                      - generic [ref=e305]: "0"
+                    - generic [ref=e306]:
+                      - generic [ref=e307]: Akhwat
+                      - generic [ref=e308]: "0"
+                    - generic [ref=e309]:
+                      - generic [ref=e310]: Total
+                      - generic [ref=e311]: "0"
+                  - generic [ref=e312]:
+                    - generic [ref=e313]:
+                      - generic [ref=e314]: AB 1
+                      - generic [ref=e315]: "0"
+                    - generic [ref=e316]:
+                      - generic [ref=e317]: AB 2
+                      - generic [ref=e318]: "0"
+                    - generic [ref=e319]:
+                      - generic [ref=e320]: AB 3
+                      - generic [ref=e321]: "0"
+                - generic [ref=e323]:
+                  - generic [ref=e325]: Wilayah
+                  - link "PW KAMMI Sumatera Barat" [ref=e327] [cursor=pointer]:
+                    - /url: /dashboard/kader/sumbar
+                    - generic [ref=e328]: PW KAMMI Sumatera Barat
+                    - img [ref=e329]
+                  - generic [ref=e331]:
+                    - generic [ref=e332]:
+                      - generic [ref=e333]: Ikhwan
+                      - generic [ref=e334]: "0"
+                    - generic [ref=e335]:
+                      - generic [ref=e336]: Akhwat
+                      - generic [ref=e337]: "0"
+                    - generic [ref=e338]:
+                      - generic [ref=e339]: Total
+                      - generic [ref=e340]: "0"
+                  - generic [ref=e341]:
+                    - generic [ref=e342]:
+                      - generic [ref=e343]: AB 1
+                      - generic [ref=e344]: "0"
+                    - generic [ref=e345]:
+                      - generic [ref=e346]: AB 2
+                      - generic [ref=e347]: "0"
+                    - generic [ref=e348]:
+                      - generic [ref=e349]: AB 3
+                      - generic [ref=e350]: "0"
+                - generic [ref=e352]:
+                  - generic [ref=e354]: Wilayah
+                  - link "PW KAMMI Riau" [ref=e356] [cursor=pointer]:
+                    - /url: /dashboard/kader/riau
+                    - generic [ref=e357]: PW KAMMI Riau
+                    - img [ref=e358]
+                  - generic [ref=e360]:
+                    - generic [ref=e361]:
+                      - generic [ref=e362]: Ikhwan
+                      - generic [ref=e363]: "0"
+                    - generic [ref=e364]:
+                      - generic [ref=e365]: Akhwat
+                      - generic [ref=e366]: "0"
+                    - generic [ref=e367]:
+                      - generic [ref=e368]: Total
+                      - generic [ref=e369]: "0"
+                  - generic [ref=e370]:
+                    - generic [ref=e371]:
+                      - generic [ref=e372]: AB 1
+                      - generic [ref=e373]: "0"
+                    - generic [ref=e374]:
+                      - generic [ref=e375]: AB 2
+                      - generic [ref=e376]: "0"
+                    - generic [ref=e377]:
+                      - generic [ref=e378]: AB 3
+                      - generic [ref=e379]: "0"
+                - generic [ref=e381]:
+                  - generic [ref=e383]: Wilayah
+                  - link "PW KAMMI Kepulauan Riau" [ref=e385] [cursor=pointer]:
+                    - /url: /dashboard/kader/kepri
+                    - generic [ref=e386]: PW KAMMI Kepulauan Riau
+                    - img [ref=e387]
+                  - generic [ref=e389]:
+                    - generic [ref=e390]:
+                      - generic [ref=e391]: Ikhwan
+                      - generic [ref=e392]: "0"
+                    - generic [ref=e393]:
+                      - generic [ref=e394]: Akhwat
+                      - generic [ref=e395]: "0"
+                    - generic [ref=e396]:
+                      - generic [ref=e397]: Total
+                      - generic [ref=e398]: "0"
+                  - generic [ref=e399]:
+                    - generic [ref=e400]:
+                      - generic [ref=e401]: AB 1
+                      - generic [ref=e402]: "0"
+                    - generic [ref=e403]:
+                      - generic [ref=e404]: AB 2
+                      - generic [ref=e405]: "0"
+                    - generic [ref=e406]:
+                      - generic [ref=e407]: AB 3
+                      - generic [ref=e408]: "0"
+                - generic [ref=e410]:
+                  - generic [ref=e412]: Wilayah
+                  - link "PW KAMMI Sumatera Selatan" [ref=e414] [cursor=pointer]:
+                    - /url: /dashboard/kader/sumsel
+                    - generic [ref=e415]: PW KAMMI Sumatera Selatan
+                    - img [ref=e416]
+                  - generic [ref=e418]:
+                    - generic [ref=e419]:
+                      - generic [ref=e420]: Ikhwan
+                      - generic [ref=e421]: "0"
+                    - generic [ref=e422]:
+                      - generic [ref=e423]: Akhwat
+                      - generic [ref=e424]: "0"
+                    - generic [ref=e425]:
+                      - generic [ref=e426]: Total
+                      - generic [ref=e427]: "0"
+                  - generic [ref=e428]:
+                    - generic [ref=e429]:
+                      - generic [ref=e430]: AB 1
+                      - generic [ref=e431]: "0"
+                    - generic [ref=e432]:
+                      - generic [ref=e433]: AB 2
+                      - generic [ref=e434]: "0"
+                    - generic [ref=e435]:
+                      - generic [ref=e436]: AB 3
+                      - generic [ref=e437]: "0"
+                - generic [ref=e439]:
+                  - generic [ref=e441]: Wilayah
+                  - link "PW KAMMI Bengkulu" [ref=e443] [cursor=pointer]:
+                    - /url: /dashboard/kader/bengkulu
+                    - generic [ref=e444]: PW KAMMI Bengkulu
+                    - img [ref=e445]
+                  - generic [ref=e447]:
+                    - generic [ref=e448]:
+                      - generic [ref=e449]: Ikhwan
+                      - generic [ref=e450]: "0"
+                    - generic [ref=e451]:
+                      - generic [ref=e452]: Akhwat
+                      - generic [ref=e453]: "0"
+                    - generic [ref=e454]:
+                      - generic [ref=e455]: Total
+                      - generic [ref=e456]: "0"
+                  - generic [ref=e457]:
+                    - generic [ref=e458]:
+                      - generic [ref=e459]: AB 1
+                      - generic [ref=e460]: "0"
+                    - generic [ref=e461]:
+                      - generic [ref=e462]: AB 2
+                      - generic [ref=e463]: "0"
+                    - generic [ref=e464]:
+                      - generic [ref=e465]: AB 3
+                      - generic [ref=e466]: "0"
+                - generic [ref=e468]:
+                  - generic [ref=e470]: Wilayah
+                  - link "PW KAMMI Lampung" [ref=e472] [cursor=pointer]:
+                    - /url: /dashboard/kader/lampung
+                    - generic [ref=e473]: PW KAMMI Lampung
+                    - img [ref=e474]
+                  - generic [ref=e476]:
+                    - generic [ref=e477]:
+                      - generic [ref=e478]: Ikhwan
+                      - generic [ref=e479]: "0"
+                    - generic [ref=e480]:
+                      - generic [ref=e481]: Akhwat
+                      - generic [ref=e482]: "0"
+                    - generic [ref=e483]:
+                      - generic [ref=e484]: Total
+                      - generic [ref=e485]: "0"
+                  - generic [ref=e486]:
+                    - generic [ref=e487]:
+                      - generic [ref=e488]: AB 1
+                      - generic [ref=e489]: "0"
+                    - generic [ref=e490]:
+                      - generic [ref=e491]: AB 2
+                      - generic [ref=e492]: "0"
+                    - generic [ref=e493]:
+                      - generic [ref=e494]: AB 3
+                      - generic [ref=e495]: "0"
+                - generic [ref=e497]:
+                  - generic [ref=e499]: Wilayah
+                  - link "PW KAMMI Banten" [ref=e501] [cursor=pointer]:
+                    - /url: /dashboard/kader/banten
+                    - generic [ref=e502]: PW KAMMI Banten
+                    - img [ref=e503]
+                  - generic [ref=e505]:
+                    - generic [ref=e506]:
+                      - generic [ref=e507]: Ikhwan
+                      - generic [ref=e508]: "0"
+                    - generic [ref=e509]:
+                      - generic [ref=e510]: Akhwat
+                      - generic [ref=e511]: "0"
+                    - generic [ref=e512]:
+                      - generic [ref=e513]: Total
+                      - generic [ref=e514]: "0"
+                  - generic [ref=e515]:
+                    - generic [ref=e516]:
+                      - generic [ref=e517]: AB 1
+                      - generic [ref=e518]: "0"
+                    - generic [ref=e519]:
+                      - generic [ref=e520]: AB 2
+                      - generic [ref=e521]: "0"
+                    - generic [ref=e522]:
+                      - generic [ref=e523]: AB 3
+                      - generic [ref=e524]: "0"
+                - generic [ref=e526]:
+                  - generic [ref=e528]: Wilayah
+                  - link "PW KAMMI DKI Jakarta" [ref=e530] [cursor=pointer]:
+                    - /url: /dashboard/kader/dki-jakarta
+                    - generic [ref=e531]: PW KAMMI DKI Jakarta
+                    - img [ref=e532]
+                  - generic [ref=e534]:
+                    - generic [ref=e535]:
+                      - generic [ref=e536]: Ikhwan
+                      - generic [ref=e537]: "0"
+                    - generic [ref=e538]:
+                      - generic [ref=e539]: Akhwat
+                      - generic [ref=e540]: "0"
+                    - generic [ref=e541]:
+                      - generic [ref=e542]: Total
+                      - generic [ref=e543]: "0"
+                  - generic [ref=e544]:
+                    - generic [ref=e545]:
+                      - generic [ref=e546]: AB 1
+                      - generic [ref=e547]: "0"
+                    - generic [ref=e548]:
+                      - generic [ref=e549]: AB 2
+                      - generic [ref=e550]: "0"
+                    - generic [ref=e551]:
+                      - generic [ref=e552]: AB 3
+                      - generic [ref=e553]: "0"
+                - generic [ref=e555]:
+                  - generic [ref=e557]: Wilayah
+                  - link "PW KAMMI Jawa Barat" [ref=e559] [cursor=pointer]:
+                    - /url: /dashboard/kader/jabar
+                    - generic [ref=e560]: PW KAMMI Jawa Barat
+                    - img [ref=e561]
+                  - generic [ref=e563]:
+                    - generic [ref=e564]:
+                      - generic [ref=e565]: Ikhwan
+                      - generic [ref=e566]: "0"
+                    - generic [ref=e567]:
+                      - generic [ref=e568]: Akhwat
+                      - generic [ref=e569]: "0"
+                    - generic [ref=e570]:
+                      - generic [ref=e571]: Total
+                      - generic [ref=e572]: "0"
+                  - generic [ref=e573]:
+                    - generic [ref=e574]:
+                      - generic [ref=e575]: AB 1
+                      - generic [ref=e576]: "0"
+                    - generic [ref=e577]:
+                      - generic [ref=e578]: AB 2
+                      - generic [ref=e579]: "0"
+                    - generic [ref=e580]:
+                      - generic [ref=e581]: AB 3
+                      - generic [ref=e582]: "0"
+                - generic [ref=e584]:
+                  - generic [ref=e586]: Wilayah
+                  - link "PW KAMMI Jawa Tengah" [ref=e588] [cursor=pointer]:
+                    - /url: /dashboard/kader/jateng
+                    - generic [ref=e589]: PW KAMMI Jawa Tengah
+                    - img [ref=e590]
+                  - generic [ref=e592]:
+                    - generic [ref=e593]:
+                      - generic [ref=e594]: Ikhwan
+                      - generic [ref=e595]: "0"
+                    - generic [ref=e596]:
+                      - generic [ref=e597]: Akhwat
+                      - generic [ref=e598]: "0"
+                    - generic [ref=e599]:
+                      - generic [ref=e600]: Total
+                      - generic [ref=e601]: "0"
+                  - generic [ref=e602]:
+                    - generic [ref=e603]:
+                      - generic [ref=e604]: AB 1
+                      - generic [ref=e605]: "0"
+                    - generic [ref=e606]:
+                      - generic [ref=e607]: AB 2
+                      - generic [ref=e608]: "0"
+                    - generic [ref=e609]:
+                      - generic [ref=e610]: AB 3
+                      - generic [ref=e611]: "0"
+              - generic [ref=e612]:
+                - button "Sebelumnya" [disabled]
+                - generic [ref=e613]: Halaman 1 dari 4
+                - button "Selanjutnya" [ref=e614]
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=e620] [cursor=pointer]:
+    - img [ref=e621]
+  - alert [ref=e624]
