@@ -53,6 +53,56 @@ Each component folder may contain the following supporting files:
 - **A11y:** All components must follow Web Interface Guidelines (semantic HTML, aria-labels, keyboard navigation).
 - **Performance:** Use `useOptimistic` and `useTransition` for seamless data mutations.
 
+# Mandatory Quality Gates
+
+## Pre-Commit Checks (required before every commit)
+
+Run all of the following before committing. All must pass with zero errors:
+
+```bash
+bun run format        # auto-fix formatting
+bun run lint:fix      # auto-fix linting
+bun run check:types   # must have zero TypeScript errors
+bun test              # must have zero test failures
+```
+
+Do NOT rely on CI to fix formatting or linting. Run these locally first. CI auto-fixes are a safety net only.
+
+## Pre-Push Checks (required before every push)
+
+```bash
+bun run test:docker   # Docker image must build successfully
+bun run test:ct       # Component tests must pass
+```
+
+E2E tests (`bun run test:e2e`) do not need to run locally — they run automatically in CI.
+
+## Pre-Session-End Checklist
+
+Before declaring any task complete, verify ALL of the following:
+
+- [ ] All unit and integration tests pass: `bun test`
+- [ ] TypeScript is clean: `bun run check:types`
+- [ ] No ESLint errors: `bun run check:lint`
+- [ ] Docker build succeeds: `bun run test:docker`
+- [ ] No new regressions in Next.js DevTools: `get_errors`
+
+## CI Behavior (reference)
+
+CI runs automatically on every push and PR:
+
+1. Auto-fixes formatting (`bun run format`) and linting (`bun run lint:fix`)
+2. If fixes were made, commits them back to the branch with `[skip ci]`
+3. Checks types, runs unit tests, integration tests, component tests, E2E tests — in that order
+4. **Container build only runs if ALL tests pass** (`needs: [test]`)
+5. Smoke test runs after container build via `GET /api/health` with `X-CI-Token` header
+
+Format and lint checks always run **before** tests in CI. This order must not change.
+
+## Healthcheck Endpoint
+
+`GET /api/health` returns `200 OK` (plain text) only when the `X-CI-Token` request header matches the `CI_HEALTH_TOKEN` environment variable. Returns `404` for all other requests — it is indistinguishable from a non-existent route to browsers. Used by CI smoke test only.
+
 ## Organization Exceptions
 
 The following are exempt from the Atomic Structure and Colocation rules:
