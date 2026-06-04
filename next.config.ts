@@ -19,6 +19,8 @@ const allowedImageHostnames = [
 ]
 
 const nextConfig: NextConfig = {
+  poweredByHeader: false,
+  reactStrictMode: true,
   output: 'standalone',
   cacheComponents: true,
   reactCompiler: true,
