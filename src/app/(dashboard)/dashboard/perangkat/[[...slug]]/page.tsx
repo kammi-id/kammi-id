@@ -88,8 +88,8 @@ function SpecialistsWrapper({
     <div className='space-y-10 px-4 py-6 md:px-6 md:py-8 lg:px-8'>
       <MembersPageHeader
         slug={params.slug}
-        pageTitle='Perangkat Kaderisasi'
-        subTitle='Manajemen perangkat kaderisasi untuk membantu rekrutmen dan pengembangan kader'
+        pageTitle='Perangkat Pengkaderan'
+        subTitle='Manajemen perangkat pengkaderan untuk membantu rekrutmen dan pengembangan kader'
         typePath='perangkat'
       />
 

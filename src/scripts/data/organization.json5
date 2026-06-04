@@ -73,6 +73,20 @@
     parent_code: 'PW1'
   },
   {
+    name: 'PK KAMMI Malik As-Shalih',
+    slug: 'malik-as-shalih',
+    type: 'pk',
+    code: '1.PD-3.MALIK-AS-SHALIH',
+    parent_code: '1.PD-3'
+  },
+  {
+    name: 'PK KAMMI Malik Az-Zahir',
+    slug: 'malik-az-zahir',
+    type: 'pk',
+    code: '1.PD-3.MALIK-AZ-ZAHIR',
+    parent_code: '1.PD-3'
+  },
+  {
     name: 'PD KAMMI Aceh Tenggara',
     slug: 'aceh-tenggara',
     type: 'pd',
@@ -1093,6 +1107,41 @@
     parent_code: 'PW8'
   },
   {
+    name: 'PK KAMMI Raden Intan',
+    slug: 'raden-intan',
+    type: 'pk',
+    code: '8.PD-2.RADEN-INTAN',
+    parent_code: '8.PD-2'
+  },
+  {
+    name: 'PK KAMMI Raden Imba',
+    slug: 'raden-imba',
+    type: 'pk',
+    code: '8.PD-2.RADEN-IMBA',
+    parent_code: '8.PD-2'
+  },
+  {
+    name: 'PK KAMMI UNILA',
+    slug: 'unila',
+    type: 'pk',
+    code: '8.PD-2.UNILA',
+    parent_code: '8.PD-2'
+  },
+  {
+    name: 'PK KAMMI Nusantara Lampung',
+    slug: 'nusantara-lampung',
+    type: 'pk',
+    code: '8.PD-2.NUSANTARA',
+    parent_code: '8.PD-2'
+  },
+  {
+    name: 'PK KAMMI Ruwa Jurai',
+    slug: 'ruwa-jurai',
+    type: 'pk',
+    code: '8.PD-2.RUWA-JURAI',
+    parent_code: '8.PD-2'
+  },
+  {
     name: 'PD KAMMI Pringsewu',
     slug: 'pringsewu',
     type: 'pd',
@@ -1735,6 +1784,13 @@
     code: '11.PD-18',
     parent_code: 'PW11'
   },
+  {
+    name: 'PK KAMMI Tambun',
+    slug: 'tambun',
+    type: 'pk',
+    code: '11.PD-18.TAMBUN',
+    parent_code: '11.PD-18'
+  },
 
   // PW12: Jawa Tengah
   {
@@ -1836,6 +1892,20 @@
     parent_code: 'PW12'
   },
   {
+    name: 'PK KAMMI Shoyub UNS',
+    slug: 'shoyub-uns',
+    type: 'pk',
+    code: '12.PD-2.SHOYUB',
+    parent_code: '12.PD-2'
+  },
+  {
+    name: 'PK KAMMI Al Aqsho',
+    slug: 'al-aqsho',
+    type: 'pk',
+    code: '12.PD-2.AL-AQSHO',
+    parent_code: '12.PD-2'
+  },
+  {
     name: 'PD KAMMI Purwokerto',
     slug: 'purwokerto',
     type: 'pd',
@@ -1843,11 +1913,39 @@
     parent_code: 'PW12'
   },
   {
+    name: 'PK KAMMI Soedirman',
+    slug: 'soedirman',
+    type: 'pk',
+    code: '12.PD-3.SOEDIRMAN',
+    parent_code: '12.PD-3'
+  },
+  {
+    name: 'PK KAMMI Thoriq Bin Ziyad',
+    slug: 'thoriq-bin-ziyad',
+    type: 'pk',
+    code: '12.PD-3.THORIQ-BIN-ZIYAD',
+    parent_code: '12.PD-3'
+  },
+  {
     name: 'PD KAMMI Magelang',
     slug: 'magelang',
     type: 'pd',
     code: '12.PD-4',
     parent_code: 'PW12'
+  },
+  {
+    name: 'PK KAMMI UNTIDAR',
+    slug: 'untidar',
+    type: 'pk',
+    code: '12.PD-4.UNTIDAR',
+    parent_code: '12.PD-4'
+  },
+  {
+    name: 'PK KAMMI STIT Magelang',
+    slug: 'stit-magelang',
+    type: 'pk',
+    code: '12.PD-4.STIT',
+    parent_code: '12.PD-4'
   },
   {
     name: 'PD KAMMI Pekalongan (P)',
@@ -1869,6 +1967,20 @@
     type: 'pd',
     code: '12.PD-7',
     parent_code: 'PW12'
+  },
+  {
+    name: 'PK KAMMI Sudirman Salatiga',
+    slug: 'sudirman-salatiga',
+    type: 'pk',
+    code: '12.PD-7.SUDIRMAN',
+    parent_code: '12.PD-7'
+  },
+  {
+    name: 'PK KAMMI Diponegoro Salatiga',
+    slug: 'diponegoro-salatiga',
+    type: 'pk',
+    code: '12.PD-7.DIPONEGORO',
+    parent_code: '12.PD-7'
   },
 
   // PW13: D.I. Yogyakarta
@@ -2868,6 +2980,27 @@
     parent_code: 'PW24'
   },
   {
+    name: 'PK KAMMI Badiuzzaman',
+    slug: 'badiuzzaman',
+    type: 'pk',
+    code: '24.PD-2.BADIUZZAMAN',
+    parent_code: '24.PD-2'
+  },
+  {
+    name: 'PK KAMMI Basis',
+    slug: 'basis-minahasa',
+    type: 'pk',
+    code: '24.PD-2.BASIS',
+    parent_code: '24.PD-2'
+  },
+  {
+    name: 'PK KAMMI Eksakta',
+    slug: 'eksakta-minahasa',
+    type: 'pk',
+    code: '24.PD-2.EKSAKTA',
+    parent_code: '24.PD-2'
+  },
+  {
     name: 'PD KAMMI Bitung',
     slug: 'bitung',
     type: 'pd',
@@ -3249,11 +3382,46 @@
     parent_code: 'PW29'
   },
   {
+    name: 'PK KAMMI IAIN Kendari',
+    slug: 'iain-kendari',
+    type: 'pk',
+    code: '29.PD-1.IAIN-KENDARI',
+    parent_code: '29.PD-1'
+  },
+  {
+    name: 'PK KAMMI UHO',
+    slug: 'uho',
+    type: 'pk',
+    code: '29.PD-1.UHO',
+    parent_code: '29.PD-1'
+  },
+  {
     name: 'PD KAMMI Kep. Buton',
     slug: 'kep-buton',
     type: 'pd',
     code: '29.PD-2',
     parent_code: 'PW29'
+  },
+  {
+    name: 'PK KAMMI Baubau',
+    slug: 'baubau-buton',
+    type: 'pk',
+    code: '29.PD-2.BAUBAU',
+    parent_code: '29.PD-2'
+  },
+  {
+    name: 'PK KAMMI Muna',
+    slug: 'muna',
+    type: 'pk',
+    code: '29.PD-2.MUNA',
+    parent_code: '29.PD-2'
+  },
+  {
+    name: 'PK KAMMI Buton Tengah',
+    slug: 'buton-tengah',
+    type: 'pk',
+    code: '29.PD-2.BUTON-TENGAH',
+    parent_code: '29.PD-2'
   },
 
   // PW30: Sulawesi Barat
@@ -3272,11 +3440,60 @@
     parent_code: 'PW30'
   },
   {
+    name: 'PK KAMMI Mamuju',
+    slug: 'mamuju',
+    type: 'pk',
+    code: '30.PD-1.MAMUJU',
+    parent_code: '30.PD-1'
+  },
+  {
+    name: 'PK KAMMI Lalla Tassisara',
+    slug: 'lalla-tassisara',
+    type: 'pk',
+    code: '30.PD-1.LALLA-TASSISARA',
+    parent_code: '30.PD-1'
+  },
+  {
+    name: 'PK KAMMI Al Fatih Mamuju',
+    slug: 'al-fatih-mamuju',
+    type: 'pk',
+    code: '30.PD-1.AL-FATIH',
+    parent_code: '30.PD-1'
+  },
+  {
     name: 'PD KAMMI Mandar Raya',
     slug: 'mandar-raya',
     type: 'pd',
     code: '30.PD-2',
     parent_code: 'PW30'
+  },
+  {
+    name: 'PK KAMMI UI DDI AD Polman',
+    slug: 'ui-ddi-ad-polman',
+    type: 'pk',
+    code: '30.PD-2.UI-DDI-AD-POLMAN',
+    parent_code: '30.PD-2'
+  },
+  {
+    name: 'PK KAMMI Polman 45',
+    slug: 'polman-45',
+    type: 'pk',
+    code: '30.PD-2.POLMAN-45',
+    parent_code: '30.PD-2'
+  },
+  {
+    name: 'PK KAMMI UNSULBAR',
+    slug: 'unsulbar',
+    type: 'pk',
+    code: '30.PD-2.UNSULBAR',
+    parent_code: '30.PD-2'
+  },
+  {
+    name: 'PK KAMMI STAIN Majene',
+    slug: 'stain-majene',
+    type: 'pk',
+    code: '30.PD-2.STAIN-MAJENE',
+    parent_code: '30.PD-2'
   },
 
   // PW31: Bangka Belitung
@@ -3293,6 +3510,27 @@
     type: 'pd',
     code: '31.PD 1',
     parent_code: 'PW31'
+  },
+  {
+    name: 'PK KAMMI Sepintu Sedulang',
+    slug: 'sepintu-sedulang',
+    type: 'pk',
+    code: '31.PD1.SEPINTU-SEDULANG',
+    parent_code: '31.PD 1'
+  },
+  {
+    name: 'PK KAMMI Depati Amir',
+    slug: 'depati-amir',
+    type: 'pk',
+    code: '31.PD1.DEPATI-AMIR',
+    parent_code: '31.PD 1'
+  },
+  {
+    name: 'PK KAMMI Depati Bahri',
+    slug: 'depati-bahri',
+    type: 'pk',
+    code: '31.PD1.DEPATI-BAHRI',
+    parent_code: '31.PD 1'
   },
 
   // PW32: Gorontalo

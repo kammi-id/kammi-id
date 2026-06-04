@@ -50,7 +50,7 @@ const downloadCSV = (entries: CredentialEntry[], orgSlug: string) => {
   const today = new Date().toISOString().slice(0, 10)
   const filename = `credentials-${orgSlug}-${today}.csv`
 
-  const header = 'Nama,NIK (Username),Password,Tanggal Generate'
+  const header = 'Nama,NIA (Username),Password,Tanggal Generate'
   const rows = entries.map(
     (e) => `"${e.name}","${e.registerNumber}","${e.password}","${e.createdAt}"`
   )
@@ -167,7 +167,7 @@ export const CredentialPanel = ({
                       scope='col'
                       className='font-geist-mono text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wide uppercase'
                     >
-                      NIK
+                      NIA
                     </th>
                     <th
                       scope='col'

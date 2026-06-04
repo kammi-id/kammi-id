@@ -109,7 +109,7 @@ export const AppSidebar = ({
       roles: ['bph', 'bpk', 'root']
     },
     {
-      title: 'Perangkat Kaderisasi',
+      title: 'Perangkat Pengkaderan',
       url: '/dashboard/perangkat',
       icon: <HugeiconsIcon icon={TeacherIcon} strokeWidth={2} />,
       roles: ['bpk', 'root']

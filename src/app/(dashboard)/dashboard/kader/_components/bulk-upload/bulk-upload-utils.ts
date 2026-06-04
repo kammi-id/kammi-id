@@ -77,7 +77,7 @@ export const parseXLSXFile = (file: File): Promise<ParsedRow[]> => {
               row['Jenjang Pengkaderan'] ?? row['status'] ?? 'ab1'
             ).trim(),
             yearOfEntry:
-              row['Tahun Masuk'] ?? row['yearOfEntry'] ?? row['year_of_entry'],
+              row['Tahun Masuk KAMMI'] ?? row['Tahun Masuk'] ?? row['yearOfEntry'] ?? row['year_of_entry'],
             phone: String(row['No HP'] ?? row['phone'] ?? '').trim() || null,
             isCertifiedMentor:
               row['Pemandu'] ?? row['isCertifiedMentor'] ?? false,
@@ -283,7 +283,7 @@ export const generateTemplate = () => {
       'ab3'
     ],
     [
-      'Tahun Masuk',
+      'Tahun Masuk KAMMI',
       '✓  Ya',
       `Angka tahun antara 1998 dan ${currentYear}`,
       String(currentYear)
@@ -361,7 +361,7 @@ export const generateTemplate = () => {
       'Nama',
       'Jenis Kelamin',
       'Jenjang Pengkaderan',
-      'Tahun Masuk',
+      'Tahun Masuk KAMMI',
       'No HP',
       'Pemandu',
       'Instruktur'
@@ -381,7 +381,7 @@ export const generateTemplate = () => {
     { wch: 32 }, // Nama
     { wch: 16 }, // Jenis Kelamin
     { wch: 22 }, // Jenjang Pengkaderan
-    { wch: 14 }, // Tahun Masuk
+    { wch: 18 }, // Tahun Masuk KAMMI
     { wch: 18 }, // No HP
     { wch: 12 }, // Pemandu
     { wch: 12 } //  Instruktur

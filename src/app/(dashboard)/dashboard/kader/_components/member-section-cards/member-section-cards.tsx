@@ -134,7 +134,7 @@ export const MemberSectionCards = ({ data, type }: MemberSectionCardsProps) => {
     return (
       <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
         <DonutCard
-          title='Komposisi Gender'
+          title='Komposisi Jenis Kelamin'
           data={genderData}
           colors={GENDER_COLORS}
         />
@@ -147,7 +147,7 @@ export const MemberSectionCards = ({ data, type }: MemberSectionCardsProps) => {
     <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3'>
       <DonutCard title='Jenjang' data={abData} colors={AB_COLORS} />
       <DonutCard
-        title='Komposisi Gender'
+        title='Komposisi Jenis Kelamin'
         data={genderData}
         colors={GENDER_COLORS}
       />

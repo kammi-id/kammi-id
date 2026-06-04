@@ -1,14 +1,14 @@
 const roleLabels: Record<string, string> = {
   root: 'Administrator',
   bph: 'Badan Pengurus Harian',
-  bpk: 'Badan Pengkaderan',
+  bpk: 'Bidang Pembinaan Kader',
   bpw: 'Badan Pengembangan Wilayah',
   humas: 'Hubungan Masyarakat'
 }
 
 const getGreeting = (hour: number) => {
   if (hour < 11) return 'Selamat pagi'
-  if (hour < 15) return 'Selamat siang'
+  if (hour < 15) return "Assalamu'alaikum"
   if (hour < 18) return 'Selamat sore'
   return 'Selamat malam'
 }

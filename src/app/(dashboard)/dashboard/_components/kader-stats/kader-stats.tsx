@@ -109,7 +109,7 @@ export const KaderStats = ({ data }: { data: KaderStatsData }) => {
               {fmt(ab1)}
             </span>
             <abbr
-              title='Anggota Biasa Tingkat 1'
+              title='Anggota Biasa 1'
               className='text-muted-foreground cursor-default text-xs no-underline'
             >
               AB 1
@@ -121,7 +121,7 @@ export const KaderStats = ({ data }: { data: KaderStatsData }) => {
               {fmt(ab2)}
             </span>
             <abbr
-              title='Anggota Biasa Tingkat 2'
+              title='Anggota Biasa 2'
               className='text-muted-foreground cursor-default text-xs no-underline'
             >
               AB 2
@@ -133,7 +133,7 @@ export const KaderStats = ({ data }: { data: KaderStatsData }) => {
               {fmt(ab3)}
             </span>
             <abbr
-              title='Anggota Biasa Tingkat 3'
+              title='Anggota Biasa 3'
               className='text-muted-foreground cursor-default text-xs no-underline'
             >
               AB 3

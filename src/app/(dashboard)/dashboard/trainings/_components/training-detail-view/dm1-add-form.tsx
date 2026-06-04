@@ -91,7 +91,7 @@ export const DM1AddForm = ({
 
         <div className='space-y-1.5'>
           <Label htmlFor='dm1-year' className='text-xs'>
-            Tahun Masuk <span className='text-destructive'>*</span>
+            Tahun Masuk KAMMI <span className='text-destructive'>*</span>
           </Label>
           <Input
             id='dm1-year'

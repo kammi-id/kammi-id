@@ -58,7 +58,7 @@ const genderEditLabel: Record<string, string> = {
 }
 
 const deriveMemberStatusLabel = (member: Member): string => {
-  if (member.isSuspended) return 'Dipecat/Diskorsing'
+  if (member.isSuspended) return 'Sedang terkena sanksi organisasi'
   if (member.isNonActive) return 'Non-Aktif'
   if (member.isAlumn) return 'Alumni'
   return 'Kader Aktif'
@@ -198,7 +198,7 @@ export const ProfileInfo = () => {
 
           <Field>
             <FieldLabel className='font-geist-mono text-xs tracking-wide uppercase'>
-              Gender
+              Jenis Kelamin
             </FieldLabel>
             <RadioGroup
               name='gender'
@@ -235,7 +235,7 @@ export const ProfileInfo = () => {
               htmlFor='yearOfEntry'
               className='font-geist-mono text-xs tracking-wide uppercase'
             >
-              Tahun Masuk
+              Tahun Masuk KAMMI
             </FieldLabel>
             <Input
               id='yearOfEntry'
@@ -476,7 +476,7 @@ export const ProfileInfo = () => {
           value={genderLabel[member.gender] ?? member.gender}
         />
         <InfoRow
-          label='Tahun Masuk'
+          label='Tahun Masuk KAMMI'
           value={member.yearOfEntry ?? <Placeholder />}
         />
         <InfoRow

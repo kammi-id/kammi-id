@@ -195,7 +195,7 @@ export const ProfileSidebar = ({ orgHierarchySlot }: ProfileSidebarProps) => {
             />
             <ControlledToggle
               name='isSuspended'
-              label='Dipecat/Diskorsing'
+              label='Sedang terkena sanksi organisasi'
               description='Keanggotaan ditangguhkan'
               checked={membershipStatus === 'suspended'}
               onChange={() => toggleMembership('suspended')}
@@ -210,13 +210,13 @@ export const ProfileSidebar = ({ orgHierarchySlot }: ProfileSidebarProps) => {
           <div className='divide-border/60 divide-y rounded-lg border px-3'>
             <Toggle
               name='isCertifiedMentor'
-              label='Pemandu Tersertifikasi'
+              label='Pemandu'
               description='Lulus DM dan bersertifikat pemandu'
               defaultChecked={member.isCertifiedMentor}
             />
             <Toggle
               name='isCertifiedInstructor'
-              label='Instruktur Tersertifikasi'
+              label='Instruktur'
               description='Lulus TFI dan bersertifikat instruktur'
               defaultChecked={member.isCertifiedInstructor}
             />
@@ -291,7 +291,7 @@ export const ProfileSidebar = ({ orgHierarchySlot }: ProfileSidebarProps) => {
             {member.isSuspended && (
               <div className='rounded-lg border [border-color:var(--status-suspended-border)] [background-color:var(--status-suspended-bg)] px-3 py-2.5'>
                 <p className='text-sm font-semibold [color:var(--status-suspended-text)]'>
-                  Dipecat / Diskorsing
+                  Sedang terkena sanksi organisasi
                 </p>
                 <p className='text-xs [color:var(--status-suspended-subtext)]'>
                   Keanggotaan ditangguhkan

@@ -136,7 +136,7 @@ export const ResetPasswordButton = ({
               <div>
                 <div className='flex items-center justify-between gap-2'>
                   <p className='text-muted-foreground text-xs'>
-                    NIK (Username)
+                    NIA (Username)
                   </p>
                   <CopyButton value={newCredential.registerNumber} />
                 </div>

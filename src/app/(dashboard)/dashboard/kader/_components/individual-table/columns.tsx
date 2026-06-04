@@ -92,12 +92,12 @@ export const getColumns = (
           type='button'
           className='hover:text-primary flex cursor-pointer items-center gap-1 transition-colors'
           onClick={() => onSortChange?.('registerNumber')}
-          aria-label='Urutkan berdasarkan NIK'
+          aria-label='Urutkan berdasarkan NIA'
         >
           <TooltipProvider>
             <Tooltip>
-              <TooltipTrigger render={<span>NIK</span>} />
-              <TooltipContent>Nomor Induk Kader</TooltipContent>
+              <TooltipTrigger render={<span>NIA</span>} />
+              <TooltipContent>Nomor Induk Anggota</TooltipContent>
             </Tooltip>
           </TooltipProvider>
         </button>
@@ -347,9 +347,9 @@ export const getColumns = (
           type='button'
           className='hover:text-primary cursor-pointer transition-colors'
           onClick={() => onSortChange?.('yearOfEntry')}
-          aria-label='Urutkan berdasarkan Tahun Masuk'
+          aria-label='Urutkan berdasarkan Tahun Masuk KAMMI'
         >
-          Tahun Masuk
+          Tahun Masuk KAMMI
         </button>
       ),
       cell: ({ row }) => (

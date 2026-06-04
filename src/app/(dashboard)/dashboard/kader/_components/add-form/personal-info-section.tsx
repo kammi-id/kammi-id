@@ -230,7 +230,7 @@ export const PersonalInfoSection = ({
       </Field>
 
       <Field className='mt-4'>
-        <FieldLabel htmlFor='yearOfEntry'>Tahun Masuk</FieldLabel>
+        <FieldLabel htmlFor='yearOfEntry'>Tahun Masuk KAMMI</FieldLabel>
         <Input
           id='yearOfEntry'
           name='yearOfEntry'

@@ -168,19 +168,19 @@ const KaderJenjangDonut = ({ data }: { data: KaderBentoStatsData }) => (
     slices={[
       {
         name: 'ab1',
-        label: 'AB 1 — Anggota Biasa Tingkat 1',
+        label: 'AB 1 — Anggota Biasa 1',
         value: data.ab1,
         color: COLORS.ab1
       },
       {
         name: 'ab2',
-        label: 'AB 2 — Anggota Biasa Tingkat 2',
+        label: 'AB 2 — Anggota Biasa 2',
         value: data.ab2,
         color: COLORS.ab2
       },
       {
         name: 'ab3',
-        label: 'AB 3 — Anggota Biasa Tingkat 3',
+        label: 'AB 3 — Anggota Biasa 3',
         value: data.ab3,
         color: COLORS.ab3
       }
@@ -221,7 +221,7 @@ const KaderGenderDonut = ({ data }: { data: KaderBentoStatsData }) => (
 const KaderPerangkatCard = ({ data }: { data: KaderBentoStatsData }) => (
   <div className='bg-card flex h-full flex-col rounded-xl border p-5'>
     <p className='text-muted-foreground text-xs font-medium tracking-wider uppercase'>
-      Perangkat Kaderisasi
+      Perangkat Pengkaderan
     </p>
     <div className='mt-4 flex flex-1 flex-col justify-center gap-4'>
       <div className='flex items-center gap-3'>
@@ -294,7 +294,7 @@ const KaderOrgRankedList = ({
           <span className='flex items-center gap-1'>
             <span className='inline-block size-1.5 rounded-full bg-[var(--chart-ab1)]' />
             <abbr
-              title='Anggota Biasa Tingkat 1'
+              title='Anggota Biasa 1'
               className='cursor-default tracking-wider uppercase no-underline'
             >
               AB1
@@ -303,7 +303,7 @@ const KaderOrgRankedList = ({
           <span className='flex items-center gap-1'>
             <span className='inline-block size-1.5 rounded-full bg-[var(--chart-ab2)]' />
             <abbr
-              title='Anggota Biasa Tingkat 2'
+              title='Anggota Biasa 2'
               className='cursor-default tracking-wider uppercase no-underline'
             >
               AB2
@@ -312,7 +312,7 @@ const KaderOrgRankedList = ({
           <span className='flex items-center gap-1'>
             <span className='inline-block size-1.5 rounded-full bg-[var(--chart-ab3)]' />
             <abbr
-              title='Anggota Biasa Tingkat 3'
+              title='Anggota Biasa 3'
               className='cursor-default tracking-wider uppercase no-underline'
             >
               AB3
