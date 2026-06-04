@@ -602,7 +602,7 @@ export const HomeScene = ({
                   sizes='100vw'
                   className='object-cover'
                   priority
-                  unoptimized={hero.resolvedImageUrl.includes('?')}
+                  unoptimized={hero.resolvedImageUrl.startsWith('http')}
                 />
               ) : (
                 <div className='bg-foreground/10 absolute inset-0' />

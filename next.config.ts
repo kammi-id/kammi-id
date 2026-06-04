@@ -1,11 +1,22 @@
 import type { NextConfig } from 'next'
 
-const allowedImageHostnames = (
-  process.env.NEXT_IMAGE_ALLOWED_HOSTNAMES ?? 'picsum.photos,images.unsplash.com'
-)
-  .split(',')
-  .map((h) => h.trim())
-  .filter(Boolean)
+const s3Hostname = (() => {
+  try {
+    const endpoint = process.env.S3_ENDPOINT
+    if (!endpoint) return null
+    return new URL(endpoint).hostname
+  } catch {
+    return null
+  }
+})()
+
+const allowedImageHostnames = [
+  ...(process.env.NEXT_IMAGE_ALLOWED_HOSTNAMES ?? 'picsum.photos,images.unsplash.com')
+    .split(',')
+    .map((h) => h.trim())
+    .filter(Boolean),
+  ...(s3Hostname ? [s3Hostname] : [])
+]
 
 const nextConfig: NextConfig = {
   output: 'standalone',
