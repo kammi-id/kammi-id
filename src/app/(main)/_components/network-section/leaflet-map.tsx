@@ -169,7 +169,7 @@ const LeafletMap = ({ pwLookup, onTooltip, onMapHover }: LeafletMapProps) => {
         pwLookup[slug] ? { ...STYLE_HAS_PW } : { ...STYLE_NO_PW }
       )
     })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [pwLookup])
 
   return (

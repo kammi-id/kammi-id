@@ -210,7 +210,7 @@ export const NetworkSectionClient = ({
         )
       })
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       ScrollTrigger.create({
         trigger: section,
         start: 'top top',

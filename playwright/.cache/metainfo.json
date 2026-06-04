@@ -4,20 +4,38 @@
   "registerSourceHash": "ea233d95b980072c81eb49458aee55f5d33fdb02",
   "components": [
     {
-      "id": "_Users_radenpioneer_projects_kammi_id__worktree_dev_20260104_src_components_shadcn_ui_button_button_Button",
-      "filename": "/Users/radenpioneer/projects/kammi-id/.worktree/dev-20260104/src/components/shadcn/ui/button/button.spec.tsx",
-      "importSource": "./button",
-      "remoteName": "Button"
+      "id": "_Users_radenpioneer_projects_kammi_id_src_components___ct_debug_simple_SimpleText",
+      "filename": "/Users/radenpioneer/projects/kammi-id/src/components/__ct-debug/debug.playwright.tsx",
+      "importSource": "./simple",
+      "remoteName": "SimpleText"
+    },
+    {
+      "id": "_Users_radenpioneer_projects_kammi_id_src_components_error_view_error_view_ErrorView",
+      "filename": "/Users/radenpioneer/projects/kammi-id/src/components/error-view/error-view.playwright.tsx",
+      "importSource": "./error-view",
+      "remoteName": "ErrorView"
+    },
+    {
+      "id": "_Users_radenpioneer_projects_kammi_id_src_components_unsaved_changes_banner_unsaved_changes_banner_UnsavedChangesBanner",
+      "filename": "/Users/radenpioneer/projects/kammi-id/src/components/unsaved-changes-banner/unsaved-changes-banner.playwright.tsx",
+      "importSource": "./unsaved-changes-banner",
+      "remoteName": "UnsavedChangesBanner"
     }
   ],
   "sources": {
-    "/Users/radenpioneer/projects/kammi-id/.worktree/dev-20260104/playwright/index.html": {
-      "timestamp": 1776778189038.1602
+    "/Users/radenpioneer/projects/kammi-id/playwright/index.html": {
+      "timestamp": 1780485541596.4238
     }
   },
   "deps": {
-    "/Users/radenpioneer/projects/kammi-id/.worktree/dev-20260104/src/components/shadcn/ui/button/button.tsx": [
-      "/Users/radenpioneer/projects/kammi-id/.worktree/dev-20260104/src/components/shadcn/ui/button/button.tsx"
+    "/Users/radenpioneer/projects/kammi-id/src/components/__ct-debug/simple.tsx": [
+      "/Users/radenpioneer/projects/kammi-id/src/components/__ct-debug/simple.tsx"
+    ],
+    "/Users/radenpioneer/projects/kammi-id/src/components/error-view/error-view.tsx": [
+      "/Users/radenpioneer/projects/kammi-id/src/components/error-view/error-view.tsx"
+    ],
+    "/Users/radenpioneer/projects/kammi-id/src/components/unsaved-changes-banner/unsaved-changes-banner.tsx": [
+      "/Users/radenpioneer/projects/kammi-id/src/components/unsaved-changes-banner/unsaved-changes-banner.tsx"
     ]
   }
 }

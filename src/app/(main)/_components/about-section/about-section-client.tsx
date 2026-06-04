@@ -74,7 +74,7 @@ export const AboutSectionClient = ({
       // Section fades out last
       tl.to(section, { opacity: 0, ease: 'none', duration: 0.1 }, 0.9)
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       ScrollTrigger.create({
         trigger: section,
         start: 'top top',
