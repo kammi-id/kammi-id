@@ -100,7 +100,7 @@ export const PengurusHeroClient = ({
           // Prevent scrub from extrapolating below progress 0 on overscroll —
           // keeps title centered and at scale 3.5 when scrolling past the top
           clamp: true
-        } as any)
+        } as Parameters<typeof ScrollTrigger.create>[0])
       } else {
         // Mobile M1: vertical stage reveal — text then photos stagger from below
         gsap.set(textWrapper, { opacity: 0, scale: 1.5, y: '10vh' })

@@ -2,7 +2,7 @@ export interface ComboboxOption<T = string> {
   value: T
   label: string
   disabled?: boolean
-  [key: string]: any
+  [key: string]: unknown
 }
 
 export interface ComboboxProps<T = string> {

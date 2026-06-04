@@ -112,7 +112,9 @@ const generatePhone = () =>
  * Simulated version of generateRegisterNumber to avoid thousands of DB queries during seeding.
  * Replicates the logic in src/lib/utils/member.ts
  */
-const getNikPrefix = (org: any, parentOrg?: any) => {
+type OrgRecord = typeof organization.$inferSelect
+
+const getNikPrefix = (org: OrgRecord, parentOrg?: OrgRecord) => {
   let pwCode = ''
   let pdCode = ''
 
@@ -180,7 +182,7 @@ const main = async () => {
     // Sequence tracker per prefix (PW+PD+YEAR)
     const prefixSequences = new Map<string, number>()
 
-    const membersToInsert: any[] = []
+    const membersToInsert: (typeof member.$inferInsert)[] = []
 
     for (let i = 0; i < memberCount; i++) {
       const gender = i < ikhwanCount ? 'ikhwan' : 'akhwat'
@@ -189,7 +191,7 @@ const main = async () => {
       const yearOfEntry = getRandom(1998, new Date().getFullYear())
 
       // NIK Generation
-      const parentOrg = pk.parentId ? orgMap.get(pk.parentId) : null
+      const parentOrg = pk.parentId ? orgMap.get(pk.parentId) : undefined
       const prefixData = getNikPrefix(pk, parentOrg)
 
       if (!prefixData) {

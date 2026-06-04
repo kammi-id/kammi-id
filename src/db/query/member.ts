@@ -8,7 +8,7 @@ import { type DBExecutor } from '../types'
 import { createUser } from './user'
 import { generatePassword, hashPassword } from '~/lib/utils/user'
 import { organization } from '../schema/organization.sql'
-import { fetchAllowedOrgIds } from './organization'
+import { fetchAllowedOrgIds, type Organization } from './organization'
 
 type MemberInsertValues = typeof member.$inferInsert
 export type MemberFilters = {
@@ -98,7 +98,7 @@ export const readMemberAggregates = async (
       (await db
         .select({ id: organization.id })
         .from(organization)
-        .where(eq(organization.type, 'pp' as any))
+        .where(eq(organization.type, 'pp'))
         .limit(1)
         .then((r) => r[0]?.id ?? null))
     anchorId = connectedOrgId
@@ -529,7 +529,7 @@ export const readDescendantMembers = async (
         status: row.status as 'ab1' | 'ab2' | 'ab3',
         gender: row.gender as 'ikhwan' | 'akhwat',
         yearOfEntry: row.yearOfEntry as number,
-        organization: row.organization as any,
+        organization: row.organization as unknown as Organization,
         orgHierarchy: row.orgHierarchy as {
           pk: OrgRef
           pd: OrgRef

@@ -534,7 +534,7 @@ export const TrainingDetailView = ({
                     </Button>
                     <DM1BulkUploadButton
                       trainingId={training.id}
-                      organizationId={(training as any).organizationId}
+                      organizationId={training.organizationId}
                     />
                   </div>
                   {showDM1Form && (
@@ -544,7 +544,7 @@ export const TrainingDetailView = ({
                       </p>
                       <DM1AddForm
                         trainingId={training.id}
-                        organizationId={(training as any).organizationId}
+                        organizationId={training.organizationId}
                         onSuccess={() => setShowDM1Form(false)}
                       />
                     </div>

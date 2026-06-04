@@ -110,20 +110,20 @@ export const AddMemberForm = ({
       setPhoto(editData.photo ?? '')
       setSelectedOrgId(editData.organizationId || organizationId)
     } else if (state?.values) {
-      const values = state.values as any
-      setProvince(values.addressProvinceCode || '')
-      setCity(values.addressCityCode || '')
-      setDistrict(values.addressDistrictCode || '')
-      setSubdistrict(values.addressSubdistrictCode || '')
+      const values = state.values as Record<string, unknown>
+      setProvince(String(values.addressProvinceCode ?? ''))
+      setCity(String(values.addressCityCode ?? ''))
+      setDistrict(String(values.addressDistrictCode ?? ''))
+      setSubdistrict(String(values.addressSubdistrictCode ?? ''))
       setIsAlumn(values.isAlumn === 'true')
       setIsSuspended(values.isSuspended === 'true')
       setIsNonActive(values.isNonActive === 'true')
       setIsCertifiedMentor(values.isCertifiedMentor === 'true')
       setIsCertifiedInstructor(values.isCertifiedInstructor === 'true')
-      setSelectedGender(values.gender ?? 'ikhwan')
-      setSelectedStatus(values.status ?? 'ab1')
-      setPhoto(values.photo || '')
-      setSelectedOrgId(values.organizationId || organizationId)
+      setSelectedGender((values.gender as 'ikhwan' | 'akhwat') ?? 'ikhwan')
+      setSelectedStatus((values.status as 'ab1' | 'ab2' | 'ab3') ?? 'ab1')
+      setPhoto(String(values.photo ?? ''))
+      setSelectedOrgId(String(values.organizationId ?? '') || organizationId)
     }
   }
 

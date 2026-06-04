@@ -40,7 +40,13 @@ const simplifyRing = (ring: number[][], step = 4): number[][] => {
   return result
 }
 
-const simplifyGeometry = (geom: any): any => {
+type GeoGeometry = {
+  type: string
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  coordinates: any
+}
+
+const simplifyGeometry = (geom: GeoGeometry): GeoGeometry => {
   if (geom.type === 'Polygon') {
     return {
       ...geom,
@@ -69,16 +75,16 @@ console.log(`Loaded ${raw.features.length} features`)
 // Keep only province-level features; strip unnecessary properties
 const optimized = {
   type: 'FeatureCollection',
-  features: raw.features.map((f: any) => ({
+  features: (raw as { features: { properties: Record<string, string | number | null | undefined>; geometry: GeoGeometry }[] }).features.map((f) => ({
     type: 'Feature',
     properties: {
-      name: (
+      name: String(
         f.properties?.state ??
         f.properties?.Propinsi ??
         f.properties?.NAME_1 ??
         ''
       ).trim(),
-      slug: (f.properties?.slug ?? '').trim(),
+      slug: String(f.properties?.slug ?? '').trim(),
       code: String(
         f.properties?.id_1 ?? f.properties?.ID_1 ?? f.properties?.code ?? ''
       )

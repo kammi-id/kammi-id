@@ -95,7 +95,7 @@ const AttendantStatusSchema = MemberAssignmentSchema.extend({
   isPassing: z.union([z.boolean(), z.string().transform((v) => v === 'true')])
 })
 
-type ActionResponse<T = any> = {
+type ActionResponse<T = unknown> = {
   success: boolean
   message: string
   errors?: Record<string, string[]>
@@ -103,7 +103,7 @@ type ActionResponse<T = any> = {
 }
 
 export const updateTrainingAction = async (
-  prevState: any,
+  prevState: ActionResponse | null,
   formData: FormData
 ): Promise<ActionResponse> => {
   try {
@@ -179,7 +179,7 @@ export const deleteTrainingAction = async (
 }
 
 export const addAttendantAction = async (
-  prevState: any,
+  prevState: ActionResponse | null,
   formData: FormData
 ): Promise<ActionResponse> => {
   try {
@@ -221,7 +221,7 @@ export const addAttendantAction = async (
 }
 
 export const updateAttendantStatusAction = async (
-  prevState: any,
+  prevState: ActionResponse | null,
   formData: FormData
 ): Promise<ActionResponse> => {
   try {
@@ -261,7 +261,7 @@ export const updateAttendantStatusAction = async (
 }
 
 export const addInstructorAction = async (
-  prevState: any,
+  prevState: ActionResponse | null,
   formData: FormData
 ): Promise<ActionResponse> => {
   try {
@@ -385,7 +385,7 @@ const DM1MemberSchema = z.object({
 })
 
 export const addDM1AttendantAction = async (
-  prevState: any,
+  prevState: ActionResponse | null,
   formData: FormData
 ): Promise<ActionResponse> => {
   try {

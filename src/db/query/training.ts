@@ -155,9 +155,9 @@ export const trainingQuery = {
       year ? eq(training.year, year) : undefined,
       search ? ilike(training.name, `%${search}%`) : undefined,
       types && types.length > 0
-        ? inArray(training.type, types as any)
+        ? inArray(training.type, types as TrainingType[])
         : undefined
-    ].filter(Boolean) as any[]
+    ].filter(Boolean) as ReturnType<typeof eq>[]
 
     const baseQuery = db
       .select({
@@ -358,7 +358,8 @@ export const trainingQuery = {
       )
       RETURNING *
     `)
-    return (rows as any[])[0] as typeof training.$inferSelect
+    const resultRows = Array.isArray(rows) ? rows : (rows as { rows?: unknown[] }).rows ?? []
+    return resultRows[0] as typeof training.$inferSelect
   },
 
   update: async (id: string, data: TrainingUpdateInput) => {

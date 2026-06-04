@@ -105,7 +105,7 @@ export const LeadershipSectionClient = ({
           anticipatePin: 1,
           animation: tl,
           clamp: true
-        } as any)
+        } as Parameters<typeof ScrollTrigger.create>[0])
       } else {
         gsap.set(textWrapper, { opacity: 0, scale: 1.5, y: '10vh' })
         gsap.set([ketuaEl, sekjEl, bendEl], { opacity: 0, y: 65 })

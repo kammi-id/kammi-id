@@ -59,7 +59,8 @@ const LeafletMap = ({ pwLookup, onTooltip, onMapHover }: LeafletMapProps) => {
       ).default as FeatureCollection
 
       if (cancelled || !containerRef.current) return
-      if ((container as any)._leaflet_id) return
+      // _leaflet_id is an internal Leaflet property not exposed in types
+      if ('_leaflet_id' in container) return
 
       // ── Map init ────────────────────────────────────────────────────────────
       map = L.map(container, {
@@ -96,19 +97,19 @@ const LeafletMap = ({ pwLookup, onTooltip, onMapHover }: LeafletMapProps) => {
       // ── Province GeoJSON overlay ─────────────────────────────────────────────
       const geoLayer = L.geoJSON(geoData, {
         style: (feature) => {
-          const slug: string = feature?.properties?.slug ?? ''
+          const slug: string = String(feature?.properties?.slug ?? '')
           return pwLookup[slug] ? { ...STYLE_HAS_PW } : { ...STYLE_NO_PW }
         },
-        onEachFeature: (feature: Feature<Geometry, any>, layer: L.Layer) => {
-          const slug: string = feature.properties?.slug ?? ''
-          const idName = SLUG_TO_ID_NAME[slug] ?? feature.properties?.name ?? ''
+        onEachFeature: (feature: Feature<Geometry, Record<string, unknown>>, layer: L.Layer) => {
+          const slug: string = String(feature.properties?.slug ?? '')
+          const idName = SLUG_TO_ID_NAME[slug] ?? String(feature.properties?.name ?? '')
           const pwName = pwLookup[slug] ?? null
           const path = layer as L.Path
 
           layer.on({
             mouseover(e: L.LeafletMouseEvent) {
               path.setStyle(STYLE_HOVER)
-              ;(path as any).bringToFront?.()
+              ;(path as L.Path & { bringToFront?: () => void }).bringToFront?.()
               onTooltip({
                 visible: true,
                 clientX: e.originalEvent.clientX,
@@ -163,8 +164,8 @@ const LeafletMap = ({ pwLookup, onTooltip, onMapHover }: LeafletMapProps) => {
     const layer = geoLayerRef.current
     if (!layer) return
     layer.eachLayer((l) => {
-      const feature = (l as any).feature as Feature<Geometry, any>
-      const slug: string = feature?.properties?.slug ?? ''
+      const feature = (l as L.Layer & { feature?: Feature<Geometry, Record<string, unknown>> }).feature
+      const slug: string = String(feature?.properties?.slug ?? '')
       ;(l as L.Path).setStyle(
         pwLookup[slug] ? { ...STYLE_HAS_PW } : { ...STYLE_NO_PW }
       )

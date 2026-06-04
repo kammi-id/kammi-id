@@ -62,8 +62,8 @@ export const fetchAllowedOrgIds = async (user: {
       SELECT id FROM org_hierarchy
     `)
 
-    const rows = (result as any).rows || result
-    const ids = (Array.isArray(rows) ? rows : []).map((r: any) => r.id)
+    const rows = (Array.isArray(result) ? result : (result as { rows?: unknown[] }).rows ?? []) as { id: string }[]
+    const ids = rows.map((r) => r.id)
     return ids
   } catch (error) {
     return [connectedOrgId]
@@ -254,7 +254,7 @@ export const readOrganization = async (
         return orderFn(sql`children_count`)
       }
       return orderFn(
-        withOrganizationCTE[column as keyof typeof withOrganizationCTE] as any
+        withOrganizationCTE[column as keyof typeof withOrganizationCTE] as Parameters<typeof asc>[0]
       )
     })
     query.orderBy(...orderClauses)

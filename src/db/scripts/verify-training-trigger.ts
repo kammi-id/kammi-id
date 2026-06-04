@@ -9,7 +9,7 @@ async function verify() {
     // Manually specify an organization ID if the auto-fetch fails,
     // but first let's try to fix the fetch.
     const orgs = await db.execute(sql`SELECT id FROM organization LIMIT 1`)
-    const rows = orgs as any[]
+    const rows = (Array.isArray(orgs) ? orgs : (orgs as { rows?: unknown[] }).rows ?? []) as { id: string }[]
     if (rows.length === 0) {
       console.error('❌ No organization found in DB. Please create one first.')
       process.exit(1)

@@ -84,7 +84,7 @@ export const AboutSectionClient = ({
         anticipatePin: 1,
         animation: tl,
         clamp: true
-      } as any)
+      } as Parameters<typeof ScrollTrigger.create>[0])
     }, section)
 
     return () => ctx.revert()
