@@ -28,12 +28,12 @@ const resolveUrl = async (path: string): Promise<string> => {
   return storage.getSignedUrl(path)
 }
 
-// Cached PP org ID lookup — the PP org is stable, expires daily.
-// Returns null (→ defaults) if DB is unavailable (e.g. during Docker build).
+// NOT cached — plain DB lookup called at request time.
+// Returns null on DB error or if no PP org exists (e.g. during Docker build).
+// Keeping this outside 'use cache' prevents null from ever being persisted
+// in the cache store, which would cause all public pages to serve defaults
+// even after the DB becomes available.
 const resolvePPOrgId = async (): Promise<string | null> => {
-  'use cache'
-  cacheLife('days')
-  cacheTag('pp-org-id')
   try {
     return await readOrganizationIdByType('pp')
   } catch {
@@ -41,154 +41,27 @@ const resolvePPOrgId = async (): Promise<string | null> => {
   }
 }
 
-export const getHomeHeroItemsSettings =
-  async (): Promise<HomeHeroItemsSettings> => {
-    'use cache'
-    cacheLife('days')
-    const orgId = await resolvePPOrgId()
-    cacheTag(
-      'site-settings',
-      orgId
-        ? `site-settings-home-hero-items-${orgId}`
-        : 'site-settings-home-hero-items'
-    )
-    if (!orgId) return SETTINGS_DEFAULTS.homeHeroItems
-    return readSiteSettings<HomeHeroItemsSettings>(
-      'home-hero-items',
-      SETTINGS_DEFAULTS.homeHeroItems,
-      orgId
-    )
-  }
-
-export const getHomeExtraItemsSettings =
-  async (): Promise<HomeExtraItemsSettings> => {
-    'use cache'
-    cacheLife('days')
-    const orgId = await resolvePPOrgId()
-    cacheTag(
-      'site-settings',
-      orgId
-        ? `site-settings-home-extra-items-${orgId}`
-        : 'site-settings-home-extra-items'
-    )
-    if (!orgId) return SETTINGS_DEFAULTS.homeExtraItems
-    return readSiteSettings<HomeExtraItemsSettings>(
-      'home-extra-items',
-      SETTINGS_DEFAULTS.homeExtraItems,
-      orgId
-    )
-  }
-
-export const getAboutSettings = async (): Promise<AboutSettings> => {
+// Generic cached reader — only called when orgId is known to be valid.
+// Cache is keyed by (key, orgId) so different org IDs are isolated.
+const _cachedReadSettings = async <T>(
+  key: string,
+  defaults: T,
+  orgId: string
+): Promise<T> => {
   'use cache'
   cacheLife('days')
-  const orgId = await resolvePPOrgId()
-  cacheTag(
-    'site-settings',
-    orgId ? `site-settings-about-${orgId}` : 'site-settings-about'
-  )
-  if (!orgId) return SETTINGS_DEFAULTS.about
-  return readSiteSettings<AboutSettings>(
-    'about',
-    SETTINGS_DEFAULTS.about,
-    orgId
-  )
+  cacheTag('site-settings', `site-settings-${key}-${orgId}`)
+  return readSiteSettings<T>(key, defaults, orgId)
 }
 
-export const getLeadershipSettings = async (): Promise<LeadershipSettings> => {
-  'use cache'
-  cacheLife('days')
-  const orgId = await resolvePPOrgId()
-  cacheTag(
-    'site-settings',
-    orgId ? `site-settings-leadership-${orgId}` : 'site-settings-leadership'
-  )
-  const d = SETTINGS_DEFAULTS.leadership
-  if (!orgId) return d
-  const raw = await readSiteSettings<Partial<LeadershipSettings>>(
-    'leadership',
-    d,
-    orgId
-  )
-  return {
-    periodLabel: raw.periodLabel ?? d.periodLabel,
-    heading: raw.heading ?? d.heading,
-    triumvirate: raw.triumvirate ?? d.triumvirate,
-    leaders: raw.leaders ?? d.leaders,
-    leaderBlocks: raw.leaderBlocks ?? d.leaderBlocks
-  }
-}
-
-export const getActionsSettings = async (): Promise<ActionsSettings> => {
-  'use cache'
-  cacheLife('days')
-  const orgId = await resolvePPOrgId()
-  cacheTag(
-    'site-settings',
-    orgId ? `site-settings-actions-${orgId}` : 'site-settings-actions'
-  )
-  if (!orgId) return SETTINGS_DEFAULTS.actions
-  return readSiteSettings<ActionsSettings>(
-    'actions',
-    SETTINGS_DEFAULTS.actions,
-    orgId
-  )
-}
-
-export const getNavSettings = async (): Promise<NavSettings> => {
-  'use cache'
-  cacheLife('days')
-  const orgId = await resolvePPOrgId()
-  cacheTag(
-    'site-settings',
-    orgId ? `site-settings-nav-${orgId}` : 'site-settings-nav'
-  )
-  if (!orgId) return SETTINGS_DEFAULTS.nav
-  return readSiteSettings<NavSettings>('nav', SETTINGS_DEFAULTS.nav, orgId)
-}
-
-export const getFooterSettings = async (): Promise<FooterSettings> => {
-  'use cache'
-  cacheLife('days')
-  const orgId = await resolvePPOrgId()
-  cacheTag(
-    'site-settings',
-    orgId ? `site-settings-footer-${orgId}` : 'site-settings-footer'
-  )
-  if (!orgId) return SETTINGS_DEFAULTS.footer
-  return readSiteSettings<FooterSettings>(
-    'footer',
-    SETTINGS_DEFAULTS.footer,
-    orgId
-  )
-}
-
-export const getMetadataSettings = async (): Promise<MetadataSettings> => {
-  'use cache'
-  cacheLife('days')
-  const orgId = await resolvePPOrgId()
-  cacheTag(
-    'site-settings',
-    orgId ? `site-settings-metadata-${orgId}` : 'site-settings-metadata'
-  )
-  if (!orgId) return SETTINGS_DEFAULTS.metadata
-  return readSiteSettings<MetadataSettings>(
-    'metadata',
-    SETTINGS_DEFAULTS.metadata,
-    orgId
-  )
-}
-
-export const getTentangSettings = async (): Promise<TentangSettings> => {
+// Inner cached reader for tentang (shorter TTL due to signed URL expiry).
+const _cachedTentangSettings = async (
+  orgId: string
+): Promise<TentangSettings> => {
   'use cache'
   // Signed URLs expire in 1 hour — cache for 45 min so we always serve fresh URLs.
   cacheLife({ stale: 0, revalidate: 2700, expire: 3600 })
-  const orgId = await resolvePPOrgId()
-  cacheTag(
-    'site-settings',
-    orgId ? `site-settings-tentang-${orgId}` : 'site-settings-tentang'
-  )
-  if (!orgId) return SETTINGS_DEFAULTS.tentang
+  cacheTag('site-settings', `site-settings-tentang-${orgId}`)
 
   const [heroData, prinsipData, paradigmaData] = await Promise.all([
     readSiteSettings<{ heroImageUrl: string }>(
@@ -220,4 +93,80 @@ export const getTentangSettings = async (): Promise<TentangSettings> => {
   ])
 
   return { heroImageUrl, prinsipImages, paradigmaImages }
+}
+
+export const getHomeHeroItemsSettings =
+  async (): Promise<HomeHeroItemsSettings> => {
+    const orgId = await resolvePPOrgId()
+    if (!orgId) return SETTINGS_DEFAULTS.homeHeroItems
+    return _cachedReadSettings(
+      'home-hero-items',
+      SETTINGS_DEFAULTS.homeHeroItems,
+      orgId
+    )
+  }
+
+export const getHomeExtraItemsSettings =
+  async (): Promise<HomeExtraItemsSettings> => {
+    const orgId = await resolvePPOrgId()
+    if (!orgId) return SETTINGS_DEFAULTS.homeExtraItems
+    return _cachedReadSettings(
+      'home-extra-items',
+      SETTINGS_DEFAULTS.homeExtraItems,
+      orgId
+    )
+  }
+
+export const getAboutSettings = async (): Promise<AboutSettings> => {
+  const orgId = await resolvePPOrgId()
+  if (!orgId) return SETTINGS_DEFAULTS.about
+  return _cachedReadSettings('about', SETTINGS_DEFAULTS.about, orgId)
+}
+
+export const getLeadershipSettings = async (): Promise<LeadershipSettings> => {
+  const orgId = await resolvePPOrgId()
+  const d = SETTINGS_DEFAULTS.leadership
+  if (!orgId) return d
+  const raw = await _cachedReadSettings<Partial<LeadershipSettings>>(
+    'leadership',
+    d,
+    orgId
+  )
+  return {
+    periodLabel: raw.periodLabel ?? d.periodLabel,
+    heading: raw.heading ?? d.heading,
+    triumvirate: raw.triumvirate ?? d.triumvirate,
+    leaders: raw.leaders ?? d.leaders,
+    leaderBlocks: raw.leaderBlocks ?? d.leaderBlocks
+  }
+}
+
+export const getActionsSettings = async (): Promise<ActionsSettings> => {
+  const orgId = await resolvePPOrgId()
+  if (!orgId) return SETTINGS_DEFAULTS.actions
+  return _cachedReadSettings('actions', SETTINGS_DEFAULTS.actions, orgId)
+}
+
+export const getNavSettings = async (): Promise<NavSettings> => {
+  const orgId = await resolvePPOrgId()
+  if (!orgId) return SETTINGS_DEFAULTS.nav
+  return _cachedReadSettings('nav', SETTINGS_DEFAULTS.nav, orgId)
+}
+
+export const getFooterSettings = async (): Promise<FooterSettings> => {
+  const orgId = await resolvePPOrgId()
+  if (!orgId) return SETTINGS_DEFAULTS.footer
+  return _cachedReadSettings('footer', SETTINGS_DEFAULTS.footer, orgId)
+}
+
+export const getMetadataSettings = async (): Promise<MetadataSettings> => {
+  const orgId = await resolvePPOrgId()
+  if (!orgId) return SETTINGS_DEFAULTS.metadata
+  return _cachedReadSettings('metadata', SETTINGS_DEFAULTS.metadata, orgId)
+}
+
+export const getTentangSettings = async (): Promise<TentangSettings> => {
+  const orgId = await resolvePPOrgId()
+  if (!orgId) return SETTINGS_DEFAULTS.tentang
+  return _cachedTentangSettings(orgId)
 }
