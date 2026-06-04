@@ -23,10 +23,10 @@ export type OrgFormState = {
   values?: Record<string, string>
 }
 
-export async function createOrganizationAction(
+export const createOrganizationAction = async (
   prevState: OrgFormState,
   formData: FormData
-) {
+) => {
   try {
     const session = await readActiveSession()
     if (!session) return { success: false, message: 'Sesi tidak ditemukan.' }
@@ -78,10 +78,10 @@ export async function createOrganizationAction(
   }
 }
 
-export async function updateOrganizationAction(
+export const updateOrganizationAction = async (
   prevState: OrgFormState,
   formData: FormData
-) {
+) => {
   try {
     const session = await readActiveSession()
     if (!session) return { success: false, message: 'Sesi tidak ditemukan.' }

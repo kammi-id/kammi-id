@@ -13,9 +13,9 @@ type DescendantMemberFilters = MemberFilters & {
   offset?: number
 }
 
-export async function getCachedMemberAggregates(
+export const getCachedMemberAggregates = async (
   filters: MemberAggregatesFilters
-) {
+) => {
   'use cache'
   cacheLife('minutes')
   cacheTag('kader')
@@ -23,9 +23,9 @@ export async function getCachedMemberAggregates(
   return readMemberAggregates(filters)
 }
 
-export async function getCachedMemberYearDistribution(
+export const getCachedMemberYearDistribution = async (
   organizationIds?: string[]
-) {
+) => {
   'use cache'
   cacheLife('minutes')
   cacheTag('kader')
@@ -33,10 +33,10 @@ export async function getCachedMemberYearDistribution(
   return readMemberYearDistribution(organizationIds)
 }
 
-export async function getCachedDescendantMembers(
+export const getCachedDescendantMembers = async (
   parentId: string,
   filters: DescendantMemberFilters
-) {
+) => {
   'use cache'
   cacheLife('minutes')
   cacheTag('kader')
@@ -44,10 +44,10 @@ export async function getCachedDescendantMembers(
   return readDescendantMembers(parentId, filters)
 }
 
-export async function getCachedMemberDistributionByOrgType(
+export const getCachedMemberDistributionByOrgType = async (
   orgType: 'pw' | 'pd' | 'pdln' | 'pk',
   allowedOrgIds: string[]
-) {
+) => {
   'use cache'
   cacheLife('minutes')
   cacheTag('kader')

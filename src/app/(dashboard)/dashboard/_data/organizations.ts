@@ -8,7 +8,7 @@ import {
 
 export type { Organization }
 
-export async function getCachedOrganization(slug: string) {
+export const getCachedOrganization = async (slug: string) => {
   'use cache'
   cacheLife('hours')
   cacheTag('organizations')
@@ -17,7 +17,7 @@ export async function getCachedOrganization(slug: string) {
   return org
 }
 
-export async function getCachedOrganizations(filters: OrganizationFilters) {
+export const getCachedOrganizations = async (filters: OrganizationFilters) => {
   'use cache'
   cacheLife('minutes')
   cacheTag('organizations')
@@ -25,7 +25,9 @@ export async function getCachedOrganizations(filters: OrganizationFilters) {
   return readOrganization(filters)
 }
 
-export async function getCachedOrganizationCount(filters: OrganizationFilters) {
+export const getCachedOrganizationCount = async (
+  filters: OrganizationFilters
+) => {
   'use cache'
   cacheLife('minutes')
   cacheTag('organizations')

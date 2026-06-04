@@ -1,7 +1,7 @@
 import { cacheLife, cacheTag } from 'next/cache'
 import { readUser } from '~/db/query/user'
 
-export async function getCachedUser(userIds: string[]) {
+export const getCachedUser = async (userIds: string[]) => {
   'use cache'
   cacheLife('hours')
   cacheTag('user')
