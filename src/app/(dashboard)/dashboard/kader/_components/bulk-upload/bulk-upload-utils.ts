@@ -77,7 +77,10 @@ export const parseXLSXFile = (file: File): Promise<ParsedRow[]> => {
               row['Jenjang Pengkaderan'] ?? row['status'] ?? 'ab1'
             ).trim(),
             yearOfEntry:
-              row['Tahun Masuk KAMMI'] ?? row['Tahun Masuk'] ?? row['yearOfEntry'] ?? row['year_of_entry'],
+              row['Tahun Masuk KAMMI'] ??
+              row['Tahun Masuk'] ??
+              row['yearOfEntry'] ??
+              row['year_of_entry'],
             phone: String(row['No HP'] ?? row['phone'] ?? '').trim() || null,
             isCertifiedMentor:
               row['Pemandu'] ?? row['isCertifiedMentor'] ?? false,

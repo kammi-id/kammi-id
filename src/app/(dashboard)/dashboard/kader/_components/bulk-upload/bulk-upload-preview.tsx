@@ -73,7 +73,9 @@ export const BulkUploadPreview = ({
               <th className='px-3 py-2 text-left font-medium'>
                 Jenjang Pengkaderan *
               </th>
-              <th className='px-3 py-2 text-left font-medium'>Tahun Masuk KAMMI *</th>
+              <th className='px-3 py-2 text-left font-medium'>
+                Tahun Masuk KAMMI *
+              </th>
               <th className='px-3 py-2 text-left font-medium'>No HP</th>
               <th className='px-3 py-2 text-center font-medium'>Pemandu</th>
               <th className='px-3 py-2 text-center font-medium'>Instruktur</th>

@@ -11,7 +11,10 @@ const s3Hostname = (() => {
 })()
 
 const allowedImageHostnames = [
-  ...(process.env.NEXT_IMAGE_ALLOWED_HOSTNAMES ?? 'picsum.photos,images.unsplash.com')
+  ...(
+    process.env.NEXT_IMAGE_ALLOWED_HOSTNAMES ??
+    'picsum.photos,images.unsplash.com'
+  )
     .split(',')
     .map((h) => h.trim())
     .filter(Boolean),
