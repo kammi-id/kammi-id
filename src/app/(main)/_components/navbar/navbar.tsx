@@ -17,6 +17,7 @@ export const Navbar = async () => {
             src={Logo}
             alt='Pengurus Pusat Kesatuan Aksi Mahasiswa Muslim Indonesia'
             className='h-13 w-auto object-contain'
+            sizes='168px'
             priority
             style={{ width: 'auto', height: '52px' }}
           />

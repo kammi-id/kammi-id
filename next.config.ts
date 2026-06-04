@@ -1,5 +1,12 @@
 import type { NextConfig } from 'next'
 
+const allowedImageHostnames = (
+  process.env.NEXT_IMAGE_ALLOWED_HOSTNAMES ?? 'picsum.photos,images.unsplash.com'
+)
+  .split(',')
+  .map((h) => h.trim())
+  .filter(Boolean)
+
 const nextConfig: NextConfig = {
   output: 'standalone',
   cacheComponents: true,
@@ -12,16 +19,10 @@ const nextConfig: NextConfig = {
     proxyClientMaxBodySize: '50mb'
   },
   images: {
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'picsum.photos'
-      },
-      {
-        protocol: 'https',
-        hostname: 'images.unsplash.com'
-      }
-    ]
+    remotePatterns: allowedImageHostnames.map((hostname) => ({
+      protocol: 'https' as const,
+      hostname
+    }))
   }
 }
 

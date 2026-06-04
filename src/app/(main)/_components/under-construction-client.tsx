@@ -115,6 +115,7 @@ export const UnderConstructionClient = () => {
             src={Logo}
             alt='KAMMI Logo'
             className='h-12 w-auto object-contain'
+            sizes='40px'
             priority
           />
         </div>

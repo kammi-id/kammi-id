@@ -30,6 +30,7 @@ export const Footer = async () => {
               src={Logo}
               alt='KAMMI.id'
               className='h-16 w-auto object-contain'
+              sizes='206px'
               style={{ height: '64px', width: 'auto' }}
             />
             <p className='text-muted-foreground mt-4 max-w-xs font-sans text-sm leading-relaxed'>

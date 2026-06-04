@@ -78,6 +78,7 @@ export const AlumniSection = () => {
                   alt={`Foto ${person.name}`}
                   width={400}
                   height={280}
+                  sizes='(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw'
                   className='h-48 w-full object-cover grayscale transition-all duration-500 group-hover:scale-105 group-hover:grayscale-0'
                 />
                 <div

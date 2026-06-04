@@ -30,6 +30,7 @@ export const HeroSection = async () => {
                 src={item.resolvedImageUrl}
                 alt={item.title}
                 fill
+                sizes='100vw'
                 className='object-cover'
                 priority
                 unoptimized={item.resolvedImageUrl.includes('?')}

@@ -43,6 +43,7 @@ export const ActionsSection = async () => {
                   alt={`Dokumentasi ${featured.label}`}
                   width={600}
                   height={700}
+                  sizes='(max-width: 1024px) 100vw, 50vw'
                   className='h-64 w-full object-cover transition-transform duration-500 group-hover:scale-105 lg:h-full'
                   unoptimized={featured.imageSrc.includes('?')}
                 />
@@ -77,6 +78,7 @@ export const ActionsSection = async () => {
                   alt={`Dokumentasi ${program.label}`}
                   width={400}
                   height={280}
+                  sizes='(max-width: 1024px) 50vw, 25vw'
                   className='h-36 w-full object-cover transition-transform duration-500 group-hover:scale-105 lg:h-44'
                   unoptimized={program.imageSrc.includes('?')}
                 />

@@ -224,6 +224,7 @@ export const PengurusHeroClient = ({
                       alt={`Foto ${member.name}`}
                       width={800}
                       height={1067}
+                      sizes='(max-width: 768px) 30vw, 35vw'
                       className='h-full w-auto max-w-none object-contain object-bottom transition-transform duration-500 ease-out group-hover:scale-[1.02] max-md:rounded-t-[2rem] max-md:object-left-bottom'
                       unoptimized={member.photoSrc.startsWith('http')}
                     />
