@@ -14,16 +14,3 @@ export interface BaseUISelectProps {
   error?: string
   name?: string
 }
-
-export interface SelectState {
-  isOpen: boolean
-  selectedOption: SelectOption | null
-  highlightedIndex: number
-}
-
-export interface SelectActions {
-  open: () => void
-  close: () => void
-  selectOption: (option: SelectOption) => void
-  moveHighlight: (direction: 'up' | 'down') => void
-}
