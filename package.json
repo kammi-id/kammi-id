@@ -15,11 +15,14 @@
     "db:studio": "drizzle-kit studio",
     "dev": "next dev",
     "format": "prettier --write .",
+    "lint:fix": "eslint --fix",
     "start": "next start",
     "test": "bun test --preload ./tests/setup.ts",
     "test:coverage": "bun test --coverage --preload ./tests/setup.ts",
+    "test:docker": "bash scripts/test-docker.sh",
     "test:e2e": "playwright test",
-    "test:ct": "playwright test-ct"
+    "test:ct": "playwright test-ct",
+    "test:smoke": "bash scripts/smoke-test.sh"
   },
   "dependencies": {
     "@base-ui/react": "^1.4.1",
