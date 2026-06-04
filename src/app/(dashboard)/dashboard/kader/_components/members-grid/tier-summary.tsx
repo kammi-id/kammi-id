@@ -1,7 +1,3 @@
-'use client'
-
-import { HugeiconsIcon } from '@hugeicons/react'
-import { Database01Icon } from '@hugeicons/core-free-icons'
 import { cn } from '~/lib/shadcn/utils'
 
 interface TierSummaryProps {

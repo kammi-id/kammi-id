@@ -1,5 +1,3 @@
-'use client'
-
 import { fmt } from '~/lib/utils/format'
 
 interface SpecialistSummaryCardsProps {
