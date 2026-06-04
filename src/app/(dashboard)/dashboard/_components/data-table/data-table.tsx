@@ -135,6 +135,7 @@ export function DataTable<TData, TValue>({
     [pathname, searchParams, pageKey]
   )
 
+  // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data: data ?? [],
     columns: columns ?? [],

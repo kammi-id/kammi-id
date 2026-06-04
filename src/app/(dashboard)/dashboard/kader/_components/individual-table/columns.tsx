@@ -37,25 +37,20 @@ const MemberAvatar = ({
   name: string
   photo: string | null
 }) => {
-  const [src, setSrc] = useState<string | null>(null)
+  const isDirectUrl =
+    !photo ||
+    photo.startsWith('http://') ||
+    photo.startsWith('https://') ||
+    photo.startsWith('/')
+  // Signed URL for S3 keys — fetched asynchronously via server action
+  const [signedSrc, setSignedSrc] = useState<string | null>(null)
 
   useEffect(() => {
-    if (!photo) {
-      setSrc(null)
-      return
-    }
-    if (
-      photo.startsWith('http://') ||
-      photo.startsWith('https://') ||
-      photo.startsWith('/')
-    ) {
-      setSrc(photo)
-      return
-    }
-    getSignedUrlAction(photo)
-      .then(setSrc)
-      .catch(() => setSrc(null))
-  }, [photo])
+    if (isDirectUrl) return
+    getSignedUrlAction(photo!).then(setSignedSrc).catch(() => setSignedSrc(null))
+  }, [photo, isDirectUrl])
+
+  const src = isDirectUrl ? photo : signedSrc
 
   return (
     <Avatar className='size-8'>

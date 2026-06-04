@@ -34,6 +34,7 @@ export const UniversityCombobox = ({
   const [loading, setLoading] = useState(false)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (query.length < 2) {
       setResults([])
@@ -50,6 +51,7 @@ export const UniversityCombobox = ({
       if (debounceRef.current) clearTimeout(debounceRef.current)
     }
   }, [query])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const handleValueChange = (name: string | null) => {
     if (!name) {

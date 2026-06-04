@@ -19,7 +19,7 @@
  *   Total                                  ~8.0 units  (800%)
  */
 
-import { useRef, useCallback, useEffect } from 'react'
+import { useRef, useCallback, useEffect, useMemo } from 'react'
 import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
@@ -148,7 +148,7 @@ export const HomeScene = ({
   // Map interaction refs
   const tooltipRef = useRef<HTMLDivElement | null>(null)
   const mapHoveredRef = useRef(false)
-  const pwLookup = useRef(buildPWLookup(pwOrgs))
+  const pwLookup = useMemo(() => buildPWLookup(pwOrgs), [pwOrgs])
 
   // ── Tooltip: imperative DOM, lives in document.body ─────────────────────────
   useEffect(() => {
@@ -913,7 +913,7 @@ export const HomeScene = ({
         {/* Map: full-cover background — pans on hover */}
         <div ref={netMapRef} className='absolute inset-0 z-0'>
           <LeafletMap
-            pwLookup={pwLookup.current}
+            pwLookup={pwLookup}
             onTooltip={handleTooltip}
             onMapHover={handleMapHover}
           />

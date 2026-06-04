@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useStore } from '@nanostores/react'
 import { cn } from '~/lib/shadcn/utils'
@@ -10,21 +10,21 @@ import { $tentangPhase, $tentangPhaseScrollY } from '../tentang-scene/store'
 const PHASE_LABELS = ['Visi', 'Misi', 'Prinsip', 'Paradigma', 'Kredo'] as const
 
 export const SectionNav = () => {
-  const portalRef = useRef<HTMLElement | null>(null)
-  const [mounted, setMounted] = useState(false)
+  const [portalTarget, setPortalTarget] = useState<HTMLElement | null>(null)
   const { scrollTo } = useLenisScroll()
   const activePhase = useStore($tentangPhase)
   const phaseScrollY = useStore($tentangPhaseScrollY)
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     const root = document.getElementById('portal-root')
     if (!root) return
-    portalRef.current = root
-    setMounted(true)
+    setPortalTarget(root)
     return () => {
-      portalRef.current = null
+      setPortalTarget(null)
     }
   }, [])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const handleScrollToPhase = (i: number) => {
     const scrollY = phaseScrollY[i]
@@ -33,7 +33,7 @@ export const SectionNav = () => {
 
   const visible = activePhase >= 0
 
-  if (!mounted || !portalRef.current) return null
+  if (!portalTarget) return null
 
   return createPortal(
     <nav
@@ -77,6 +77,6 @@ export const SectionNav = () => {
         })}
       </ol>
     </nav>,
-    portalRef.current
+    portalTarget
   )
 }

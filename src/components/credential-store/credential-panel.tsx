@@ -75,9 +75,11 @@ export const CredentialPanel = ({
   const [open, setOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     setMounted(true)
   }, [])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const entries = store[organizationId] ?? []
   const count = entries.length

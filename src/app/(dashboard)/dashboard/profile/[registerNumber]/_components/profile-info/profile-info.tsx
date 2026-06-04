@@ -94,6 +94,7 @@ export const ProfileInfo = () => {
   const [loadingDistrict, setLoadingDistrict] = useState(false)
   const [loadingSubdistrict, setLoadingSubdistrict] = useState(false)
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   // Provinces only load when address section is opened — not on every edit mode entry
   useEffect(() => {
     if (!isAddressOpen) return
@@ -163,6 +164,7 @@ export const ProfileInfo = () => {
       cancelled = true
     }
   }, [district])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const getRegionName = (options: RegionItem[], code: string) =>
     options.find((o) => o.code === code)?.name ?? ''

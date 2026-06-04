@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import gsap from 'gsap'
@@ -74,7 +74,7 @@ export const NetworkSectionClient = ({
   // This avoids SSR hydration mismatches caused by next/dynamic partial bailouts.
   const tooltipRef = useRef<HTMLDivElement | null>(null)
   const mapHoveredRef = useRef(false)
-  const pwLookup = useRef(buildPWLookup(pwOrgs))
+  const pwLookup = useMemo(() => buildPWLookup(pwOrgs), [pwOrgs])
 
   // Create tooltip imperatively in document.body — client only, zero SSR footprint
   useEffect(() => {
@@ -268,7 +268,7 @@ export const NetworkSectionClient = ({
       {/* Map: full-cover background — like a hero image, interactive */}
       <div ref={mapAreaRef} className='absolute inset-0 z-0'>
         <LeafletMap
-          pwLookup={pwLookup.current}
+          pwLookup={pwLookup}
           onTooltip={handleTooltip}
           onMapHover={handleMapHover}
         />

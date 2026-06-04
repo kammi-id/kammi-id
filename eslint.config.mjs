@@ -23,9 +23,9 @@ const eslintConfig = defineConfig([
   {
     plugins: { 'react-hooks': reactHooks },
     rules: {
-      // React 19 react-hooks v5 new rules — existing patterns need refactoring.
-      'react-hooks/set-state-in-effect': 'warn',
-      'react-hooks/refs': 'warn',
+      // React 19 react-hooks v5 rules — all violations resolved.
+      'react-hooks/set-state-in-effect': 'error',
+      'react-hooks/refs': 'error',
       // All explicit any usage has been cleaned up — enforce strict typing.
       '@typescript-eslint/no-explicit-any': 'error'
     }

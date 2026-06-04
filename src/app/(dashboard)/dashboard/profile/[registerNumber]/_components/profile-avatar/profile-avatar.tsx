@@ -27,27 +27,24 @@ export const ProfileAvatar = ({
   memberId,
   canEdit
 }: ProfileAvatarProps) => {
-  const [preview, setPreview] = useState<string | null>(null)
+  const isDirectUrl =
+    !photoPath ||
+    photoPath.startsWith('http://') ||
+    photoPath.startsWith('https://') ||
+    photoPath.startsWith('/')
+  const [signedPreview, setSignedPreview] = useState<string | null>(null)
+  // optimisticPreview is set immediately when user selects a file for instant feedback
+  const [optimisticPreview, setPreview] = useState<string | null>(null)
   const [isUploading, startUpload] = useTransition()
   const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
-    if (!photoPath) {
-      setPreview(null)
-      return
-    }
-    if (
-      photoPath.startsWith('http://') ||
-      photoPath.startsWith('https://') ||
-      photoPath.startsWith('/')
-    ) {
-      setPreview(photoPath)
-      return
-    }
-    getSignedUrlAction(photoPath)
-      .then(setPreview)
-      .catch(() => setPreview(null))
-  }, [photoPath])
+    if (isDirectUrl) return
+    getSignedUrlAction(photoPath!).then(setSignedPreview).catch(() => setSignedPreview(null))
+  }, [photoPath, isDirectUrl])
+
+  const resolvedPreview = isDirectUrl ? photoPath : signedPreview
+  const preview = optimisticPreview ?? resolvedPreview
 
   const handleClick = () => {
     if (canEdit) inputRef.current?.click()
@@ -76,8 +73,9 @@ export const ProfileAvatar = ({
         const uploadedPath = await uploadImageAction(formData)
         await updateMemberPhotoAction(memberId, uploadedPath)
         URL.revokeObjectURL(localUrl)
+        setPreview(null) // clear optimistic preview — server will provide new URL
       } catch {
-        setPreview(previousPreview)
+        setPreview(previousPreview as string | null)
         URL.revokeObjectURL(localUrl)
         toast.error('Gagal mengupload foto. Silakan coba lagi.')
       }

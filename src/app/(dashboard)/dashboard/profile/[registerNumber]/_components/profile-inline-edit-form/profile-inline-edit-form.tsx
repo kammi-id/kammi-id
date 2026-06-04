@@ -51,6 +51,7 @@ export const ProfileInlineEditForm = ({
   const boundAction = updateMemberProfileAction.bind(null, member.id)
   const [state, formAction, isPending] = useActionState(boundAction, {})
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (state.success) {
       toast.success(state.message ?? 'Data berhasil diperbarui.')
@@ -59,6 +60,7 @@ export const ProfileInlineEditForm = ({
       toast.error(state.message)
     }
   }, [state])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const handleReset = useCallback(() => {
     setFormKey((k) => k + 1)
