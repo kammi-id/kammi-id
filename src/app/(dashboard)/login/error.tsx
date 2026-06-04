@@ -2,10 +2,7 @@
 
 import { ErrorView } from '~/components/error-view'
 
-const ErrorPage = ({
-  error: _error,
-  reset: _reset
-}: {
+const ErrorPage = (_props: {
   error: Error & { digest?: string }
   reset: () => void
 }) => {
