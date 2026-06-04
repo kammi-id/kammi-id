@@ -1,3 +1,17 @@
+import type { Metadata } from 'next'
+
+export const generateMetadata = async ({
+  params
+}: {
+  params: Promise<{ registerNumber: string }>
+}): Promise<Metadata> => {
+  const { registerNumber } = await params
+  return {
+    title: `Profil ${registerNumber} | KAMMI.id`,
+    description: `Data profil kader KAMMI dengan nomor registrasi ${registerNumber}.`
+  }
+}
+
 import { notFound } from 'next/navigation'
 import { readActiveSession } from '~/lib/auth/cookies'
 import { readMemberByRegisterNumber } from '~/db/query/member'

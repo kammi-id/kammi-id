@@ -1,3 +1,10 @@
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Dashboard | KAMMI.id',
+  description: 'Ringkasan data kader, pelatihan, dan statistik organisasi.'
+}
+
 import { readActiveSession } from '~/lib/auth/cookies'
 import { fetchAllowedOrgIds } from '~/db/query/organization'
 import { readMemberAggregates } from '~/db/query/member'

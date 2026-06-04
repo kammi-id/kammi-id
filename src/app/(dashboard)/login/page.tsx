@@ -1,3 +1,10 @@
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Masuk | KAMMI.id',
+  description: 'Login ke dashboard KAMMI.id.'
+}
+
 import { LoginForm } from './_components/login-form'
 import { readActiveSession } from '~/lib/auth/cookies'
 import { redirect } from 'next/navigation'

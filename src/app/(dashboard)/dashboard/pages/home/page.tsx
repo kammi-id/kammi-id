@@ -1,3 +1,10 @@
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Pengaturan Halaman Utama | KAMMI.id',
+  description: 'Kelola konten halaman utama situs KAMMI.'
+}
+
 import { redirect } from 'next/navigation'
 import { readActiveSession } from '~/lib/auth/cookies'
 import { HugeiconsIcon } from '@hugeicons/react'

@@ -1,3 +1,10 @@
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Alumni | KAMMI.id',
+  description: 'Daftar alumni kader KAMMI.'
+}
+
 import { MembersPageContent } from '../../kader/_components/members-page-content'
 import { AccessGuard } from '~/components/access-guard/access-guard'
 

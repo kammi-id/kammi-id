@@ -1,3 +1,10 @@
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Notifikasi | KAMMI.id',
+  description: 'Pusat notifikasi dan pemberitahuan.'
+}
+
 import { Notification03Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 

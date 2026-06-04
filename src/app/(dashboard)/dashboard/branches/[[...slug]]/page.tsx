@@ -1,3 +1,10 @@
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Cabang | KAMMI.id',
+  description: 'Manajemen cabang dan jaringan organisasi KAMMI.'
+}
+
 import { AccessGuard } from '~/components/access-guard'
 import { redirect } from 'next/navigation'
 import { readActiveSession } from '~/lib/auth/cookies'

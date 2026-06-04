@@ -1,3 +1,10 @@
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Detail Dauroh | KAMMI.id',
+  description: 'Informasi peserta dan instruktur dauroh.'
+}
+
 import { notFound } from 'next/navigation'
 import { trainingQuery } from '~/db/query/training'
 import { TrainingDetailView } from '~/app/(dashboard)/dashboard/trainings/_components/training-detail-view'

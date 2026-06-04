@@ -1,3 +1,10 @@
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Dauroh | KAMMI.id',
+  description: 'Jadwal dan manajemen dauroh serta pelatihan KAMMI.'
+}
+
 import { trainingQuery } from '~/db/query/training'
 import { readOrganization, fetchAllowedOrgIds } from '~/db/query/organization'
 import { AddTrainingModal } from './_components/add-training-modal'

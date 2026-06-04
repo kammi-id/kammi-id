@@ -1,3 +1,10 @@
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Akun | KAMMI.id',
+  description: 'Pengaturan profil dan kata sandi akun pengguna.'
+}
+
 import { AccountForm } from './_components/account-form'
 import { PasswordForm } from './_components/password-form'
 import { redirect } from 'next/navigation'

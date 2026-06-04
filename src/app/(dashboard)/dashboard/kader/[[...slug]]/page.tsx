@@ -1,3 +1,10 @@
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Kader | KAMMI.id',
+  description: 'Daftar dan manajemen kader organisasi KAMMI.'
+}
+
 import { MembersPageContent } from '../_components/members-page-content'
 
 export default async function Page({
