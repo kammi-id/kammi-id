@@ -1,6 +1,5 @@
 import { createOrganization } from '../db/query/organization'
 import organizationData from './data/organization.json5'
-import { writeFileSync } from 'node:fs'
 
 const main = async () => {
   console.log('🌱 Seeding database (JSON5 mode)...')
@@ -49,7 +48,7 @@ const main = async () => {
     )
   ].join('\n')
 
-  writeFileSync('users.csv', csvContent)
+  await Bun.write('users.csv', csvContent)
 
   console.log(
     '✅ Seeding completed! All organizations and related users are created.'
