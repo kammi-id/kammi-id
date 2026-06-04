@@ -1,0 +1,14 @@
+[mcp_servers.next-devtools]
+command = "npx"
+args = [ "-y", "next-devtools-mcp@latest" ]
+startup_timeout_ms = 20_000
+
+[mcp_servers.shadcn]
+command = "npx"
+args = [ "-y", "shadcn@latest", "mcp" ]
+startup_timeout_ms = 20_000
+
+[mcp_servers.chrome-devtools]
+command = "npx"
+args = [ "-y", "chrome-devtools-mcp@latest" ]
+startup_timeout_ms = 20_000

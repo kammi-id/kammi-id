@@ -1,0 +1,31 @@
+services:
+  db:
+    container_name: db
+    image: postgres:18.3-bookworm
+    environment:
+      POSTGRES_PASSWORD: db
+    ports:
+      - '5432:5432'
+    volumes:
+      - db_data:/var/lib/postgresql
+
+  adminer:
+    container_name: adminer
+    image: adminer:latest
+    ports:
+      - '5433:8080'
+
+  storage:
+    container_name: storage
+    image: quay.io/minio/aistor/minio:latest
+    command: ['minio', 'server', '/mnt/data', '--license', '/minio.license']
+    ports:
+      - '9000:9000'
+      - '9001:9001'
+    volumes:
+      - ./minio.license:/minio.license
+      - storage_data:/mnt/data
+
+volumes:
+  db_data:
+  storage_data:

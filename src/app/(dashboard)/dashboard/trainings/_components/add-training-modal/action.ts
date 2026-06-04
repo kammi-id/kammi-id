@@ -1,0 +1,135 @@
+'use server'
+
+import { z } from 'zod'
+import {
+  trainingQuery,
+  searchEligibleInstructorsGlobal
+} from '~/db/query/training'
+import { updateTag } from 'next/cache'
+import { readActiveSession } from '~/lib/auth/cookies'
+
+const TrainingSchema = z.object({
+  organizationId: z.string().uuid(),
+  name: z.string().min(1, 'Name is required'),
+  startDate: z.string().refine(
+    (date) => {
+      const start = new Date(date)
+      const today = new Date()
+      today.setHours(0, 0, 0, 0)
+      return start >= today
+    },
+    { message: 'Start date must be in the future or today' }
+  ),
+  endDate: z.string(),
+  registrationDeadline: z
+    .string()
+    .transform((v) => v || undefined)
+    .optional(),
+  type: z.enum(['dm1', 'dm2', 'dpmk', 'tfi', 'dm3', 'other']),
+  masterId: z.string().min(1, 'Master of Training wajib diisi')
+})
+
+type ActionResponse<T = unknown> = {
+  success: boolean
+  message: string
+  errors?: Record<string, string[]>
+  data?: T
+  values?: Record<string, string>
+}
+
+export const searchMasterCandidatesAction = async (query: string) => {
+  if (query.length < 2) return { data: [], success: true }
+  try {
+    const data = await searchEligibleInstructorsGlobal(query)
+    return { data, success: true }
+  } catch {
+    return { data: [], success: false }
+  }
+}
+
+export const createTrainingAction = async (
+  _prevState: ActionResponse,
+  formData: FormData
+): Promise<ActionResponse> => {
+  try {
+    const session = await readActiveSession()
+    if (!session) return { success: false, message: 'Sesi tidak ditemukan.' }
+
+    const { user } = session
+    if (!user) return { success: false, message: 'Pengguna tidak ditemukan.' }
+
+    const mutationRoles = ['root', 'bpk']
+    if (!mutationRoles.includes(user.role)) {
+      return {
+        success: false,
+        message: 'Antum tidak memiliki hak akses untuk menambah dauroh.'
+      }
+    }
+
+    const rawData = Object.fromEntries(formData.entries())
+    const validated = TrainingSchema.safeParse(rawData)
+
+    if (!validated.success) {
+      return {
+        success: false,
+        message: 'Validation failed',
+        errors: validated.error.flatten().fieldErrors,
+        values: Object.fromEntries(
+          Object.entries(rawData).filter(([, v]) => v != null)
+        ) as Record<string, string>
+      }
+    }
+
+    const data = validated.data
+
+    if (new Date(data.endDate) < new Date(data.startDate)) {
+      return {
+        success: false,
+        message: 'End date cannot be before start date',
+        errors: { endDate: ['End date cannot be before start date'] },
+        values: Object.fromEntries(
+          Object.entries(rawData).filter(
+            ([, v]) => v != null && typeof v === 'string'
+          )
+        ) as Record<string, string>
+      }
+    }
+
+    if (
+      data.registrationDeadline &&
+      new Date(data.registrationDeadline) > new Date(data.startDate)
+    ) {
+      return {
+        success: false,
+        message: 'Registration deadline cannot be after start date',
+        errors: {
+          registrationDeadline: [
+            'Registration deadline cannot be after start date'
+          ]
+        },
+        values: Object.fromEntries(
+          Object.entries(rawData).filter(
+            ([, v]) => v != null && typeof v === 'string'
+          )
+        ) as Record<string, string>
+      }
+    }
+
+    const created = await trainingQuery.create(data)
+
+    await trainingQuery.addInstructor(created.id, data.masterId, 'master')
+
+    updateTag('dauroh')
+    return {
+      success: true,
+      message: 'Training created successfully',
+      data: created
+    }
+  } catch (error) {
+    console.error('[createTrainingAction]', error)
+    return {
+      success: false,
+      message: 'An unexpected error occurred while creating training'
+    }
+  }
+}

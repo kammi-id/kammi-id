@@ -1,0 +1,5 @@
+[     646ms] [VERBOSE] [DOM] Password field is not contained in a form: (More info: https://goo.gl/9p2vKq) %o @ https://docs.api.co.id/products/indonesia-universities/#/Universities/get_regional_indonesia_universities:0
+[     963ms] [WARNING] Warning: escaping deep link whitespace with `_` will be unsupported in v4.0, use `%20` instead. @ https://docs.api.co.id/assets/js/common.2644d91f.js:1
+[     966ms] [WARNING] Warning: escaping deep link whitespace with `_` will be unsupported in v4.0, use `%20` instead. @ https://docs.api.co.id/assets/js/common.2644d91f.js:1
+[    1017ms] [ERROR] Failed to load resource: net::ERR_BLOCKED_BY_RESPONSE.NotSameOrigin @ https://dashboard.api.co.id/favicon.png:0
+[    2303ms] [ERROR] Failed to load resource: net::ERR_BLOCKED_BY_RESPONSE.NotSameOrigin @ https://dashboard.api.co.id/favicon.png:0

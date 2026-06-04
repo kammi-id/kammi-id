@@ -1,0 +1,9 @@
+[install]
+frozen = true
+
+[test]
+preload = ["./tests/setup.ts"]
+exclude = ["**/*.playwright.ts", "**/*.playwright.tsx"]
+
+[run]
+bun = true

@@ -1,0 +1,262 @@
+'use client'
+
+import { useStore } from '@nanostores/react'
+import { useState, useEffect } from 'react'
+import { HugeiconsIcon } from '@hugeicons/react'
+import {
+  Key01Icon,
+  Download04Icon,
+  Delete02Icon,
+  InformationCircleIcon
+} from '@hugeicons/core-free-icons'
+import { Button } from '~/components/shadcn/ui/button'
+import { Badge } from '~/components/shadcn/ui/badge'
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger
+} from '~/components/shadcn/ui/sheet'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger
+} from '~/components/shadcn/ui/alert-dialog'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger
+} from '~/components/shadcn/ui/tooltip'
+import {
+  credentialStore,
+  clearCredentials,
+  type CredentialEntry
+} from './store'
+
+type CredentialPanelProps = {
+  organizationId: string
+  orgSlug: string
+}
+
+const downloadCSV = (entries: CredentialEntry[], orgSlug: string) => {
+  const today = new Date().toISOString().slice(0, 10)
+  const filename = `credentials-${orgSlug}-${today}.csv`
+
+  const header = 'Nama,NIA (Username),Password,Tanggal Generate'
+  const rows = entries.map(
+    (e) => `"${e.name}","${e.registerNumber}","${e.password}","${e.createdAt}"`
+  )
+  const csv = [header, ...rows].join('\n')
+
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.setAttribute('download', filename)
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+  URL.revokeObjectURL(url)
+}
+
+export const CredentialPanel = ({
+  organizationId,
+  orgSlug
+}: CredentialPanelProps) => {
+  const store = useStore(credentialStore)
+  const [open, setOpen] = useState(false)
+  const [mounted, setMounted] = useState(false)
+
+  /* eslint-disable react-hooks/set-state-in-effect */
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+  /* eslint-enable react-hooks/set-state-in-effect */
+
+  const entries = store[organizationId] ?? []
+  const count = entries.length
+
+  const handleClear = () => {
+    clearCredentials(organizationId)
+  }
+
+  return (
+    <Sheet open={open} onOpenChange={setOpen}>
+      <Tooltip>
+        <TooltipTrigger render={<span />}>
+          <SheetTrigger
+            render={
+              <Button
+                variant='ghost'
+                size='icon'
+                className='relative'
+                aria-label='Lihat credential tersimpan'
+              />
+            }
+          >
+            <HugeiconsIcon icon={Key01Icon} strokeWidth={2} />
+            {mounted && count > 0 && (
+              <Badge
+                className='absolute -top-1 -right-1 h-4 min-w-4 px-1 text-[10px] leading-none'
+                variant='default'
+              >
+                {count > 99 ? '99+' : count}
+              </Badge>
+            )}
+          </SheetTrigger>
+        </TooltipTrigger>
+        <TooltipContent>Credential Tersimpan</TooltipContent>
+      </Tooltip>
+
+      <SheetContent
+        side='right'
+        className='flex w-full flex-col gap-0 p-0 sm:max-w-lg'
+      >
+        <SheetHeader className='border-b px-6 pt-6 pb-4'>
+          <SheetTitle>Credential Tersimpan</SheetTitle>
+          <SheetDescription>
+            {count > 0
+              ? `${count} credential tersimpan untuk organisasi ini`
+              : 'Belum ada credential tersimpan'}
+          </SheetDescription>
+        </SheetHeader>
+
+        <div className='bg-muted/30 text-muted-foreground flex items-start gap-2 border-b px-6 py-3 text-xs'>
+          <HugeiconsIcon
+            icon={InformationCircleIcon}
+            strokeWidth={2}
+            className='mt-0.5 size-3.5 shrink-0'
+          />
+          <span>
+            Data ini hanya tersimpan di browser ini. Download CSV untuk
+            menyimpan secara permanen.
+          </span>
+        </div>
+
+        <div className='flex-1 overflow-auto'>
+          {count === 0 ? (
+            <div className='text-muted-foreground flex flex-col items-center justify-center gap-3 px-6 py-16 text-center'>
+              <HugeiconsIcon
+                icon={Key01Icon}
+                strokeWidth={1.5}
+                className='size-10 opacity-40'
+              />
+              <p className='text-sm'>
+                Belum ada credential yang di-generate. Upload XLSX kader untuk
+                mulai generate.
+              </p>
+            </div>
+          ) : (
+            <div className='overflow-x-auto'>
+              <table className='w-full text-sm'>
+                <thead>
+                  <tr className='bg-muted/40 border-b'>
+                    <th
+                      scope='col'
+                      className='font-geist-mono text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wide uppercase'
+                    >
+                      Nama
+                    </th>
+                    <th
+                      scope='col'
+                      className='font-geist-mono text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wide uppercase'
+                    >
+                      NIA
+                    </th>
+                    <th
+                      scope='col'
+                      className='font-geist-mono text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wide uppercase'
+                    >
+                      Password
+                    </th>
+                    <th
+                      scope='col'
+                      className='font-geist-mono text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wide whitespace-nowrap uppercase'
+                    >
+                      Tgl. Generate
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {entries.map((entry) => (
+                    <tr
+                      key={entry.registerNumber}
+                      className='hover:bg-muted/20 border-b transition-colors last:border-0'
+                    >
+                      <td className='max-w-[160px] truncate px-4 py-3 font-medium'>
+                        {entry.name}
+                      </td>
+                      <td className='px-4 py-3 font-mono text-xs'>
+                        {entry.registerNumber}
+                      </td>
+                      <td className='px-4 py-3 font-mono text-xs'>
+                        {entry.password}
+                      </td>
+                      <td className='text-muted-foreground px-4 py-3 text-xs whitespace-nowrap'>
+                        {new Date(entry.createdAt).toLocaleDateString('id-ID', {
+                          day: '2-digit',
+                          month: 'short',
+                          year: 'numeric'
+                        })}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+
+        {count > 0 && (
+          <div className='flex items-center justify-between gap-3 border-t px-6 py-4'>
+            <AlertDialog>
+              <AlertDialogTrigger
+                render={
+                  <Button
+                    variant='outline'
+                    size='sm'
+                    className='text-destructive border-destructive/30 hover:bg-destructive/10 hover:text-destructive'
+                  />
+                }
+              >
+                <HugeiconsIcon icon={Delete02Icon} strokeWidth={2} />
+                Hapus Semua
+              </AlertDialogTrigger>
+              <AlertDialogContent size='sm'>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Hapus semua credential?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Tindakan ini tidak dapat dibatalkan. Semua {count}{' '}
+                    credential yang tersimpan untuk organisasi ini akan dihapus.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Batal</AlertDialogCancel>
+                  <AlertDialogAction
+                    variant='destructive'
+                    onClick={handleClear}
+                  >
+                    Hapus Semua
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+
+            <Button size='sm' onClick={() => downloadCSV(entries, orgSlug)}>
+              <HugeiconsIcon icon={Download04Icon} strokeWidth={2} />
+              Download CSV
+            </Button>
+          </div>
+        )}
+      </SheetContent>
+    </Sheet>
+  )
+}
