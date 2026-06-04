@@ -10,6 +10,9 @@ import { BranchesPagination } from './branches-pagination'
 import { BranchManagementSheet } from './branch-management-sheet'
 import { EmptyState } from '~/components/shadcn/ui/empty-state'
 
+// Prop-drilling audit: BranchesGrid passes ≤3 props to each child.
+// Sub-components are already well-separated files; Compound Component pattern
+// would add indirection without benefit here. Leave as-is.
 interface BranchesGridProps {
   data: Organization[]
   basePath: string

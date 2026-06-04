@@ -108,15 +108,18 @@ export const AsyncSelect = ({
                     ))}
 
                     {onLoadMore && (
-                      <div
-                        className='cursor-pointer px-3 py-2 text-center text-sm text-blue-600 transition-colors hover:bg-slate-100 dark:text-blue-400 dark:hover:bg-slate-800'
+                      <button
+                        type='button'
+                        className='w-full cursor-pointer px-3 py-2 text-center text-sm text-blue-600 transition-colors hover:bg-slate-100 dark:text-blue-400 dark:hover:bg-slate-800'
                         onClick={(e) => {
                           e.stopPropagation()
                           onLoadMore()
                         }}
+                        disabled={isLoading}
+                        aria-label='Load more options'
                       >
                         {isLoading ? 'Loading more...' : 'Load more'}
-                      </div>
+                      </button>
                     )}
                   </>
                 )}
