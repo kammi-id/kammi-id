@@ -1,4 +1,4 @@
-import { MembersPageContent } from '../_components/MembersPageContent'
+import { MembersPageContent } from '../_components/members-page-content'
 
 export default async function Page({
   params,
