@@ -1,7 +1,7 @@
 'use server'
 
 import { z } from 'zod'
-import { revalidatePath, updateTag } from 'next/cache'
+import { updateTag } from 'next/cache'
 import { createMember, updateMember } from '~/db/query/member'
 import { generateRegisterNumber } from '~/lib/utils/member'
 import { readActiveSession } from '~/lib/auth/cookies'
@@ -106,10 +106,6 @@ export const createMemberAction = async (
     })
 
     updateTag('kader')
-    revalidatePath('/dashboard/kader')
-    revalidatePath('/dashboard/alumni')
-    revalidatePath('/dashboard/pemandu')
-    revalidatePath('/dashboard/instruktur')
 
     return { success: true, message: 'Kader berhasil ditambahkan!' }
   } catch (error: unknown) {
@@ -170,10 +166,6 @@ export const updateMemberAction = async (
     await updateMember(data, id)
 
     updateTag('kader')
-    revalidatePath('/dashboard/kader')
-    revalidatePath('/dashboard/alumni')
-    revalidatePath('/dashboard/pemandu')
-    revalidatePath('/dashboard/instruktur')
 
     return { success: true, message: 'Data kader berhasil diperbarui!' }
   } catch (error: unknown) {

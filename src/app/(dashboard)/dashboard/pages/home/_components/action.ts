@@ -1,7 +1,7 @@
 'use server'
 
 import { cookies } from 'next/headers'
-import { revalidatePath, updateTag } from 'next/cache'
+import { updateTag } from 'next/cache'
 import { validateSession } from '~/lib/auth/api'
 import { upsertSiteSettings } from '~/db/query/site-settings'
 import { z } from 'zod'
@@ -69,7 +69,7 @@ export const saveHomeHeroItemsAction = async (
 
   try {
     await upsertSiteSettings('home-hero-items', { items: result.data }, orgId)
-    revalidatePath('/')
+    updateTag('site-settings')
     updateTag(`site-settings-home-hero-items-${orgId}`)
     return { success: true }
   } catch {
@@ -104,7 +104,7 @@ export const saveHomeExtraItemsAction = async (
 
   try {
     await upsertSiteSettings('home-extra-items', { items: result.data }, orgId)
-    revalidatePath('/')
+    updateTag('site-settings')
     updateTag(`site-settings-home-extra-items-${orgId}`)
     return { success: true }
   } catch {
@@ -160,7 +160,7 @@ export const saveHeroAction = async (
 
   try {
     await upsertSiteSettings('hero', result.data, orgId)
-    revalidatePath('/')
+    updateTag('site-settings')
     updateTag(`site-settings-hero-${orgId}`)
     return { success: true }
   } catch {
@@ -209,7 +209,7 @@ export const saveAboutAction = async (
 
   try {
     await upsertSiteSettings('about', result.data, orgId)
-    revalidatePath('/')
+    updateTag('site-settings')
     updateTag(`site-settings-about-${orgId}`)
     return { success: true }
   } catch {
@@ -269,7 +269,7 @@ export const saveActionsAction = async (
 
   try {
     await upsertSiteSettings('actions', result.data, orgId)
-    revalidatePath('/')
+    updateTag('site-settings')
     updateTag(`site-settings-actions-${orgId}`)
     return { success: true }
   } catch {
@@ -318,7 +318,7 @@ export const saveNavAction = async (
 
   try {
     await upsertSiteSettings('nav', result.data, orgId)
-    revalidatePath('/')
+    updateTag('site-settings')
     updateTag(`site-settings-nav-${orgId}`)
     return { success: true }
   } catch {
@@ -378,7 +378,7 @@ export const saveFooterAction = async (
 
   try {
     await upsertSiteSettings('footer', result.data, orgId)
-    revalidatePath('/')
+    updateTag('site-settings')
     updateTag(`site-settings-footer-${orgId}`)
     return { success: true }
   } catch {
@@ -420,7 +420,7 @@ export const saveMetadataAction = async (
 
   try {
     await upsertSiteSettings('metadata', result.data, orgId)
-    revalidatePath('/')
+    updateTag('site-settings')
     updateTag(`site-settings-metadata-${orgId}`)
     return { success: true }
   } catch {

@@ -1,7 +1,7 @@
 'use server'
 
 import { cookies } from 'next/headers'
-import { revalidatePath, updateTag } from 'next/cache'
+import { updateTag } from 'next/cache'
 import { validateSession } from '~/lib/auth/api'
 import { upsertSiteSettings } from '~/db/query/site-settings'
 import { z } from 'zod'
@@ -108,7 +108,7 @@ export const saveLeadershipAction = async (
 
   try {
     await upsertSiteSettings('leadership', result.data, orgId)
-    revalidatePath('/')
+    updateTag('site-settings')
     updateTag(`site-settings-leadership-${orgId}`)
     return { success: true }
   } catch {

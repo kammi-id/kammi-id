@@ -5,7 +5,7 @@ import {
   trainingQuery,
   searchEligibleInstructorsGlobal
 } from '~/db/query/training'
-import { revalidatePath } from 'next/cache'
+import { updateTag } from 'next/cache'
 import { readActiveSession } from '~/lib/auth/cookies'
 
 const TrainingSchema = z.object({
@@ -119,7 +119,7 @@ export const createTrainingAction = async (
 
     await trainingQuery.addInstructor(created.id, data.masterId, 'master')
 
-    revalidatePath('/dashboard/trainings')
+    updateTag('dauroh')
     return {
       success: true,
       message: 'Training created successfully',

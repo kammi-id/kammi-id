@@ -1,7 +1,7 @@
 'use server'
 
 import { cookies } from 'next/headers'
-import { revalidatePath, updateTag } from 'next/cache'
+import { updateTag } from 'next/cache'
 import { validateSession } from '~/lib/auth/api'
 import { upsertSiteSettings } from '~/db/query/site-settings'
 import { z } from 'zod'
@@ -38,8 +38,7 @@ const persist = async (
 ): Promise<SettingsActionState> => {
   try {
     await upsertSiteSettings(key, data, orgId)
-    revalidatePath('/tentang')
-    revalidatePath('/dashboard/pages/tentang')
+    updateTag('site-settings')
     updateTag(`site-settings-tentang-${orgId}`)
     return { success: true }
   } catch {

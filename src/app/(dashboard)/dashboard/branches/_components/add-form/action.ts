@@ -2,7 +2,7 @@
 
 import { readActiveSession } from '~/lib/auth/cookies'
 import { z } from 'zod'
-import { revalidatePath, updateTag } from 'next/cache'
+import { updateTag } from 'next/cache'
 import { createOrganization, updateOrganization } from '~/db/query/organization'
 
 const orgSchema = z.object({
@@ -63,7 +63,6 @@ export const createOrganizationAction = async (
 
     await createOrganization(validated.data)
     updateTag('organizations')
-    revalidatePath('/dashboard/branches')
 
     return {
       success: true,
@@ -123,7 +122,6 @@ export const updateOrganizationAction = async (
 
     await updateOrganization({ ...validated.data }, id)
     updateTag('organizations')
-    revalidatePath('/dashboard/branches')
 
     return {
       success: true,

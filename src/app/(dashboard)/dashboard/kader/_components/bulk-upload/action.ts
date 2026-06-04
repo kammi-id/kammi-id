@@ -3,7 +3,7 @@
 import { z } from 'zod'
 import { db } from '~/db/db'
 import { eq, ilike, desc } from 'drizzle-orm'
-import { revalidatePath } from 'next/cache'
+import { updateTag } from 'next/cache'
 import { readActiveSession } from '~/lib/auth/cookies'
 import { isOrgInScope } from '~/db/query/organization'
 import { generatePassword, hashPassword } from '~/lib/utils/user'
@@ -210,7 +210,7 @@ export const bulkCreateMembersAction = async (
       return results
     })
 
-    revalidatePath('/dashboard/kader')
+    updateTag('kader')
 
     return {
       success: true,
