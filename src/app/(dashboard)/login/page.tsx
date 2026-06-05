@@ -1,6 +1,12 @@
+import type { Metadata } from 'next'
 import { LoginForm } from './_components/login-form'
 import { readActiveSession } from '~/lib/auth/cookies'
 import { redirect } from 'next/navigation'
+
+export const metadata: Metadata = {
+  title: 'Masuk',
+  description: 'Masuk ke dashboard pengelola KAMMI.id.',
+}
 
 const LoginPage = async (props: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>

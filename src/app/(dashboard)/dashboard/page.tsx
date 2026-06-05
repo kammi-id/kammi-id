@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { readActiveSession } from '~/lib/auth/cookies'
 import { fetchAllowedOrgIds } from '~/db/query/organization'
 import { readMemberAggregates } from '~/db/query/member'
@@ -9,6 +10,11 @@ import { DashboardStats } from './_components/dashboard-stats'
 import { KaderBentoStats } from './_components/kader-bento-stats'
 import { WilayahStats } from './_components/wilayah-stats'
 import { UpcomingTrainings } from './_components/upcoming-trainings'
+
+export const metadata: Metadata = {
+  title: 'Dashboard',
+  description: 'Panel pengelolaan data dan konten KAMMI.id.',
+}
 
 // readMemberAggregates returns accumulated rows per org (children rolled up into parents).
 // The anchor (root) row has the minimum level and already contains the grand total.
