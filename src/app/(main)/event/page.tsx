@@ -2,16 +2,33 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Calendar01Icon } from '@hugeicons/core-free-icons'
+import { buildBreadcrumb } from '~/lib/seo'
 
 export const metadata: Metadata = {
-  title: 'Event & Agenda — KAMMI.id',
+  title: 'Event & Agenda',
   description:
-    'Ikuti berbagai agenda pelatihan kaderisasi, seminar nasional, diskusi publik, dan kongres Kesatuan Aksi Mahasiswa Muslim Indonesia.'
+    'Ikuti berbagai agenda pelatihan kaderisasi, seminar nasional, diskusi publik, dan kongres Kesatuan Aksi Mahasiswa Muslim Indonesia.',
+  openGraph: {
+    title: 'Event & Agenda',
+    description:
+      'Ikuti berbagai agenda pelatihan kaderisasi, seminar nasional, diskusi publik, dan kongres Kesatuan Aksi Mahasiswa Muslim Indonesia.'
+  }
 }
 
 const EventPage = () => {
   return (
     <div className='bg-background min-h-[70vh] pb-24'>
+      <script
+        type='application/ld+json'
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(
+            buildBreadcrumb([
+              { name: 'Beranda', url: '/' },
+              { name: 'Event & Agenda', url: '/event' }
+            ])
+          )
+        }}
+      />
       {/* Breadcrumb */}
       <nav
         aria-label='Breadcrumb'

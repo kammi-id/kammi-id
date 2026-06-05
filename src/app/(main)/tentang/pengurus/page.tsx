@@ -4,11 +4,17 @@ import Link from 'next/link'
 import { PengurusHero } from './_components/pengurus-hero'
 import { LeadersDirectory } from './_components/leaders-directory'
 import { ScrollProgress } from './_components/scroll-progress'
+import { buildBreadcrumb } from '~/lib/seo'
 
 export const metadata: Metadata = {
-  title: 'Pengurus Pusat — KAMMI.id',
+  title: 'Pengurus Pusat',
   description:
-    'Mengenal Ketua Umum, Sekretaris Jenderal, Bendahara Umum, dan seluruh jajaran Pengurus Pusat KAMMI.'
+    'Mengenal Ketua Umum, Sekretaris Jenderal, Bendahara Umum, dan seluruh jajaran Pengurus Pusat KAMMI.',
+  openGraph: {
+    title: 'Pengurus Pusat',
+    description:
+      'Mengenal Ketua Umum, Sekretaris Jenderal, Bendahara Umum, dan seluruh jajaran Pengurus Pusat KAMMI.'
+  }
 }
 
 const LeadershipSkeleton = () => (
@@ -63,6 +69,18 @@ const DirectorySkeleton = () => (
 const PengurusPage = () => {
   return (
     <>
+      <script
+        type='application/ld+json'
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(
+            buildBreadcrumb([
+              { name: 'Beranda', url: '/' },
+              { name: 'Tentang', url: '/tentang' },
+              { name: 'Pengurus Pusat', url: '/tentang/pengurus' }
+            ])
+          )
+        }}
+      />
       <ScrollProgress />
 
       {/* Breadcrumb */}

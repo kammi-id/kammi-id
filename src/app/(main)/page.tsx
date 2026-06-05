@@ -26,6 +26,11 @@ export const generateMetadata = async (): Promise<Metadata> => {
           alt: 'KAMMI.id'
         }
       ]
+    },
+    twitter: {
+      title: meta.pageTitle,
+      description: meta.metaDescription,
+      images: [meta.ogImageUrl]
     }
   }
 }

@@ -3,11 +3,17 @@ import Link from 'next/link'
 import { TentangScene } from './_components/tentang-scene'
 import { SectionNav } from './_components/section-nav'
 import { getTentangSettings } from '~/app/(main)/_data/site-settings'
+import { buildBreadcrumb } from '~/lib/seo'
 
 export const metadata: Metadata = {
-  title: 'Tentang KAMMI',
+  title: 'Tentang',
   description:
-    'Mengenal KAMMI — sejarah, visi, misi, karakteristik, prinsip, paradigma, dan kredo gerakan.'
+    'Mengenal KAMMI — sejarah, visi, misi, karakteristik, prinsip, paradigma, dan kredo gerakan.',
+  openGraph: {
+    title: 'Tentang',
+    description:
+      'Mengenal KAMMI — sejarah, visi, misi, karakteristik, prinsip, paradigma, dan kredo gerakan.'
+  }
 }
 
 const TentangPage = async () => {
@@ -15,6 +21,17 @@ const TentangPage = async () => {
 
   return (
     <>
+      <script
+        type='application/ld+json'
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(
+            buildBreadcrumb([
+              { name: 'Beranda', url: '/' },
+              { name: 'Tentang', url: '/tentang' }
+            ])
+          )
+        }}
+      />
       <SectionNav />
 
       {/* Breadcrumb */}
