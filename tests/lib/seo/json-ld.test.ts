@@ -6,20 +6,11 @@ import {
 } from '~/lib/seo/json-ld'
 
 describe('buildWebSite', () => {
-  it('returns WebSite @type with correct url', () => {
+  it('returns WebSite @type with correct url and name', () => {
     const result = buildWebSite()
     expect(result['@type']).toBe('WebSite')
     expect(result.url).toBe('https://kammi.id')
     expect(result.name).toBe('KAMMI.id')
-  })
-
-  it('includes SearchAction potentialAction targeting /berita', () => {
-    const result = buildWebSite()
-    expect(result.potentialAction['@type']).toBe('SearchAction')
-    expect(result.potentialAction.target).toContain('kammi.id/berita')
-    expect(result.potentialAction['query-input']).toBe(
-      'required name=search_term_string'
-    )
   })
 })
 

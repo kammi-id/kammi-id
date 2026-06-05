@@ -13,7 +13,7 @@ import { ExtraSection } from './_components/extra-section'
 export const generateMetadata = async (): Promise<Metadata> => {
   const meta = await getMetadataSettings()
   return {
-    title: meta.pageTitle,
+    title: { absolute: meta.pageTitle },
     description: meta.metaDescription,
     openGraph: {
       title: meta.pageTitle,

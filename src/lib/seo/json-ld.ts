@@ -5,11 +5,6 @@ export const buildWebSite = () => ({
   '@type': 'WebSite',
   name: 'KAMMI.id',
   url: 'https://kammi.id',
-  potentialAction: {
-    '@type': 'SearchAction',
-    target: 'https://kammi.id/berita?q={search_term_string}',
-    'query-input': 'required name=search_term_string',
-  },
 })
 
 export const buildOrganization = () => ({

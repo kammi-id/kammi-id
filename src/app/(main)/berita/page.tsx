@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   }
 }
 
-export default function BeritaPage() {
+const BeritaPage = () => {
   return (
     <section className='flex min-h-[60vh] flex-col items-center justify-center bg-gradient-to-b from-purple-100 to-white'>
       <script
@@ -31,3 +31,5 @@ export default function BeritaPage() {
     </section>
   )
 }
+
+export default BeritaPage

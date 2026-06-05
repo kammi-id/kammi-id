@@ -70,7 +70,7 @@ export const ogImage = async ({ title, subtitle }: OgImageProps) => {
               color: 'rgba(255,255,255,0.6)',
               fontSize: '30px',
               fontFamily: 'Public Sans',
-              fontWeight: 400,
+              fontWeight: 700,
             }}
           >
             {subtitle}
