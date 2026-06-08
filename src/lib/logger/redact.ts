@@ -1,8 +1,11 @@
 /**
  * Matches object keys that likely carry sensitive data — these values are
  * masked before being written to logs so credentials never reach stdout.
+ * Also covers HTTP credential-bearing header names such as `cookie`,
+ * `set-cookie`, `authorization`, and `proxy-authorization` (header keys are
+ * lowercased by Next.js, so this pattern is case-insensitive to be safe).
  */
-const SENSITIVE_KEY_PATTERN = /password|token|secret|session|credential/i
+const SENSITIVE_KEY_PATTERN = /password|token|secret|session|credential|cookie|authoriz/i
 
 const REDACTED = '[REDACTED]'
 

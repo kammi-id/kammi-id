@@ -31,6 +31,22 @@ describe('redact', () => {
     expect(redact(input)).toEqual([{ password: '[REDACTED]' }, { name: 'bob' }])
   })
 
+  test('masks HTTP credential-bearing header names', () => {
+    const input = {
+      cookie: 'kammi_id_session=abc',
+      authorization: 'Bearer xyz',
+      'set-cookie': 'kammi_id_session=abc; HttpOnly',
+      'content-type': 'application/json'
+    }
+
+    expect(redact(input)).toEqual({
+      cookie: '[REDACTED]',
+      authorization: '[REDACTED]',
+      'set-cookie': '[REDACTED]',
+      'content-type': 'application/json'
+    })
+  })
+
   test('passes through primitives and non-sensitive values unchanged', () => {
     expect(redact('hello')).toBe('hello')
     expect(redact(42)).toBe(42)
