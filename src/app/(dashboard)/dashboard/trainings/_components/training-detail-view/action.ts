@@ -16,6 +16,9 @@ import { createMember } from '~/db/query/member'
 import { generateRegisterNumber } from '~/lib/utils/member'
 import { readActiveSession } from '~/lib/auth/cookies'
 import { isOrgInScope } from '~/db/query/organization'
+import { getLogger, redact } from '~/lib/logger'
+
+const logger = getLogger(['app', 'action', 'training'])
 
 const assertCanManage = async (trainingId: string): Promise<string | null> => {
   const session = await readActiveSession()
@@ -106,8 +109,10 @@ export const updateTrainingAction = async (
   prevState: any,
   formData: FormData
 ): Promise<ActionResponse> => {
+  let rawData: Record<string, FormDataEntryValue> | undefined
+
   try {
-    const rawData = Object.fromEntries(formData.entries())
+    rawData = Object.fromEntries(formData.entries())
     const validated = UpdateTrainingSchema.safeParse(rawData)
 
     if (!validated.success) {
@@ -150,12 +155,23 @@ export const updateTrainingAction = async (
 
     const updated = await trainingQuery.update(data.id, data)
     revalidatePath('/dashboard/trainings')
+
+    logger.info('Dauroh diperbarui', {
+      trainingId: data.id,
+      changes: redact(data)
+    })
+
     return {
       success: true,
       message: 'Training updated successfully',
       data: updated
     }
   } catch (error) {
+    logger.error('Gagal memperbarui dauroh: {error}', {
+      error,
+      trainingId: rawData?.id,
+      input: redact(rawData ?? {})
+    })
     return {
       success: false,
       message: 'An unexpected error occurred while updating training'

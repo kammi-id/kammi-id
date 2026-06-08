@@ -7,6 +7,9 @@ import {
 } from '~/db/query/training'
 import { revalidatePath } from 'next/cache'
 import { readActiveSession } from '~/lib/auth/cookies'
+import { getLogger, redact } from '~/lib/logger'
+
+const logger = getLogger(['app', 'action', 'training'])
 
 const TrainingSchema = z.object({
   organizationId: z.string().uuid(),
@@ -51,11 +54,16 @@ export const createTrainingAction = async (
   _prevState: ActionResponse,
   formData: FormData
 ): Promise<ActionResponse> => {
+  let user:
+    | NonNullable<Awaited<ReturnType<typeof readActiveSession>>>['user']
+    | undefined
+  let rawData: Record<string, FormDataEntryValue> | undefined
+
   try {
     const session = await readActiveSession()
     if (!session) return { success: false, message: 'Sesi tidak ditemukan.' }
 
-    const { user } = session
+    user = session.user
     if (!user) return { success: false, message: 'Pengguna tidak ditemukan.' }
 
     const mutationRoles = ['root', 'bpk']
@@ -66,7 +74,7 @@ export const createTrainingAction = async (
       }
     }
 
-    const rawData = Object.fromEntries(formData.entries())
+    rawData = Object.fromEntries(formData.entries())
     const validated = TrainingSchema.safeParse(rawData)
 
     if (!validated.success) {
@@ -120,13 +128,25 @@ export const createTrainingAction = async (
     await trainingQuery.addInstructor(created.id, data.masterId, 'master')
 
     revalidatePath('/dashboard/trainings')
+
+    logger.info('Dauroh dibuat', {
+      actorId: user.id,
+      actorRole: user.role,
+      trainingId: created.id,
+      masterId: data.masterId
+    })
+
     return {
       success: true,
       message: 'Training created successfully',
       data: created
     }
   } catch (error) {
-    console.error('[createTrainingAction]', error)
+    logger.error('Gagal membuat dauroh: {error}', {
+      error,
+      actorId: user?.id,
+      input: redact(rawData ?? {})
+    })
     return {
       success: false,
       message: 'An unexpected error occurred while creating training'
