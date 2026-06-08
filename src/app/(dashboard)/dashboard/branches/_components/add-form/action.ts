@@ -4,6 +4,9 @@ import { readActiveSession } from '~/lib/auth/cookies'
 import { z } from 'zod'
 import { revalidatePath, updateTag } from 'next/cache'
 import { createOrganization, updateOrganization } from '~/db/query/organization'
+import { getLogger, redact } from '~/lib/logger'
+
+const logger = getLogger(['app', 'action', 'organization'])
 
 const orgSchema = z.object({
   name: z.string().min(1, 'Nama organisasi wajib diisi.'),
@@ -27,11 +30,16 @@ export async function createOrganizationAction(
   prevState: OrgFormState,
   formData: FormData
 ) {
+  let user:
+    | NonNullable<Awaited<ReturnType<typeof readActiveSession>>>['user']
+    | undefined
+  let rawData: Record<string, FormDataEntryValue | string | null> | undefined
+
   try {
     const session = await readActiveSession()
     if (!session) return { success: false, message: 'Sesi tidak ditemukan.' }
 
-    const user = session.user
+    user = session.user
     if (!user || (user.role !== 'bpw' && user.role !== 'root')) {
       return {
         success: false,
@@ -39,7 +47,7 @@ export async function createOrganizationAction(
       }
     }
 
-    const rawData = {
+    rawData = {
       name: formData.get('name'),
       code: formData.get('code'),
       type: formData.get('type'),
@@ -61,16 +69,27 @@ export async function createOrganizationAction(
       }
     }
 
-    await createOrganization(validated.data)
+    const created = await createOrganization(validated.data)
     updateTag('organizations')
     revalidatePath('/dashboard/branches')
+
+    logger.info('Organisasi dibuat', {
+      actorId: user.id,
+      actorRole: user.role,
+      organizationId: created?.[0]?.id,
+      input: redact(validated.data)
+    })
 
     return {
       success: true,
       message: 'Organisasi berhasil ditambahkan!'
     }
   } catch (error) {
-    console.error('Error creating organization:', error)
+    logger.error('Gagal membuat organisasi: {error}', {
+      error,
+      actorId: user?.id,
+      input: redact(rawData)
+    })
     return {
       success: false,
       message: 'Terjadi kesalahan saat menambahkan organisasi.'
@@ -82,11 +101,17 @@ export async function updateOrganizationAction(
   prevState: OrgFormState,
   formData: FormData
 ) {
+  let user:
+    | NonNullable<Awaited<ReturnType<typeof readActiveSession>>>['user']
+    | undefined
+  let id: string | undefined
+  let rawData: Record<string, FormDataEntryValue | string | null> | undefined
+
   try {
     const session = await readActiveSession()
     if (!session) return { success: false, message: 'Sesi tidak ditemukan.' }
 
-    const user = session.user
+    user = session.user
     if (!user || (user.role !== 'bpw' && user.role !== 'root')) {
       return {
         success: false,
@@ -94,12 +119,12 @@ export async function updateOrganizationAction(
       }
     }
 
-    const id = formData.get('id') as string
+    id = formData.get('id') as string
     if (!id) {
       return { success: false, message: 'ID organisasi tidak ditemukan.' }
     }
 
-    const rawData = {
+    rawData = {
       name: formData.get('name'),
       code: formData.get('code'),
       type: formData.get('type'),
@@ -125,12 +150,24 @@ export async function updateOrganizationAction(
     updateTag('organizations')
     revalidatePath('/dashboard/branches')
 
+    logger.info('Organisasi diperbarui', {
+      actorId: user.id,
+      actorRole: user.role,
+      organizationId: id,
+      input: redact(validated.data)
+    })
+
     return {
       success: true,
       message: 'Organisasi berhasil diperbarui!'
     }
   } catch (error) {
-    console.error('Error updating organization:', error)
+    logger.error('Gagal memperbarui organisasi: {error}', {
+      error,
+      actorId: user?.id,
+      organizationId: id,
+      input: redact(rawData)
+    })
     return {
       success: false,
       message: 'Terjadi kesalahan saat memperbarui organisasi.'
