@@ -5,6 +5,9 @@ import { revalidatePath, updateTag } from 'next/cache'
 import { validateSession } from '~/lib/auth/api'
 import { updateUser, readUser, readUserCredential } from '~/db/query/user'
 import { z } from 'zod'
+import { getLogger, redact } from '~/lib/logger'
+
+const logger = getLogger(['app', 'action', 'account'])
 
 const profileSchema = z.object({
   name: z.string().min(1, 'Nama wajib diisi.').optional(),
@@ -63,9 +66,19 @@ export const updateProfileAction = async (
     await updateUser({ name, displayName }, session.userId)
     updateTag('user')
     revalidatePath('/dashboard/user/account')
+
+    logger.info('Profil pengguna diperbarui', {
+      actorId: session.userId,
+      changes: redact({ name, displayName })
+    })
+
     return { success: true }
   } catch (e: unknown) {
-    console.error(e)
+    logger.error('Gagal memperbarui profil: {error}', {
+      error: e,
+      actorId: session.userId,
+      input: redact({ name, displayName })
+    })
     if (e instanceof Error && e.message?.includes('unique constraint')) {
       return { error: 'Nama pengguna sudah digunakan.' }
     }
@@ -133,9 +146,16 @@ export const updatePasswordAction = async (
     const newPasswordHash = await Bun.password.hash(newPassword)
     await updateUser({ passwordHash: newPasswordHash }, session.userId)
 
+    logger.info('Kata sandi pengguna diperbarui', {
+      actorId: session.userId
+    })
+
     return { success: true }
   } catch (e) {
-    console.error(e)
+    logger.error('Gagal memperbarui kata sandi: {error}', {
+      error: e,
+      actorId: session.userId
+    })
     return { error: 'Gagal memperbarui kata sandi.' }
   }
 }
