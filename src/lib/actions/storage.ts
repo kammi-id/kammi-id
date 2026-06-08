@@ -1,6 +1,9 @@
 'use server'
 
 import { storage } from '~/lib/api/storage'
+import { getLogger } from '~/lib/logger'
+
+const logger = getLogger(['app', 'storage'])
 
 /**
  * Uploads an image to storage.
@@ -30,7 +33,7 @@ export const getSignedUrlAction = async (path: string) => {
   try {
     return await storage.getSignedUrl(path)
   } catch (error) {
-    console.error('getSignedUrlAction Error:', error)
+    logger.error('Gagal mengambil URL gambar: {error}', { path, error })
     throw new Error('Gagal mengambil URL gambar.')
   }
 }
@@ -44,7 +47,7 @@ export const deleteImageAction = async (path: string) => {
     await storage.deleteFile(path)
     return { success: true }
   } catch (error) {
-    console.error('deleteImageAction Error:', error)
+    logger.error('Gagal menghapus gambar: {error}', { path, error })
     return { success: false, error: (error as Error).message }
   }
 }

@@ -7,6 +7,9 @@ import {
   S3_BUCKET_NAME,
   S3_REGION
 } from '~/env'
+import { getLogger } from '~/lib/logger'
+
+const logger = getLogger(['app', 'storage'])
 
 /**
  * StorageHelper provides utility functions for interacting with S3-compatible storage (MinIO).
@@ -45,7 +48,7 @@ export const storage = {
       })
       return key
     } catch (error) {
-      console.error('S3 Upload Error:', error)
+      logger.error('Gagal mengunggah file ke storage: {error}', { key, error })
       throw new Error('Gagal mengunggah file ke storage.')
     }
   },
@@ -62,7 +65,7 @@ export const storage = {
         expiresIn: 3600 // 1 hour
       })
     } catch (error) {
-      console.error('S3 Signed URL Error:', error)
+      logger.error('Gagal membuat URL akses file: {error}', { key, error })
       throw new Error('Gagal membuat URL akses file.')
     }
   },
@@ -81,7 +84,7 @@ export const storage = {
       })
       return key
     } catch (error) {
-      console.error('S3 Update Error:', error)
+      logger.error('Gagal memperbarui file di storage: {error}', { key, error })
       throw new Error('Gagal memperbarui file di storage.')
     }
   },
@@ -96,7 +99,7 @@ export const storage = {
       const s3File = this.client.file(key)
       await s3File.delete()
     } catch (error) {
-      console.error('S3 Delete Error:', error)
+      logger.error('Gagal menghapus file dari storage: {error}', { key, error })
       throw new Error('Gagal menghapus file dari storage.')
     }
   }
