@@ -8,6 +8,9 @@ import { db } from '~/db/db'
 import { user as userTable } from '~/db/schema/user.sql'
 import { eq } from 'drizzle-orm'
 import { z } from 'zod'
+import { getLogger, redact } from '~/lib/logger'
+
+const logger = getLogger(['app', 'action', 'auth'])
 
 const loginSchema = z.object({
   username: z.string().min(1, 'Username wajib diisi.'),
@@ -47,12 +50,18 @@ const loginFormAction = async (
   const [user] = await readUserCredential(username)
 
   if (!user) {
+    logger.warning('Percobaan login gagal: username tidak ditemukan', {
+      input: redact({ username })
+    })
     return { error: 'Username atau password salah.' }
   }
 
   const isPasswordValid = await Bun.password.verify(password, user.passwordHash)
 
   if (!isPasswordValid) {
+    logger.warning('Percobaan login gagal: password salah', {
+      input: redact({ username })
+    })
     return { error: 'Username atau password salah.' }
   }
 
@@ -69,6 +78,7 @@ const loginFormAction = async (
   const session = await createSession(dbUser.id)
 
   if (!session) {
+    logger.error('Gagal membuat sesi login', { userId: dbUser.id })
     return { error: 'Gagal membuat sesi login.' }
   }
 
@@ -80,6 +90,8 @@ const loginFormAction = async (
     path: '/',
     maxAge: 60 * 60 * 24 * 3 // 3 hari
   })
+
+  logger.info('Login berhasil', { userId: dbUser.id, username })
 
   redirect('/dashboard')
 }
