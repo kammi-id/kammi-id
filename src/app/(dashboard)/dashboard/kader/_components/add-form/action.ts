@@ -10,6 +10,9 @@ import { fetchAllowedOrgIds } from '~/db/query/organization'
 import { db } from '~/db/db'
 import { and, or, ilike, sql } from 'drizzle-orm'
 import { withMemberCTE } from '~/db/query/cte/member'
+import { getLogger, redact } from '~/lib/logger'
+
+const logger = getLogger(['app', 'action', 'member'])
 
 const booleanSchema = z.preprocess((val) => {
   if (typeof val === 'string') {
@@ -111,8 +114,21 @@ export const createMemberAction = async (
     revalidatePath('/dashboard/pemandu')
     revalidatePath('/dashboard/instruktur')
 
+    logger.info('Kader ditambahkan', {
+      actorId: user.id,
+      actorRole: user.role,
+      registerNumber,
+      organizationId: validated.data.organizationId
+    })
+
     return { success: true, message: 'Kader berhasil ditambahkan!' }
   } catch (error: unknown) {
+    logger.error('Gagal menambahkan kader: {error}', {
+      error,
+      actorId: user.id,
+      organizationId: validated.data.organizationId,
+      input: redact(rawData)
+    })
     return {
       success: false,
       message:
@@ -175,9 +191,21 @@ export const updateMemberAction = async (
     revalidatePath('/dashboard/pemandu')
     revalidatePath('/dashboard/instruktur')
 
+    logger.info('Data kader diperbarui', {
+      actorId: user.id,
+      actorRole: user.role,
+      memberId: id,
+      organizationId: data.organizationId
+    })
+
     return { success: true, message: 'Data kader berhasil diperbarui!' }
   } catch (error: unknown) {
-    console.error(error)
+    logger.error('Gagal memperbarui data kader: {error}', {
+      error,
+      actorId: user.id,
+      memberId: id,
+      input: redact(rawData)
+    })
     return {
       success: false,
       message:
