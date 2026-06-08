@@ -11,6 +11,9 @@ import { member as memberTable } from '~/db/schema/member.sql'
 import { user as userTable } from '~/db/schema/user.sql'
 import { organization } from '~/db/schema/organization.sql'
 import { trainingAttendants } from '~/db/schema/training.sql'
+import { getLogger, redact } from '~/lib/logger'
+
+const logger = getLogger(['app', 'action', 'member'])
 
 const BulkMemberInputSchema = z.object({
   name: z.string().min(1, 'Nama wajib diisi'),
@@ -45,6 +48,10 @@ export type BulkCreateResult = {
 export const bulkCreateMembersAction = async (
   input: z.infer<typeof BulkCreateInputSchema>
 ): Promise<BulkCreateResult> => {
+  let user:
+    | NonNullable<Awaited<ReturnType<typeof readActiveSession>>>['user']
+    | undefined
+
   try {
     // Auth check
     const session = await readActiveSession()
@@ -52,7 +59,7 @@ export const bulkCreateMembersAction = async (
       return { success: false, message: 'Sesi tidak ditemukan.' }
     }
 
-    const { user } = session
+    user = session.user
 
     if (user.role !== 'bpk' && user.role !== 'root') {
       return {
@@ -212,12 +219,26 @@ export const bulkCreateMembersAction = async (
 
     revalidatePath('/dashboard/kader')
 
+    logger.info('Bulk upload kader selesai', {
+      actorId: user.id,
+      actorRole: user.role,
+      organizationId,
+      trainingId,
+      createdCount: credentials.length,
+      registerNumbers: credentials.map((c) => c.registerNumber)
+    })
+
     return {
       success: true,
       message: `${credentials.length} kader berhasil ditambahkan.`,
       data: credentials
     }
   } catch (error) {
+    logger.error('Gagal melakukan bulk upload kader: {error}', {
+      error,
+      actorId: user?.id,
+      input: redact(input)
+    })
     return {
       success: false,
       message:
