@@ -2,7 +2,7 @@ import { describe, it, expect } from 'bun:test'
 import {
   buildWebSite,
   buildOrganization,
-  buildBreadcrumb,
+  buildBreadcrumb
 } from '~/lib/seo/json-ld'
 
 describe('buildWebSite', () => {
@@ -41,7 +41,7 @@ describe('buildBreadcrumb', () => {
   it('builds BreadcrumbList with correct positions and absolute item URLs', () => {
     const result = buildBreadcrumb([
       { name: 'Beranda', url: '/' },
-      { name: 'Tentang', url: '/tentang' },
+      { name: 'Tentang', url: '/tentang' }
     ])
     expect(result['@type']).toBe('BreadcrumbList')
     expect(result.itemListElement).toHaveLength(2)

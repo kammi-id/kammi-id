@@ -10,30 +10,30 @@ const loraHeading = Lora({ subsets: ['latin'], variable: '--font-heading' })
 const publicSans = Public_Sans({ subsets: ['latin'], variable: '--font-sans' })
 const caveatHand = Caveat({
   subsets: ['latin'],
-  variable: '--font-handwriting',
+  variable: '--font-handwriting'
 })
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://kammi.id'),
   title: {
     default: 'KAMMI.id',
-    template: '%s — KAMMI.id',
+    template: '%s — KAMMI.id'
   },
   description: 'Platform digital Kesatuan Aksi Mahasiswa Muslim Indonesia.',
   openGraph: {
     siteName: 'KAMMI.id',
     locale: 'id_ID',
-    type: 'website',
+    type: 'website'
   },
   twitter: {
     card: 'summary_large_image',
-    site: '@KAMMIPusat',
+    site: '@KAMMIPusat'
   },
-  robots: { index: true, follow: true },
+  robots: { index: true, follow: true }
 }
 
 const RootLayout = ({
-  children,
+  children
 }: Readonly<{
   children: ReactNode
 }>) => {
@@ -50,7 +50,7 @@ const RootLayout = ({
       <head>
         <meta name='apple-mobile-web-app-title' content='KAMMI.id' />
       </head>
-      <body className='flex min-h-full flex-col'>
+      <body className='flex min-h-full flex-col overflow-x-hidden'>
         <script
           type='application/ld+json'
           dangerouslySetInnerHTML={{ __html: JSON.stringify(buildWebSite()) }}
@@ -58,7 +58,7 @@ const RootLayout = ({
         <script
           type='application/ld+json'
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify(buildOrganization()),
+            __html: JSON.stringify(buildOrganization())
           }}
         />
         {children}

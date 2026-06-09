@@ -14,7 +14,10 @@ describe('redact', () => {
 
   test('masks nested sensitive keys recursively', () => {
     const input = {
-      user: { name: 'alice', credentials: { secret: 'shh', sessionToken: 'xyz' } }
+      user: {
+        name: 'alice',
+        credentials: { secret: 'shh', sessionToken: 'xyz' }
+      }
     }
 
     expect(redact(input)).toEqual({

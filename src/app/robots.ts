@@ -5,10 +5,10 @@ const robots = (): MetadataRoute.Robots => ({
     {
       userAgent: '*',
       allow: '/',
-      disallow: ['/dashboard', '/login', '/api/'],
-    },
+      disallow: ['/dashboard', '/login', '/api/']
+    }
   ],
-  sitemap: 'https://kammi.id/sitemap.xml',
+  sitemap: 'https://kammi.id/sitemap.xml'
 })
 
 export default robots

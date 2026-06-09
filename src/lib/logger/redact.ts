@@ -5,7 +5,8 @@
  * `set-cookie`, `authorization`, and `proxy-authorization` (header keys are
  * lowercased by Next.js, so this pattern is case-insensitive to be safe).
  */
-const SENSITIVE_KEY_PATTERN = /password|token|secret|session|credential|cookie|authoriz/i
+const SENSITIVE_KEY_PATTERN =
+  /password|token|secret|session|credential|cookie|authoriz/i
 
 const REDACTED = '[REDACTED]'
 
@@ -29,7 +30,8 @@ export const redact = (value: unknown): unknown => {
     return Object.fromEntries(
       Object.entries(value as Record<string, unknown>).map(([key, val]) => [
         key,
-        SENSITIVE_KEY_PATTERN.test(key) && (val === null || typeof val !== 'object')
+        SENSITIVE_KEY_PATTERN.test(key) &&
+        (val === null || typeof val !== 'object')
           ? REDACTED
           : redact(val)
       ])

@@ -787,7 +787,7 @@ export const HomeScene = ({
         {/* Header — zooms from huge at center to small at top on desktop */}
         <div
           ref={lsTextRef}
-          className='px-6 pt-24 pb-4 text-center lg:px-8 lg:pt-28'
+          className='px-6 pt-20 pb-2 text-center md:pt-24 md:pb-4 lg:px-8 lg:pt-28'
         >
           <p className='text-primary font-sans text-xs font-semibold tracking-widest uppercase'>
             {leadership.periodLabel}
@@ -798,7 +798,7 @@ export const HomeScene = ({
           >
             {leadership.heading}
           </h2>
-          <div className='mt-6 mb-12 flex justify-center'>
+          <div className='mt-4 mb-3 flex justify-center md:mt-6 md:mb-12'>
             <Link
               href='/tentang/pengurus'
               className='text-primary hover:text-primary/80 group flex items-center gap-2 font-sans text-sm font-semibold transition-colors'
@@ -823,7 +823,7 @@ export const HomeScene = ({
         </div>
 
         {/* Photo trio — converge from edges, then exit downward */}
-        <div className='mt-auto flex flex-col items-start gap-10 px-6 sm:px-8 md:flex-row md:items-end md:justify-center md:gap-0 lg:px-12'>
+        <div className='mt-4 flex flex-row items-end justify-center px-2 sm:px-4 md:mt-auto md:flex-row md:items-end md:justify-center md:gap-0 md:px-8 lg:px-12'>
           {trio.map(
             ({ key, label, name, photoSrc, position, ref: photoRef }) => {
               const isCenter = position === 'center'
@@ -835,21 +835,17 @@ export const HomeScene = ({
                   ref={photoRef}
                   data-ls-photo={key}
                   className={cn(
-                    'group bg-muted/60 relative shrink-0 cursor-pointer overflow-visible rounded-[2.5rem] px-4 pt-4 pb-0',
-                    'md:w-auto md:rounded-none md:bg-transparent md:p-0',
+                    'group bg-muted/60 relative shrink-0 cursor-pointer overflow-visible rounded-2xl px-1 pt-1 pb-0',
+                    'md:rounded-none md:bg-transparent md:p-0',
                     isLeft
-                      ? 'md:-mr-[12vw] lg:-mr-[15vw]'
+                      ? '-mr-3 md:-mr-[12vw] lg:-mr-[15vw]'
                       : !isCenter
-                        ? 'md:-ml-[12vw] lg:-ml-[15vw]'
+                        ? '-ml-3 md:-ml-[12vw] lg:-ml-[15vw]'
                         : '',
+                    isCenter ? 'z-10' : 'z-0',
                     isCenter
-                      ? 'z-10 order-1 md:order-none'
-                      : isLeft
-                        ? 'z-0 order-2 md:order-none'
-                        : 'z-0 order-3 md:order-none',
-                    isCenter
-                      ? 'h-[clamp(200px,38vh,320px)] md:h-[min(44vw,800px)]'
-                      : 'h-[clamp(175px,33vh,280px)] md:h-[min(40vw,740px)]'
+                      ? 'h-[clamp(130px,26vh,200px)] md:h-[min(44vw,800px)]'
+                      : 'h-[clamp(100px,20vh,160px)] md:h-[min(40vw,740px)]'
                   )}
                 >
                   {photoSrc ? (
@@ -858,8 +854,8 @@ export const HomeScene = ({
                       alt={`Foto ${name}`}
                       width={800}
                       height={1067}
-                      sizes='(max-width: 768px) 30vw, 35vw'
-                      className='h-full w-auto max-w-none object-contain object-bottom transition-transform duration-500 ease-out group-hover:scale-[1.02] max-md:rounded-t-[2rem] max-md:object-left-bottom'
+                      sizes='(max-width: 768px) 33vw, 35vw'
+                      className='h-full w-auto max-w-none object-contain object-bottom transition-transform duration-500 ease-out group-hover:scale-[1.02] max-md:rounded-t-xl max-md:object-top'
                       unoptimized={photoSrc.startsWith('http')}
                     />
                   ) : (
@@ -881,8 +877,7 @@ export const HomeScene = ({
                         ? 'left-1/2 -translate-x-1/2 text-center'
                         : isLeft
                           ? 'left-8 text-left'
-                          : 'right-8 text-right',
-                      'max-md:right-[-24px] max-md:bottom-6 max-md:left-auto max-md:flex max-md:max-w-[80%] max-md:translate-x-0 max-md:translate-y-0 max-md:text-right max-md:opacity-100'
+                          : 'right-8 text-right'
                     )}
                   >
                     <p className='text-primary font-sans text-[10px] leading-none font-bold tracking-[0.2em] uppercase'>
@@ -936,7 +931,7 @@ export const HomeScene = ({
           {/* Header: eyebrow + title + CTA button */}
           <div
             ref={netHeaderRef}
-            className='pointer-events-auto shrink-0 pt-24 pb-2 text-center lg:pt-28'
+            className='pointer-events-auto shrink-0 pt-20 pb-2 text-center md:pt-24 lg:pt-28'
           >
             <p className='text-primary font-sans text-xs font-semibold tracking-widest uppercase'>
               Jaringan Nasional
@@ -989,7 +984,7 @@ export const HomeScene = ({
           {/* Stat cards at bottom */}
           <div
             ref={netCardsRef}
-            className='pointer-events-auto shrink-0 px-6 pb-24 lg:px-12'
+            className='pointer-events-auto shrink-0 px-4 pb-8 sm:px-6 md:pb-24 lg:px-12'
           >
             <div className='grid grid-cols-3 gap-3 lg:gap-4'>
               {statCards.map((card) => (

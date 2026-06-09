@@ -47,3 +47,5 @@ users.csv
 # antigravity v2
 .antigravitycli
 .playwright-mcp
+
+skills/npm-*

@@ -12,37 +12,38 @@
 
 ## File Map
 
-| Action | File |
-|---|---|
-| Create | `src/lib/seo/json-ld.ts` |
-| Create | `src/lib/seo/index.ts` |
-| Create | `tests/lib/seo/json-ld.test.ts` |
-| Create | `src/components/og-image/og-image.tsx` |
-| Create | `src/components/og-image/index.ts` |
-| Create | `src/app/manifest.ts` |
-| Create | `src/app/robots.ts` |
-| Create | `src/app/sitemap.ts` |
-| Create | `src/app/opengraph-image.tsx` |
-| Create | `src/app/(main)/opengraph-image.tsx` |
-| Create | `src/app/(main)/berita/opengraph-image.tsx` |
-| Create | `src/app/(main)/event/opengraph-image.tsx` |
+| Action | File                                         |
+| ------ | -------------------------------------------- |
+| Create | `src/lib/seo/json-ld.ts`                     |
+| Create | `src/lib/seo/index.ts`                       |
+| Create | `tests/lib/seo/json-ld.test.ts`              |
+| Create | `src/components/og-image/og-image.tsx`       |
+| Create | `src/components/og-image/index.ts`           |
+| Create | `src/app/manifest.ts`                        |
+| Create | `src/app/robots.ts`                          |
+| Create | `src/app/sitemap.ts`                         |
+| Create | `src/app/opengraph-image.tsx`                |
+| Create | `src/app/(main)/opengraph-image.tsx`         |
+| Create | `src/app/(main)/berita/opengraph-image.tsx`  |
+| Create | `src/app/(main)/event/opengraph-image.tsx`   |
 | Create | `src/app/(main)/tentang/opengraph-image.tsx` |
-| Modify | `src/app/layout.tsx` |
-| Modify | `src/app/(dashboard)/layout.tsx` |
-| Modify | `src/app/(dashboard)/login/page.tsx` |
-| Modify | `src/app/(dashboard)/dashboard/page.tsx` |
-| Modify | `src/app/(main)/page.tsx` |
-| Modify | `src/app/(main)/berita/page.tsx` |
-| Modify | `src/app/(main)/event/page.tsx` |
-| Modify | `src/app/(main)/tentang/page.tsx` |
-| Modify | `src/app/(main)/tentang/pengurus/page.tsx` |
-| Delete | `src/app/manifest.json` |
+| Modify | `src/app/layout.tsx`                         |
+| Modify | `src/app/(dashboard)/layout.tsx`             |
+| Modify | `src/app/(dashboard)/login/page.tsx`         |
+| Modify | `src/app/(dashboard)/dashboard/page.tsx`     |
+| Modify | `src/app/(main)/page.tsx`                    |
+| Modify | `src/app/(main)/berita/page.tsx`             |
+| Modify | `src/app/(main)/event/page.tsx`              |
+| Modify | `src/app/(main)/tentang/page.tsx`            |
+| Modify | `src/app/(main)/tentang/pengurus/page.tsx`   |
+| Delete | `src/app/manifest.json`                      |
 
 ---
 
 ## Task 1: JSON-LD Builder Utilities
 
 **Files:**
+
 - Create: `src/lib/seo/json-ld.ts`
 - Create: `src/lib/seo/index.ts`
 - Create: `tests/lib/seo/json-ld.test.ts`
@@ -56,7 +57,7 @@ import { describe, it, expect } from 'bun:test'
 import {
   buildWebSite,
   buildOrganization,
-  buildBreadcrumb,
+  buildBreadcrumb
 } from '~/lib/seo/json-ld'
 
 describe('buildWebSite', () => {
@@ -104,7 +105,7 @@ describe('buildBreadcrumb', () => {
   it('builds BreadcrumbList with correct positions and absolute item URLs', () => {
     const result = buildBreadcrumb([
       { name: 'Beranda', url: '/' },
-      { name: 'Tentang', url: '/tentang' },
+      { name: 'Tentang', url: '/tentang' }
     ])
     expect(result['@type']).toBe('BreadcrumbList')
     expect(result.itemListElement).toHaveLength(2)
@@ -146,8 +147,8 @@ export const buildWebSite = () => ({
   potentialAction: {
     '@type': 'SearchAction',
     target: 'https://kammi.id/berita?q={search_term_string}',
-    'query-input': 'required name=search_term_string',
-  },
+    'query-input': 'required name=search_term_string'
+  }
 })
 
 export const buildOrganization = () => ({
@@ -163,8 +164,8 @@ export const buildOrganization = () => ({
     'https://www.instagram.com/kammi.connect',
     'https://www.facebook.com/kammipusat.official',
     'https://www.youtube.com/@kammitv8247',
-    'https://www.tiktok.com/@kammi.pusat',
-  ],
+    'https://www.tiktok.com/@kammi.pusat'
+  ]
 })
 
 export const buildBreadcrumb = (items: BreadcrumbItem[]) => ({
@@ -174,8 +175,8 @@ export const buildBreadcrumb = (items: BreadcrumbItem[]) => ({
     '@type': 'ListItem',
     position: index + 1,
     name: item.name,
-    item: `https://kammi.id${item.url}`,
-  })),
+    item: `https://kammi.id${item.url}`
+  }))
 })
 ```
 
@@ -205,6 +206,7 @@ git commit -m "feat: add JSON-LD builder utilities for WebSite, Organization, Br
 ## Task 2: Shared OG Image Template
 
 **Files:**
+
 - Create: `src/components/og-image/og-image.tsx`
 - Create: `src/components/og-image/index.ts`
 
@@ -219,7 +221,7 @@ import { ImageResponse } from 'next/og'
 
 export const ogImageConfig = {
   size: { width: 1200, height: 630 },
-  contentType: 'image/png' as const,
+  contentType: 'image/png' as const
 }
 
 type OgImageProps = {
@@ -244,57 +246,55 @@ export const ogImage = async ({ title, subtitle }: OgImageProps) => {
   const fontData = await fetchFont()
 
   return new ImageResponse(
-    (
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        width: '100%',
+        height: '100%',
+        background: 'linear-gradient(135deg, #1b3f6e 0%, #0c2340 100%)',
+        padding: '64px 80px',
+        justifyContent: 'flex-end'
+      }}
+    >
       <div
         style={{
           display: 'flex',
-          flexDirection: 'column',
-          width: '100%',
-          height: '100%',
-          background: 'linear-gradient(135deg, #1b3f6e 0%, #0c2340 100%)',
-          padding: '64px 80px',
-          justifyContent: 'flex-end',
+          color: 'rgba(255,255,255,0.45)',
+          fontSize: '18px',
+          fontFamily: 'Public Sans',
+          letterSpacing: '6px',
+          textTransform: 'uppercase',
+          marginBottom: '28px'
         }}
       >
-        <div
-          style={{
-            display: 'flex',
-            color: 'rgba(255,255,255,0.45)',
-            fontSize: '18px',
-            fontFamily: 'Public Sans',
-            letterSpacing: '6px',
-            textTransform: 'uppercase',
-            marginBottom: '28px',
-          }}
-        >
-          KAMMI.id
-        </div>
-        <div
-          style={{
-            color: '#ffffff',
-            fontSize: '80px',
-            fontFamily: 'Public Sans',
-            fontWeight: 700,
-            lineHeight: 1.05,
-            marginBottom: subtitle ? '20px' : '0',
-          }}
-        >
-          {title}
-        </div>
-        {subtitle && (
-          <div
-            style={{
-              color: 'rgba(255,255,255,0.6)',
-              fontSize: '30px',
-              fontFamily: 'Public Sans',
-              fontWeight: 400,
-            }}
-          >
-            {subtitle}
-          </div>
-        )}
+        KAMMI.id
       </div>
-    ),
+      <div
+        style={{
+          color: '#ffffff',
+          fontSize: '80px',
+          fontFamily: 'Public Sans',
+          fontWeight: 700,
+          lineHeight: 1.05,
+          marginBottom: subtitle ? '20px' : '0'
+        }}
+      >
+        {title}
+      </div>
+      {subtitle && (
+        <div
+          style={{
+            color: 'rgba(255,255,255,0.6)',
+            fontSize: '30px',
+            fontFamily: 'Public Sans',
+            fontWeight: 400
+          }}
+        >
+          {subtitle}
+        </div>
+      )}
+    </div>,
     {
       ...ogImageConfig.size,
       fonts: [
@@ -302,9 +302,9 @@ export const ogImage = async ({ title, subtitle }: OgImageProps) => {
           name: 'Public Sans',
           data: fontData,
           weight: 700,
-          style: 'normal',
-        },
-      ],
+          style: 'normal'
+        }
+      ]
     }
   )
 }
@@ -330,6 +330,7 @@ git commit -m "feat: add shared branded OG image template using ImageResponse"
 ## Task 3: Root Layout — metadataBase + JSON-LD Injection
 
 **Files:**
+
 - Modify: `src/app/layout.tsx`
 
 - [ ] **Step 1: Update root layout**
@@ -349,30 +350,30 @@ const loraHeading = Lora({ subsets: ['latin'], variable: '--font-heading' })
 const publicSans = Public_Sans({ subsets: ['latin'], variable: '--font-sans' })
 const caveatHand = Caveat({
   subsets: ['latin'],
-  variable: '--font-handwriting',
+  variable: '--font-handwriting'
 })
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://kammi.id'),
   title: {
     default: 'KAMMI.id',
-    template: '%s — KAMMI.id',
+    template: '%s — KAMMI.id'
   },
   description: 'Platform digital Kesatuan Aksi Mahasiswa Muslim Indonesia.',
   openGraph: {
     siteName: 'KAMMI.id',
     locale: 'id_ID',
-    type: 'website',
+    type: 'website'
   },
   twitter: {
     card: 'summary_large_image',
-    site: '@KAMMIPusat',
+    site: '@KAMMIPusat'
   },
-  robots: { index: true, follow: true },
+  robots: { index: true, follow: true }
 }
 
 const RootLayout = ({
-  children,
+  children
 }: Readonly<{
   children: ReactNode
 }>) => {
@@ -397,7 +398,7 @@ const RootLayout = ({
         <script
           type='application/ld+json'
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify(buildOrganization()),
+            __html: JSON.stringify(buildOrganization())
           }}
         />
         {children}
@@ -440,6 +441,7 @@ git commit -m "feat: add metadataBase, default metadata, and JSON-LD to root lay
 ## Task 4: manifest.ts — Replace Static manifest.json
 
 **Files:**
+
 - Create: `src/app/manifest.ts`
 - Delete: `src/app/manifest.json`
 
@@ -468,27 +470,27 @@ const manifest = (): MetadataRoute.Manifest => ({
       src: '/web-app-manifest-192x192.png',
       sizes: '192x192',
       type: 'image/png',
-      purpose: 'maskable',
+      purpose: 'maskable'
     },
     {
       src: '/web-app-manifest-512x512.png',
       sizes: '512x512',
       type: 'image/png',
-      purpose: 'maskable',
+      purpose: 'maskable'
     },
     {
       src: '/web-app-manifest-192x192.png',
       sizes: '192x192',
       type: 'image/png',
-      purpose: 'any',
+      purpose: 'any'
     },
     {
       src: '/web-app-manifest-512x512.png',
       sizes: '512x512',
       type: 'image/png',
-      purpose: 'any',
-    },
-  ],
+      purpose: 'any'
+    }
+  ]
 })
 
 export default manifest
@@ -521,6 +523,7 @@ git commit -m "feat: convert manifest.json to dynamic manifest.ts with full PWA 
 ## Task 5: robots.ts
 
 **Files:**
+
 - Create: `src/app/robots.ts`
 
 - [ ] **Step 1: Create robots.ts**
@@ -535,10 +538,10 @@ const robots = (): MetadataRoute.Robots => ({
     {
       userAgent: '*',
       allow: '/',
-      disallow: ['/dashboard', '/login', '/api/'],
-    },
+      disallow: ['/dashboard', '/login', '/api/']
+    }
   ],
-  sitemap: 'https://kammi.id/sitemap.xml',
+  sitemap: 'https://kammi.id/sitemap.xml'
 })
 
 export default robots
@@ -551,6 +554,7 @@ curl -s http://localhost:3000/robots.txt
 ```
 
 Expected:
+
 ```
 User-Agent: *
 Allow: /
@@ -573,6 +577,7 @@ git commit -m "feat: add robots.ts — disallow dashboard, login, and api routes
 ## Task 6: sitemap.ts
 
 **Files:**
+
 - Create: `src/app/sitemap.ts`
 
 - [ ] **Step 1: Create sitemap.ts**
@@ -591,32 +596,32 @@ export const getStaticRoutes = (): SitemapEntry[] => [
     url: BASE_URL,
     lastModified: new Date(),
     changeFrequency: 'weekly',
-    priority: 1.0,
+    priority: 1.0
   },
   {
     url: `${BASE_URL}/berita`,
     lastModified: new Date(),
     changeFrequency: 'daily',
-    priority: 0.8,
+    priority: 0.8
   },
   {
     url: `${BASE_URL}/event`,
     lastModified: new Date(),
     changeFrequency: 'weekly',
-    priority: 0.8,
+    priority: 0.8
   },
   {
     url: `${BASE_URL}/tentang`,
     lastModified: new Date(),
     changeFrequency: 'monthly',
-    priority: 0.7,
+    priority: 0.7
   },
   {
     url: `${BASE_URL}/tentang/pengurus`,
     lastModified: new Date(),
     changeFrequency: 'monthly',
-    priority: 0.6,
-  },
+    priority: 0.6
+  }
 ]
 
 // To add dynamic routes in future: merge with getStaticRoutes() in the default export.
@@ -650,6 +655,7 @@ git commit -m "feat: add sitemap.ts with 5 static public routes and modular stru
 ## Task 7: Per-Segment OG Image Files
 
 **Files:**
+
 - Create: `src/app/opengraph-image.tsx`
 - Create: `src/app/(main)/opengraph-image.tsx`
 - Create: `src/app/(main)/berita/opengraph-image.tsx`
@@ -669,7 +675,7 @@ export const contentType = ogImageConfig.contentType
 const Image = async () =>
   ogImage({
     title: 'KAMMI.id',
-    subtitle: 'Kesatuan Aksi Mahasiswa Muslim Indonesia',
+    subtitle: 'Kesatuan Aksi Mahasiswa Muslim Indonesia'
   })
 
 export default Image
@@ -688,7 +694,7 @@ export const contentType = ogImageConfig.contentType
 const Image = async () =>
   ogImage({
     title: 'KAMMI.id',
-    subtitle: 'Kesatuan Aksi Mahasiswa Muslim Indonesia',
+    subtitle: 'Kesatuan Aksi Mahasiswa Muslim Indonesia'
   })
 
 export default Image
@@ -721,7 +727,10 @@ export const size = ogImageConfig.size
 export const contentType = ogImageConfig.contentType
 
 const Image = async () =>
-  ogImage({ title: 'Event & Agenda', subtitle: 'Pelatihan, seminar, dan kongres KAMMI' })
+  ogImage({
+    title: 'Event & Agenda',
+    subtitle: 'Pelatihan, seminar, dan kongres KAMMI'
+  })
 
 export default Image
 ```
@@ -737,7 +746,10 @@ export const size = ogImageConfig.size
 export const contentType = ogImageConfig.contentType
 
 const Image = async () =>
-  ogImage({ title: 'Tentang KAMMI', subtitle: 'Sejarah, visi, misi, dan nilai gerakan' })
+  ogImage({
+    title: 'Tentang KAMMI',
+    subtitle: 'Sejarah, visi, misi, dan nilai gerakan'
+  })
 
 export default Image
 ```
@@ -774,6 +786,7 @@ git commit -m "feat: add per-segment opengraph-image.tsx files for all public ro
 ## Task 8: Dashboard & Login — noindex + Proper Metadata
 
 **Files:**
+
 - Modify: `src/app/(dashboard)/layout.tsx`
 - Modify: `src/app/(dashboard)/login/page.tsx`
 - Modify: `src/app/(dashboard)/dashboard/page.tsx`
@@ -788,11 +801,11 @@ import type { Metadata } from 'next'
 import { Toaster } from '~/components/shadcn/ui/sonner'
 
 export const metadata: Metadata = {
-  robots: { index: false, follow: false, nocache: true },
+  robots: { index: false, follow: false, nocache: true }
 }
 
 const RootDashboardLayout = ({
-  children,
+  children
 }: Readonly<{
   children: ReactNode
 }>) => {
@@ -814,7 +827,7 @@ Open `src/app/(dashboard)/login/page.tsx`. Add a `metadata` export at the top of
 ```ts
 export const metadata: Metadata = {
   title: 'Masuk',
-  description: 'Masuk ke dashboard pengelola KAMMI.id.',
+  description: 'Masuk ke dashboard pengelola KAMMI.id.'
 }
 ```
 
@@ -833,7 +846,7 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Dashboard',
-  description: 'Panel pengelolaan data dan konten KAMMI.id.',
+  description: 'Panel pengelolaan data dan konten KAMMI.id.'
 }
 ```
 
@@ -865,6 +878,7 @@ git commit -m "feat: add noindex to dashboard group and proper metadata for logi
 ## Task 9: Public Page Metadata Consistency Pass
 
 **Files:**
+
 - Modify: `src/app/(main)/page.tsx`
 - Modify: `src/app/(main)/berita/page.tsx`
 - Modify: `src/app/(main)/event/page.tsx`
@@ -883,11 +897,13 @@ import { buildBreadcrumb } from '~/lib/seo'
 
 export const metadata: Metadata = {
   title: 'Berita',
-  description: 'Kabar terkini dan informasi resmi dari Kesatuan Aksi Mahasiswa Muslim Indonesia.',
+  description:
+    'Kabar terkini dan informasi resmi dari Kesatuan Aksi Mahasiswa Muslim Indonesia.',
   openGraph: {
     title: 'Berita',
-    description: 'Kabar terkini dan informasi resmi dari Kesatuan Aksi Mahasiswa Muslim Indonesia.',
-  },
+    description:
+      'Kabar terkini dan informasi resmi dari Kesatuan Aksi Mahasiswa Muslim Indonesia.'
+  }
 }
 ```
 
@@ -900,9 +916,9 @@ Add the BreadcrumbList `<script>` inside the page component's returned JSX, as t
     __html: JSON.stringify(
       buildBreadcrumb([
         { name: 'Beranda', url: '/' },
-        { name: 'Berita', url: '/berita' },
+        { name: 'Berita', url: '/berita' }
       ])
-    ),
+    )
   }}
 />
 ```
@@ -922,8 +938,8 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Event & Agenda',
     description:
-      'Ikuti berbagai agenda pelatihan kaderisasi, seminar nasional, diskusi publik, dan kongres Kesatuan Aksi Mahasiswa Muslim Indonesia.',
-  },
+      'Ikuti berbagai agenda pelatihan kaderisasi, seminar nasional, diskusi publik, dan kongres Kesatuan Aksi Mahasiswa Muslim Indonesia.'
+  }
 }
 ```
 
@@ -936,9 +952,9 @@ Add BreadcrumbList `<script>` inside the page component's outermost element:
     __html: JSON.stringify(
       buildBreadcrumb([
         { name: 'Beranda', url: '/' },
-        { name: 'Event & Agenda', url: '/event' },
+        { name: 'Event & Agenda', url: '/event' }
       ])
-    ),
+    )
   }}
 />
 ```
@@ -958,8 +974,8 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Tentang',
     description:
-      'Mengenal KAMMI — sejarah, visi, misi, karakteristik, prinsip, paradigma, dan kredo gerakan.',
-  },
+      'Mengenal KAMMI — sejarah, visi, misi, karakteristik, prinsip, paradigma, dan kredo gerakan.'
+  }
 }
 ```
 
@@ -972,9 +988,9 @@ Add BreadcrumbList `<script>` inside the page's outermost element:
     __html: JSON.stringify(
       buildBreadcrumb([
         { name: 'Beranda', url: '/' },
-        { name: 'Tentang', url: '/tentang' },
+        { name: 'Tentang', url: '/tentang' }
       ])
-    ),
+    )
   }}
 />
 ```
@@ -994,8 +1010,8 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Pengurus Pusat',
     description:
-      'Mengenal Ketua Umum, Sekretaris Jenderal, Bendahara Umum, dan seluruh jajaran Pengurus Pusat KAMMI.',
-  },
+      'Mengenal Ketua Umum, Sekretaris Jenderal, Bendahara Umum, dan seluruh jajaran Pengurus Pusat KAMMI.'
+  }
 }
 ```
 
@@ -1009,9 +1025,9 @@ Add BreadcrumbList `<script>` inside the page's outermost element:
       buildBreadcrumb([
         { name: 'Beranda', url: '/' },
         { name: 'Tentang', url: '/tentang' },
-        { name: 'Pengurus Pusat', url: '/tentang/pengurus' },
+        { name: 'Pengurus Pusat', url: '/tentang/pengurus' }
       ])
-    ),
+    )
   }}
 />
 ```
@@ -1032,15 +1048,15 @@ return {
         url: meta.ogImageUrl,
         width: 1200,
         height: 630,
-        alt: 'KAMMI.id',
-      },
-    ],
+        alt: 'KAMMI.id'
+      }
+    ]
   },
   twitter: {
     title: meta.pageTitle,
     description: meta.metaDescription,
-    images: [meta.ogImageUrl],
-  },
+    images: [meta.ogImageUrl]
+  }
 }
 ```
 

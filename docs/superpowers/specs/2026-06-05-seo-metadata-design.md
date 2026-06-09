@@ -60,19 +60,19 @@ export const metadata: Metadata = {
   metadataBase: new URL('https://kammi.id'),
   title: {
     default: 'KAMMI.id',
-    template: '%s — KAMMI.id',
+    template: '%s — KAMMI.id'
   },
   description: 'Platform digital Kesatuan Aksi Mahasiswa Muslim Indonesia.',
   openGraph: {
     siteName: 'KAMMI.id',
     locale: 'id_ID',
-    type: 'website',
+    type: 'website'
   },
   twitter: {
     card: 'summary_large_image',
-    site: '@KAMMIPusat',
+    site: '@KAMMIPusat'
   },
-  robots: { index: true, follow: true },
+  robots: { index: true, follow: true }
 }
 ```
 
@@ -84,16 +84,16 @@ Convert static JSON to dynamic `manifest.ts`. Delete `src/app/manifest.json`.
 
 Added fields over the current file:
 
-| Field | Value |
-|---|---|
-| `start_url` | `/` |
-| `id` | `kammi-id` |
-| `lang` | `id` |
-| `dir` | `ltr` |
-| `description` | `Platform digital Kesatuan Aksi Mahasiswa Muslim Indonesia` |
-| `categories` | `["education", "social"]` |
-| `orientation` | `portrait-primary` |
-| icons `purpose: "any"` | Added alongside existing `maskable` entries |
+| Field                  | Value                                                       |
+| ---------------------- | ----------------------------------------------------------- |
+| `start_url`            | `/`                                                         |
+| `id`                   | `kammi-id`                                                  |
+| `lang`                 | `id`                                                        |
+| `dir`                  | `ltr`                                                       |
+| `description`          | `Platform digital Kesatuan Aksi Mahasiswa Muslim Indonesia` |
+| `categories`           | `["education", "social"]`                                   |
+| `orientation`          | `portrait-primary`                                          |
+| icons `purpose: "any"` | Added alongside existing `maskable` entries                 |
 
 ### `src/app/robots.ts`
 
@@ -109,13 +109,13 @@ Hybrid design — static routes now, modular for dynamic routes later.
 
 Static routes included at launch:
 
-| URL | changeFrequency | priority |
-|---|---|---|
-| `/` | `weekly` | `1.0` |
-| `/berita` | `daily` | `0.8` |
-| `/event` | `weekly` | `0.8` |
-| `/tentang` | `monthly` | `0.7` |
-| `/tentang/pengurus` | `monthly` | `0.6` |
+| URL                 | changeFrequency | priority |
+| ------------------- | --------------- | -------- |
+| `/`                 | `weekly`        | `1.0`    |
+| `/berita`           | `daily`         | `0.8`    |
+| `/event`            | `weekly`        | `0.8`    |
+| `/tentang`          | `monthly`       | `0.7`    |
+| `/tentang/pengurus` | `monthly`       | `0.6`    |
 
 Export a `getStaticRoutes()` helper so future dynamic routes (e.g. `/berita/[slug]`) can be merged in without rewriting the file.
 
@@ -135,6 +135,7 @@ type OgImageProps = {
 ```
 
 Spec:
+
 - Size: 1200×630
 - Font: Public Sans fetched from Google Fonts at render time (cannot use CSS variables in ImageResponse)
 - Branding: KAMMI logo, brand color background, white text
@@ -143,7 +144,7 @@ Spec:
 ```ts
 export const ogImageConfig = {
   size: { width: 1200, height: 630 },
-  contentType: 'image/png',
+  contentType: 'image/png'
 }
 ```
 
@@ -151,13 +152,13 @@ export const ogImageConfig = {
 
 Each is a thin wrapper around the shared template:
 
-| File | title | subtitle |
-|---|---|---|
-| `src/app/opengraph-image.tsx` | `KAMMI.id` | `Kesatuan Aksi Mahasiswa Muslim Indonesia` |
-| `src/app/(main)/opengraph-image.tsx` | `KAMMI.id` | `Kesatuan Aksi Mahasiswa Muslim Indonesia` |
-| `(main)/berita/opengraph-image.tsx` | `Berita` | `Kabar terkini dari KAMMI` |
-| `(main)/event/opengraph-image.tsx` | `Event & Agenda` | `Pelatihan, seminar, dan kongres KAMMI` |
-| `(main)/tentang/opengraph-image.tsx` | `Tentang KAMMI` | `Sejarah, visi, misi, dan nilai gerakan` |
+| File                                 | title            | subtitle                                   |
+| ------------------------------------ | ---------------- | ------------------------------------------ |
+| `src/app/opengraph-image.tsx`        | `KAMMI.id`       | `Kesatuan Aksi Mahasiswa Muslim Indonesia` |
+| `src/app/(main)/opengraph-image.tsx` | `KAMMI.id`       | `Kesatuan Aksi Mahasiswa Muslim Indonesia` |
+| `(main)/berita/opengraph-image.tsx`  | `Berita`         | `Kabar terkini dari KAMMI`                 |
+| `(main)/event/opengraph-image.tsx`   | `Event & Agenda` | `Pelatihan, seminar, dan kongres KAMMI`    |
+| `(main)/tentang/opengraph-image.tsx` | `Tentang KAMMI`  | `Sejarah, visi, misi, dan nilai gerakan`   |
 
 Home page (`/`) keeps its existing `generateMetadata` with CMS OG image — it is more specific and overrides the segment-level file automatically.
 
@@ -214,12 +215,12 @@ Returns a `BreadcrumbList` schema. Called per-page, not in layout.
 
 **Breadcrumb injection per page:**
 
-| Page | Breadcrumb |
-|---|---|
-| `/tentang` | Home > Tentang |
+| Page                | Breadcrumb                |
+| ------------------- | ------------------------- |
+| `/tentang`          | Home > Tentang            |
 | `/tentang/pengurus` | Home > Tentang > Pengurus |
-| `/berita` | Home > Berita |
-| `/event` | Home > Event & Agenda |
+| `/berita`           | Home > Berita             |
+| `/event`            | Home > Event & Agenda     |
 
 ---
 
@@ -234,8 +235,8 @@ export const metadata: Metadata = {
   robots: {
     index: false,
     follow: false,
-    nocache: true,
-  },
+    nocache: true
+  }
 }
 ```
 
@@ -243,9 +244,9 @@ This covers `/login`, `/dashboard`, and all `/dashboard/**` routes without touch
 
 Each dashboard/login page still gets proper `title` + `description`:
 
-| Route | title | description |
-|---|---|---|
-| `/login` | `Masuk` | `Masuk ke dashboard pengelola KAMMI.id` |
+| Route        | title       | description                                  |
+| ------------ | ----------- | -------------------------------------------- |
+| `/login`     | `Masuk`     | `Masuk ke dashboard pengelola KAMMI.id`      |
 | `/dashboard` | `Dashboard` | `Panel pengelolaan data dan konten KAMMI.id` |
 
 ---

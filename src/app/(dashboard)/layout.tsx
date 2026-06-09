@@ -3,11 +3,11 @@ import type { Metadata } from 'next'
 import { Toaster } from '~/components/shadcn/ui/sonner'
 
 export const metadata: Metadata = {
-  robots: { index: false, follow: false, nocache: true },
+  robots: { index: false, follow: false, nocache: true }
 }
 
 const RootDashboardLayout = ({
-  children,
+  children
 }: Readonly<{
   children: ReactNode
 }>) => {

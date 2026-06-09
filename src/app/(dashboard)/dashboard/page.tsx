@@ -13,7 +13,7 @@ import { UpcomingTrainings } from './_components/upcoming-trainings'
 
 export const metadata: Metadata = {
   title: 'Dashboard',
-  description: 'Panel pengelolaan data dan konten KAMMI.id.',
+  description: 'Panel pengelolaan data dan konten KAMMI.id.'
 }
 
 // readMemberAggregates returns accumulated rows per org (children rolled up into parents).

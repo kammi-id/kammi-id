@@ -183,7 +183,12 @@ const LeafletMap = ({ pwLookup, onTooltip, onMapHover }: LeafletMapProps) => {
         .kammi-map .leaflet-control-attribution {
           background: rgba(255,255,255,0.75) !important;
           font-size: 9px !important;
+          max-width: min(240px, 60vw) !important;
+          overflow: hidden !important;
+          text-overflow: ellipsis !important;
+          white-space: nowrap !important;
         }
+        .kammi-map { overflow: hidden; }
       `}</style>
       <div
         className='kammi-map h-full w-full'

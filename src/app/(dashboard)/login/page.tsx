@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation'
 
 export const metadata: Metadata = {
   title: 'Masuk',
-  description: 'Masuk ke dashboard pengelola KAMMI.id.',
+  description: 'Masuk ke dashboard pengelola KAMMI.id.'
 }
 
 const LoginPage = async (props: {

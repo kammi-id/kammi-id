@@ -4,7 +4,7 @@ export const buildWebSite = () => ({
   '@context': 'https://schema.org',
   '@type': 'WebSite',
   name: 'KAMMI.id',
-  url: 'https://kammi.id',
+  url: 'https://kammi.id'
 })
 
 export const buildOrganization = () => ({
@@ -20,8 +20,8 @@ export const buildOrganization = () => ({
     'https://www.instagram.com/kammi.connect',
     'https://www.facebook.com/kammipusat.official',
     'https://www.youtube.com/@kammitv8247',
-    'https://www.tiktok.com/@kammi.pusat',
-  ],
+    'https://www.tiktok.com/@kammi.pusat'
+  ]
 })
 
 export const buildBreadcrumb = (items: BreadcrumbItem[]) => ({
@@ -31,6 +31,6 @@ export const buildBreadcrumb = (items: BreadcrumbItem[]) => ({
     '@type': 'ListItem',
     position: index + 1,
     name: item.name,
-    item: `https://kammi.id${item.url}`,
-  })),
+    item: `https://kammi.id${item.url}`
+  }))
 })
