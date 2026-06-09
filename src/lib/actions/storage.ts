@@ -30,12 +30,7 @@ export const uploadImageAction = async (formData: FormData) => {
  * Gets a signed URL for a file.
  */
 export const getSignedUrlAction = async (path: string) => {
-  try {
-    return await storage.getSignedUrl(path)
-  } catch (error) {
-    logger.error('Gagal mengambil URL gambar: {error}', { path, error })
-    throw new Error('Gagal mengambil URL gambar.')
-  }
+  return `/api/images/${path}`
 }
 
 /**
