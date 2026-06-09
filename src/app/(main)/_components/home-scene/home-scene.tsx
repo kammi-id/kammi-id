@@ -635,6 +635,7 @@ export const HomeScene = ({
                   sizes='100vw'
                   className='object-cover'
                   priority
+                  unoptimized={hero.resolvedImageUrl.startsWith('http')}
                 />
               ) : (
                 <div className='bg-foreground/10 absolute inset-0' />
@@ -896,6 +897,7 @@ export const HomeScene = ({
                     height={900}
                     sizes='100vw'
                     className='h-full w-full object-contain object-bottom object-left'
+                    unoptimized={photoSrc.startsWith('http')}
                   />
                 ) : (
                   <div className='bg-muted/30 h-full w-full rounded-t-3xl' />
@@ -947,6 +949,7 @@ export const HomeScene = ({
                     height={1067}
                     sizes='35vw'
                     className='h-full w-auto max-w-none object-contain object-bottom transition-transform duration-500 ease-out group-hover:scale-[1.02]'
+                    unoptimized={photoSrc.startsWith('http')}
                   />
                 ) : (
                   <div

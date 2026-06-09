@@ -28,6 +28,7 @@ export const ExtraSection = async () => {
               fill
               sizes='100vw'
               className='object-cover'
+              unoptimized={item.resolvedImageUrl.startsWith('http')}
             />
           ) : (
             <div className='bg-foreground/10 absolute inset-0' />
