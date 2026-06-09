@@ -12,12 +12,14 @@ const nextConfig: NextConfig = {
     proxyClientMaxBodySize: '50mb'
   },
   images: {
+    localPatterns: [{ pathname: '/api/images/**', search: '' }],
     remotePatterns: [
       {
         protocol: 'https',
         hostname: 'assets.kammi.id'
       }
-    ]
+    ],
+    qualities: [75]
   }
 }
 
