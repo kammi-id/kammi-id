@@ -33,7 +33,6 @@ export const HeroSection = async () => {
                 sizes='100vw'
                 className='object-cover'
                 priority
-                unoptimized={item.resolvedImageUrl.startsWith('http')}
               />
             ) : (
               <div className='bg-foreground/10 absolute inset-0' />

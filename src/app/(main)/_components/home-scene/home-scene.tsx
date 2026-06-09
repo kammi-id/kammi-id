@@ -138,6 +138,14 @@ export const HomeScene = ({
   const lsKetuaRef = useRef<HTMLDivElement>(null)
   const lsSekjRef = useRef<HTMLDivElement>(null)
   const lsBendRef = useRef<HTMLDivElement>(null)
+  // Mobile-only: sub-element refs for staggered text animation
+  const lsPeriodRef = useRef<HTMLParagraphElement>(null)
+  const lsHeadingRef = useRef<HTMLHeadingElement>(null)
+  const lsCtaRef = useRef<HTMLDivElement>(null)
+  // Mobile-only: sequential portrait stage (separate from desktop trio)
+  const lsMobileKetuaRef = useRef<HTMLDivElement>(null)
+  const lsMobileSekjRef = useRef<HTMLDivElement>(null)
+  const lsMobileBendRef = useRef<HTMLDivElement>(null)
 
   // Network element refs
   const netMapRef = useRef<HTMLDivElement>(null)
@@ -258,7 +266,7 @@ export const HomeScene = ({
       gsap.set(networkLayerRef.current, { opacity: 0, pointerEvents: 'none' })
       gsap.set(netMapRef.current, { scale: 1.5, opacity: 0 })
       gsap.set(netHeaderRef.current, { opacity: 0, y: -24 })
-      gsap.set(netCtaRef.current, { opacity: 0, y: -12 })
+      gsap.set(netCtaRef.current, { opacity: 0, y: -12, pointerEvents: 'none' })
 
       // Network stat cards initial state
       if (netCardsRef.current) {
@@ -282,11 +290,26 @@ export const HomeScene = ({
         gsap.set(lsSekjRef.current, { x: '-55vw' })
         gsap.set(lsBendRef.current, { x: '55vw' })
       } else {
-        gsap.set(lsTextRef.current, { opacity: 0, scale: 1.5, y: '10vh' })
-        gsap.set([lsKetuaRef.current, lsSekjRef.current, lsBendRef.current], {
-          opacity: 0,
-          y: 65
-        })
+        // Mobile: text wrapper visible, sub-elements start hidden
+        gsap.set(lsTextRef.current, { opacity: 1 })
+        gsap.set(lsPeriodRef.current, { opacity: 0, y: 22 })
+        gsap.set(lsHeadingRef.current, { opacity: 0, y: 22 })
+        gsap.set(lsCtaRef.current, { opacity: 0, y: 14 })
+        // Mobile portrait wrappers start off-screen to the right
+        gsap.set(
+          [lsMobileKetuaRef.current, lsMobileSekjRef.current, lsMobileBendRef.current],
+          { x: '110vw' }
+        )
+        // Name plates inside each portrait start invisible
+        const mobilePlates = [
+          lsMobileKetuaRef.current,
+          lsMobileSekjRef.current,
+          lsMobileBendRef.current
+        ]
+          .filter(Boolean)
+          .map((el) => el!.querySelector<HTMLElement>('[data-mobile-plate]'))
+          .filter(Boolean)
+        gsap.set(mobilePlates, { opacity: 0 })
       }
 
       // ── Counter objects for network stats ──────────────────────────────────
@@ -420,43 +443,53 @@ export const HomeScene = ({
             3.22
           )
       } else {
-        // Mobile: simple fade-in
+        // Mobile: sequential single-person reveal, title persists, strict order
+        const plate = (ref: React.RefObject<HTMLDivElement | null>) =>
+          ref.current?.querySelector<HTMLElement>('[data-mobile-plate]') ?? null
+
         mainTl
-          .to(
-            lsTextRef.current,
-            { opacity: 1, scale: 1, y: 0, ease: 'power3.out', duration: 0.5 },
-            2.9
-          )
-          .to(
-            [lsKetuaRef.current, lsSekjRef.current, lsBendRef.current],
-            {
-              opacity: 1,
-              y: 0,
-              ease: 'power3.out',
-              duration: 0.45,
-              stagger: 0.12
-            },
-            3.1
-          )
+          // ── Title stagger in (stays visible throughout) ───────────────────
+          .to(lsPeriodRef.current, { opacity: 1, y: 0, ease: 'power3.out', duration: 0.13 }, 2.9)
+          .to(lsHeadingRef.current, { opacity: 1, y: 0, ease: 'power3.out', duration: 0.16 }, 3.05)
+          .to(lsCtaRef.current, { opacity: 1, y: 0, ease: 'power3.out', duration: 0.12 }, 3.23)
+
+          // ── Ketua Umum enters from right ──────────────────────────────────
+          // enters: 3.32 → 3.56  |  plate: 3.48 → 3.68  |  holds: 3.56 → 3.75
+          .to(lsMobileKetuaRef.current, { x: 0, ease: 'power3.out', duration: 0.24 }, 3.32)
+          .to(plate(lsMobileKetuaRef), { opacity: 1, ease: 'power3.out', duration: 0.2 }, 3.48)
+          // Ketua exits fully (done at 3.97) before Sekjen enters
+          .to(lsMobileKetuaRef.current, { x: '-110vw', ease: 'power2.in', duration: 0.22 }, 3.75)
+
+          // ── Sekjen enters only after Ketua fully exits (t:3.97) ───────────
+          // enters: 3.97 → 4.21  |  plate: 4.13 → 4.33  |  holds: 4.21 → 4.35
+          .to(lsMobileSekjRef.current, { x: 0, ease: 'power3.out', duration: 0.24 }, 3.97)
+          .to(plate(lsMobileSekjRef), { opacity: 1, ease: 'power3.out', duration: 0.2 }, 4.13)
+          // Sekjen exits fully (done at 4.57) before Bendahara enters
+          .to(lsMobileSekjRef.current, { x: '-110vw', ease: 'power2.in', duration: 0.22 }, 4.35)
+
+          // ── Bendahara enters only after Sekjen fully exits (t:4.57) ───────
+          // enters: 4.57 → 4.81  |  plate: 4.73 → 4.93  |  holds: 4.81 → 4.88
+          .to(lsMobileBendRef.current, { x: 0, ease: 'power3.out', duration: 0.24 }, 4.57)
+          .to(plate(lsMobileBendRef), { opacity: 1, ease: 'power3.out', duration: 0.2 }, 4.73)
+          // Bendahara and title exit together
+          .to(lsMobileBendRef.current, { x: '-110vw', ease: 'power2.in', duration: 0.22 }, 4.88)
+          .to(lsTextRef.current, { opacity: 0, y: -60, ease: 'power2.in', duration: 0.22 }, 4.88)
       }
 
-      // ── Leadership exits: heading fades up, all photos fall down ──────────
+      // ── Leadership exits ──────────────────────────────────────────────────
+      // Desktop: text fades up, photos fall down. Mobile: handled above.
+      if (isDesktop) {
+        mainTl
+          .to(lsTextRef.current, { opacity: 0, y: -80, ease: 'power2.in', duration: 0.22 }, 4.6)
+          .to(
+            [lsKetuaRef.current, lsSekjRef.current, lsBendRef.current],
+            { y: '110vh', opacity: 0, ease: 'power2.in', duration: 0.32 },
+            4.7
+          )
+      }
+      // Both: layer fades out
       mainTl
-        .to(
-          lsTextRef.current,
-          { opacity: 0, y: -80, ease: 'power2.in', duration: 0.22 },
-          4.6
-        )
-        .to(
-          [lsKetuaRef.current, lsSekjRef.current, lsBendRef.current],
-          { y: '110vh', opacity: 0, ease: 'power2.in', duration: 0.32 },
-          4.7
-        )
-        .to(
-          leadershipLayerRef.current,
-          { opacity: 0, ease: 'none', duration: 0.1 },
-          5.02
-        )
+        .to(leadershipLayerRef.current, { opacity: 0, ease: 'none', duration: 0.1 }, 5.02)
         .set(leadershipLayerRef.current, { pointerEvents: 'none' }, 5.12)
 
       // ════════════════════════════════════════════════════════════════════════
@@ -481,10 +514,10 @@ export const HomeScene = ({
           { opacity: 1, y: 0, ease: 'power3.out', duration: 0.2 },
           5.0
         )
-        // CTA fades in
+        // CTA fades in and becomes interactive
         .to(
           netCtaRef.current,
-          { opacity: 1, y: 0, ease: 'power3.out', duration: 0.14 },
+          { opacity: 1, y: 0, ease: 'power3.out', duration: 0.14, pointerEvents: 'auto' },
           5.14
         )
 
@@ -602,7 +635,6 @@ export const HomeScene = ({
                   sizes='100vw'
                   className='object-cover'
                   priority
-                  unoptimized={hero.resolvedImageUrl.startsWith('http')}
                 />
               ) : (
                 <div className='bg-foreground/10 absolute inset-0' />
@@ -789,16 +821,20 @@ export const HomeScene = ({
           ref={lsTextRef}
           className='px-6 pt-20 pb-2 text-center md:pt-24 md:pb-4 lg:px-8 lg:pt-28'
         >
-          <p className='text-primary font-sans text-xs font-semibold tracking-widest uppercase'>
+          <p
+            ref={lsPeriodRef}
+            className='text-primary font-sans text-xs font-semibold tracking-widest uppercase'
+          >
             {leadership.periodLabel}
           </p>
           <h2
+            ref={lsHeadingRef}
             id='leadership-heading'
             className='font-heading text-foreground mt-2 text-[clamp(1.5rem,3vw,2.25rem)] font-bold'
           >
             {leadership.heading}
           </h2>
-          <div className='mt-4 mb-3 flex justify-center md:mt-6 md:mb-12'>
+          <div ref={lsCtaRef} className='mt-4 mb-3 flex justify-center md:mt-6 md:mb-12'>
             <Link
               href='/tentang/pengurus'
               className='text-primary hover:text-primary/80 group flex items-center gap-2 font-sans text-sm font-semibold transition-colors'
@@ -822,75 +858,128 @@ export const HomeScene = ({
           </div>
         </div>
 
-        {/* Photo trio — converge from edges, then exit downward */}
-        <div className='mt-4 flex flex-row items-end justify-center px-2 sm:px-4 md:mt-auto md:flex-row md:items-end md:justify-center md:gap-0 md:px-8 lg:px-12'>
-          {trio.map(
-            ({ key, label, name, photoSrc, position, ref: photoRef }) => {
-              const isCenter = position === 'center'
-              const isLeft = position === 'left'
+        {/* ── Mobile: sequential portrait stage (hidden on md+) ──────────── */}
+        <div className='relative flex-1 overflow-hidden md:hidden'>
+          {(
+            [
+              {
+                ref: lsMobileKetuaRef,
+                key: 'mobile-ketua',
+                label: 'Ketua Umum',
+                name: leadership.triumvirate.ketua.name,
+                photoSrc: leadership.triumvirate.ketua.photoSrc
+              },
+              {
+                ref: lsMobileSekjRef,
+                key: 'mobile-sekj',
+                label: 'Sekretaris Jenderal',
+                name: leadership.triumvirate.sekretaris.name,
+                photoSrc: leadership.triumvirate.sekretaris.photoSrc
+              },
+              {
+                ref: lsMobileBendRef,
+                key: 'mobile-bend',
+                label: 'Bendahara Umum',
+                name: leadership.triumvirate.bendahara.name,
+                photoSrc: leadership.triumvirate.bendahara.photoSrc
+              }
+            ] as const
+          ).map(({ ref: portraitRef, key, label, name, photoSrc }) => (
+            <div key={key} ref={portraitRef} className='absolute inset-0'>
+              {/* Photo — fills stage, contained + anchored bottom-left ≥90vw wide */}
+              <div className='absolute inset-0'>
+                {photoSrc ? (
+                  <Image
+                    src={photoSrc}
+                    alt={`Foto ${name}`}
+                    width={600}
+                    height={900}
+                    sizes='100vw'
+                    className='h-full w-full object-contain object-bottom object-left'
+                  />
+                ) : (
+                  <div className='bg-muted/30 h-full w-full rounded-t-3xl' />
+                )}
+              </div>
+              {/* Name plate — right side, overlapping photo */}
+              <div
+                data-mobile-plate
+                className='absolute right-5 bottom-14 max-w-[52vw] rounded-xl px-4 py-3 text-right bg-white/85 shadow-[0_8px_32px_rgba(0,0,0,0.12)] ring-1 ring-white/50 backdrop-blur-md'
+              >
+                <p className='text-primary font-sans text-[10px] leading-none font-bold tracking-[0.2em] uppercase'>
+                  {label}
+                </p>
+                <p className='font-heading text-foreground mt-1.5 text-sm leading-snug font-bold'>
+                  {name}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
 
-              return (
+        {/* ── Desktop: side-by-side trio (hidden below md) ─────────────────── */}
+        <div className='hidden md:mt-auto md:flex md:flex-row md:items-end md:justify-center md:gap-0 md:px-8 lg:px-12'>
+          {trio.map(({ key, label, name, photoSrc, position, ref: photoRef }) => {
+            const isCenter = position === 'center'
+            const isLeft = position === 'left'
+
+            return (
+              <div
+                key={key}
+                ref={photoRef}
+                data-ls-photo={key}
+                className={cn(
+                  'group relative shrink-0 cursor-pointer overflow-visible rounded-none bg-transparent p-0',
+                  isLeft
+                    ? 'md:-mr-[12vw] lg:-mr-[15vw]'
+                    : !isCenter
+                      ? 'md:-ml-[12vw] lg:-ml-[15vw]'
+                      : '',
+                  isCenter ? 'z-10' : 'z-0',
+                  isCenter ? 'md:h-[min(44vw,800px)]' : 'md:h-[min(40vw,740px)]'
+                )}
+              >
+                {photoSrc ? (
+                  <Image
+                    src={photoSrc}
+                    alt={`Foto ${name}`}
+                    width={800}
+                    height={1067}
+                    sizes='35vw'
+                    className='h-full w-auto max-w-none object-contain object-bottom transition-transform duration-500 ease-out group-hover:scale-[1.02]'
+                  />
+                ) : (
+                  <div
+                    className='bg-muted/30 h-full rounded-t-[2rem]'
+                    style={{ aspectRatio: '3/4' }}
+                  />
+                )}
+
+                {/* Frosted name plate */}
                 <div
-                  key={key}
-                  ref={photoRef}
-                  data-ls-photo={key}
                   className={cn(
-                    'group bg-muted/60 relative shrink-0 cursor-pointer overflow-visible rounded-2xl px-1 pt-1 pb-0',
-                    'md:rounded-none md:bg-transparent md:p-0',
-                    isLeft
-                      ? '-mr-3 md:-mr-[12vw] lg:-mr-[15vw]'
-                      : !isCenter
-                        ? '-ml-3 md:-ml-[12vw] lg:-ml-[15vw]'
-                        : '',
-                    isCenter ? 'z-10' : 'z-0',
+                    'absolute rounded-xl px-4 py-2.5',
+                    'bg-white/85 shadow-[0_8px_32px_rgba(0,0,0,0.12)] ring-1 ring-white/50 backdrop-blur-md',
+                    'w-max max-w-[85%] transition-[opacity,transform] duration-200 ease-out',
+                    'bottom-12 translate-y-1 opacity-70',
+                    'group-hover:translate-y-0 group-hover:opacity-100',
                     isCenter
-                      ? 'h-[clamp(130px,26vh,200px)] md:h-[min(44vw,800px)]'
-                      : 'h-[clamp(100px,20vh,160px)] md:h-[min(40vw,740px)]'
+                      ? 'left-1/2 -translate-x-1/2 text-center'
+                      : isLeft
+                        ? 'left-8 text-left'
+                        : 'right-8 text-right'
                   )}
                 >
-                  {photoSrc ? (
-                    <Image
-                      src={photoSrc}
-                      alt={`Foto ${name}`}
-                      width={800}
-                      height={1067}
-                      sizes='(max-width: 768px) 33vw, 35vw'
-                      className='h-full w-auto max-w-none object-contain object-bottom transition-transform duration-500 ease-out group-hover:scale-[1.02] max-md:rounded-t-xl max-md:object-top'
-                      unoptimized={photoSrc.startsWith('http')}
-                    />
-                  ) : (
-                    <div
-                      className='bg-muted/30 h-full rounded-t-[2rem]'
-                      style={{ aspectRatio: '3/4' }}
-                    />
-                  )}
-
-                  {/* Frosted name plate */}
-                  <div
-                    className={cn(
-                      'absolute rounded-xl px-4 py-2.5',
-                      'bg-white/85 shadow-[0_8px_32px_rgba(0,0,0,0.12)] ring-1 ring-white/50 backdrop-blur-md',
-                      'w-max max-w-[85%] transition-[opacity,transform] duration-200 ease-out',
-                      'bottom-12 translate-y-1 opacity-70 max-md:hidden',
-                      'group-hover:translate-y-0 group-hover:opacity-100',
-                      isCenter
-                        ? 'left-1/2 -translate-x-1/2 text-center'
-                        : isLeft
-                          ? 'left-8 text-left'
-                          : 'right-8 text-right'
-                    )}
-                  >
-                    <p className='text-primary font-sans text-[10px] leading-none font-bold tracking-[0.2em] uppercase'>
-                      {label}
-                    </p>
-                    <p className='font-heading text-foreground mt-1.5 text-sm leading-tight font-bold md:text-base'>
-                      {name}
-                    </p>
-                  </div>
+                  <p className='text-primary font-sans text-[10px] leading-none font-bold tracking-[0.2em] uppercase'>
+                    {label}
+                  </p>
+                  <p className='font-heading text-foreground mt-1.5 text-sm leading-tight font-bold md:text-base'>
+                    {name}
+                  </p>
                 </div>
-              )
-            }
-          )}
+              </div>
+            )
+          })}
         </div>
       </div>
 
