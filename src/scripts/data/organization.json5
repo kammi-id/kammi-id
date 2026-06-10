@@ -3608,8 +3608,8 @@
     name: 'PK KAMMI Ichsan',
     slug: 'ichsan',
     type: 'pk',
-    code: '32.PD.2.ICHSAN',
-    parent_code: '32.PD.2'
+    code: '32.PD.1.ICHSAN',
+    parent_code: '32.PD.1'
   },
 
   // Pengurus Luar Negeri KAMMI (PDLN)
