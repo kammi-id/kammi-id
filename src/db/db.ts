@@ -1,13 +1,7 @@
 import { drizzle } from 'drizzle-orm/bun-sql'
 import { SQL } from 'bun'
 
-const DATABASE_URL = process.env.DATABASE_URL
-if (!DATABASE_URL) {
-  throw new Error(
-    'Missing required environment variable: DATABASE_URL\n' +
-      'Make sure it is defined in .env.local (development) or set as a runtime env var (production).'
-  )
-}
+const DATABASE_URL = process.env.DATABASE_URL as string
 
 type DB = ReturnType<typeof drizzle>
 
