@@ -12,26 +12,27 @@
 
 ## File Map
 
-| Status | File | Perubahan |
-|--------|------|-----------|
-| **Create** | `src/app/api/images/[...key]/route.ts` | Route handler proxy ke S3 |
-| **Create** | `tests/lib/utils/site-image.test.ts` | Unit test untuk resolveSiteImage |
-| **Modify** | `next.config.ts` | Tambah `localPatterns`, `qualities` |
-| **Modify** | `src/lib/utils/site-image.ts` | Hapus presign, return proxy path |
-| **Modify** | `src/lib/actions/storage.ts` | `getSignedUrlAction` return proxy path |
-| **Modify** | `src/app/(main)/_components/home-scene/home-scene.tsx` | Hapus `unoptimized` (3 lokasi: baris 638, 900, 952) |
-| **Modify** | `src/app/(main)/_components/leadership-section/leadership-section-client.tsx` | Hapus `unoptimized` (baris 248) |
-| **Modify** | `src/app/(main)/_components/actions-section/actions-section.tsx` | Hapus `unoptimized` (baris 48, 83) |
-| **Modify** | `src/app/(main)/_components/extra-section/extra-section.tsx` | Hapus `unoptimized` (baris 31) |
-| **Modify** | `src/app/(main)/_components/hero-section/hero-section.tsx` | Hapus `unoptimized` (baris 36) |
-| **Modify** | `src/app/(main)/tentang/pengurus/_components/leaders-directory/leaders-directory-client.tsx` | Hapus `unoptimized` (baris 208) |
-| **Modify** | `src/app/(main)/tentang/pengurus/_components/pengurus-hero/pengurus-hero-client.tsx` | Hapus `unoptimized` (baris 229) |
+| Status     | File                                                                                         | Perubahan                                           |
+| ---------- | -------------------------------------------------------------------------------------------- | --------------------------------------------------- |
+| **Create** | `src/app/api/images/[...key]/route.ts`                                                       | Route handler proxy ke S3                           |
+| **Create** | `tests/lib/utils/site-image.test.ts`                                                         | Unit test untuk resolveSiteImage                    |
+| **Modify** | `next.config.ts`                                                                             | Tambah `localPatterns`, `qualities`                 |
+| **Modify** | `src/lib/utils/site-image.ts`                                                                | Hapus presign, return proxy path                    |
+| **Modify** | `src/lib/actions/storage.ts`                                                                 | `getSignedUrlAction` return proxy path              |
+| **Modify** | `src/app/(main)/_components/home-scene/home-scene.tsx`                                       | Hapus `unoptimized` (3 lokasi: baris 638, 900, 952) |
+| **Modify** | `src/app/(main)/_components/leadership-section/leadership-section-client.tsx`                | Hapus `unoptimized` (baris 248)                     |
+| **Modify** | `src/app/(main)/_components/actions-section/actions-section.tsx`                             | Hapus `unoptimized` (baris 48, 83)                  |
+| **Modify** | `src/app/(main)/_components/extra-section/extra-section.tsx`                                 | Hapus `unoptimized` (baris 31)                      |
+| **Modify** | `src/app/(main)/_components/hero-section/hero-section.tsx`                                   | Hapus `unoptimized` (baris 36)                      |
+| **Modify** | `src/app/(main)/tentang/pengurus/_components/leaders-directory/leaders-directory-client.tsx` | Hapus `unoptimized` (baris 208)                     |
+| **Modify** | `src/app/(main)/tentang/pengurus/_components/pengurus-hero/pengurus-hero-client.tsx`         | Hapus `unoptimized` (baris 229)                     |
 
 ---
 
 ## Task 1: Update `next.config.ts`
 
 **Files:**
+
 - Modify: `next.config.ts`
 
 - [ ] **Step 1: Edit `next.config.ts`**
@@ -94,6 +95,7 @@
 ## Task 2: Create Image Proxy Route
 
 **Files:**
+
 - Create: `src/app/api/images/[...key]/route.ts`
 
 - [ ] **Step 1: Buat direktori dan file route handler**
@@ -113,14 +115,17 @@
     const s3Key = key.join('/')
 
     try {
-      const presignedUrl = await storage.client.file(s3Key).presign({ expiresIn: 86400 })
+      const presignedUrl = await storage.client
+        .file(s3Key)
+        .presign({ expiresIn: 86400 })
       const res = await fetch(presignedUrl)
       if (!res.ok) return new Response('Not Found', { status: 404 })
       return new Response(res.body, {
         headers: {
-          'Content-Type': res.headers.get('Content-Type') ?? 'application/octet-stream',
-          'Cache-Control': 'public, max-age=86400',
-        },
+          'Content-Type':
+            res.headers.get('Content-Type') ?? 'application/octet-stream',
+          'Cache-Control': 'public, max-age=86400'
+        }
       })
     } catch {
       return new Response('Internal Server Error', { status: 500 })
@@ -160,6 +165,7 @@
 ## Task 3: Update `resolveSiteImage` + Unit Tests
 
 **Files:**
+
 - Modify: `src/lib/utils/site-image.ts`
 - Create: `tests/lib/utils/site-image.test.ts`
 
@@ -177,7 +183,9 @@
     })
 
     it('returns root-relative paths as-is', async () => {
-      expect(await resolveSiteImage('/images/logo.png')).toBe('/images/logo.png')
+      expect(await resolveSiteImage('/images/logo.png')).toBe(
+        '/images/logo.png'
+      )
     })
 
     it('converts S3 key to proxy URL', async () => {
@@ -198,7 +206,9 @@
 
     it('converts full path-style S3 URL to proxy path', async () => {
       // Membutuhkan S3_ENDPOINT='https://assets.kammi.id' dan S3_BUCKET_NAME='kammiid' dari .env.local
-      const result = await resolveSiteImage('https://assets.kammi.id/kammiid/uploads/uuid.jpg')
+      const result = await resolveSiteImage(
+        'https://assets.kammi.id/kammiid/uploads/uuid.jpg'
+      )
       expect(result).toBe('/api/images/uploads/uuid.jpg')
     })
   })
@@ -259,6 +269,7 @@
 ## Task 4: Update `getSignedUrlAction`
 
 **Files:**
+
 - Modify: `src/lib/actions/storage.ts`
 
 - [ ] **Step 1: Update `getSignedUrlAction`**
@@ -300,6 +311,7 @@
 ## Task 5: Hapus `unoptimized` dari Components
 
 **Files:**
+
 - Modify: 7 file component (lihat tabel di bawah)
 
 Hapus prop `unoptimized={...}` dari masing-masing lokasi. Setelah perubahan di `resolveSiteImage` dan `getSignedUrlAction`, semua URL S3 sudah mulai dengan `/api/images/...` sehingga prop ini tidak diperlukan lagi.
@@ -309,16 +321,19 @@ Hapus prop `unoptimized={...}` dari masing-masing lokasi. Setelah perubahan di `
   File: `src/app/(main)/_components/home-scene/home-scene.tsx`
 
   Baris 638 — hapus baris:
+
   ```tsx
   unoptimized={hero.resolvedImageUrl.startsWith('http')}
   ```
 
   Baris 900 — hapus baris:
+
   ```tsx
   unoptimized={photoSrc.startsWith('http')}
   ```
 
   Baris 952 — hapus baris:
+
   ```tsx
   unoptimized={photoSrc.startsWith('http')}
   ```
@@ -328,6 +343,7 @@ Hapus prop `unoptimized={...}` dari masing-masing lokasi. Setelah perubahan di `
   File: `src/app/(main)/_components/leadership-section/leadership-section-client.tsx`
 
   Baris 248 — hapus baris:
+
   ```tsx
   unoptimized={photoSrc.startsWith('http')}
   ```
@@ -337,11 +353,13 @@ Hapus prop `unoptimized={...}` dari masing-masing lokasi. Setelah perubahan di `
   File: `src/app/(main)/_components/actions-section/actions-section.tsx`
 
   Baris 48 — hapus baris:
+
   ```tsx
   unoptimized={featured.imageSrc.startsWith('http')}
   ```
 
   Baris 83 — hapus baris:
+
   ```tsx
   unoptimized={program.imageSrc.startsWith('http')}
   ```
@@ -351,6 +369,7 @@ Hapus prop `unoptimized={...}` dari masing-masing lokasi. Setelah perubahan di `
   File: `src/app/(main)/_components/extra-section/extra-section.tsx`
 
   Baris 31 — hapus baris:
+
   ```tsx
   unoptimized={item.resolvedImageUrl.startsWith('http')}
   ```
@@ -360,6 +379,7 @@ Hapus prop `unoptimized={...}` dari masing-masing lokasi. Setelah perubahan di `
   File: `src/app/(main)/_components/hero-section/hero-section.tsx`
 
   Baris 36 — hapus baris:
+
   ```tsx
   unoptimized={item.resolvedImageUrl.startsWith('http')}
   ```
@@ -369,6 +389,7 @@ Hapus prop `unoptimized={...}` dari masing-masing lokasi. Setelah perubahan di `
   File: `src/app/(main)/tentang/pengurus/_components/leaders-directory/leaders-directory-client.tsx`
 
   Baris 208 — hapus baris:
+
   ```tsx
   unoptimized={member.photoSrc.startsWith('http')}
   ```
@@ -378,6 +399,7 @@ Hapus prop `unoptimized={...}` dari masing-masing lokasi. Setelah perubahan di `
   File: `src/app/(main)/tentang/pengurus/_components/pengurus-hero/pengurus-hero-client.tsx`
 
   Baris 229 — hapus baris:
+
   ```tsx
   unoptimized={member.photoSrc.startsWith('http')}
   ```

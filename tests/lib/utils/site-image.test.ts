@@ -28,7 +28,9 @@ describe('resolveSiteImage', () => {
 
   it('converts full path-style S3 URL to proxy path', async () => {
     // Membutuhkan S3_ENDPOINT='https://assets.kammi.id' dan S3_BUCKET_NAME='kammiid' dari .env.local
-    const result = await resolveSiteImage('https://assets.kammi.id/kammiid/uploads/uuid.jpg')
+    const result = await resolveSiteImage(
+      'https://assets.kammi.id/kammiid/uploads/uuid.jpg'
+    )
     expect(result).toBe('/api/images/uploads/uuid.jpg')
   })
 })

@@ -297,7 +297,11 @@ export const HomeScene = ({
         gsap.set(lsCtaRef.current, { opacity: 0, y: 14 })
         // Mobile portrait wrappers start off-screen to the right
         gsap.set(
-          [lsMobileKetuaRef.current, lsMobileSekjRef.current, lsMobileBendRef.current],
+          [
+            lsMobileKetuaRef.current,
+            lsMobileSekjRef.current,
+            lsMobileBendRef.current
+          ],
           { x: '110vw' }
         )
         // Name plates inside each portrait start invisible
@@ -449,38 +453,94 @@ export const HomeScene = ({
 
         mainTl
           // ── Title stagger in (stays visible throughout) ───────────────────
-          .to(lsPeriodRef.current, { opacity: 1, y: 0, ease: 'power3.out', duration: 0.13 }, 2.9)
-          .to(lsHeadingRef.current, { opacity: 1, y: 0, ease: 'power3.out', duration: 0.16 }, 3.05)
-          .to(lsCtaRef.current, { opacity: 1, y: 0, ease: 'power3.out', duration: 0.12 }, 3.23)
+          .to(
+            lsPeriodRef.current,
+            { opacity: 1, y: 0, ease: 'power3.out', duration: 0.13 },
+            2.9
+          )
+          .to(
+            lsHeadingRef.current,
+            { opacity: 1, y: 0, ease: 'power3.out', duration: 0.16 },
+            3.05
+          )
+          .to(
+            lsCtaRef.current,
+            { opacity: 1, y: 0, ease: 'power3.out', duration: 0.12 },
+            3.23
+          )
 
           // ── Ketua Umum enters from right ──────────────────────────────────
           // enters: 3.32 → 3.56  |  plate: 3.48 → 3.68  |  holds: 3.56 → 3.75
-          .to(lsMobileKetuaRef.current, { x: 0, ease: 'power3.out', duration: 0.24 }, 3.32)
-          .to(plate(lsMobileKetuaRef), { opacity: 1, ease: 'power3.out', duration: 0.2 }, 3.48)
+          .to(
+            lsMobileKetuaRef.current,
+            { x: 0, ease: 'power3.out', duration: 0.24 },
+            3.32
+          )
+          .to(
+            plate(lsMobileKetuaRef),
+            { opacity: 1, ease: 'power3.out', duration: 0.2 },
+            3.48
+          )
           // Ketua exits fully (done at 3.97) before Sekjen enters
-          .to(lsMobileKetuaRef.current, { x: '-110vw', ease: 'power2.in', duration: 0.22 }, 3.75)
+          .to(
+            lsMobileKetuaRef.current,
+            { x: '-110vw', ease: 'power2.in', duration: 0.22 },
+            3.75
+          )
 
           // ── Sekjen enters only after Ketua fully exits (t:3.97) ───────────
           // enters: 3.97 → 4.21  |  plate: 4.13 → 4.33  |  holds: 4.21 → 4.35
-          .to(lsMobileSekjRef.current, { x: 0, ease: 'power3.out', duration: 0.24 }, 3.97)
-          .to(plate(lsMobileSekjRef), { opacity: 1, ease: 'power3.out', duration: 0.2 }, 4.13)
+          .to(
+            lsMobileSekjRef.current,
+            { x: 0, ease: 'power3.out', duration: 0.24 },
+            3.97
+          )
+          .to(
+            plate(lsMobileSekjRef),
+            { opacity: 1, ease: 'power3.out', duration: 0.2 },
+            4.13
+          )
           // Sekjen exits fully (done at 4.57) before Bendahara enters
-          .to(lsMobileSekjRef.current, { x: '-110vw', ease: 'power2.in', duration: 0.22 }, 4.35)
+          .to(
+            lsMobileSekjRef.current,
+            { x: '-110vw', ease: 'power2.in', duration: 0.22 },
+            4.35
+          )
 
           // ── Bendahara enters only after Sekjen fully exits (t:4.57) ───────
           // enters: 4.57 → 4.81  |  plate: 4.73 → 4.93  |  holds: 4.81 → 4.88
-          .to(lsMobileBendRef.current, { x: 0, ease: 'power3.out', duration: 0.24 }, 4.57)
-          .to(plate(lsMobileBendRef), { opacity: 1, ease: 'power3.out', duration: 0.2 }, 4.73)
+          .to(
+            lsMobileBendRef.current,
+            { x: 0, ease: 'power3.out', duration: 0.24 },
+            4.57
+          )
+          .to(
+            plate(lsMobileBendRef),
+            { opacity: 1, ease: 'power3.out', duration: 0.2 },
+            4.73
+          )
           // Bendahara and title exit together
-          .to(lsMobileBendRef.current, { x: '-110vw', ease: 'power2.in', duration: 0.22 }, 4.88)
-          .to(lsTextRef.current, { opacity: 0, y: -60, ease: 'power2.in', duration: 0.22 }, 4.88)
+          .to(
+            lsMobileBendRef.current,
+            { x: '-110vw', ease: 'power2.in', duration: 0.22 },
+            4.88
+          )
+          .to(
+            lsTextRef.current,
+            { opacity: 0, y: -60, ease: 'power2.in', duration: 0.22 },
+            4.88
+          )
       }
 
       // ── Leadership exits ──────────────────────────────────────────────────
       // Desktop: text fades up, photos fall down. Mobile: handled above.
       if (isDesktop) {
         mainTl
-          .to(lsTextRef.current, { opacity: 0, y: -80, ease: 'power2.in', duration: 0.22 }, 4.6)
+          .to(
+            lsTextRef.current,
+            { opacity: 0, y: -80, ease: 'power2.in', duration: 0.22 },
+            4.6
+          )
           .to(
             [lsKetuaRef.current, lsSekjRef.current, lsBendRef.current],
             { y: '110vh', opacity: 0, ease: 'power2.in', duration: 0.32 },
@@ -489,7 +549,11 @@ export const HomeScene = ({
       }
       // Both: layer fades out
       mainTl
-        .to(leadershipLayerRef.current, { opacity: 0, ease: 'none', duration: 0.1 }, 5.02)
+        .to(
+          leadershipLayerRef.current,
+          { opacity: 0, ease: 'none', duration: 0.1 },
+          5.02
+        )
         .set(leadershipLayerRef.current, { pointerEvents: 'none' }, 5.12)
 
       // ════════════════════════════════════════════════════════════════════════
@@ -517,7 +581,13 @@ export const HomeScene = ({
         // CTA fades in and becomes interactive
         .to(
           netCtaRef.current,
-          { opacity: 1, y: 0, ease: 'power3.out', duration: 0.14, pointerEvents: 'auto' },
+          {
+            opacity: 1,
+            y: 0,
+            ease: 'power3.out',
+            duration: 0.14,
+            pointerEvents: 'auto'
+          },
           5.14
         )
 
@@ -835,7 +905,10 @@ export const HomeScene = ({
           >
             {leadership.heading}
           </h2>
-          <div ref={lsCtaRef} className='mt-4 mb-3 flex justify-center md:mt-6 md:mb-12'>
+          <div
+            ref={lsCtaRef}
+            className='mt-4 mb-3 flex justify-center md:mt-6 md:mb-12'
+          >
             <Link
               href='/tentang/pengurus'
               className='text-primary hover:text-primary/80 group flex items-center gap-2 font-sans text-sm font-semibold transition-colors'
@@ -906,7 +979,7 @@ export const HomeScene = ({
               {/* Name plate — right side, overlapping photo */}
               <div
                 data-mobile-plate
-                className='absolute right-5 bottom-14 max-w-[52vw] rounded-xl px-4 py-3 text-right bg-white/85 shadow-[0_8px_32px_rgba(0,0,0,0.12)] ring-1 ring-white/50 backdrop-blur-md'
+                className='absolute right-5 bottom-14 max-w-[52vw] rounded-xl bg-white/85 px-4 py-3 text-right shadow-[0_8px_32px_rgba(0,0,0,0.12)] ring-1 ring-white/50 backdrop-blur-md'
               >
                 <p className='text-primary font-sans text-[10px] leading-none font-bold tracking-[0.2em] uppercase'>
                   {label}
@@ -921,68 +994,72 @@ export const HomeScene = ({
 
         {/* ── Desktop: side-by-side trio (hidden below md) ─────────────────── */}
         <div className='hidden md:mt-auto md:flex md:flex-row md:items-end md:justify-center md:gap-0 md:px-8 lg:px-12'>
-          {trio.map(({ key, label, name, photoSrc, position, ref: photoRef }) => {
-            const isCenter = position === 'center'
-            const isLeft = position === 'left'
+          {trio.map(
+            ({ key, label, name, photoSrc, position, ref: photoRef }) => {
+              const isCenter = position === 'center'
+              const isLeft = position === 'left'
 
-            return (
-              <div
-                key={key}
-                ref={photoRef}
-                data-ls-photo={key}
-                className={cn(
-                  'group relative shrink-0 cursor-pointer overflow-visible rounded-none bg-transparent p-0',
-                  isLeft
-                    ? 'md:-mr-[12vw] lg:-mr-[15vw]'
-                    : !isCenter
-                      ? 'md:-ml-[12vw] lg:-ml-[15vw]'
-                      : '',
-                  isCenter ? 'z-10' : 'z-0',
-                  isCenter ? 'md:h-[min(44vw,800px)]' : 'md:h-[min(40vw,740px)]'
-                )}
-              >
-                {photoSrc ? (
-                  <Image
-                    src={photoSrc}
-                    alt={`Foto ${name}`}
-                    width={800}
-                    height={1067}
-                    sizes='35vw'
-                    className='h-full w-auto max-w-none object-contain object-bottom transition-transform duration-500 ease-out group-hover:scale-[1.02]'
-                    unoptimized={photoSrc.startsWith('http')}
-                  />
-                ) : (
-                  <div
-                    className='bg-muted/30 h-full rounded-t-[2rem]'
-                    style={{ aspectRatio: '3/4' }}
-                  />
-                )}
-
-                {/* Frosted name plate */}
+              return (
                 <div
+                  key={key}
+                  ref={photoRef}
+                  data-ls-photo={key}
                   className={cn(
-                    'absolute rounded-xl px-4 py-2.5',
-                    'bg-white/85 shadow-[0_8px_32px_rgba(0,0,0,0.12)] ring-1 ring-white/50 backdrop-blur-md',
-                    'w-max max-w-[85%] transition-[opacity,transform] duration-200 ease-out',
-                    'bottom-12 translate-y-1 opacity-70',
-                    'group-hover:translate-y-0 group-hover:opacity-100',
+                    'group relative shrink-0 cursor-pointer overflow-visible rounded-none bg-transparent p-0',
+                    isLeft
+                      ? 'md:-mr-[12vw] lg:-mr-[15vw]'
+                      : !isCenter
+                        ? 'md:-ml-[12vw] lg:-ml-[15vw]'
+                        : '',
+                    isCenter ? 'z-10' : 'z-0',
                     isCenter
-                      ? 'left-1/2 -translate-x-1/2 text-center'
-                      : isLeft
-                        ? 'left-8 text-left'
-                        : 'right-8 text-right'
+                      ? 'md:h-[min(44vw,800px)]'
+                      : 'md:h-[min(40vw,740px)]'
                   )}
                 >
-                  <p className='text-primary font-sans text-[10px] leading-none font-bold tracking-[0.2em] uppercase'>
-                    {label}
-                  </p>
-                  <p className='font-heading text-foreground mt-1.5 text-sm leading-tight font-bold md:text-base'>
-                    {name}
-                  </p>
+                  {photoSrc ? (
+                    <Image
+                      src={photoSrc}
+                      alt={`Foto ${name}`}
+                      width={800}
+                      height={1067}
+                      sizes='35vw'
+                      className='h-full w-auto max-w-none object-contain object-bottom transition-transform duration-500 ease-out group-hover:scale-[1.02]'
+                      unoptimized={photoSrc.startsWith('http')}
+                    />
+                  ) : (
+                    <div
+                      className='bg-muted/30 h-full rounded-t-[2rem]'
+                      style={{ aspectRatio: '3/4' }}
+                    />
+                  )}
+
+                  {/* Frosted name plate */}
+                  <div
+                    className={cn(
+                      'absolute rounded-xl px-4 py-2.5',
+                      'bg-white/85 shadow-[0_8px_32px_rgba(0,0,0,0.12)] ring-1 ring-white/50 backdrop-blur-md',
+                      'w-max max-w-[85%] transition-[opacity,transform] duration-200 ease-out',
+                      'bottom-12 translate-y-1 opacity-70',
+                      'group-hover:translate-y-0 group-hover:opacity-100',
+                      isCenter
+                        ? 'left-1/2 -translate-x-1/2 text-center'
+                        : isLeft
+                          ? 'left-8 text-left'
+                          : 'right-8 text-right'
+                    )}
+                  >
+                    <p className='text-primary font-sans text-[10px] leading-none font-bold tracking-[0.2em] uppercase'>
+                      {label}
+                    </p>
+                    <p className='font-heading text-foreground mt-1.5 text-sm leading-tight font-bold md:text-base'>
+                      {name}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            )
-          })}
+              )
+            }
+          )}
         </div>
       </div>
 
