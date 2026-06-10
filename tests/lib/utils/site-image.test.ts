@@ -1,5 +1,13 @@
-import { describe, it, expect } from 'bun:test'
-import { resolveSiteImage } from '~/lib/utils/site-image'
+import { describe, it, expect, beforeAll } from 'bun:test'
+import type { resolveSiteImage as ResolveSiteImage } from '~/lib/utils/site-image'
+
+let resolveSiteImage: typeof ResolveSiteImage
+
+beforeAll(async () => {
+  process.env.S3_ENDPOINT = 'https://assets.kammi.id'
+  process.env.S3_BUCKET_NAME = 'kammiid'
+  ;({ resolveSiteImage } = await import('~/lib/utils/site-image'))
+})
 
 describe('resolveSiteImage', () => {
   it('returns empty string for empty input', async () => {
@@ -27,7 +35,6 @@ describe('resolveSiteImage', () => {
   })
 
   it('converts full path-style S3 URL to proxy path', async () => {
-    // Membutuhkan S3_ENDPOINT='https://assets.kammi.id' dan S3_BUCKET_NAME='kammiid' dari .env.local
     const result = await resolveSiteImage(
       'https://assets.kammi.id/kammiid/uploads/uuid.jpg'
     )
