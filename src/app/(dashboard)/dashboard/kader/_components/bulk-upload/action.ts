@@ -7,6 +7,7 @@ import { revalidatePath } from 'next/cache'
 import { readActiveSession } from '~/lib/auth/cookies'
 import { isOrgInScope } from '~/db/query/organization'
 import { generatePassword, hashPassword } from '~/lib/utils/user'
+import { resolveOrgCodes } from '~/lib/utils/member'
 import { member as memberTable } from '~/db/schema/member.sql'
 import { user as userTable } from '~/db/schema/user.sql'
 import { organization } from '~/db/schema/organization.sql'
@@ -107,40 +108,20 @@ export const bulkCreateMembersAction = async (
       if (!org) throw new Error('Organization not found')
       if (org.type === 'pp') throw new Error('Cannot register members under PP')
 
-      let pwCode = ''
-      let pdCode = ''
+      let codes = resolveOrgCodes(org)
 
-      if (org.type === 'pw') {
-        const match = org.code.match(/PW\s*(\d+)/i)
-        pwCode = match ? match[1].padStart(2, '0') : '00'
-        pdCode = '00'
-      } else if (org.type === 'pdln') {
-        const match = org.code.match(/-\s*(\d+)/)
-        pwCode = '99'
-        pdCode = match ? match[1].padStart(2, '0') : '00'
-      } else {
-        const match = org.code.match(/(\d+)\s*\.\s*PD\s*-\s*(\d+)/i)
-        if (match) {
-          pwCode = match[1].padStart(2, '0')
-          pdCode = match[2].padStart(2, '0')
-        } else if (org.parentId) {
-          const [parent] = await tx
-            .select()
-            .from(organization)
-            .where(eq(organization.id, org.parentId))
-            .limit(1)
-          if (parent && parent.type === 'pd') {
-            const pMatch = parent.code.match(/(\d+)\s*\.\s*PD\s*-\s*(\d+)/i)
-            if (pMatch) {
-              pwCode = pMatch[1].padStart(2, '0')
-              pdCode = pMatch[2].padStart(2, '0')
-            }
-          }
-        }
+      if (!codes && org.parentId) {
+        const [parent] = await tx
+          .select()
+          .from(organization)
+          .where(eq(organization.id, org.parentId))
+          .limit(1)
+        if (parent) codes = resolveOrgCodes(parent)
       }
 
-      if (!pwCode || !pdCode)
-        throw new Error('Failed to parse organization codes')
+      if (!codes) throw new Error('Failed to parse organization codes')
+
+      const { pwCode, pdCode } = codes
 
       for (const memberInput of members) {
         const prefix = `${pwCode}${pdCode}${memberInput.yearOfEntry}`

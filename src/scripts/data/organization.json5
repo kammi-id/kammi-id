@@ -1100,6 +1100,13 @@
     parent_code: 'PW8'
   },
   {
+    name: 'PK KAMMI UIN Jusila',
+    slug: 'uin-jusila',
+    type: 'pk',
+    code: '8.PD-1.UIN-JUSILA',
+    parent_code: '8.PD-1'
+  },
+  {
     name: 'PD KAMMI Bandar Lampung',
     slug: 'bandar-lampung',
     type: 'pd',
