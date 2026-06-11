@@ -508,6 +508,7 @@ export const readDescendantMembers = async (
     FROM member m
     JOIN organization o ON m.organization_id = o.id
     WHERE m.organization_id IN (SELECT id FROM org_tree)
+      AND m.deleted_at IS NULL
       ${filters.user ? sql`AND m.organization_id IN ${await fetchAllowedOrgIds(filters.user)}` : sql``}
       ${filters.isAlumn !== undefined ? sql`AND m.is_alumn = ${filters.isAlumn}` : sql``}
       ${filters.isCertifiedMentor !== undefined ? sql`AND m.is_certified_mentor = ${filters.isCertifiedMentor}` : sql``}
@@ -552,7 +553,8 @@ export const readDescendantMembers = async (
           pk: OrgRef
           pd: OrgRef
           pw: OrgRef
-        } | null
+        } | null,
+        deletedAt: null
       }))
     })
 
@@ -568,6 +570,7 @@ export const readDescendantMembers = async (
     SELECT count(*)::int as count
     FROM member m
     WHERE m.organization_id IN (SELECT id FROM org_tree)
+      AND m.deleted_at IS NULL
       ${filters.user ? sql`AND m.organization_id IN ${await fetchAllowedOrgIds(filters.user)}` : sql``}
       ${filters.isAlumn !== undefined ? sql`AND m.is_alumn = ${filters.isAlumn}` : sql``}
       ${filters.isCertifiedMentor !== undefined ? sql`AND m.is_certified_mentor = ${filters.isCertifiedMentor}` : sql``}
