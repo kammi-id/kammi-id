@@ -309,13 +309,14 @@ export const readMember = async (
   where.push(isNull(withMemberCTE.deletedAt))
 
   const sortMapping: Record<string, string> = {
-    name: 'm.name',
-    yearOfEntry: 'm.year_of_entry',
-    registerNumber: 'm.register_number',
-    phone: 'm.phone'
+    name: '"with_member_cte"."name"',
+    yearOfEntry: '"with_member_cte"."year_of_entry"',
+    registerNumber: '"with_member_cte"."register_number"',
+    phone: '"with_member_cte"."phone"'
   }
 
-  const sortCol = sortMapping[memberFilters.sort || ''] || 'm.year_of_entry'
+  const sortCol =
+    sortMapping[memberFilters.sort || ''] || '"with_member_cte"."year_of_entry"'
   const sortDir = memberFilters.order === 'asc' ? 'ASC' : 'DESC'
 
   const query = db
@@ -323,7 +324,10 @@ export const readMember = async (
     .select()
     .from(withMemberCTE)
     .where(and(...where))
-    .orderBy(sql.raw(`${sortCol} ${sortDir}`), sql`m.name ASC`)
+    .orderBy(
+      sql.raw(`${sortCol} ${sortDir}`),
+      sql`"with_member_cte"."name" ASC`
+    )
 
   if (limit !== undefined) query.limit(limit)
   if (offset !== undefined) query.offset(offset)
