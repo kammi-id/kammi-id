@@ -2,13 +2,14 @@ import { notFound } from 'next/navigation'
 import { readActiveSession } from '~/lib/auth/cookies'
 import { readMemberByRegisterNumber } from '~/db/query/member'
 import { readMemberTrainingHistory } from '~/db/query/training'
-import { readOrgHierarchyChain } from '~/db/query/organization'
+import { readOrgHierarchyChain, isOrgInScope } from '~/db/query/organization'
 import { readMemberAcademic } from '~/db/query/academic'
 import { readMemberCareer } from '~/db/query/career'
 import { readMemberOrganizationHistory } from '~/db/query/organization-history'
 import { ProfileInlineEditForm } from './_components/profile-inline-edit-form'
 import { ProfileOrgHierarchy } from './_components/profile-org-hierarchy'
 import { ResetPasswordButton } from './_components/reset-password'
+import { DeleteMemberButton } from './_components/delete-member-button'
 
 const canEdit = (
   session: Awaited<ReturnType<typeof readActiveSession>>,
@@ -67,6 +68,21 @@ const ProfilePage = async ({
       />
     ) : null
 
+  let canDelete = false
+  if (session?.user.role === 'root') {
+    canDelete = true
+  } else if (session?.user.role === 'bpk' && member.organization?.id) {
+    canDelete = await isOrgInScope(session.user, member.organization.id)
+  }
+
+  const dangerZoneSlot = canDelete ? (
+    <DeleteMemberButton
+      memberId={member.id}
+      registerNumber={member.registerNumber}
+      name={member.name}
+    />
+  ) : null
+
   return (
     <ProfileInlineEditForm
       member={member}
@@ -76,6 +92,7 @@ const ProfilePage = async ({
       careerHistory={careerHistory}
       organizationHistory={organizationHistory}
       adminActionsSlot={adminActionsSlot}
+      dangerZoneSlot={dangerZoneSlot}
       orgHierarchySlot={
         orgChain.length > 0 ? (
           <ProfileOrgHierarchy
