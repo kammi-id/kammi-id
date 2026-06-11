@@ -34,5 +34,6 @@ export const member = pgTable('member', (t) => ({
     .boolean('is_certified_instructor')
     .default(false)
     .notNull(),
-  yearOfEntry: t.integer('year_of_entry').notNull()
+  yearOfEntry: t.integer('year_of_entry').notNull(),
+  deletedAt: t.timestamp('deleted_at')
 }))
