@@ -12,7 +12,9 @@ const PDLN_CODE_RE = /-\s*(\d+)/
 
 // Resolves the PW/PD prefix codes for an organization based on its own code.
 // Returns null if the org's code doesn't follow a recognized format.
-export const resolveOrgCodes = (org: OrgCodeRow): { pwCode: string; pdCode: string } | null => {
+export const resolveOrgCodes = (
+  org: OrgCodeRow
+): { pwCode: string; pdCode: string } | null => {
   if (org.type === 'pw') {
     // PK under PW: PW from code suffix, PD=00
     // Example: 'PW1' -> XX=01
@@ -30,7 +32,10 @@ export const resolveOrgCodes = (org: OrgCodeRow): { pwCode: string; pdCode: stri
   // PD or PK: Extract from code (e.g., '19.PD-1' -> XX=19, YY=01)
   const match = org.code.match(PD_CODE_RE)
   if (match) {
-    return { pwCode: match[1].padStart(2, '0'), pdCode: match[2].padStart(2, '0') }
+    return {
+      pwCode: match[1].padStart(2, '0'),
+      pdCode: match[2].padStart(2, '0')
+    }
   }
 
   return null
