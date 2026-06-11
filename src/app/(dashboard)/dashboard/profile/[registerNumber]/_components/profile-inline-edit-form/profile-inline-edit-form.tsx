@@ -141,8 +141,8 @@ export const ProfileInlineEditForm = ({
                   <OrganizationSection />
                 </div>
                 {dangerZoneSlot && (
-                  <div className='mt-8 rounded-2xl border border-destructive/30 bg-destructive/5 p-4'>
-                    <h3 className='text-sm font-semibold text-destructive'>
+                  <div className='border-destructive/30 bg-destructive/5 mt-8 rounded-2xl border p-4'>
+                    <h3 className='text-destructive text-sm font-semibold'>
                       Zona Berbahaya
                     </h3>
                     <p className='text-muted-foreground mt-1 text-sm'>

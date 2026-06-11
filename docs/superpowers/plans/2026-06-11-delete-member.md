@@ -23,6 +23,7 @@ DB-layer test.
 ## Task 1: Add `deletedAt` column to member schema + migration
 
 **Files:**
+
 - Modify: `src/db/schema/member.sql.ts`
 
 - [ ] **Step 1: Add the column**
@@ -65,6 +66,7 @@ git commit -m "feat: add deleted_at column to member for soft delete"
 ## Task 2: `deleteMember` query function + filter soft-deleted members from reads
 
 **Files:**
+
 - Modify: `src/db/query/member.ts`
 - Modify: `src/db/query/cte/member.ts` (add `deletedAt` is already included via
   `getColumns(member)` — no change needed there, just confirm)
@@ -165,7 +167,16 @@ In `src/db/query/member.ts`:
 1. Update the drizzle-orm import to include `isNull`:
 
 ```ts
-import { inArray, eq, and, ilike, sql, desc, isNull, type SQL } from 'drizzle-orm'
+import {
+  inArray,
+  eq,
+  and,
+  ilike,
+  sql,
+  desc,
+  isNull,
+  type SQL
+} from 'drizzle-orm'
 ```
 
 2. Add the `deleteMember` function near `updateMember` (after it):
@@ -193,14 +204,14 @@ import { user as userTable } from '../schema/user.sql'
 3. In `readMember`, add the soft-delete filter to the `where` array — find this block:
 
 ```ts
-  if (memberFilters.gender)
-    where.push(eq(withMemberCTE.gender, memberFilters.gender))
+if (memberFilters.gender)
+  where.push(eq(withMemberCTE.gender, memberFilters.gender))
 ```
 
 and add immediately after it:
 
 ```ts
-  where.push(isNull(withMemberCTE.deletedAt))
+where.push(isNull(withMemberCTE.deletedAt))
 ```
 
 4. In `readMemberByRegisterNumber`, add the same filter to the `.where()`:
@@ -247,6 +258,7 @@ git commit -m "feat: add deleteMember query and exclude soft-deleted members fro
 ## Task 3: `deleteMemberAction` server action
 
 **Files:**
+
 - Create: `src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/delete-member-button/action.ts`
 
 - [ ] **Step 1: Write the action**
@@ -350,6 +362,7 @@ git commit -m "feat: add deleteMemberAction server action"
 ## Task 4: `DeleteMemberButton` client component + barrel export
 
 **Files:**
+
 - Create: `src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/delete-member-button/delete-member-button.tsx`
 - Create: `src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/delete-member-button/index.ts`
 
@@ -498,6 +511,7 @@ git commit -m "feat: add DeleteMemberButton confirmation dialog"
 ## Task 5: Add "Danger Zone" slot to `ProfileInlineEditForm`
 
 **Files:**
+
 - Modify: `src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/profile-inline-edit-form/profile-inline-edit-form.tsx`
 
 - [ ] **Step 1: Add the `dangerZoneSlot` prop**
@@ -539,29 +553,28 @@ export const ProfileInlineEditForm = ({
 Find the `<OrganizationSection />` block (around line 138-140):
 
 ```tsx
-                <div className='mt-8'>
-                  <OrganizationSection />
-                </div>
+<div className='mt-8'>
+  <OrganizationSection />
+</div>
 ```
 
 Add the danger zone immediately after it, still inside `<main>`:
 
 ```tsx
-                <div className='mt-8'>
-                  <OrganizationSection />
-                </div>
-                {dangerZoneSlot && (
-                  <div className='mt-8 rounded-2xl border border-destructive/30 bg-destructive/5 p-4'>
-                    <h3 className='text-sm font-semibold text-destructive'>
-                      Zona Berbahaya
-                    </h3>
-                    <p className='text-muted-foreground mt-1 text-sm'>
-                      Tindakan di bawah ini bersifat permanen dan tidak dapat
-                      dibatalkan.
-                    </p>
-                    <div className='mt-3'>{dangerZoneSlot}</div>
-                  </div>
-                )}
+;<div className='mt-8'>
+  <OrganizationSection />
+</div>
+{
+  dangerZoneSlot && (
+    <div className='border-destructive/30 bg-destructive/5 mt-8 rounded-2xl border p-4'>
+      <h3 className='text-destructive text-sm font-semibold'>Zona Berbahaya</h3>
+      <p className='text-muted-foreground mt-1 text-sm'>
+        Tindakan di bawah ini bersifat permanen dan tidak dapat dibatalkan.
+      </p>
+      <div className='mt-3'>{dangerZoneSlot}</div>
+    </div>
+  )
+}
 ```
 
 - [ ] **Step 3: Type-check**
@@ -581,6 +594,7 @@ git commit -m "feat: add danger zone slot to profile inline edit form"
 ## Task 6: Wire `DeleteMemberButton` into the profile page
 
 **Files:**
+
 - Modify: `src/app/(dashboard)/dashboard/profile/[registerNumber]/page.tsx`
 
 - [ ] **Step 1: Import `isOrgInScope` and `DeleteMemberButton`**
@@ -601,19 +615,19 @@ import { DeleteMemberButton } from './_components/delete-member-button'
 After the existing `userCanEdit` / `adminActionsSlot` block (around line 58-68), add:
 
 ```tsx
-  const canDelete =
-    session?.user.role === 'root' ||
-    (session?.user.role === 'bpk' &&
-      member.organization?.id !== undefined &&
-      (await isOrgInScope(session.user, member.organization.id)))
+const canDelete =
+  session?.user.role === 'root' ||
+  (session?.user.role === 'bpk' &&
+    member.organization?.id !== undefined &&
+    (await isOrgInScope(session.user, member.organization.id)))
 
-  const dangerZoneSlot = canDelete ? (
-    <DeleteMemberButton
-      memberId={member.id}
-      registerNumber={member.registerNumber}
-      name={member.name}
-    />
-  ) : null
+const dangerZoneSlot = canDelete ? (
+  <DeleteMemberButton
+    memberId={member.id}
+    registerNumber={member.registerNumber}
+    name={member.name}
+  />
+) : null
 ```
 
 - [ ] **Step 3: Pass the slot to `ProfileInlineEditForm`**
@@ -622,26 +636,26 @@ In the returned JSX, add `dangerZoneSlot={dangerZoneSlot}` alongside the other s
 props:
 
 ```tsx
-  return (
-    <ProfileInlineEditForm
-      member={member}
-      canEdit={userCanEdit}
-      trainingHistory={trainingHistory}
-      academicHistory={academicHistory}
-      careerHistory={careerHistory}
-      organizationHistory={organizationHistory}
-      adminActionsSlot={adminActionsSlot}
-      dangerZoneSlot={dangerZoneSlot}
-      orgHierarchySlot={
-        orgChain.length > 0 ? (
-          <ProfileOrgHierarchy
-            chain={orgChain}
-            currentOrgId={member.organization?.id ?? ''}
-          />
-        ) : null
-      }
-    />
-  )
+return (
+  <ProfileInlineEditForm
+    member={member}
+    canEdit={userCanEdit}
+    trainingHistory={trainingHistory}
+    academicHistory={academicHistory}
+    careerHistory={careerHistory}
+    organizationHistory={organizationHistory}
+    adminActionsSlot={adminActionsSlot}
+    dangerZoneSlot={dangerZoneSlot}
+    orgHierarchySlot={
+      orgChain.length > 0 ? (
+        <ProfileOrgHierarchy
+          chain={orgChain}
+          currentOrgId={member.organization?.id ?? ''}
+        />
+      ) : null
+    }
+  />
+)
 ```
 
 - [ ] **Step 4: Type-check**
@@ -653,12 +667,12 @@ about `session` possibly being `undefined` in the `isOrgInScope(session.user, ..
 call, rewrite the `canDelete` computation as:
 
 ```tsx
-  let canDelete = false
-  if (session?.user.role === 'root') {
-    canDelete = true
-  } else if (session?.user.role === 'bpk' && member.organization?.id) {
-    canDelete = await isOrgInScope(session.user, member.organization.id)
-  }
+let canDelete = false
+if (session?.user.role === 'root') {
+  canDelete = true
+} else if (session?.user.role === 'bpk' && member.organization?.id) {
+  canDelete = await isOrgInScope(session.user, member.organization.id)
+}
 ```
 
 - [ ] **Step 5: Commit**
@@ -705,6 +719,7 @@ button becomes enabled.
 - [ ] **Step 6: Verify deletion**
 
 Click "Ya, Hapus Anggota". Confirm:
+
 - A success toast appears.
 - The page redirects to `/dashboard/kader`.
 - The deleted member no longer appears in the kader listing
