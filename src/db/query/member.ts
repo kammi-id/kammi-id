@@ -2,8 +2,9 @@ import { db } from '../db'
 import { member } from '../schema/member.sql'
 import { withMemberCTE, type Member } from './cte/member'
 export { withMemberCTE, type Member }
-import { inArray, eq, and, ilike, sql, desc, type SQL } from 'drizzle-orm'
+import { inArray, eq, and, ilike, sql, desc, isNull, type SQL } from 'drizzle-orm'
 import { type DBExecutor } from '../types'
+import { user as userTable } from '../schema/user.sql'
 
 import { createUser } from './user'
 import { generatePassword, hashPassword } from '~/lib/utils/user'
@@ -296,6 +297,7 @@ export const readMember = async (
     where.push(inArray(withMemberCTE.status, memberFilters.status))
   if (memberFilters.gender)
     where.push(eq(withMemberCTE.gender, memberFilters.gender))
+  where.push(isNull(withMemberCTE.deletedAt))
 
   const sortMapping: Record<string, string> = {
     name: 'm.name',
@@ -327,9 +329,25 @@ export const readMemberByRegisterNumber = async (
     .with(withMemberCTE)
     .select()
     .from(withMemberCTE)
-    .where(eq(withMemberCTE.registerNumber, registerNumber))
+    .where(
+      and(
+        eq(withMemberCTE.registerNumber, registerNumber),
+        isNull(withMemberCTE.deletedAt)
+      )
+    )
     .limit(1)
   return found ?? null
+}
+
+export const deleteMember = async (id: string): Promise<void> => {
+  await db.transaction(async (tx) => {
+    await tx
+      .update(member)
+      .set({ deletedAt: new Date() })
+      .where(eq(member.id, id))
+
+    await tx.delete(userTable).where(eq(userTable.connectedMemberId, id))
+  })
 }
 
 export const updateMember = async (
