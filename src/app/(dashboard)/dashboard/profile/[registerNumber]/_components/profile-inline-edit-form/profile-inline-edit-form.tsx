@@ -33,6 +33,7 @@ interface ProfileInlineEditFormProps {
   organizationHistory: MemberOrganizationHistory[]
   orgHierarchySlot?: ReactNode
   adminActionsSlot?: ReactNode
+  dangerZoneSlot?: ReactNode
 }
 
 export const ProfileInlineEditForm = ({
@@ -43,7 +44,8 @@ export const ProfileInlineEditForm = ({
   careerHistory,
   organizationHistory,
   orgHierarchySlot,
-  adminActionsSlot
+  adminActionsSlot,
+  dangerZoneSlot
 }: ProfileInlineEditFormProps) => {
   const [isEditing, setIsEditing] = useState(false)
   const [formKey, setFormKey] = useState(0)
@@ -138,6 +140,18 @@ export const ProfileInlineEditForm = ({
                 <div className='mt-8'>
                   <OrganizationSection />
                 </div>
+                {dangerZoneSlot && (
+                  <div className='mt-8 rounded-2xl border border-destructive/30 bg-destructive/5 p-4'>
+                    <h3 className='text-sm font-semibold text-destructive'>
+                      Zona Berbahaya
+                    </h3>
+                    <p className='text-muted-foreground mt-1 text-sm'>
+                      Tindakan di bawah ini bersifat permanen dan tidak dapat
+                      dibatalkan.
+                    </p>
+                    <div className='mt-3'>{dangerZoneSlot}</div>
+                  </div>
+                )}
               </main>
 
               <aside className='w-full lg:w-64 lg:shrink-0'>
