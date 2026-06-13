@@ -28,6 +28,10 @@ const TrainingSchema = z.object({
     .string()
     .transform((v) => v || undefined)
     .optional(),
+  registrationStartDate: z
+    .string()
+    .transform((v) => v || undefined)
+    .optional(),
   type: z.enum(['dm1', 'dm2', 'dpmk', 'tfi', 'dm3', 'other']),
   masterId: z.string().min(1, 'Master of Training wajib diisi')
 })
@@ -113,6 +117,28 @@ export const createTrainingAction = async (
         errors: {
           registrationDeadline: [
             'Registration deadline cannot be after start date'
+          ]
+        },
+        values: Object.fromEntries(
+          Object.entries(rawData).filter(
+            ([, v]) => v != null && typeof v === 'string'
+          )
+        ) as Record<string, string>
+      }
+    }
+
+    if (
+      data.registrationStartDate &&
+      data.registrationDeadline &&
+      new Date(data.registrationStartDate) > new Date(data.registrationDeadline)
+    ) {
+      return {
+        success: false,
+        message:
+          'Registration start date cannot be after registration deadline',
+        errors: {
+          registrationStartDate: [
+            'Registration start date cannot be after registration deadline'
           ]
         },
         values: Object.fromEntries(

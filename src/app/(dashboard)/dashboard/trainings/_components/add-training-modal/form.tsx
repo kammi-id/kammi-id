@@ -66,6 +66,7 @@ export const TrainingForm = ({
   const [masterLoading, setMasterLoading] = useState(false)
   const [name, setName] = useState('')
   const [registrationDeadline, setRegistrationDeadline] = useState('')
+  const [registrationStartDate, setRegistrationStartDate] = useState('')
   const masterDebounceRef = React.useRef<ReturnType<typeof setTimeout>>(null)
 
   useEffect(() => {
@@ -100,6 +101,8 @@ export const TrainingForm = ({
       if (state.values.name) setName(state.values.name)
       if (state.values.registrationDeadline)
         setRegistrationDeadline(state.values.registrationDeadline)
+      if (state.values.registrationStartDate)
+        setRegistrationStartDate(state.values.registrationStartDate)
     }
   }, [state.values, state.success])
 
@@ -239,7 +242,9 @@ export const TrainingForm = ({
 
           <div className='mt-4 grid grid-cols-2 gap-4'>
             <Field>
-              <FieldLabel htmlFor='startDate'>Tanggal Mulai</FieldLabel>
+              <FieldLabel htmlFor='startDate'>
+                Tanggal Mulai Pelaksanaan
+              </FieldLabel>
               <Input
                 id='startDate'
                 name='startDate'
@@ -257,7 +262,9 @@ export const TrainingForm = ({
               />
             </Field>
             <Field>
-              <FieldLabel htmlFor='endDate'>Tanggal Selesai</FieldLabel>
+              <FieldLabel htmlFor='endDate'>
+                Tanggal Selesai Pelaksanaan
+              </FieldLabel>
               <Input
                 id='endDate'
                 name='endDate'
@@ -274,8 +281,27 @@ export const TrainingForm = ({
           </div>
 
           <Field className='mt-4'>
+            <FieldLabel htmlFor='registrationStartDate'>
+              Tanggal Mulai Pendaftaran (Opsional)
+            </FieldLabel>
+            <Input
+              id='registrationStartDate'
+              name='registrationStartDate'
+              type='date'
+              max={registrationDeadline || startDate}
+              value={registrationStartDate}
+              onChange={(e) => setRegistrationStartDate(e.target.value)}
+            />
+            <FieldError
+              errors={state.errors?.registrationStartDate?.map((m) => ({
+                message: m
+              }))}
+            />
+          </Field>
+
+          <Field className='mt-4'>
             <FieldLabel htmlFor='registrationDeadline'>
-              Deadline Pendaftaran (Opsional)
+              Tanggal Akhir Pendaftaran (Opsional)
             </FieldLabel>
             <Input
               id='registrationDeadline'
