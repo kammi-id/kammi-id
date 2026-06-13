@@ -11,15 +11,25 @@ import {
   inlineMembersStore,
   clearInlineRows,
   isSavingStore,
+  isEditModeStore,
+  editedRowsStore,
+  enterEditMode,
+  exitEditMode,
+  clearRowEdits,
   type InlineRow
 } from '~/app/(dashboard)/dashboard/kader/_components/add-form/store'
 import { Button } from '~/components/shadcn/ui/button'
 import { InlineQuickAddRow } from '../members-table/inline-quick-add-row'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { CopyCheckIcon, Cancel01Icon } from '@hugeicons/core-free-icons'
+import {
+  CopyCheckIcon,
+  Cancel01Icon,
+  PencilEdit01Icon
+} from '@hugeicons/core-free-icons'
 import { Spinner } from '~/components/shadcn/ui/spinner'
 import {
   createMemberAction,
+  updateMemberAction,
   type MemberFormState
 } from '~/app/(dashboard)/dashboard/kader/_components/add-form/action'
 import { toast } from 'sonner'
@@ -51,6 +61,8 @@ export const IndividualMemberTable = ({
 
   const inlineMembers = useStore(inlineMembersStore)
   const isSaving = useStore(isSavingStore)
+  const isEditMode = useStore(isEditModeStore)
+  const editedRows = useStore(editedRowsStore)
   const canManage = userRole === 'root' || userRole === 'bpk'
 
   const [optimisticData, addOptimisticMember] = useOptimistic(
@@ -130,6 +142,50 @@ export const IndividualMemberTable = ({
     }
   }, [inlineMembers, isSaving, addOptimisticMember])
 
+  const handleSaveEdits = React.useCallback(async () => {
+    const edits = Object.entries(editedRows)
+    if (edits.length === 0) return true
+
+    const results = await Promise.all(
+      edits.map(async ([memberId, changes]) => {
+        const original = data.find((m) => m.id === memberId)
+        if (!original) return { success: false }
+
+        const merged = { ...original, ...changes }
+        const formData = new FormData()
+        formData.append('id', memberId)
+        formData.append('name', merged.name)
+        formData.append('gender', merged.gender)
+        formData.append('status', merged.status)
+        formData.append('yearOfEntry', String(merged.yearOfEntry))
+        formData.append('organizationId', merged.organizationId)
+        formData.append('phone', merged.phone ?? '')
+        formData.append('isCertifiedMentor', String(merged.isCertifiedMentor))
+        formData.append(
+          'isCertifiedInstructor',
+          String(merged.isCertifiedInstructor)
+        )
+        formData.append('isAlumn', String(merged.isAlumn))
+        formData.append('isSuspended', String(merged.isSuspended))
+        formData.append('isNonActive', String(merged.isNonActive))
+
+        return updateMemberAction(
+          { success: false } as MemberFormState,
+          formData
+        )
+      })
+    )
+
+    const failed = results.filter((r) => !r.success)
+    if (failed.length > 0) {
+      toast.error(
+        `${failed.length} dari ${edits.length} perubahan gagal disimpan.`
+      )
+      return false
+    }
+    return true
+  }, [editedRows, data])
+
   const handleFilterChange = React.useCallback(
     (filterType: 'status' | 'gender', value: string) => {
       const params = new URLSearchParams(searchParams.toString())
@@ -180,7 +236,11 @@ export const IndividualMemberTable = ({
           type,
           orgType,
           handleFilterChange,
-          handleSortChange
+          handleSortChange,
+          isEditMode,
+          editedRows,
+          organizations,
+          parentOrgId
         )}
         data={optimisticData}
         searchKey='name'
@@ -202,7 +262,8 @@ export const IndividualMemberTable = ({
           type !== 'pemandu' &&
           type !== 'instruktur' &&
           type !== 'perangkat' &&
-          !isSaving ? (
+          !isSaving &&
+          isEditMode ? (
             <InlineQuickAddRow
               organizations={organizations}
               parentOrgId={parentOrgId}
@@ -215,41 +276,75 @@ export const IndividualMemberTable = ({
           canManage &&
           type !== 'pemandu' &&
           type !== 'instruktur' &&
-          type !== 'perangkat' &&
-          inlineMembers.length > 0 && (
+          type !== 'perangkat' && (
             <div className='flex items-center gap-2'>
-              <Button
-                size='sm'
-                variant='outline'
-                className='h-8 gap-2'
-                onClick={clearInlineRows}
-              >
-                <HugeiconsIcon
-                  icon={Cancel01Icon}
-                  strokeWidth={2}
-                  className='size-4'
-                />
-                Batal
-              </Button>
+              {isEditMode && (
+                <Button
+                  size='sm'
+                  variant='outline'
+                  className='h-8 gap-2'
+                  onClick={() => {
+                    clearInlineRows()
+                    clearRowEdits()
+                    exitEditMode()
+                  }}
+                >
+                  <HugeiconsIcon
+                    icon={Cancel01Icon}
+                    strokeWidth={2}
+                    className='size-4'
+                  />
+                  Batal
+                </Button>
+              )}
               <Button
                 size='sm'
                 className='h-8 gap-2'
                 disabled={isSaving}
-                onClick={handleSave}
+                onClick={async () => {
+                  if (!isEditMode) {
+                    enterEditMode()
+                    return
+                  }
+
+                  isSavingStore.set(true)
+                  try {
+                    const editsOk = await handleSaveEdits()
+                    if (editsOk) {
+                      clearRowEdits()
+                      if (inlineMembers.length > 0) {
+                        await handleSave()
+                      }
+                      toast.success('Perubahan data kader berhasil disimpan.')
+                      exitEditMode()
+                    }
+                  } finally {
+                    isSavingStore.set(false)
+                  }
+                }}
               >
                 {isSaving ? (
                   <>
                     <Spinner className='size-3' />
                     Menyimpan data...
                   </>
-                ) : (
+                ) : isEditMode ? (
                   <>
                     <HugeiconsIcon
                       icon={CopyCheckIcon}
                       strokeWidth={2}
                       className='size-4'
                     />
-                    Simpan Data Kader
+                    Simpan
+                  </>
+                ) : (
+                  <>
+                    <HugeiconsIcon
+                      icon={PencilEdit01Icon}
+                      strokeWidth={2}
+                      className='size-4'
+                    />
+                    Edit
                   </>
                 )}
               </Button>
