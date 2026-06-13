@@ -84,7 +84,7 @@ export const IndividualMemberTable = ({
   )
 
   const handleSave = React.useCallback(async () => {
-    if (inlineMembers.length === 0 || isSaving) return
+    if (inlineMembers.length === 0) return
 
     const membersToSave = [...inlineMembers]
 
@@ -98,7 +98,6 @@ export const IndividualMemberTable = ({
       return
     }
 
-    isSavingStore.set(true)
     React.startTransition(() => {
       addOptimisticMember(membersToSave)
     })
@@ -137,53 +136,57 @@ export const IndividualMemberTable = ({
       inlineMembersStore.set(membersToSave)
       toast.error('Terjadi kesalahan saat menyimpan data. Coba lagi.')
       console.error(error)
-    } finally {
-      isSavingStore.set(false)
     }
-  }, [inlineMembers, isSaving, addOptimisticMember])
+  }, [inlineMembers, addOptimisticMember])
 
   const handleSaveEdits = React.useCallback(async () => {
     const edits = Object.entries(editedRows)
     if (edits.length === 0) return true
 
-    const results = await Promise.all(
-      edits.map(async ([memberId, changes]) => {
-        const original = data.find((m) => m.id === memberId)
-        if (!original) return { success: false }
+    try {
+      const results = await Promise.all(
+        edits.map(async ([memberId, changes]) => {
+          const original = data.find((m) => m.id === memberId)
+          if (!original) return { success: false }
 
-        const merged = { ...original, ...changes }
-        const formData = new FormData()
-        formData.append('id', memberId)
-        formData.append('name', merged.name)
-        formData.append('gender', merged.gender)
-        formData.append('status', merged.status)
-        formData.append('yearOfEntry', String(merged.yearOfEntry))
-        formData.append('organizationId', merged.organizationId)
-        formData.append('phone', merged.phone ?? '')
-        formData.append('isCertifiedMentor', String(merged.isCertifiedMentor))
-        formData.append(
-          'isCertifiedInstructor',
-          String(merged.isCertifiedInstructor)
-        )
-        formData.append('isAlumn', String(merged.isAlumn))
-        formData.append('isSuspended', String(merged.isSuspended))
-        formData.append('isNonActive', String(merged.isNonActive))
+          const merged = { ...original, ...changes }
+          const formData = new FormData()
+          formData.append('id', memberId)
+          formData.append('name', merged.name)
+          formData.append('gender', merged.gender)
+          formData.append('status', merged.status)
+          formData.append('yearOfEntry', String(merged.yearOfEntry))
+          formData.append('organizationId', merged.organizationId)
+          formData.append('phone', merged.phone ?? '')
+          formData.append('isCertifiedMentor', String(merged.isCertifiedMentor))
+          formData.append(
+            'isCertifiedInstructor',
+            String(merged.isCertifiedInstructor)
+          )
+          formData.append('isAlumn', String(merged.isAlumn))
+          formData.append('isSuspended', String(merged.isSuspended))
+          formData.append('isNonActive', String(merged.isNonActive))
 
-        return updateMemberAction(
-          { success: false } as MemberFormState,
-          formData
-        )
-      })
-    )
-
-    const failed = results.filter((r) => !r.success)
-    if (failed.length > 0) {
-      toast.error(
-        `${failed.length} dari ${edits.length} perubahan gagal disimpan.`
+          return updateMemberAction(
+            { success: false } as MemberFormState,
+            formData
+          )
+        })
       )
+
+      const failed = results.filter((r) => !r.success)
+      if (failed.length > 0) {
+        toast.error(
+          `${failed.length} dari ${edits.length} perubahan gagal disimpan.`
+        )
+        return false
+      }
+      return true
+    } catch (error) {
+      toast.error('Terjadi kesalahan saat menyimpan perubahan. Coba lagi.')
+      console.error(error)
       return false
     }
-    return true
   }, [editedRows, data])
 
   const handleFilterChange = React.useCallback(
@@ -309,13 +312,18 @@ export const IndividualMemberTable = ({
 
                   isSavingStore.set(true)
                   try {
+                    const hasEdits = Object.keys(editedRows).length > 0
+                    const hasInlineRows = inlineMembers.length > 0
+
                     const editsOk = await handleSaveEdits()
                     if (editsOk) {
                       clearRowEdits()
-                      if (inlineMembers.length > 0) {
+                      if (hasInlineRows) {
                         await handleSave()
                       }
-                      toast.success('Perubahan data kader berhasil disimpan.')
+                      if (hasEdits || hasInlineRows) {
+                        toast.success('Perubahan data kader berhasil disimpan.')
+                      }
                       exitEditMode()
                     }
                   } finally {
