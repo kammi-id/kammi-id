@@ -424,18 +424,33 @@ export const TrainingDetailView = ({
                 {formatDateRange(training.startDate, training.endDate)}
               </span>
             </div>
-            {training.registrationDeadline && (
+            {(training.registrationStartDate ||
+              training.registrationDeadline) && (
               <div className='flex items-center gap-1.5'>
-                <SectionLabel>Batas daftar</SectionLabel>
+                <SectionLabel>Pendaftaran</SectionLabel>
                 <span className='text-xs'>
-                  {new Date(training.registrationDeadline).toLocaleDateString(
-                    'id-ID',
-                    {
-                      day: 'numeric',
-                      month: 'short',
-                      year: 'numeric'
-                    }
-                  )}
+                  {training.registrationStartDate &&
+                    new Date(training.registrationStartDate).toLocaleDateString(
+                      'id-ID',
+                      {
+                        day: 'numeric',
+                        month: 'short',
+                        year: 'numeric'
+                      }
+                    )}
+                  {training.registrationStartDate &&
+                  training.registrationDeadline
+                    ? ' – '
+                    : ''}
+                  {training.registrationDeadline &&
+                    new Date(training.registrationDeadline).toLocaleDateString(
+                      'id-ID',
+                      {
+                        day: 'numeric',
+                        month: 'short',
+                        year: 'numeric'
+                      }
+                    )}
                 </span>
               </div>
             )}

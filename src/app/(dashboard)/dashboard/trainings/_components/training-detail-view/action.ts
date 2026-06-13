@@ -73,6 +73,7 @@ const UpdateTrainingSchema = z.object({
   name: z.string().optional(),
   startDate: z.string().optional(),
   endDate: z.string().optional(),
+  registrationStartDate: z.string().optional(),
   registrationDeadline: z.string().optional(),
   type: z.enum(['dm1', 'dm2', 'dpmk', 'tfi', 'dm3', 'other']).optional()
 })
@@ -148,6 +149,39 @@ export const updateTrainingAction = async (
         errors: {
           registrationDeadline: [
             'Registration deadline cannot be after start date'
+          ]
+        }
+      }
+    }
+
+    if (
+      data.registrationStartDate &&
+      data.registrationDeadline &&
+      new Date(data.registrationStartDate) > new Date(data.registrationDeadline)
+    ) {
+      return {
+        success: false,
+        message:
+          'Registration start date cannot be after registration deadline',
+        errors: {
+          registrationStartDate: [
+            'Registration start date cannot be after registration deadline'
+          ]
+        }
+      }
+    }
+
+    if (
+      data.registrationStartDate &&
+      data.startDate &&
+      new Date(data.registrationStartDate) > new Date(data.startDate)
+    ) {
+      return {
+        success: false,
+        message: 'Registration start date cannot be after start date',
+        errors: {
+          registrationStartDate: [
+            'Registration start date cannot be after start date'
           ]
         }
       }
