@@ -26,6 +26,8 @@ const profileSchema = z.object({
   yearOfEntry: z.coerce.number().min(1998).max(new Date().getFullYear()),
   phone: z.string().optional().nullable(),
   photo: z.string().optional().nullable(),
+  birthPlace: z.string().optional().nullable(),
+  birthDate: z.string().optional().nullable(),
   addressProvince: z.string().optional().nullable(),
   addressCity: z.string().optional().nullable(),
   addressDistrict: z.string().optional().nullable(),

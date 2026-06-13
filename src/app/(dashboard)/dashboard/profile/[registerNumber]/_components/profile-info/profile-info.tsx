@@ -196,6 +196,44 @@ export const ProfileInfo = () => {
             />
           </Field>
 
+          <div className='grid grid-cols-2 gap-4'>
+            <Field>
+              <FieldLabel
+                htmlFor='birthPlace'
+                className='font-geist-mono text-xs tracking-wide uppercase'
+              >
+                Tempat Lahir
+              </FieldLabel>
+              <Input
+                id='birthPlace'
+                name='birthPlace'
+                placeholder='Contoh: Jakarta'
+                defaultValue={member.birthPlace ?? ''}
+              />
+              <FieldError
+                errors={fieldErrors?.birthPlace?.map((m) => ({ message: m }))}
+              />
+            </Field>
+
+            <Field>
+              <FieldLabel
+                htmlFor='birthDate'
+                className='font-geist-mono text-xs tracking-wide uppercase'
+              >
+                Tanggal Lahir
+              </FieldLabel>
+              <Input
+                id='birthDate'
+                name='birthDate'
+                type='date'
+                defaultValue={member.birthDate ?? ''}
+              />
+              <FieldError
+                errors={fieldErrors?.birthDate?.map((m) => ({ message: m }))}
+              />
+            </Field>
+          </div>
+
           <Field>
             <FieldLabel className='font-geist-mono text-xs tracking-wide uppercase'>
               Jenis Kelamin
@@ -474,6 +512,29 @@ export const ProfileInfo = () => {
         <InfoRow
           label='Jenis Kelamin'
           value={genderLabel[member.gender] ?? member.gender}
+        />
+        <InfoRow
+          label='Tempat, Tgl Lahir'
+          value={
+            member.birthPlace || member.birthDate ? (
+              <span>
+                {[
+                  member.birthPlace,
+                  member.birthDate
+                    ? new Date(member.birthDate).toLocaleDateString('id-ID', {
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric'
+                      })
+                    : null
+                ]
+                  .filter(Boolean)
+                  .join(', ')}
+              </span>
+            ) : (
+              <Placeholder />
+            )
+          }
         />
         <InfoRow
           label='Tahun Masuk KAMMI'
