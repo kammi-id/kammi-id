@@ -23,6 +23,7 @@ export const training = pgTable('training', (t) => ({
   startDate: t.date('start_date').notNull(),
   endDate: t.date('end_date').notNull(),
   registrationDeadline: t.date('registration_deadline'),
+  registrationStartDate: t.date('registration_start_date'),
   type: t
     .text('type', { enum: ['dm1', 'dm2', 'dpmk', 'tfi', 'dm3', 'other'] })
     .notNull(),
