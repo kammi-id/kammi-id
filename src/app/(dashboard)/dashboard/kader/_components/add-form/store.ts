@@ -37,3 +37,28 @@ export const removeInlineRow = (index: number) => {
 export const clearInlineRows = () => {
   inlineMembersStore.set([])
 }
+
+export const isEditModeStore = atom<boolean>(false)
+export const editedRowsStore = map<Record<string, Partial<IndividualMember>>>(
+  {}
+)
+
+export const enterEditMode = () => {
+  isEditModeStore.set(true)
+}
+
+export const exitEditMode = () => {
+  isEditModeStore.set(false)
+}
+
+export const setRowEdit = (
+  memberId: string,
+  data: Partial<IndividualMember>
+) => {
+  const current = editedRowsStore.get()
+  editedRowsStore.setKey(memberId, { ...current[memberId], ...data })
+}
+
+export const clearRowEdits = () => {
+  editedRowsStore.set({})
+}
