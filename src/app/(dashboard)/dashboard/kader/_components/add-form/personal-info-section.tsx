@@ -142,9 +142,7 @@ export const PersonalInfoSection = ({
             name='birthDate'
             type='date'
             defaultValue={
-              editData?.birthDate ??
-              (state?.values?.birthDate as string) ??
-              ''
+              editData?.birthDate ?? (state?.values?.birthDate as string) ?? ''
             }
             onChange={handleInputChange}
           />
