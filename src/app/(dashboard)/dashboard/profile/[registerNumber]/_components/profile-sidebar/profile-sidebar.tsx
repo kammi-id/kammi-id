@@ -205,7 +205,7 @@ export const ProfileSidebar = ({ orgHierarchySlot }: ProfileSidebarProps) => {
 
         <div>
           <h2 className='text-muted-foreground font-geist-mono mb-3 text-[11px] font-medium tracking-widest uppercase'>
-            Sertifikasi
+            Perangkat Pengkaderan
           </h2>
           <div className='divide-border/60 divide-y rounded-lg border px-3'>
             <Toggle
@@ -232,7 +232,7 @@ export const ProfileSidebar = ({ orgHierarchySlot }: ProfileSidebarProps) => {
     <aside className='flex flex-col gap-6'>
       <div>
         <h2 className='text-muted-foreground font-geist-mono mb-3 text-[11px] font-medium tracking-widest uppercase'>
-          Sertifikasi
+          Perangkat Pengkaderan
         </h2>
         {hasCertifications ? (
           <div className='flex flex-col gap-2'>
