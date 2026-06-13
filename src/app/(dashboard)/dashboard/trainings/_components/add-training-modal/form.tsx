@@ -307,6 +307,7 @@ export const TrainingForm = ({
               id='registrationDeadline'
               name='registrationDeadline'
               type='date'
+              min={registrationStartDate || undefined}
               max={startDate}
               value={registrationDeadline}
               onChange={(e) => setRegistrationDeadline(e.target.value)}

@@ -149,6 +149,26 @@ export const createTrainingAction = async (
       }
     }
 
+    if (
+      data.registrationStartDate &&
+      new Date(data.registrationStartDate) > new Date(data.startDate)
+    ) {
+      return {
+        success: false,
+        message: 'Registration start date cannot be after start date',
+        errors: {
+          registrationStartDate: [
+            'Registration start date cannot be after start date'
+          ]
+        },
+        values: Object.fromEntries(
+          Object.entries(rawData).filter(
+            ([, v]) => v != null && typeof v === 'string'
+          )
+        ) as Record<string, string>
+      }
+    }
+
     const created = await trainingQuery.create(data)
 
     await trainingQuery.addInstructor(created.id, data.masterId, 'master')
