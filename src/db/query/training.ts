@@ -128,6 +128,7 @@ export type UpcomingTraining = {
   name: string
   startDate: string
   endDate: string
+  registrationStartDate: string | null
   registrationDeadline: string | null
   type: 'dm1' | 'dm2' | 'dpmk' | 'tfi' | 'dm3' | 'other'
   year: number
@@ -294,6 +295,7 @@ export const trainingQuery = {
         name: training.name,
         startDate: training.startDate,
         endDate: training.endDate,
+        registrationStartDate: training.registrationStartDate,
         registrationDeadline: training.registrationDeadline,
         type: training.type,
         year: training.year,
@@ -314,6 +316,7 @@ export const trainingQuery = {
       name: row.name,
       startDate: row.startDate,
       endDate: row.endDate,
+      registrationStartDate: row.registrationStartDate ?? null,
       registrationDeadline: row.registrationDeadline ?? null,
       type: row.type,
       year: row.year!,
@@ -346,12 +349,13 @@ export const trainingQuery = {
     const nextIdentifier = (maxIdentifier ?? 0) + 1
 
     const rows = await db.execute(sql`
-      INSERT INTO training (organization_id, name, start_date, end_date, registration_deadline, type, identifier)
+      INSERT INTO training (organization_id, name, start_date, end_date, registration_start_date, registration_deadline, type, identifier)
       VALUES (
         ${fields.organizationId},
         ${fields.name},
         ${fields.startDate},
         ${fields.endDate},
+        ${fields.registrationStartDate ?? null},
         ${fields.registrationDeadline ?? null},
         ${fields.type},
         ${nextIdentifier}
