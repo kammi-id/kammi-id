@@ -19,6 +19,8 @@ export const member = pgTable('member', (t) => ({
   addressSubdistrictCode: t.text('address_subdistrict_code'),
   addressLine: t.text('address_line'),
   photo: t.text('photo'),
+  birthPlace: t.text('birth_place'),
+  birthDate: t.date('birth_date'),
   registerNumber: t.text('register_number').notNull(),
   organizationId: t
     .uuid('organization_id')

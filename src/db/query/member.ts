@@ -405,6 +405,8 @@ type MemberDescendantRow = {
   addressSubdistrictCode: string | null
   addressLine: string | null
   photo: string | null
+  birthPlace: string | null
+  birthDate: string | null
   status: string
   gender: string
   yearOfEntry: number | null
@@ -480,6 +482,8 @@ export const readDescendantMembers = async (
       m.address_subdistrict_code as "addressSubdistrictCode",
       m.address_line as "addressLine",
       m.photo,
+      m.birth_place as "birthPlace",
+      m.birth_date as "birthDate",
       m.status, m.gender, m.year_of_entry as "yearOfEntry",
       json_build_object(
         'id', o.id,
@@ -558,6 +562,8 @@ export const readDescendantMembers = async (
         addressSubdistrictCode: row.addressSubdistrictCode,
         addressLine: row.addressLine,
         photo: row.photo,
+        birthPlace: row.birthPlace,
+        birthDate: row.birthDate,
         status: row.status as 'ab1' | 'ab2' | 'ab3',
         gender: row.gender as 'ikhwan' | 'akhwat',
         yearOfEntry: row.yearOfEntry as number,
