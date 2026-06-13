@@ -142,7 +142,7 @@ const Page = async () => {
         />
       )}
 
-      {/* Zona 3: Dauroh Terdekat */}
+      {/* Zona 3: Daurah Terdekat */}
       <UpcomingTrainings data={upcomingTrainings} />
     </div>
   )

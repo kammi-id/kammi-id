@@ -116,7 +116,7 @@ export const ProfileHeader = ({
               </TooltipProvider>
               {!hasDm && requiredDm && (
                 <WarningTooltip
-                  message={`Status ${member.status.toUpperCase()} memerlukan ${requiredDm.toUpperCase()}, tapi belum ada di riwayat dauroh. Tambahkan melalui menu Dauroh.`}
+                  message={`Status ${member.status.toUpperCase()} memerlukan ${requiredDm.toUpperCase()}, tapi belum ada di riwayat daurah. Tambahkan melalui menu Daurah.`}
                 />
               )}
             </div>

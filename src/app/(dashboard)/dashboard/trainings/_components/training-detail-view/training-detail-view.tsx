@@ -76,11 +76,11 @@ const typeLabels: Record<string, string> = {
 const instructorRoleLabels: Record<string, string> = {
   master: 'Master of Training',
   assistant_master: 'Assistant Master of Training',
-  administrator: 'Admin Dauroh',
+  administrator: 'Admin Daurah',
   classroom_master: 'Master of Classroom',
   lecturer: 'Instruktur Materi',
   observer: 'Observer',
-  ustadz_of_training: 'Ustadz Dauroh'
+  ustadz_of_training: 'Ustadz Daurah'
 }
 
 const getTrainingStatus = (startDate: string, endDate: string) => {
@@ -240,11 +240,11 @@ export const TrainingDetailView = ({
   const instructorRoleItems = [
     { value: 'master', label: 'Master of Training' },
     { value: 'assistant_master', label: 'Assistant Master' },
-    { value: 'administrator', label: 'Admin Dauroh' },
+    { value: 'administrator', label: 'Admin Daurah' },
     { value: 'classroom_master', label: 'Master of Classroom' },
     { value: 'lecturer', label: 'Instruktur Materi' },
     { value: 'observer', label: 'Observer' },
-    { value: 'ustadz_of_training', label: 'Ustadz Dauroh' }
+    { value: 'ustadz_of_training', label: 'Ustadz Daurah' }
   ]
 
   const attendants = training.attendants ?? []
@@ -260,7 +260,7 @@ export const TrainingDetailView = ({
   const passingTooltip = !canManage
     ? 'Antum tidak memiliki hak akses untuk mengubah data ini'
     : !isCompleted
-      ? 'Kelulusan hanya dapat diubah setelah dauroh selesai'
+      ? 'Kelulusan hanya dapat diubah setelah daurah selesai'
       : passingDeadline
         ? `Periode edit berakhir ${passingDeadline.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}`
         : 'Periode 30 hari untuk mengubah kelulusan telah berakhir'
@@ -373,7 +373,7 @@ export const TrainingDetailView = ({
                   href='/dashboard/trainings'
                   className='hover:text-foreground transition-colors'
                 >
-                  Dauroh
+                  Daurah
                 </Link>
               </li>
               <li aria-hidden>
@@ -509,7 +509,7 @@ export const TrainingDetailView = ({
             <div className='border-border/50 bg-muted/30 border-b px-4 py-2.5 md:px-6 lg:px-8'>
               <p className='text-muted-foreground text-xs'>
                 {!canManage
-                  ? 'Antum tidak memiliki hak akses untuk mengubah status kelulusan di dauroh ini.'
+                  ? 'Antum tidak memiliki hak akses untuk mengubah status kelulusan di daurah ini.'
                   : passingDeadline
                     ? `Periode edit kelulusan berakhir ${passingDeadline.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}.`
                     : 'Periode 30 hari untuk mengubah kelulusan telah berakhir.'}

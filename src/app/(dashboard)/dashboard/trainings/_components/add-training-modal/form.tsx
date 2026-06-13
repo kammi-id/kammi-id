@@ -143,7 +143,7 @@ export const TrainingForm = ({
       <div className='flex-1 space-y-6 overflow-y-auto p-6'>
         <FieldGroup>
           <h3 className='font-heading mb-4 text-lg font-semibold'>
-            Informasi Dauroh
+            Informasi Daurah
           </h3>
 
           <Field>
@@ -182,7 +182,7 @@ export const TrainingForm = ({
           </Field>
 
           <Field className='mt-4'>
-            <FieldLabel>Tipe Dauroh</FieldLabel>
+            <FieldLabel>Tipe Daurah</FieldLabel>
             <input type='hidden' name='type' value={type} />
             <RadioGroup
               value={type}
@@ -223,7 +223,7 @@ export const TrainingForm = ({
           </Field>
 
           <Field className='mt-4'>
-            <FieldLabel htmlFor='name'>Nama Dauroh</FieldLabel>
+            <FieldLabel htmlFor='name'>Nama Daurah</FieldLabel>
             <Input
               id='name'
               name='name'
@@ -351,7 +351,7 @@ export const TrainingForm = ({
             />
             <FieldDescription>
               Hanya kader yang sudah lulus dan bersertifikat sebagai instruktur
-              dauroh yang bisa dipilih.
+              daurah yang bisa dipilih.
             </FieldDescription>
           </Field>
         </FieldGroup>
@@ -366,7 +366,7 @@ export const TrainingForm = ({
           Batal
         </Button>
         <Button type='submit' disabled={isPending}>
-          {isPending ? 'Menyimpan...' : 'Simpan Dauroh'}
+          {isPending ? 'Menyimpan...' : 'Simpan Daurah'}
         </Button>
       </div>
     </form>

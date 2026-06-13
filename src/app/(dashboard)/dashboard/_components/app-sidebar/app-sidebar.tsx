@@ -103,7 +103,7 @@ export const AppSidebar = ({
       roles: ['bph', 'bpk', 'root']
     },
     {
-      title: 'Dauroh',
+      title: 'Daurah',
       url: '/dashboard/trainings',
       icon: <HugeiconsIcon icon={WhiteboardIcon} strokeWidth={2} />,
       roles: ['bph', 'bpk', 'root']

@@ -33,10 +33,10 @@ export const TrainingSectionCards = ({ data }: TrainingSectionCardsProps) => {
     return (
       <div className='bg-card flex flex-col gap-3 rounded-xl border p-6'>
         <h2 className='text-muted-foreground text-xs font-medium tracking-tight uppercase'>
-          Statistik Dauroh
+          Statistik Daurah
         </h2>
         <p className='text-muted-foreground text-sm'>
-          Belum ada dauroh yang tercatat.
+          Belum ada daurah yang tercatat.
         </p>
       </div>
     )
@@ -47,7 +47,7 @@ export const TrainingSectionCards = ({ data }: TrainingSectionCardsProps) => {
       <div className='flex items-start justify-between gap-4'>
         <div>
           <h2 className='text-muted-foreground text-xs font-medium tracking-wider uppercase'>
-            Total Dauroh
+            Total Daurah
           </h2>
           <div className='text-foreground font-geist-mono mt-1 text-4xl font-bold tracking-tight tabular-nums'>
             {fmt(data.total)}

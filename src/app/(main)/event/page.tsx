@@ -68,7 +68,7 @@ const EventPage = () => {
 
         <p className='text-muted-foreground mx-auto mt-4 max-w-xl font-sans text-base leading-relaxed md:text-lg'>
           Belum ada agenda terdekat saat ini. Bidang Terkait sedang mematangkan
-          perencanaan Dauroh Marhalah, seminar kepemudaan, dan aksi gerakan
+          perencanaan Daurah Marhalah, seminar kepemudaan, dan aksi gerakan
           nasional berikutnya.
         </p>
 

@@ -38,7 +38,7 @@ export const UpcomingTrainings = ({ data }: { data: UpcomingTraining[] }) => {
       <div className='flex items-center justify-between'>
         <div>
           <h2 className='text-base font-semibold tracking-tight'>
-            Dauroh Terdekat
+            Daurah Terdekat
           </h2>
           <p className='text-muted-foreground text-xs'>
             Yang akan datang dalam scope organisasi
@@ -48,7 +48,7 @@ export const UpcomingTrainings = ({ data }: { data: UpcomingTraining[] }) => {
           href='/dashboard/trainings'
           className='text-primary focus-visible:ring-ring inline-flex min-h-11 items-center gap-1 text-xs font-medium hover:underline focus-visible:rounded-sm focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:outline-none'
         >
-          Semua dauroh
+          Semua daurah
           <HugeiconsIcon icon={ArrowRight01Icon} className='size-3' />
         </Link>
       </div>
@@ -60,13 +60,13 @@ export const UpcomingTrainings = ({ data }: { data: UpcomingTraining[] }) => {
             className='text-muted-foreground/30 size-8'
           />
           <p className='text-muted-foreground text-sm font-medium'>
-            Tidak ada dauroh yang akan datang.
+            Tidak ada daurah yang akan datang.
           </p>
           <Link
             href='/dashboard/trainings'
             className='text-primary focus-visible:ring-ring inline-flex min-h-11 items-center gap-1 text-xs hover:underline focus-visible:rounded-sm focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:outline-none'
           >
-            Tambah dauroh baru
+            Tambah daurah baru
             <HugeiconsIcon icon={ArrowRight01Icon} className='size-3' />
           </Link>
         </div>

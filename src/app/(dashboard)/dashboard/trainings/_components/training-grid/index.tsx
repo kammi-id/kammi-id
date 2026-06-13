@@ -30,7 +30,7 @@ export const TrainingGrid = ({
       <p className='text-muted-foreground text-sm'>
         Menampilkan{' '}
         <span className='text-foreground font-medium'>{data.length}</span> dari{' '}
-        <span className='text-foreground font-medium'>{totalCount}</span> dauroh
+        <span className='text-foreground font-medium'>{totalCount}</span> daurah
       </p>
 
       {data.length > 0 ? (
@@ -41,7 +41,7 @@ export const TrainingGrid = ({
         </div>
       ) : (
         <EmptyState
-          title='Tidak ada dauroh ditemukan'
+          title='Tidak ada daurah ditemukan'
           description='Coba ubah kata kunci pencarian atau filter yang digunakan.'
         />
       )}

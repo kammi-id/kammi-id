@@ -39,13 +39,13 @@ export const AddTrainingModal = ({
         render={
           <Button>
             <HugeiconsIcon icon={Add01Icon} data-icon='inline-start' />
-            Tambah Dauroh
+            Tambah Daurah
           </Button>
         }
       />
       <SheetContent className='sm:max-w-[425px]'>
         <SheetHeader>
-          <SheetTitle>Tambah Dauroh Baru</SheetTitle>
+          <SheetTitle>Tambah Daurah Baru</SheetTitle>
         </SheetHeader>
         <TrainingForm
           organizations={organizations}

@@ -89,8 +89,8 @@ export default async function TrainingsPage({
       <div className='flex flex-col gap-8 px-4 py-6 md:px-6 md:py-8 lg:px-8'>
         <div className='flex items-center justify-between gap-4'>
           <TrainingPageHeader
-            pageTitle='Daftar Dauroh'
-            subTitle='Kelola semua sesi dauroh organisasi di sini.'
+            pageTitle='Daftar Daurah'
+            subTitle='Kelola semua sesi daurah organisasi di sini.'
           />
           <AddTrainingModal
             organizations={organizations.map((o) => ({

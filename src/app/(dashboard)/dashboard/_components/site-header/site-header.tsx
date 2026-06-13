@@ -8,7 +8,7 @@ import { SidebarTrigger } from '~/components/shadcn/ui/sidebar'
 const routeLabels: Record<string, string> = {
   '/dashboard': 'Ringkasan',
   '/dashboard/kader': 'Data Kader',
-  '/dashboard/trainings': 'Dauroh',
+  '/dashboard/trainings': 'Daurah',
   '/dashboard/branches': 'Daftar Wilayah',
   '/dashboard/alumni': 'Data Alumni',
   '/dashboard/perangkat': 'Perangkat Pengkaderan',

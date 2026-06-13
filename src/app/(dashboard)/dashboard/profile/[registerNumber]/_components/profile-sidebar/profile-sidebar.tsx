@@ -244,7 +244,7 @@ export const ProfileSidebar = ({ orgHierarchySlot }: ProfileSidebarProps) => {
                     Telah mengikuti DPMK
                   </p>
                   {!hasDpmk && (
-                    <WarningTooltip message='Belum ada entry DPMK di riwayat dauroh' />
+                    <WarningTooltip message='Belum ada entry DPMK di riwayat daurah' />
                   )}
                 </div>
               </div>
@@ -259,7 +259,7 @@ export const ProfileSidebar = ({ orgHierarchySlot }: ProfileSidebarProps) => {
                     Telah mengikuti TFI
                   </p>
                   {!hasTfi && (
-                    <WarningTooltip message='Belum ada entry TFI di riwayat dauroh' />
+                    <WarningTooltip message='Belum ada entry TFI di riwayat daurah' />
                   )}
                 </div>
               </div>

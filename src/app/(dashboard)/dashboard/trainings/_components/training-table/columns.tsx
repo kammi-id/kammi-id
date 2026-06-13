@@ -43,7 +43,7 @@ const typeColors: Record<string, string> = {
 export const getColumns = (): ColumnDef<Training>[] => [
   {
     accessorKey: 'name',
-    header: 'Nama Dauroh',
+    header: 'Nama Daurah',
     cell: ({ row }) => {
       const training = row.original
       const orgSlug = training.organization.slug

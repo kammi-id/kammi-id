@@ -31,11 +31,11 @@ const assertCanManage = async (trainingId: string): Promise<string | null> => {
     .where(eq(trainingTable.id, trainingId))
     .limit(1)
 
-  if (!t) return 'Dauroh tidak ditemukan.'
+  if (!t) return 'Daurah tidak ditemukan.'
 
   const allowed = await isOrgInScope(user, t.organizationId)
   if (!allowed)
-    return 'Antum tidak memiliki hak akses untuk mengelola dauroh ini.'
+    return 'Antum tidak memiliki hak akses untuk mengelola daurah ini.'
 
   return null
 }
@@ -52,18 +52,18 @@ const assertCanEditPassing = async (
     .where(eq(trainingTable.id, trainingId))
     .limit(1)
 
-  if (!t) return 'Dauroh tidak ditemukan.'
+  if (!t) return 'Daurah tidak ditemukan.'
 
   const endDate = new Date(t.endDate)
   const today = new Date()
   today.setHours(0, 0, 0, 0)
   if (today <= endDate)
-    return 'Kelulusan hanya dapat diubah setelah dauroh selesai.'
+    return 'Kelulusan hanya dapat diubah setelah daurah selesai.'
   const daysSinceEnd = Math.floor(
     (today.getTime() - endDate.getTime()) / (1000 * 60 * 60 * 24)
   )
   if (daysSinceEnd > 30)
-    return 'Batas waktu 30 hari setelah dauroh selesai telah terlampaui.'
+    return 'Batas waktu 30 hari setelah daurah selesai telah terlampaui.'
 
   return null
 }
@@ -156,7 +156,7 @@ export const updateTrainingAction = async (
     const updated = await trainingQuery.update(data.id, data)
     revalidatePath('/dashboard/trainings')
 
-    logger.info('Dauroh diperbarui', {
+    logger.info('Daurah diperbarui', {
       trainingId: data.id,
       changes: redact(data)
     })
@@ -167,7 +167,7 @@ export const updateTrainingAction = async (
       data: updated
     }
   } catch (error) {
-    logger.error('Gagal memperbarui dauroh: {error}', {
+    logger.error('Gagal memperbarui daurah: {error}', {
       error,
       trainingId: rawData?.id,
       input: redact(rawData ?? {})

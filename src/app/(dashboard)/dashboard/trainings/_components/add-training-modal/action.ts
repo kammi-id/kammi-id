@@ -70,7 +70,7 @@ export const createTrainingAction = async (
     if (!mutationRoles.includes(user.role)) {
       return {
         success: false,
-        message: 'Antum tidak memiliki hak akses untuk menambah dauroh.'
+        message: 'Antum tidak memiliki hak akses untuk menambah daurah.'
       }
     }
 
@@ -129,7 +129,7 @@ export const createTrainingAction = async (
 
     revalidatePath('/dashboard/trainings')
 
-    logger.info('Dauroh dibuat', {
+    logger.info('Daurah dibuat', {
       actorId: user.id,
       actorRole: user.role,
       trainingId: created.id,
@@ -142,7 +142,7 @@ export const createTrainingAction = async (
       data: created
     }
   } catch (error) {
-    logger.error('Gagal membuat dauroh: {error}', {
+    logger.error('Gagal membuat daurah: {error}', {
       error,
       actorId: user?.id,
       input: redact(rawData ?? {})

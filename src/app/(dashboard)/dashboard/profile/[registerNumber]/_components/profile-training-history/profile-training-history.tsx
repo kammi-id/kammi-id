@@ -17,11 +17,11 @@ const trainingTypeLabel: Record<TrainingType, string> = {
 const instructorRoleLabel: Record<InstructorRole, string> = {
   master: 'Master of Training',
   assistant_master: 'Asst. Master',
-  administrator: 'Admin Dauroh',
+  administrator: 'Admin Daurah',
   classroom_master: 'Master of Classroom',
   lecturer: 'Instruktur Materi',
   observer: 'Observer',
-  ustadz_of_training: 'Ustadz Dauroh'
+  ustadz_of_training: 'Ustadz Daurah'
 }
 
 export const RiwayatDaurehSection = () => {
@@ -30,7 +30,7 @@ export const RiwayatDaurehSection = () => {
   return (
     <div>
       <h2 className='text-muted-foreground font-geist-mono mb-3 text-[11px] font-medium tracking-widest uppercase'>
-        Riwayat Dauroh
+        Riwayat Daurah
         {history.asAttendant.length > 0 && (
           <span className='ml-1.5 font-normal opacity-60'>
             ({history.asAttendant.length})
@@ -40,7 +40,7 @@ export const RiwayatDaurehSection = () => {
 
       {history.asAttendant.length === 0 ? (
         <p className='text-muted-foreground text-sm'>
-          Belum ada riwayat dauroh.
+          Belum ada riwayat daurah.
         </p>
       ) : (
         <div className='divide-border/60 divide-y'>

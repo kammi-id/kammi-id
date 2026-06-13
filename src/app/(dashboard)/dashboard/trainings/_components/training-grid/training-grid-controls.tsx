@@ -99,7 +99,7 @@ export const TrainingGridControls = ({
           <HugeiconsIcon icon={SearchIcon} className='size-4' strokeWidth={2} />
         </InputGroupAddon>
         <InputGroupInput
-          placeholder='Cari nama dauroh...'
+          placeholder='Cari nama daurah...'
           value={localSearch}
           onChange={(e) => handleSearchChange(e.target.value)}
         />
