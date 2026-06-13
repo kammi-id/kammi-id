@@ -115,6 +115,47 @@ export const PersonalInfoSection = ({
         />
       </Field>
 
+      <div className='mt-4 grid grid-cols-2 gap-4'>
+        <Field>
+          <FieldLabel htmlFor='birthPlace'>Tempat Lahir</FieldLabel>
+          <Input
+            id='birthPlace'
+            name='birthPlace'
+            placeholder='Contoh: Jakarta'
+            defaultValue={
+              editData?.birthPlace ??
+              (state?.values?.birthPlace as string) ??
+              ''
+            }
+            onChange={handleInputChange}
+          />
+          <FieldError
+            errors={state?.errors?.birthPlace?.map((m: string) => ({
+              message: m
+            }))}
+          />
+        </Field>
+        <Field>
+          <FieldLabel htmlFor='birthDate'>Tanggal Lahir</FieldLabel>
+          <Input
+            id='birthDate'
+            name='birthDate'
+            type='date'
+            defaultValue={
+              editData?.birthDate ??
+              (state?.values?.birthDate as string) ??
+              ''
+            }
+            onChange={handleInputChange}
+          />
+          <FieldError
+            errors={state?.errors?.birthDate?.map((m: string) => ({
+              message: m
+            }))}
+          />
+        </Field>
+      </div>
+
       <div className='mt-4 flex flex-col gap-6'>
         <Field>
           <FieldLabel>Jenis Kelamin</FieldLabel>
