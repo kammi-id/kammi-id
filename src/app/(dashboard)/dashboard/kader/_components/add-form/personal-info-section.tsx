@@ -25,7 +25,7 @@ import { RadioGroup, RadioGroupItem } from '~/components/shadcn/ui/radio-group'
 import { ImageUpload } from '~/components/image-upload'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { UserIcon, Award01Icon } from '@hugeicons/core-free-icons'
-import { getGenderLabel, getStatusLabel } from './utils'
+import { getGenderLabel, getStatusLabel, getDescendantIds } from './utils'
 import type { MemberFormState } from './action'
 import type { IndividualMember } from '../individual-table/types'
 
@@ -50,22 +50,6 @@ interface PersonalInfoSectionProps {
   setSelectedOrgId: (val: string) => void
   orgSearchQuery: string
   setOrgSearchQuery: (val: string) => void
-}
-
-// Helper to find all descendant organization IDs
-const getDescendantIds = (
-  parentId: string,
-  allOrgs: { id: string; parentId?: string | null }[]
-): string[] => {
-  const descendants: string[] = []
-  const children = allOrgs.filter((org) => org.parentId === parentId)
-
-  children.forEach((child) => {
-    descendants.push(child.id)
-    descendants.push(...getDescendantIds(child.id, allOrgs))
-  })
-
-  return descendants
 }
 
 export const PersonalInfoSection = ({

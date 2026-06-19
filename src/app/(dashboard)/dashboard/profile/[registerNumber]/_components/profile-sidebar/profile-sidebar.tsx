@@ -268,7 +268,7 @@ export const ProfileSidebar = ({ orgHierarchySlot }: ProfileSidebarProps) => {
         ) : (
           <div>
             <p className='text-muted-foreground text-sm'>
-              Belum ada sertifikasi.
+              Belum ada perangkat pengkaderan.
             </p>
             <p className='text-muted-foreground/60 mt-1 text-xs'>
               Diperoleh setelah lulus DM atau TFI.

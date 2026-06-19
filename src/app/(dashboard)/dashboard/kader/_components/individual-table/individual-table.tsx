@@ -84,7 +84,7 @@ export const IndividualMemberTable = ({
   )
 
   const handleSave = React.useCallback(async () => {
-    if (inlineMembers.length === 0) return
+    if (inlineMembers.length === 0) return true
 
     const membersToSave = [...inlineMembers]
 
@@ -95,7 +95,7 @@ export const IndividualMemberTable = ({
       toast.error(
         `${invalid.length} baris belum lengkap. Isi nama dan PD/PK sebelum menyimpan.`
       )
-      return
+      return false
     }
 
     React.startTransition(() => {
@@ -128,14 +128,17 @@ export const IndividualMemberTable = ({
         toast.error(
           `${failedIndices.length} dari ${membersToSave.length} data gagal disimpan. Periksa kembali baris yang ditandai.`
         )
+        return false
       } else {
         clearInlineRows()
         toast.success(`${membersToSave.length} data kader berhasil disimpan.`)
+        return true
       }
     } catch (error) {
       inlineMembersStore.set(membersToSave)
       toast.error('Terjadi kesalahan saat menyimpan data. Coba lagi.')
       console.error(error)
+      return false
     }
   }, [inlineMembers, addOptimisticMember])
 
@@ -316,14 +319,20 @@ export const IndividualMemberTable = ({
                     const hasInlineRows = inlineMembers.length > 0
 
                     const editsOk = await handleSaveEdits()
-                    if (editsOk) {
-                      clearRowEdits()
-                      if (hasInlineRows) {
-                        await handleSave()
-                      }
-                      if (hasEdits || hasInlineRows) {
-                        toast.success('Perubahan data kader berhasil disimpan.')
-                      }
+                    if (!editsOk) return
+
+                    clearRowEdits()
+
+                    let inlineSaveOk = true
+                    if (hasInlineRows) {
+                      inlineSaveOk = await handleSave()
+                    }
+
+                    if (hasEdits && !hasInlineRows) {
+                      toast.success('Perubahan data kader berhasil disimpan.')
+                    }
+
+                    if (inlineSaveOk) {
                       exitEditMode()
                     }
                   } finally {
