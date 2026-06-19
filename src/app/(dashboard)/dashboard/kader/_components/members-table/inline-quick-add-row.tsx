@@ -31,6 +31,7 @@ import {
   SelectValue
 } from '~/components/shadcn/ui/select'
 import { Checkbox } from '~/components/shadcn/ui/checkbox'
+import { getDescendantIds } from '../add-form/utils'
 
 interface Organization {
   id: string
@@ -52,19 +53,6 @@ interface InlineRowProps {
   filteredOrganizations: Organization[]
   currentYear: number
   orgColCount: number
-}
-
-const getDescendantIds = (
-  parentId: string,
-  allOrgs: { id: string; parentId?: string | null }[]
-): string[] => {
-  const descendants: string[] = []
-  const children = allOrgs.filter((org) => org.parentId === parentId)
-  children.forEach((child) => {
-    descendants.push(child.id)
-    descendants.push(...getDescendantIds(child.id, allOrgs))
-  })
-  return descendants
 }
 
 const InlineRow = ({
@@ -216,11 +204,26 @@ const InlineRow = ({
         <div className='flex items-center gap-2'>
           <Input
             type='number'
+            min={1998}
+            max={currentYear}
             value={member.yearOfEntry ?? ''}
             onChange={(e) => {
-              const val = parseInt(e.target.value)
-              if (val >= 1998 && val <= currentYear) {
+              const raw = e.target.value
+              if (raw === '') {
+                updateInlineRow(index, { yearOfEntry: undefined })
+                return
+              }
+              const val = parseInt(raw)
+              if (!Number.isNaN(val)) {
                 updateInlineRow(index, { yearOfEntry: val })
+              }
+            }}
+            onBlur={(e) => {
+              const val = parseInt(e.target.value)
+              if (Number.isNaN(val)) return
+              const clamped = Math.min(Math.max(val, 1998), currentYear)
+              if (clamped !== val) {
+                updateInlineRow(index, { yearOfEntry: clamped })
               }
             }}
             placeholder='Tahun'

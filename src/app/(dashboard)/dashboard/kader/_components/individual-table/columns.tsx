@@ -40,21 +40,9 @@ import {
   ComboboxEmpty
 } from '~/components/shadcn/ui/combobox'
 import { setRowEdit } from '../add-form/store'
+import { getDescendantIds } from '../add-form/utils'
 
 type OrgRef = { id: string; name: string; slug: string } | null
-
-const getDescendantIds = (
-  parentId: string,
-  allOrgs: { id: string; parentId?: string | null }[]
-): string[] => {
-  const descendants: string[] = []
-  const children = allOrgs.filter((org) => org.parentId === parentId)
-  children.forEach((child) => {
-    descendants.push(child.id)
-    descendants.push(...getDescendantIds(child.id, allOrgs))
-  })
-  return descendants
-}
 
 const getInitials = (name: string) => {
   const parts = name.trim().split(/\s+/)
@@ -125,8 +113,8 @@ export const getColumns = (
   }[] = [],
   parentOrgId = ''
 ): ColumnDef<IndividualMember>[] => {
+  const descendants = getDescendantIds(parentOrgId, organizations)
   const filteredOrganizations = organizations.filter((org) => {
-    const descendants = getDescendantIds(parentOrgId, organizations)
     const isCorrectType = org.type === 'pd' || org.type === 'pk'
     const isDescendant = descendants.includes(org.id) || org.id === parentOrgId
     return isCorrectType && isDescendant
@@ -173,7 +161,7 @@ export const getColumns = (
         if (isEditMode) {
           return (
             <Input
-              defaultValue={edited?.name ?? member.name}
+              value={edited?.name ?? member.name}
               className='h-8 px-2 py-0 text-xs focus-visible:ring-1'
               onChange={(e) => setRowEdit(member.id, { name: e.target.value })}
             />
@@ -514,7 +502,7 @@ export const getColumns = (
         if (isEditMode) {
           return (
             <Input
-              defaultValue={phone ?? ''}
+              value={edited?.phone ?? member.phone ?? ''}
               placeholder='No. HP'
               className='h-8 px-2 py-0 text-xs focus-visible:ring-1'
               onChange={(e) => setRowEdit(member.id, { phone: e.target.value })}

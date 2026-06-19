@@ -39,3 +39,24 @@ export const getStatusLabel = (status: string): string => {
       return 'Unknown Status'
   }
 }
+
+/**
+ * Recursively collects all descendant organization IDs for a given parent
+ * organization within a flat list of organizations.
+ *
+ * @param {string} parentId - The ID of the parent organization.
+ * @param {{ id: string; parentId?: string | null }[]} allOrgs - The flat list of organizations.
+ * @returns {string[]} The IDs of all descendant organizations.
+ */
+export const getDescendantIds = (
+  parentId: string,
+  allOrgs: { id: string; parentId?: string | null }[]
+): string[] => {
+  const descendants: string[] = []
+  const children = allOrgs.filter((org) => org.parentId === parentId)
+  children.forEach((child) => {
+    descendants.push(child.id)
+    descendants.push(...getDescendantIds(child.id, allOrgs))
+  })
+  return descendants
+}
