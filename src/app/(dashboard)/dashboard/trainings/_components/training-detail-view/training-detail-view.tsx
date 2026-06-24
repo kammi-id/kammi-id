@@ -682,7 +682,7 @@ export const TrainingDetailView = ({
 
         <Separator />
 
-        {/* Instruktur Panel */}
+        {/* Perangkat Daurah Panel */}
         <div className='flex flex-col'>
           <div className='flex items-center gap-2 px-4 py-4 md:px-6 lg:px-8'>
             <HugeiconsIcon
@@ -690,7 +690,7 @@ export const TrainingDetailView = ({
               className='text-primary size-4'
             />
             <span className='text-foreground text-sm font-semibold'>
-              Instruktur
+              Perangkat Daurah
             </span>
             {instructorCount > 0 && (
               <span className='text-muted-foreground font-geist-mono text-xs tabular-nums'>
@@ -740,7 +740,7 @@ export const TrainingDetailView = ({
                   </Select>
                 </div>
                 <p className='text-muted-foreground/70 text-xs'>
-                  Hanya kader bersertifikat instruktur yang dapat dipilih
+                  Hanya kader AB3 bersertifikat instruktur yang dapat dipilih
                 </p>
               </div>
               <Separator className='mt-4' />

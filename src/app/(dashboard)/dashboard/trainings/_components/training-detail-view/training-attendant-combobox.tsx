@@ -91,9 +91,18 @@ export const TrainingAttendantCombobox = ({
                   <div className='flex flex-col'>
                     <span className='font-medium'>{m.name}</span>
                     <span className='text-[10px] opacity-60'>
-                      {m.registerNumber} &middot;{' '}
-                      {statusLabel[m.status] ?? m.status}
-                      {m.isCertifiedMentor ? ' · Pemandu' : ''}
+                      {[
+                        m.registerNumber,
+                        statusLabel[m.status] ?? m.status,
+                        m.isCertifiedInstructor
+                          ? 'Instruktur'
+                          : m.isCertifiedMentor
+                            ? 'Pemandu'
+                            : null,
+                        m.pw
+                      ]
+                        .filter(Boolean)
+                        .join(' · ')}
                     </span>
                   </div>
                 </ComboboxItem>

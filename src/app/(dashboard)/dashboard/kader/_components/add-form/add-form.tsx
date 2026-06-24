@@ -243,6 +243,7 @@ export const AddMemberForm = ({
         {currentStep === 3 && (
           <div className='animate-in slide-in-from-right-4 duration-300'>
             <StatusSection
+              selectedStatus={selectedStatus}
               isCertifiedMentor={isCertifiedMentor}
               setIsCertifiedMentor={setIsCertifiedMentor}
               isCertifiedInstructor={isCertifiedInstructor}

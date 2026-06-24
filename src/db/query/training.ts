@@ -464,7 +464,18 @@ export type EligibleMember = {
   status: 'ab1' | 'ab2' | 'ab3'
   isCertifiedMentor: boolean
   isCertifiedInstructor: boolean
+  pw: string | null
 }
+
+const pwNameSubquery = sql<string | null>`(
+  WITH RECURSIVE anc AS (
+    SELECT id, name, type, parent_id FROM organization WHERE id = ${member.organizationId}
+    UNION ALL
+    SELECT org.id, org.name, org.type, org.parent_id
+    FROM organization org JOIN anc ON org.id = anc.parent_id
+  )
+  SELECT name FROM anc WHERE type = 'pw' LIMIT 1
+)`
 
 export const searchEligibleAttendants = async (
   trainingId: string,
@@ -517,7 +528,8 @@ export const searchEligibleAttendants = async (
       registerNumber: member.registerNumber,
       status: member.status,
       isCertifiedMentor: member.isCertifiedMentor,
-      isCertifiedInstructor: member.isCertifiedInstructor
+      isCertifiedInstructor: member.isCertifiedInstructor,
+      pw: pwNameSubquery
     })
     .from(member)
     .where(and(...baseFilters, ...typeFilter, ...excludeFilter))
@@ -536,11 +548,13 @@ export const searchEligibleInstructorsGlobal = async (
       registerNumber: member.registerNumber,
       status: member.status,
       isCertifiedMentor: member.isCertifiedMentor,
-      isCertifiedInstructor: member.isCertifiedInstructor
+      isCertifiedInstructor: member.isCertifiedInstructor,
+      pw: pwNameSubquery
     })
     .from(member)
     .where(
       and(
+        eq(member.status, 'ab3'),
         eq(member.isCertifiedInstructor, true),
         eq(member.isSuspended, false),
         eq(member.isNonActive, false),
@@ -575,11 +589,13 @@ export const searchEligibleInstructors = async (
       registerNumber: member.registerNumber,
       status: member.status,
       isCertifiedMentor: member.isCertifiedMentor,
-      isCertifiedInstructor: member.isCertifiedInstructor
+      isCertifiedInstructor: member.isCertifiedInstructor,
+      pw: pwNameSubquery
     })
     .from(member)
     .where(
       and(
+        eq(member.status, 'ab3'),
         eq(member.isCertifiedInstructor, true),
         eq(member.isSuspended, false),
         eq(member.isNonActive, false),

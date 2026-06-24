@@ -5,6 +5,7 @@ import { Switch } from '~/components/shadcn/ui/switch'
 import { Field, FieldGroup, FieldLabel } from '~/components/shadcn/ui/field'
 
 interface StatusSectionProps {
+  selectedStatus: string
   isCertifiedMentor: boolean
   setIsCertifiedMentor: (val: boolean) => void
   isCertifiedInstructor: boolean
@@ -19,6 +20,7 @@ interface StatusSectionProps {
 }
 
 export const StatusSection = ({
+  selectedStatus,
   isCertifiedMentor,
   setIsCertifiedMentor,
   isCertifiedInstructor,
@@ -31,6 +33,13 @@ export const StatusSection = ({
   setIsSuspended,
   handleInputChange
 }: StatusSectionProps) => {
+  const isAb1 = selectedStatus === 'ab1'
+
+  React.useEffect(() => {
+    if (isAb1 && isCertifiedMentor) setIsCertifiedMentor(false)
+    if (isAb1 && isCertifiedInstructor) setIsCertifiedInstructor(false)
+  }, [isAb1, isCertifiedMentor, isCertifiedInstructor])
+
   return (
     <FieldGroup>
       <h3 className='font-heading mb-4 text-lg font-semibold'>
@@ -43,6 +52,7 @@ export const StatusSection = ({
             <Switch
               id='isCertifiedMentor'
               checked={isCertifiedMentor}
+              disabled={isAb1}
               onCheckedChange={(val) => {
                 setIsCertifiedMentor(val)
                 handleInputChange()
@@ -61,6 +71,7 @@ export const StatusSection = ({
             <Switch
               id='isCertifiedInstructor'
               checked={isCertifiedInstructor}
+              disabled={isAb1}
               onCheckedChange={(val) => {
                 setIsCertifiedInstructor(val)
                 handleInputChange()
