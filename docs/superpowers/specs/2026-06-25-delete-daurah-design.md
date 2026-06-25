@@ -24,47 +24,42 @@ but:
   any training that has participants or instructors currently throws a FK violation,
   silently swallowed into a generic "An unexpected error occurred" message.
 
-This spec fixes the cascade bug as part of wiring up the first real UI for this action.
+This spec fixes that gap by **requiring** the training be empty of attendants and
+instructors before deletion is allowed, rather than cascading the delete. Deletion is a
+deliberate cleanup action for an empty/abandoned daurah record, not a bulk-remove tool.
 
 ## Behavior
 
-1. A "Hapus Daurah" (destructive) button is added to the title row of the training
-   detail page header, next to the type/status badges.
+1. The delete action is **not** exposed as a visible standalone button. It lives inside
+   a dot-menu (kebab `⋮`) in the title row of the training detail page header, next to
+   the type/status badges — the same dropdown-menu pattern used in
+   `nav-user.tsx` (`DropdownMenu` / `DropdownMenuTrigger` / `DropdownMenuContent` /
+   `DropdownMenuItem`, icon `MoreVerticalCircle01Icon`). This keeps the action available
+   but intentional — no accidental clicks.
 2. Visibility (`canManage`, already computed in `page.tsx` via `isOrgInScope`):
-   - `root`: always visible.
-   - `bpk`: visible only if the training's organization is within the user's scope.
-   - All other roles: not visible.
-3. Clicking the button opens a confirmation dialog (AlertDialog + Input, same pattern as
-   `delete-member-button.tsx`):
+   - `root`: dot-menu shown, item enabled (subject to the empty-training rule below).
+   - `bpk`: dot-menu shown only if the training's organization is within the user's
+     scope.
+   - All other roles: dot-menu not rendered at all.
+3. Inside the dot-menu, the "Hapus Daurah" item (destructive styling) is:
+   - **Disabled**, with a tooltip, when `attendantCount > 0 || instructorCount > 0`:
+     "Hapus semua peserta dan instruktur terlebih dahulu sebelum menghapus daurah."
+   - **Enabled** only when both counts are `0`.
+4. Clicking the enabled item closes the dropdown and opens a confirmation dialog
+   (AlertDialog + Input, same pattern as `delete-member-button.tsx`), rendered outside
+   the `DropdownMenuContent` and controlled by local `open` state (so it doesn't get
+   unmounted when the dropdown closes):
    - Shows the training name.
-   - Explains that this permanently deletes the training **and all peserta/instruktur
-     records attached to it**.
+   - Explains that this permanently deletes the training record.
    - Requires the admin to type the exact training name into a text field.
    - The confirm button stays disabled until the typed value matches exactly.
-4. On confirm, a server action re-validates everything (session, scope via
-   `assertCanManage`, name match) and performs a hard delete in a transaction:
-   - Delete `trainingAttendants` rows where `trainingId = :id`.
-   - Delete `trainingInstructors` rows where `trainingId = :id`.
-   - Delete the `training` row.
-5. On success: revalidate `/dashboard/trainings`, redirect to `/dashboard/trainings`,
+5. On confirm, the server action re-validates everything (session, scope, the
+   zero-attendants/zero-instructors rule, name match) before deleting — never trusts the
+   client-side counts alone.
+6. On success: revalidate `/dashboard/trainings`, redirect to `/dashboard/trainings`,
    show a success toast.
-6. No soft-delete: training has no `deletedAt` column and none is added. This matches
+7. No soft-delete: training has no `deletedAt` column and none is added. This matches
    the existing hard-delete convention for this entity and avoids a schema migration.
-
-## Data Layer (`src/db/query/training.ts`)
-
-Replace `trainingQuery.delete`:
-
-```ts
-delete: async (id: string) => {
-  return await db.transaction(async (tx) => {
-    await tx.delete(trainingAttendants).where(eq(trainingAttendants.trainingId, id))
-    await tx.delete(trainingInstructors).where(eq(trainingInstructors.trainingId, id))
-    const [deleted] = await tx.delete(training).where(eq(training.id, id)).returning()
-    return deleted
-  })
-}
-```
 
 ## Action Layer (`action.ts`)
 
@@ -81,16 +76,24 @@ deleteTrainingAction(id: string, confirmInput: string): Promise<ActionResponse>
 3. `isOrgInScope(user, training.organizationId)` — return its rejection message on
    failure (same copy `assertCanManage` uses: "Antum tidak memiliki hak akses untuk
    mengelola daurah ini.").
-4. Validate `confirmInput === training.name` — else return a "confirmation mismatch"
+4. Count rows in `trainingAttendants` and `trainingInstructors` for this `trainingId`
+   (`select count(*)` on each, or a single query with two `count` aggregates). If either
+   is `> 0`, return: "Hapus semua peserta dan instruktur terlebih dahulu sebelum
+   menghapus daurah ini."
+5. Validate `confirmInput === training.name` — else return a "confirmation mismatch"
    error message.
-5. Call `trainingQuery.delete(id)`.
-6. `revalidatePath('/dashboard/trainings')`.
-7. `logger.info('Daurah dihapus', { actorId: user.id, actorRole: user.role, trainingId: id, name })`.
-8. Return `{ success: true, message: 'Daurah berhasil dihapus' }`.
+6. Call `trainingQuery.delete(id)` (plain delete — no cascade needed since step 4
+   guarantees no dependent rows remain).
+7. `revalidatePath('/dashboard/trainings')`.
+8. `logger.info('Daurah dihapus', { actorId: user.id, actorRole: user.role, trainingId: id, name })`.
+9. Return `{ success: true, message: 'Daurah berhasil dihapus' }`.
+
+`trainingQuery.delete` itself is unchanged (plain `db.delete(training).where(...)`) —
+the emptiness check happens in the action before it's called.
 
 ## New Component: `_components/training-detail-view/delete-training-button/`
 
-Atomic folder, mirrors `delete-member-button/`:
+Atomic folder:
 
 - `index.ts` — barrel export
 - `delete-training-button.tsx` — client component
@@ -101,15 +104,24 @@ how `removeAttendantAction` / `removeInstructorAction` already live there.
 
 ### `delete-training-button.tsx`
 
-- `'use client'`, props: `trainingId`, `name`.
-- AlertDialog (open state controlled locally, resets `confirmValue` on close).
-- Dialog body: description explaining permanent deletion of the training plus all
-  peserta/instruktur records + `Input` bound to local state for the confirmation value.
+- `'use client'`, props: `trainingId`, `name`, `attendantCount`, `instructorCount`.
+- Renders a `DropdownMenu` with a single destructive `DropdownMenuItem` ("Hapus
+  Daurah"), disabled when `attendantCount > 0 || instructorCount > 0`. Wrap the disabled
+  state in a `Tooltip` (matching the `passingTooltip` pattern already used in
+  `training-detail-view.tsx`) explaining why it's disabled.
+- On enabled-item click: `preventDefault` the menu's default close-and-fire behavior
+  only as needed to set local `alertOpen = true` (the dropdown itself is allowed to
+  close normally; the `AlertDialog` is a sibling, not a child, of `DropdownMenuContent`,
+  so it persists).
+- `AlertDialog` (open state = `alertOpen`, resets `confirmValue` on close): description
+  explaining permanent deletion + `Input` bound to local state for the confirmation
+  value.
 - `AlertDialogAction` (variant destructive) disabled unless `confirmValue === name` and
   not pending; on click calls `deleteTrainingAction(trainingId, confirmValue)` via
   `useTransition`.
 - On success: toast + `router.push('/dashboard/trainings')`.
-- On failure: error toast with the returned message.
+- On failure (including the "remove attendants/instructors first" case, as defense in
+  depth if counts changed concurrently): error toast with the returned message.
 - Loading state mirrors `DeleteMemberButton` (spinner icon + disabled trigger).
 
 ## Wiring (`training-detail-view.tsx`)
@@ -119,12 +131,21 @@ how `removeAttendantAction` / `removeInstructorAction` already live there.
   when `canManage` is true:
   ```tsx
   {canManage && (
-    <DeleteTrainingButton trainingId={training.id} name={training.name} />
+    <DeleteTrainingButton
+      trainingId={training.id}
+      name={training.name}
+      attendantCount={attendantCount}
+      instructorCount={instructorCount}
+    />
   )}
   ```
+  (`attendantCount` / `instructorCount` are already computed in this component from
+  `training.attendants` / `training.instructors`.)
 
 ## Out of Scope
 
 - Soft-delete / restore for trainings.
 - Bulk delete.
+- Cascading delete of attendants/instructors — explicitly rejected; user must clear them
+  out first via the existing remove-attendant/remove-instructor flows.
 - Changes to kader (individual member) deletion — already implemented and correct.
