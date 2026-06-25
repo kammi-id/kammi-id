@@ -41,11 +41,14 @@ deliberate cleanup action for an empty/abandoned daurah record, not a bulk-remov
    - `bpk`: dot-menu shown only if the training's organization is within the user's
      scope.
    - All other roles: dot-menu not rendered at all.
-3. Inside the dot-menu, the "Hapus Daurah" item (destructive styling) is:
-   - **Disabled**, with a tooltip, when `attendantCount > 0 || instructorCount > 0`:
-     "Hapus semua peserta dan instruktur terlebih dahulu sebelum menghapus daurah."
-   - **Enabled** only when both counts are `0`.
-4. Clicking the enabled item closes the dropdown and opens a confirmation dialog
+3. Inside the dot-menu, the "Hapus Daurah" item (destructive styling) is always
+   clickable (not disabled) — clicking behavior depends on the current
+   attendant/instructor counts:
+   - If `attendantCount > 0 || instructorCount > 0`: show an error toast — "Hapus semua
+     peserta dan instruktur terlebih dahulu sebelum menghapus daurah ini." — and do
+     **not** open the confirmation dialog.
+   - If both counts are `0`: proceed to step 4.
+4. Clicking the item (when allowed) closes the dropdown and opens a confirmation dialog
    (AlertDialog + Input, same pattern as `delete-member-button.tsx`), rendered outside
    the `DropdownMenuContent` and controlled by local `open` state (so it doesn't get
    unmounted when the dropdown closes):
@@ -106,13 +109,12 @@ how `removeAttendantAction` / `removeInstructorAction` already live there.
 
 - `'use client'`, props: `trainingId`, `name`, `attendantCount`, `instructorCount`.
 - Renders a `DropdownMenu` with a single destructive `DropdownMenuItem` ("Hapus
-  Daurah"), disabled when `attendantCount > 0 || instructorCount > 0`. Wrap the disabled
-  state in a `Tooltip` (matching the `passingTooltip` pattern already used in
-  `training-detail-view.tsx`) explaining why it's disabled.
-- On enabled-item click: `preventDefault` the menu's default close-and-fire behavior
-  only as needed to set local `alertOpen = true` (the dropdown itself is allowed to
-  close normally; the `AlertDialog` is a sibling, not a child, of `DropdownMenuContent`,
-  so it persists).
+  Daurah"), always enabled.
+- On item click: if `attendantCount > 0 || instructorCount > 0`, call
+  `toast.error('Hapus semua peserta dan instruktur terlebih dahulu sebelum menghapus daurah ini.')`
+  and return early (dropdown closes normally, no dialog opens). Otherwise set local
+  `alertOpen = true` (the dropdown itself is allowed to close normally; the
+  `AlertDialog` is a sibling, not a child, of `DropdownMenuContent`, so it persists).
 - `AlertDialog` (open state = `alertOpen`, resets `confirmValue` on close): description
   explaining permanent deletion + `Input` bound to local state for the confirmation
   value.
