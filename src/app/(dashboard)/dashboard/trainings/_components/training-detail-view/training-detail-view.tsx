@@ -54,6 +54,7 @@ import { TrainingAttendantCombobox } from './training-attendant-combobox'
 import { TrainingInstructorCombobox } from './training-instructor-combobox'
 import { DM1AddForm } from './dm1-add-form'
 import { DM1BulkUploadButton } from './dm1-bulk-upload-button'
+import { DeleteTrainingButton } from './delete-training-button'
 import type { EligibleMember, TrainingType } from '~/db/query/training'
 
 interface TrainingDetailViewProps {
@@ -387,17 +388,27 @@ export const TrainingDetailView = ({
 
           {/* Title row */}
           <div className='flex flex-col gap-2'>
-            <div className='flex flex-wrap items-center gap-2'>
-              <Badge
-                variant='outline'
-                className='border-primary/20 bg-primary/5 text-primary font-geist-mono text-[11px] font-bold uppercase'
-              >
-                {typeLabels[trainingType] ?? trainingType}
-              </Badge>
-              <StatusBadge
-                startDate={training.startDate}
-                endDate={training.endDate}
-              />
+            <div className='flex flex-wrap items-center justify-between gap-2'>
+              <div className='flex flex-wrap items-center gap-2'>
+                <Badge
+                  variant='outline'
+                  className='border-primary/20 bg-primary/5 text-primary font-geist-mono text-[11px] font-bold uppercase'
+                >
+                  {typeLabels[trainingType] ?? trainingType}
+                </Badge>
+                <StatusBadge
+                  startDate={training.startDate}
+                  endDate={training.endDate}
+                />
+              </div>
+              {canManage && (
+                <DeleteTrainingButton
+                  trainingId={training.id}
+                  name={training.name}
+                  attendantCount={attendantCount}
+                  instructorCount={instructorCount}
+                />
+              )}
             </div>
             <h1 className='font-heading text-foreground text-2xl font-bold tracking-tight sm:text-3xl'>
               {training.name}
