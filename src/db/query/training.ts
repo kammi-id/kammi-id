@@ -382,6 +382,19 @@ export const trainingQuery = {
     return deleted
   },
 
+  hasDependents: async (id: string): Promise<boolean> => {
+    const [attendantRow] = await db
+      .select({ cnt: count() })
+      .from(trainingAttendants)
+      .where(eq(trainingAttendants.trainingId, id))
+    const [instructorRow] = await db
+      .select({ cnt: count() })
+      .from(trainingInstructors)
+      .where(eq(trainingInstructors.trainingId, id))
+
+    return (attendantRow?.cnt ?? 0) > 0 || (instructorRow?.cnt ?? 0) > 0
+  },
+
   addAttendant: async (trainingId: string, memberId: string) => {
     const [inserted] = await db
       .insert(trainingAttendants)
