@@ -41,7 +41,11 @@ export const articleQuery = {
   },
 
   delete: async (id: string) => {
-    await db.delete(article).where(eq(article.id, id))
+    const [deleted] = await db
+      .delete(article)
+      .where(eq(article.id, id))
+      .returning()
+    return deleted
   },
 
   getById: async (id: string) => {
