@@ -11,6 +11,9 @@ const logger = getLogger(['app', 'action', 'article'])
 
 export const ArticleInputSchema = z
   .object({
+    // not .uuid(): scope is still enforced via isArticleOrgInScope comparing
+    // against the session's real org id; DB column itself remains a strict
+    // uuid type
     organizationId: z.string().min(1),
     type: z.enum(['page', 'blog']),
     title: z.string().min(1, 'Judul wajib diisi'),
