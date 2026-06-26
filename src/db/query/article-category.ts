@@ -1,0 +1,76 @@
+import { db } from '~/db/db'
+import { articleCategory } from '~/db/schema/article-category.sql'
+import { eq } from 'drizzle-orm'
+
+type CategoryNode = { id: string; parentId: string | null }
+
+export const wouldCreateCycle = (
+  categoryId: string,
+  newParentId: string | null,
+  allCategories: CategoryNode[]
+): boolean => {
+  if (!newParentId) return false
+  if (newParentId === categoryId) return true
+
+  let current: string | null = newParentId
+  const byId = new Map(allCategories.map((c) => [c.id, c]))
+  const visited = new Set<string>()
+
+  while (current) {
+    if (current === categoryId) return true
+    if (visited.has(current)) return false // already-broken chain, not our concern here
+    visited.add(current)
+    current = byId.get(current)?.parentId ?? null
+  }
+
+  return false
+}
+
+export const articleCategoryQuery = {
+  listForOrg: async (organizationId: string) => {
+    return await db
+      .select()
+      .from(articleCategory)
+      .where(eq(articleCategory.organizationId, organizationId))
+  },
+
+  create: async (values: typeof articleCategory.$inferInsert) => {
+    const [created] = await db
+      .insert(articleCategory)
+      .values(values)
+      .returning()
+    return created
+  },
+
+  update: async (
+    id: string,
+    values: Partial<typeof articleCategory.$inferInsert>
+  ) => {
+    const [updated] = await db
+      .update(articleCategory)
+      .set(values)
+      .where(eq(articleCategory.id, id))
+      .returning()
+    return updated
+  },
+
+  delete: async (id: string) => {
+    // Will throw a foreign key violation if any article still references this
+    // category (article.categoryId has onDelete: 'restrict') — caught by the
+    // calling action and surfaced as a friendly error message.
+    const [deleted] = await db
+      .delete(articleCategory)
+      .where(eq(articleCategory.id, id))
+      .returning()
+    return deleted
+  },
+
+  getById: async (id: string) => {
+    const [row] = await db
+      .select()
+      .from(articleCategory)
+      .where(eq(articleCategory.id, id))
+      .limit(1)
+    return row
+  }
+}
