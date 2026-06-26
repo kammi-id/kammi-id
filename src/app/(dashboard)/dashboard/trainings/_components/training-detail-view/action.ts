@@ -271,6 +271,7 @@ export const deleteTrainingAction = async (
 
     return { success: true, message: 'Daurah berhasil dihapus' }
   } catch (error) {
+    logger.error('Gagal menghapus daurah: {error}', { error, trainingId: id })
     return {
       success: false,
       message: 'An unexpected error occurred while deleting training'
