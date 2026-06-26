@@ -1,5 +1,5 @@
 import { expect, test, describe } from 'bun:test'
-import { isArticleOrgInScope } from './article'
+import { isArticleOrgInScope, articleQuery } from './article'
 
 describe('isArticleOrgInScope', () => {
   test('root is always in scope', () => {
@@ -23,5 +23,31 @@ describe('isArticleOrgInScope', () => {
       isArticleOrgInScope({ role: 'bpk', connectedOrganizationId: 'org-a' }, 'org-a')
     ).toBe(false)
     expect(isArticleOrgInScope({ role: 'member' }, 'org-a')).toBe(false)
+  })
+})
+
+describe('articleQuery.create / getById / listForOrg', () => {
+  test('create inserts and listForOrg returns it scoped to organizationId', async () => {
+    const orgId = process.env.TEST_ORGANIZATION_ID
+    if (!orgId) return // skip gracefully when no test DB is wired up
+
+    const created = await articleQuery.create({
+      organizationId: orgId,
+      type: 'blog',
+      title: 'Judul Uji Coba',
+      slug: 'judul-uji-coba',
+      body: { type: 'doc', content: [] },
+      status: 'draft',
+      tags: ['uji'],
+      publishedAt: new Date()
+    })
+
+    expect(created.id).toBeTruthy()
+
+    const list = await articleQuery.listForOrg(orgId, {})
+    expect(list.some((a) => a.id === created.id)).toBe(true)
+
+    const fetched = await articleQuery.getById(created.id)
+    expect(fetched?.title).toBe('Judul Uji Coba')
   })
 })
