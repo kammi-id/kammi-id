@@ -96,7 +96,7 @@ export const createArticleAction = async (
       error,
       input: redact(input as Record<string, unknown>)
     })
-    if (error instanceof Error && error.message.includes('unique'))
+    if (error instanceof Error && error.message.includes('unique constraint'))
       return {
         success: false,
         message: 'Permalink sudah dipakai di organisasi ini.',
@@ -144,7 +144,7 @@ export const updateArticleAction = async (
       articleId: id,
       input: redact(input as Record<string, unknown>)
     })
-    if (error instanceof Error && error.message.includes('unique'))
+    if (error instanceof Error && error.message.includes('unique constraint'))
       return {
         success: false,
         message: 'Permalink sudah dipakai di organisasi ini.',
