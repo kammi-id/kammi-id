@@ -214,12 +214,62 @@ export const updateTrainingAction = async (
 }
 
 export const deleteTrainingAction = async (
-  id: string
+  id: string,
+  confirmInput: string
 ): Promise<ActionResponse> => {
   try {
+    const session = await readActiveSession()
+    if (!session?.user)
+      return { success: false, message: 'Tidak terautentikasi' }
+    const { user } = session
+
+    const [t] = await db
+      .select({
+        id: trainingTable.id,
+        name: trainingTable.name,
+        organizationId: trainingTable.organizationId
+      })
+      .from(trainingTable)
+      .where(eq(trainingTable.id, id))
+      .limit(1)
+
+    if (!t) return { success: false, message: 'Daurah tidak ditemukan.' }
+
+    const allowed = await isOrgInScope(user, t.organizationId)
+    if (!allowed) {
+      return {
+        success: false,
+        message: 'Antum tidak memiliki hak akses untuk mengelola daurah ini.'
+      }
+    }
+
+    const hasDependents = await trainingQuery.hasDependents(id)
+    if (hasDependents) {
+      return {
+        success: false,
+        message:
+          'Hapus semua peserta dan instruktur terlebih dahulu sebelum menghapus daurah ini.'
+      }
+    }
+
+    if (confirmInput !== t.name) {
+      return {
+        success: false,
+        message: 'Nama daurah yang dimasukkan tidak sesuai'
+      }
+    }
+
     await trainingQuery.delete(id)
     revalidatePath('/dashboard/trainings')
-    return { success: true, message: 'Training deleted successfully' }
+
+    logger.info('Daurah dihapus', {
+      actorId: user.id,
+      actorRole: user.role,
+      trainingId: id,
+      name: t.name
+    })
+
+    return { success: true, message: 'Daurah berhasil dihapus' }
   } catch (error) {
     return {
       success: false,
