@@ -49,15 +49,7 @@ describe('trainingQuery.hasDependents', () => {
   }
 
   it('returns false when a training has no attendants or instructors', async () => {
-    const training = await trainingQuery.create({
-      organizationId: orgId,
-      name: 'DM1 Batch 1',
-      startDate: '2026-01-01',
-      endDate: '2026-01-03',
-      type: 'dm1',
-      registrationStartDate: null,
-      registrationDeadline: null
-    })
+    const training = await createTestTraining()
 
     const result = await trainingQuery.hasDependents(training.id)
     expect(result).toBe(false)

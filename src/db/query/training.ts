@@ -383,14 +383,16 @@ export const trainingQuery = {
   },
 
   hasDependents: async (id: string): Promise<boolean> => {
-    const [attendantRow] = await db
-      .select({ cnt: count() })
-      .from(trainingAttendants)
-      .where(eq(trainingAttendants.trainingId, id))
-    const [instructorRow] = await db
-      .select({ cnt: count() })
-      .from(trainingInstructors)
-      .where(eq(trainingInstructors.trainingId, id))
+    const [[attendantRow], [instructorRow]] = await Promise.all([
+      db
+        .select({ cnt: count() })
+        .from(trainingAttendants)
+        .where(eq(trainingAttendants.trainingId, id)),
+      db
+        .select({ cnt: count() })
+        .from(trainingInstructors)
+        .where(eq(trainingInstructors.trainingId, id))
+    ])
 
     return (attendantRow?.cnt ?? 0) > 0 || (instructorRow?.cnt ?? 0) > 0
   },
