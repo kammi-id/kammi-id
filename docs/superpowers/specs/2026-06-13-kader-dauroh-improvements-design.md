@@ -7,6 +7,7 @@ memperbaiki data kader yang sudah diinput (termasuk memindahkan organisasi tempa
 kader terdaftar) tanpa membuka form terpisah.
 
 **Solusi:**
+
 - State global baru di `add-form/store.ts`:
   - `isEditModeStore: atom<boolean>` — toggle edit mode untuk tabel kader saat ini.
   - `editedRowsStore: map<string, Partial<IndividualMember>>` — perubahan per memberId
@@ -100,6 +101,7 @@ kader terdaftar) tanpa membuka form terpisah.
 ## Migrations
 
 Dua migration baru diperlukan:
+
 1. `member`: tambah `birth_place text`, `birth_date date`
 2. `training`: tambah `registration_start_date date`
 

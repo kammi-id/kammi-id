@@ -66,7 +66,8 @@ export const createArticleAction = async (
 ): Promise<ActionResponse> => {
   try {
     const session = await readActiveSession()
-    if (!session?.user) return { success: false, message: 'Tidak terautentikasi' }
+    if (!session?.user)
+      return { success: false, message: 'Tidak terautentikasi' }
     const { user } = session
 
     const validated = ArticleInputSchema.safeParse(input)
@@ -112,7 +113,8 @@ export const updateArticleAction = async (
 ): Promise<ActionResponse> => {
   try {
     const session = await readActiveSession()
-    if (!session?.user) return { success: false, message: 'Tidak terautentikasi' }
+    if (!session?.user)
+      return { success: false, message: 'Tidak terautentikasi' }
     const { user } = session
 
     const validated = ArticleInputSchema.safeParse(input)
@@ -137,7 +139,11 @@ export const updateArticleAction = async (
     revalidatePath(`/dashboard/articles/${id}`)
     logger.info('Artikel diperbarui', { actorId: user.id, articleId: id })
 
-    return { success: true, message: 'Artikel berhasil diperbarui', data: updated }
+    return {
+      success: true,
+      message: 'Artikel berhasil diperbarui',
+      data: updated
+    }
   } catch (error) {
     logger.error('Gagal memperbarui artikel: {error}', {
       error,
@@ -150,6 +156,9 @@ export const updateArticleAction = async (
         message: 'Permalink sudah dipakai di organisasi ini.',
         errors: { slug: ['Permalink sudah dipakai di organisasi ini.'] }
       }
-    return { success: false, message: 'Terjadi kesalahan saat memperbarui artikel' }
+    return {
+      success: false,
+      message: 'Terjadi kesalahan saat memperbarui artikel'
+    }
   }
 }

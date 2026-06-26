@@ -26,6 +26,7 @@
 ### Task 1: Query-layer dependents check
 
 **Files:**
+
 - Modify: `src/db/query/training.ts:377-383` (right after `delete`)
 - Test: `tests/delete-training.test.ts`
 
@@ -172,6 +173,7 @@ git commit -m "feat: add trainingQuery.hasDependents check"
 ### Task 2: Harden `deleteTrainingAction`
 
 **Files:**
+
 - Modify: `src/app/(dashboard)/dashboard/trainings/_components/training-detail-view/action.ts:216-229`
 
 This action reads the session and queries the DB directly (same shape as `deleteMemberAction` in `src/app/(dashboard)/dashboard/profile/[registerNumber]/_components/delete-member-button/action.ts`). It is not unit-tested in this codebase's convention — no existing action that calls `readActiveSession()` has a test (verified: `grep -rl readActiveSession tests/` returns nothing). Verification for this task is manual, in Task 5.
@@ -266,6 +268,7 @@ git commit -m "fix: enforce scope, empty-training, and name-confirm checks on de
 ### Task 3: `DeleteTrainingButton` component
 
 **Files:**
+
 - Create: `src/app/(dashboard)/dashboard/trainings/_components/training-detail-view/delete-training-button/delete-training-button.tsx`
 - Create: `src/app/(dashboard)/dashboard/trainings/_components/training-detail-view/delete-training-button/index.ts`
 
@@ -387,10 +390,10 @@ export const DeleteTrainingButton = ({
           <AlertDialogHeader>
             <AlertDialogTitle>Hapus {name}?</AlertDialogTitle>
             <AlertDialogDescription>
-              Tindakan ini akan menghapus data daurah ini secara permanen dan tidak
-              dapat dibatalkan. Untuk melanjutkan, ketik nama daurah{' '}
-              <span className='font-geist-mono font-medium'>{name}</span> di bawah
-              ini.
+              Tindakan ini akan menghapus data daurah ini secara permanen dan
+              tidak dapat dibatalkan. Untuk melanjutkan, ketik nama daurah{' '}
+              <span className='font-geist-mono font-medium'>{name}</span> di
+              bawah ini.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className='space-y-2'>
@@ -443,6 +446,7 @@ git commit -m "feat: add DeleteTrainingButton dot-menu with type-to-confirm dial
 ### Task 4: Wire into `TrainingDetailView`
 
 **Files:**
+
 - Modify: `src/app/(dashboard)/dashboard/trainings/_components/training-detail-view/training-detail-view.tsx`
 
 - [ ] **Step 1: Import the component**
@@ -458,57 +462,55 @@ import { DeleteTrainingButton } from './delete-training-button'
 In the "Title row" block (lines 389-405), add the button next to the badges. Replace:
 
 ```tsx
-          {/* Title row */}
-          <div className='flex flex-col gap-2'>
-            <div className='flex flex-wrap items-center gap-2'>
-              <Badge
-                variant='outline'
-                className='border-primary/20 bg-primary/5 text-primary font-geist-mono text-[11px] font-bold uppercase'
-              >
-                {typeLabels[trainingType] ?? trainingType}
-              </Badge>
-              <StatusBadge
-                startDate={training.startDate}
-                endDate={training.endDate}
-              />
-            </div>
-            <h1 className='font-heading text-foreground text-2xl font-bold tracking-tight sm:text-3xl'>
-              {training.name}
-            </h1>
-          </div>
+{
+  /* Title row */
+}
+;<div className='flex flex-col gap-2'>
+  <div className='flex flex-wrap items-center gap-2'>
+    <Badge
+      variant='outline'
+      className='border-primary/20 bg-primary/5 text-primary font-geist-mono text-[11px] font-bold uppercase'
+    >
+      {typeLabels[trainingType] ?? trainingType}
+    </Badge>
+    <StatusBadge startDate={training.startDate} endDate={training.endDate} />
+  </div>
+  <h1 className='font-heading text-foreground text-2xl font-bold tracking-tight sm:text-3xl'>
+    {training.name}
+  </h1>
+</div>
 ```
 
 with:
 
 ```tsx
-          {/* Title row */}
-          <div className='flex flex-col gap-2'>
-            <div className='flex flex-wrap items-center justify-between gap-2'>
-              <div className='flex flex-wrap items-center gap-2'>
-                <Badge
-                  variant='outline'
-                  className='border-primary/20 bg-primary/5 text-primary font-geist-mono text-[11px] font-bold uppercase'
-                >
-                  {typeLabels[trainingType] ?? trainingType}
-                </Badge>
-                <StatusBadge
-                  startDate={training.startDate}
-                  endDate={training.endDate}
-                />
-              </div>
-              {canManage && (
-                <DeleteTrainingButton
-                  trainingId={training.id}
-                  name={training.name}
-                  attendantCount={attendantCount}
-                  instructorCount={instructorCount}
-                />
-              )}
-            </div>
-            <h1 className='font-heading text-foreground text-2xl font-bold tracking-tight sm:text-3xl'>
-              {training.name}
-            </h1>
-          </div>
+{
+  /* Title row */
+}
+;<div className='flex flex-col gap-2'>
+  <div className='flex flex-wrap items-center justify-between gap-2'>
+    <div className='flex flex-wrap items-center gap-2'>
+      <Badge
+        variant='outline'
+        className='border-primary/20 bg-primary/5 text-primary font-geist-mono text-[11px] font-bold uppercase'
+      >
+        {typeLabels[trainingType] ?? trainingType}
+      </Badge>
+      <StatusBadge startDate={training.startDate} endDate={training.endDate} />
+    </div>
+    {canManage && (
+      <DeleteTrainingButton
+        trainingId={training.id}
+        name={training.name}
+        attendantCount={attendantCount}
+        instructorCount={instructorCount}
+      />
+    )}
+  </div>
+  <h1 className='font-heading text-foreground text-2xl font-bold tracking-tight sm:text-3xl'>
+    {training.name}
+  </h1>
+</div>
 ```
 
 `attendantCount` and `instructorCount` are already computed earlier in this component (lines 252-253: `const attendantCount = attendants.length` / `const instructorCount = instructors.length`), and `canManage` is already a prop of `TrainingDetailView`.

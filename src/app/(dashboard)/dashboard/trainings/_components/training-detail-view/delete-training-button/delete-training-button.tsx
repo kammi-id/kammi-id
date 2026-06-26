@@ -111,10 +111,10 @@ export const DeleteTrainingButton = ({
           <AlertDialogHeader>
             <AlertDialogTitle>Hapus {name}?</AlertDialogTitle>
             <AlertDialogDescription>
-              Tindakan ini akan menghapus data daurah ini secara permanen dan tidak
-              dapat dibatalkan. Untuk melanjutkan, ketik nama daurah{' '}
-              <span className='font-geist-mono font-medium'>{name}</span> di bawah
-              ini.
+              Tindakan ini akan menghapus data daurah ini secara permanen dan
+              tidak dapat dibatalkan. Untuk melanjutkan, ketik nama daurah{' '}
+              <span className='font-geist-mono font-medium'>{name}</span> di
+              bawah ini.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className='space-y-2'>

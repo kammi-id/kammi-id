@@ -14,20 +14,20 @@ Rendering halaman publik (termasuk routing subdomain per-organisasi) sudah ditan
 
 Satu tabel untuk kedua jenis artikel, dibedakan lewat kolom `type`.
 
-| Kolom | Tipe | Catatan |
-|---|---|---|
-| `id` | uuid PK | |
-| `organizationId` | uuid FK → `organization.id` | NOT NULL, menentukan ownership/scope |
-| `type` | enum `'page' \| 'blog'` | NOT NULL |
-| `title` | text | NOT NULL |
-| `slug` | text | NOT NULL, unique per `organizationId` (composite unique index `(organization_id, slug)`) |
-| `body` | jsonb | Tiptap JSON document |
-| `featuredImage` | text | nullable, S3 key (pola sama dengan `member.photo`) |
-| `publishedAt` | timestamp | nullable di DB; **wajib diisi di Zod ketika `type='blog'`**, opsional ketika `type='page'` |
-| `status` | enum `'draft' \| 'published' \| 'archived'` | NOT NULL, default `'draft'` |
-| `tags` | text array | free-text, tanpa tabel master |
-| `categoryId` | uuid FK → `article_category.id` | nullable, ON DELETE — lihat catatan di bawah |
-| `createdAt` / `updatedAt` | timestamp | standar |
+| Kolom                     | Tipe                                        | Catatan                                                                                    |
+| ------------------------- | ------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| `id`                      | uuid PK                                     |                                                                                            |
+| `organizationId`          | uuid FK → `organization.id`                 | NOT NULL, menentukan ownership/scope                                                       |
+| `type`                    | enum `'page' \| 'blog'`                     | NOT NULL                                                                                   |
+| `title`                   | text                                        | NOT NULL                                                                                   |
+| `slug`                    | text                                        | NOT NULL, unique per `organizationId` (composite unique index `(organization_id, slug)`)   |
+| `body`                    | jsonb                                       | Tiptap JSON document                                                                       |
+| `featuredImage`           | text                                        | nullable, S3 key (pola sama dengan `member.photo`)                                         |
+| `publishedAt`             | timestamp                                   | nullable di DB; **wajib diisi di Zod ketika `type='blog'`**, opsional ketika `type='page'` |
+| `status`                  | enum `'draft' \| 'published' \| 'archived'` | NOT NULL, default `'draft'`                                                                |
+| `tags`                    | text array                                  | free-text, tanpa tabel master                                                              |
+| `categoryId`              | uuid FK → `article_category.id`             | nullable, ON DELETE — lihat catatan di bawah                                               |
+| `createdAt` / `updatedAt` | timestamp                                   | standar                                                                                    |
 
 Catatan validasi tanggal: `publishedAt` wajib bukan via DB constraint (karena kolom dipakai bersama page & blog), tapi via Zod refine berdasarkan `type`.
 
@@ -35,13 +35,13 @@ Catatan validasi tanggal: `publishedAt` wajib bukan via DB constraint (karena ko
 
 Nested, per-organisasi (meniru pola `organization.parentId`).
 
-| Kolom | Tipe | Catatan |
-|---|---|---|
-| `id` | uuid PK | |
-| `organizationId` | uuid FK → `organization.id` | NOT NULL |
-| `name` | text | NOT NULL |
-| `slug` | text | NOT NULL, unique per `(organizationId, slug)` |
-| `parentId` | uuid FK → `article_category.id` (self-reference) | nullable |
+| Kolom            | Tipe                                             | Catatan                                       |
+| ---------------- | ------------------------------------------------ | --------------------------------------------- |
+| `id`             | uuid PK                                          |                                               |
+| `organizationId` | uuid FK → `organization.id`                      | NOT NULL                                      |
+| `name`           | text                                             | NOT NULL                                      |
+| `slug`           | text                                             | NOT NULL, unique per `(organizationId, slug)` |
+| `parentId`       | uuid FK → `article_category.id` (self-reference) | nullable                                      |
 
 Tidak ada tabel tag tersendiri. Autocomplete tag didapat dari query distinct atas artikel organisasi yang bersangkutan, bukan tabel master:
 
@@ -59,12 +59,14 @@ const isArticleOrgInScope = (
   articleOrgId: string
 ): boolean => {
   if (user.role === 'root') return true
-  if (user.role === 'humas') return user.connectedOrganizationId === articleOrgId
+  if (user.role === 'humas')
+    return user.connectedOrganizationId === articleOrgId
   return false
 }
 ```
 
 Aturan:
+
 - Hanya `root` dan `humas` dapat mengakses menu Artikel sama sekali — dicek di level sidebar (lihat pola `allowedRolesPublikasi` di `app-sidebar.tsx`).
 - `humas` create/edit/delete: `organizationId` artikel otomatis diisi `user.connectedOrganizationId`, tidak bisa memilih organisasi lain.
 - `humas` list/detail: query selalu difilter `WHERE organization_id = user.connectedOrganizationId`. Tidak hierarkis — organisasi induk tidak bisa melihat artikel organisasi turunan dan sebaliknya.
@@ -106,6 +108,7 @@ src/app/(dashboard)/dashboard/articles/
 ```
 
 Tambahan di luar folder `articles/`:
+
 - `src/db/schema/article.sql.ts`, `src/db/schema/article-category.sql.ts` — schema baru.
 - `src/db/query/article.ts` — query layer (list, getById, getBySlug, create, update, delete) + `isArticleOrgInScope`.
 - `src/db/query/article-category.ts` — query layer kategori (list per-org, create, update, delete dengan cycle-check).
@@ -119,6 +122,7 @@ Tambahan di luar folder `articles/`:
 ## Error Handling
 
 Konsisten dengan pola `training`:
+
 - Semua server action dibungkus `try/catch`, log via `getLogger(['app', 'action', 'article'])`.
 - Return type `ActionResponse<T>` (`{ success, message, errors?, data? }`).
 - Validasi Zod gagal → `errors` per-field dikembalikan ke form.
@@ -130,6 +134,7 @@ Konsisten dengan pola `training`:
 ## Testing
 
 File `*.test.ts` colocated di masing-masing folder atomic, mencakup:
+
 - `isArticleOrgInScope`: `root` selalu `true`; `humas` `true` hanya untuk organisasi sendiri, `false` untuk organisasi lain (termasuk induk/turunan); role lain selalu `false`.
 - Zod schema artikel: `publishedAt` wajib ketika `type='blog'`, opsional ketika `type='page'`.
 - Slug uniqueness: dua artikel di organisasi berbeda boleh punya slug sama; dalam satu organisasi tidak boleh duplikat.

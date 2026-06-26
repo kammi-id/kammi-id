@@ -24,7 +24,11 @@ export const article = pgTable(
       .text({ enum: ['draft', 'published', 'archived'] })
       .notNull()
       .default('draft'),
-    tags: t.text().array().notNull().default(sql`'{}'::text[]`),
+    tags: t
+      .text()
+      .array()
+      .notNull()
+      .default(sql`'{}'::text[]`),
     categoryId: t
       .uuid('category_id')
       .references(() => articleCategory.id, { onDelete: 'restrict' }),

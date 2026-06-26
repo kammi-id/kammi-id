@@ -132,14 +132,16 @@ how `removeAttendantAction` / `removeInstructorAction` already live there.
 - Render it in the title row (top-right, next to the type badge / status badge), only
   when `canManage` is true:
   ```tsx
-  {canManage && (
-    <DeleteTrainingButton
-      trainingId={training.id}
-      name={training.name}
-      attendantCount={attendantCount}
-      instructorCount={instructorCount}
-    />
-  )}
+  {
+    canManage && (
+      <DeleteTrainingButton
+        trainingId={training.id}
+        name={training.name}
+        attendantCount={attendantCount}
+        instructorCount={instructorCount}
+      />
+    )
+  }
   ```
   (`attendantCount` / `instructorCount` are already computed in this component from
   `training.attendants` / `training.instructors`.)

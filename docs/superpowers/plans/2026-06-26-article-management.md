@@ -15,6 +15,7 @@
 ## Task 1: `article_category` schema
 
 **Files:**
+
 - Create: `src/db/schema/article-category.sql.ts`
 - Test: `src/db/schema/article-category.sql.test.ts`
 
@@ -95,6 +96,7 @@ git commit -m "feat: add article_category schema"
 ## Task 2: `article` schema
 
 **Files:**
+
 - Create: `src/db/schema/article.sql.ts`
 - Test: `src/db/schema/article.sql.test.ts`
 
@@ -163,7 +165,11 @@ export const article = pgTable(
       .text('status', { enum: ['draft', 'published', 'archived'] })
       .notNull()
       .default('draft'),
-    tags: t.text('tags').array().notNull().default(sql`'{}'::text[]`),
+    tags: t
+      .text('tags')
+      .array()
+      .notNull()
+      .default(sql`'{}'::text[]`),
     categoryId: t
       .uuid('category_id')
       .references(() => articleCategory.id, { onDelete: 'restrict' }),
@@ -211,6 +217,7 @@ Wait for explicit confirmation before starting Task 4. Do not proceed on assumpt
 ## Task 4: `isArticleOrgInScope` + category cycle check in query layer
 
 **Files:**
+
 - Create: `src/db/query/article.ts`
 - Test: `src/db/query/article.test.ts`
 
@@ -240,7 +247,10 @@ describe('isArticleOrgInScope', () => {
 
   test('other roles are never in scope', () => {
     expect(
-      isArticleOrgInScope({ role: 'bpk', connectedOrganizationId: 'org-a' }, 'org-a')
+      isArticleOrgInScope(
+        { role: 'bpk', connectedOrganizationId: 'org-a' },
+        'org-a'
+      )
     ).toBe(false)
     expect(isArticleOrgInScope({ role: 'member' }, 'org-a')).toBe(false)
   })
@@ -262,8 +272,10 @@ export const isArticleOrgInScope = (
 ): boolean => {
   if (user.role === 'root') return true
   if (user.role === 'humas')
-    return Boolean(user.connectedOrganizationId) &&
+    return (
+      Boolean(user.connectedOrganizationId) &&
       user.connectedOrganizationId === articleOrgId
+    )
   return false
 }
 ```
@@ -285,6 +297,7 @@ git commit -m "feat: add isArticleOrgInScope helper"
 ## Task 5: Article CRUD query functions
 
 **Files:**
+
 - Modify: `src/db/query/article.ts`
 - Test: `src/db/query/article.test.ts`
 
@@ -351,10 +364,7 @@ export const articleQuery = {
     return created
   },
 
-  update: async (
-    id: string,
-    values: Partial<typeof article.$inferInsert>
-  ) => {
+  update: async (id: string, values: Partial<typeof article.$inferInsert>) => {
     const [updated] = await db
       .update(article)
       .set({ ...values, updatedAt: new Date() })
@@ -393,11 +403,9 @@ export const articleQuery = {
 
   listDistinctTags: async (organizationId: string): Promise<string[]> => {
     const rows = await db.execute<{ tag: string }>(
-      db.$with('tags_cte').as(
-        db
-          .select({ tag: db.$count(article.tags) })
-          .from(article)
-      ) as never
+      db
+        .$with('tags_cte')
+        .as(db.select({ tag: db.$count(article.tags) }).from(article)) as never
     )
     // Simpler, correct version: use unnest directly via sql.
     return []
@@ -441,6 +449,7 @@ git commit -m "feat: add article CRUD query functions"
 ## Task 6: `article_category` query functions with cycle detection
 
 **Files:**
+
 - Create: `src/db/query/article-category.ts`
 - Test: `src/db/query/article-category.test.ts`
 
@@ -580,6 +589,7 @@ git commit -m "feat: add article_category query layer with cycle detection"
 ## Task 7: `assertCanManage` + article server actions (create/update)
 
 **Files:**
+
 - Create: `src/app/(dashboard)/dashboard/articles/_components/article-form/action.ts`
 - Create: `src/app/(dashboard)/dashboard/articles/_components/article-form/types.ts`
 - Create: `src/app/(dashboard)/dashboard/articles/_components/article-form/index.ts`
@@ -678,7 +688,10 @@ export const ArticleInputSchema = z
     slug: z
       .string()
       .min(1, 'Permalink wajib diisi')
-      .regex(/^[a-z0-9-]+$/, 'Permalink hanya boleh huruf kecil, angka, dan tanda hubung'),
+      .regex(
+        /^[a-z0-9-]+$/,
+        'Permalink hanya boleh huruf kecil, angka, dan tanda hubung'
+      ),
     body: z.unknown(),
     featuredImage: z.string().optional(),
     status: z.enum(['draft', 'published', 'archived']),
@@ -686,20 +699,20 @@ export const ArticleInputSchema = z
     categoryId: z.string().uuid().optional(),
     publishedAt: z.string().datetime().optional()
   })
-  .refine(
-    (data) => data.type !== 'blog' || Boolean(data.publishedAt),
-    {
-      message: 'Tanggal wajib diisi untuk artikel blog',
-      path: ['publishedAt']
-    }
-  )
+  .refine((data) => data.type !== 'blog' || Boolean(data.publishedAt), {
+    message: 'Tanggal wajib diisi untuk artikel blog',
+    path: ['publishedAt']
+  })
 
 const assertCanManageOrg = (
   user: { role: string; connectedOrganization?: { id: string } | null },
   organizationId: string
 ): string | null => {
   const allowed = isArticleOrgInScope(
-    { role: user.role, connectedOrganizationId: user.connectedOrganization?.id ?? null },
+    {
+      role: user.role,
+      connectedOrganizationId: user.connectedOrganization?.id ?? null
+    },
     organizationId
   )
   if (!allowed)
@@ -721,7 +734,8 @@ export const createArticleAction = async (
 ): Promise<ActionResponse> => {
   try {
     const session = await readActiveSession()
-    if (!session?.user) return { success: false, message: 'Tidak terautentikasi' }
+    if (!session?.user)
+      return { success: false, message: 'Tidak terautentikasi' }
     const { user } = session
 
     const validated = ArticleInputSchema.safeParse(input)
@@ -751,10 +765,7 @@ export const createArticleAction = async (
       error,
       input: redact(input as Record<string, unknown>)
     })
-    if (
-      error instanceof Error &&
-      error.message.includes('unique')
-    )
+    if (error instanceof Error && error.message.includes('unique'))
       return {
         success: false,
         message: 'Permalink sudah dipakai di organisasi ini.',
@@ -770,7 +781,8 @@ export const updateArticleAction = async (
 ): Promise<ActionResponse> => {
   try {
     const session = await readActiveSession()
-    if (!session?.user) return { success: false, message: 'Tidak terautentikasi' }
+    if (!session?.user)
+      return { success: false, message: 'Tidak terautentikasi' }
     const { user } = session
 
     const validated = ArticleInputSchema.safeParse(input)
@@ -795,7 +807,11 @@ export const updateArticleAction = async (
     revalidatePath(`/dashboard/articles/${id}`)
     logger.info('Artikel diperbarui', { actorId: user.id, articleId: id })
 
-    return { success: true, message: 'Artikel berhasil diperbarui', data: updated }
+    return {
+      success: true,
+      message: 'Artikel berhasil diperbarui',
+      data: updated
+    }
   } catch (error) {
     logger.error('Gagal memperbarui artikel: {error}', {
       error,
@@ -808,7 +824,10 @@ export const updateArticleAction = async (
         message: 'Permalink sudah dipakai di organisasi ini.',
         errors: { slug: ['Permalink sudah dipakai di organisasi ini.'] }
       }
-    return { success: false, message: 'Terjadi kesalahan saat memperbarui artikel' }
+    return {
+      success: false,
+      message: 'Terjadi kesalahan saat memperbarui artikel'
+    }
   }
 }
 ```
@@ -838,6 +857,7 @@ git commit -m "feat: add createArticleAction and updateArticleAction"
 ## Task 8: `deleteArticleAction` + `DeleteArticleButton`
 
 **Files:**
+
 - Create: `src/app/(dashboard)/dashboard/articles/_components/delete-article-button/action.ts`
 - Create: `src/app/(dashboard)/dashboard/articles/_components/delete-article-button/delete-article-button.tsx`
 - Create: `src/app/(dashboard)/dashboard/articles/_components/delete-article-button/index.ts`
@@ -857,7 +877,10 @@ describe('deleteArticleAction', () => {
     // If readActiveSession() returns undefined in the test environment, the
     // function should short-circuit with the auth message, which is also a
     // valid, deterministic assertion for this test.
-    const result = await deleteArticleAction('00000000-0000-0000-0000-000000000000', 'salah')
+    const result = await deleteArticleAction(
+      '00000000-0000-0000-0000-000000000000',
+      'salah'
+    )
     expect(result.success).toBe(false)
   })
 })
@@ -889,14 +912,19 @@ export const deleteArticleAction = async (
 ): Promise<ActionResponse> => {
   try {
     const session = await readActiveSession()
-    if (!session?.user) return { success: false, message: 'Tidak terautentikasi' }
+    if (!session?.user)
+      return { success: false, message: 'Tidak terautentikasi' }
     const { user } = session
 
     const existing = await articleQuery.getById(id)
-    if (!existing) return { success: false, message: 'Artikel tidak ditemukan.' }
+    if (!existing)
+      return { success: false, message: 'Artikel tidak ditemukan.' }
 
     const allowed = isArticleOrgInScope(
-      { role: user.role, connectedOrganizationId: user.connectedOrganization?.id ?? null },
+      {
+        role: user.role,
+        connectedOrganizationId: user.connectedOrganization?.id ?? null
+      },
       existing.organizationId
     )
     if (!allowed)
@@ -906,7 +934,10 @@ export const deleteArticleAction = async (
       }
 
     if (confirmInput !== existing.title)
-      return { success: false, message: 'Judul artikel yang dimasukkan tidak sesuai' }
+      return {
+        success: false,
+        message: 'Judul artikel yang dimasukkan tidak sesuai'
+      }
 
     await articleQuery.delete(id)
     revalidatePath('/dashboard/articles')
@@ -916,7 +947,10 @@ export const deleteArticleAction = async (
     return { success: true, message: 'Artikel berhasil dihapus' }
   } catch (error) {
     logger.error('Gagal menghapus artikel: {error}', { error, articleId: id })
-    return { success: false, message: 'Terjadi kesalahan saat menghapus artikel' }
+    return {
+      success: false,
+      message: 'Terjadi kesalahan saat menghapus artikel'
+    }
   }
 }
 ```
@@ -1002,7 +1036,10 @@ export const DeleteArticleButton = ({
           }
         >
           {isPending ? (
-            <HugeiconsIcon icon={Loading03Icon} className='size-4 animate-spin' />
+            <HugeiconsIcon
+              icon={Loading03Icon}
+              className='size-4 animate-spin'
+            />
           ) : (
             <HugeiconsIcon icon={MoreVerticalCircle01Icon} className='size-4' />
           )}
@@ -1082,6 +1119,7 @@ git commit -m "feat: add DeleteArticleButton with type-to-confirm dialog"
 ## Task 9: `article-category-manager` actions with cycle + dependent-category guards
 
 **Files:**
+
 - Create: `src/app/(dashboard)/dashboard/articles/_components/article-category-manager/action.ts`
 - Create: `src/app/(dashboard)/dashboard/articles/_components/article-category-manager/types.ts`
 - Create: `src/app/(dashboard)/dashboard/articles/_components/article-category-manager/index.ts`
@@ -1153,7 +1191,10 @@ export const CategoryInputSchema = z.object({
   slug: z
     .string()
     .min(1, 'Slug wajib diisi')
-    .regex(/^[a-z0-9-]+$/, 'Slug hanya boleh huruf kecil, angka, dan tanda hubung'),
+    .regex(
+      /^[a-z0-9-]+$/,
+      'Slug hanya boleh huruf kecil, angka, dan tanda hubung'
+    ),
   parentId: z.string().uuid().optional()
 })
 
@@ -1162,7 +1203,10 @@ const assertCanManageOrg = (
   organizationId: string
 ): string | null => {
   const allowed = isArticleOrgInScope(
-    { role: user.role, connectedOrganizationId: user.connectedOrganization?.id ?? null },
+    {
+      role: user.role,
+      connectedOrganizationId: user.connectedOrganization?.id ?? null
+    },
     organizationId
   )
   if (!allowed)
@@ -1175,7 +1219,8 @@ export const createCategoryAction = async (
 ): Promise<ActionResponse> => {
   try {
     const session = await readActiveSession()
-    if (!session?.user) return { success: false, message: 'Tidak terautentikasi' }
+    if (!session?.user)
+      return { success: false, message: 'Tidak terautentikasi' }
     const { user } = session
 
     const validated = CategoryInputSchema.safeParse(input)
@@ -1191,7 +1236,10 @@ export const createCategoryAction = async (
 
     const created = await articleCategoryQuery.create(validated.data)
     revalidatePath('/dashboard/articles')
-    logger.info('Kategori artikel dibuat', { actorId: user.id, categoryId: created.id })
+    logger.info('Kategori artikel dibuat', {
+      actorId: user.id,
+      categoryId: created.id
+    })
 
     return { success: true, message: 'Kategori berhasil dibuat', data: created }
   } catch (error) {
@@ -1202,7 +1250,10 @@ export const createCategoryAction = async (
         message: 'Slug kategori sudah dipakai di organisasi ini.',
         errors: { slug: ['Slug kategori sudah dipakai di organisasi ini.'] }
       }
-    return { success: false, message: 'Terjadi kesalahan saat membuat kategori' }
+    return {
+      success: false,
+      message: 'Terjadi kesalahan saat membuat kategori'
+    }
   }
 }
 
@@ -1212,7 +1263,8 @@ export const updateCategoryAction = async (
 ): Promise<ActionResponse> => {
   try {
     const session = await readActiveSession()
-    if (!session?.user) return { success: false, message: 'Tidak terautentikasi' }
+    if (!session?.user)
+      return { success: false, message: 'Tidak terautentikasi' }
     const { user } = session
 
     const validated = CategoryInputSchema.safeParse(input)
@@ -1224,47 +1276,75 @@ export const updateCategoryAction = async (
       }
 
     const existing = await articleCategoryQuery.getById(id)
-    if (!existing) return { success: false, message: 'Kategori tidak ditemukan.' }
+    if (!existing)
+      return { success: false, message: 'Kategori tidak ditemukan.' }
 
     const scopeError = assertCanManageOrg(user, existing.organizationId)
     if (scopeError) return { success: false, message: scopeError }
 
     if (validated.data.parentId) {
-      const allInOrg = await articleCategoryQuery.listForOrg(existing.organizationId)
+      const allInOrg = await articleCategoryQuery.listForOrg(
+        existing.organizationId
+      )
       if (wouldCreateCycle(id, validated.data.parentId, allInOrg))
         return {
           success: false,
-          message: 'Kategori induk tidak boleh berupa diri sendiri atau turunannya.',
-          errors: { parentId: ['Kategori induk tidak boleh berupa diri sendiri atau turunannya.'] }
+          message:
+            'Kategori induk tidak boleh berupa diri sendiri atau turunannya.',
+          errors: {
+            parentId: [
+              'Kategori induk tidak boleh berupa diri sendiri atau turunannya.'
+            ]
+          }
         }
     }
 
     const updated = await articleCategoryQuery.update(id, validated.data)
     revalidatePath('/dashboard/articles')
-    logger.info('Kategori artikel diperbarui', { actorId: user.id, categoryId: id })
+    logger.info('Kategori artikel diperbarui', {
+      actorId: user.id,
+      categoryId: id
+    })
 
-    return { success: true, message: 'Kategori berhasil diperbarui', data: updated }
+    return {
+      success: true,
+      message: 'Kategori berhasil diperbarui',
+      data: updated
+    }
   } catch (error) {
-    logger.error('Gagal memperbarui kategori: {error}', { error, categoryId: id })
-    return { success: false, message: 'Terjadi kesalahan saat memperbarui kategori' }
+    logger.error('Gagal memperbarui kategori: {error}', {
+      error,
+      categoryId: id
+    })
+    return {
+      success: false,
+      message: 'Terjadi kesalahan saat memperbarui kategori'
+    }
   }
 }
 
-export const deleteCategoryAction = async (id: string): Promise<ActionResponse> => {
+export const deleteCategoryAction = async (
+  id: string
+): Promise<ActionResponse> => {
   try {
     const session = await readActiveSession()
-    if (!session?.user) return { success: false, message: 'Tidak terautentikasi' }
+    if (!session?.user)
+      return { success: false, message: 'Tidak terautentikasi' }
     const { user } = session
 
     const existing = await articleCategoryQuery.getById(id)
-    if (!existing) return { success: false, message: 'Kategori tidak ditemukan.' }
+    if (!existing)
+      return { success: false, message: 'Kategori tidak ditemukan.' }
 
     const scopeError = assertCanManageOrg(user, existing.organizationId)
     if (scopeError) return { success: false, message: scopeError }
 
     await articleCategoryQuery.delete(id)
     revalidatePath('/dashboard/articles')
-    logger.info('Kategori artikel dihapus', { actorId: user.id, categoryId: id })
+    logger.info('Kategori artikel dihapus', {
+      actorId: user.id,
+      categoryId: id
+    })
 
     return { success: true, message: 'Kategori berhasil dihapus' }
   } catch (error) {
@@ -1273,13 +1353,17 @@ export const deleteCategoryAction = async (id: string): Promise<ActionResponse> 
     logger.error('Gagal menghapus kategori: {error}', { error, categoryId: id })
     if (
       error instanceof Error &&
-      (error.message.includes('foreign key') || error.message.includes('violates'))
+      (error.message.includes('foreign key') ||
+        error.message.includes('violates'))
     )
       return {
         success: false,
         message: 'Kategori masih dipakai oleh artikel dan tidak dapat dihapus.'
       }
-    return { success: false, message: 'Terjadi kesalahan saat menghapus kategori' }
+    return {
+      success: false,
+      message: 'Terjadi kesalahan saat menghapus kategori'
+    }
   }
 }
 ```
@@ -1309,6 +1393,7 @@ git commit -m "feat: add article category CRUD actions with cycle and dependent-
 ## Task 10: Cached data layer for article listing
 
 **Files:**
+
 - Create: `src/app/(dashboard)/dashboard/_data/articles.ts`
 - Test: `src/app/(dashboard)/dashboard/_data/articles.test.ts`
 
@@ -1380,6 +1465,7 @@ git commit -m "feat: invalidate articles cache tag on mutation"
 ## Task 11: `ArticleListView` component (table + search/status/category filters)
 
 **Files:**
+
 - Create: `src/app/(dashboard)/dashboard/articles/_components/article-list-view/article-list-view.tsx`
 - Create: `src/app/(dashboard)/dashboard/articles/_components/article-list-view/types.ts`
 - Create: `src/app/(dashboard)/dashboard/articles/_components/article-list-view/index.ts`
@@ -1442,7 +1528,10 @@ const statusLabel: Record<ArticleListItem['status'], string> = {
   archived: 'Diarsipkan'
 }
 
-export const ArticleListView = ({ articles, categories }: ArticleListViewProps) => {
+export const ArticleListView = ({
+  articles,
+  categories
+}: ArticleListViewProps) => {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -1508,13 +1597,20 @@ export const ArticleListView = ({ articles, categories }: ArticleListViewProps) 
           {articles.map((a) => (
             <TableRow key={a.id}>
               <TableCell>
-                <Link href={`/dashboard/articles/${a.id}`} className='font-medium hover:underline'>
+                <Link
+                  href={`/dashboard/articles/${a.id}`}
+                  className='font-medium hover:underline'
+                >
                   {a.title}
                 </Link>
               </TableCell>
-              <TableCell>{a.type === 'blog' ? 'Artikel Blog' : 'Halaman Statik'}</TableCell>
               <TableCell>
-                <Badge variant={a.status === 'published' ? 'default' : 'secondary'}>
+                {a.type === 'blog' ? 'Artikel Blog' : 'Halaman Statik'}
+              </TableCell>
+              <TableCell>
+                <Badge
+                  variant={a.status === 'published' ? 'default' : 'secondary'}
+                >
                   {statusLabel[a.status]}
                 </Badge>
               </TableCell>
@@ -1550,6 +1646,7 @@ git commit -m "feat: add ArticleListView with search/status/category filters"
 ## Task 12: `ArticleBodyEditor` (Tiptap wrapper)
 
 **Files:**
+
 - Modify: `package.json` (add deps)
 - Create: `src/app/(dashboard)/dashboard/articles/_components/article-body-editor/article-body-editor.tsx`
 - Create: `src/app/(dashboard)/dashboard/articles/_components/article-body-editor/types.ts`
@@ -1600,7 +1697,7 @@ export const ArticleBodyEditor = ({
   })
 
   return (
-    <div className={cn('rounded-md border p-3 min-h-48', className)}>
+    <div className={cn('min-h-48 rounded-md border p-3', className)}>
       <EditorContent editor={editor} />
     </div>
   )
@@ -1627,6 +1724,7 @@ git commit -m "feat: add ArticleBodyEditor Tiptap wrapper"
 ## Task 13: `ArticleForm` component + create/edit/list routes
 
 **Files:**
+
 - Create: `src/app/(dashboard)/dashboard/articles/_components/article-form/article-form.tsx`
 - Create: `src/app/(dashboard)/dashboard/articles/page.tsx`
 - Create: `src/app/(dashboard)/dashboard/articles/new/page.tsx`
@@ -1673,7 +1771,11 @@ interface ArticleFormProps {
   }
 }
 
-export const ArticleForm = ({ organizationId, categories, initial }: ArticleFormProps) => {
+export const ArticleForm = ({
+  organizationId,
+  categories,
+  initial
+}: ArticleFormProps) => {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [type, setType] = useState<'page' | 'blog'>(initial?.type ?? 'page')
@@ -1682,7 +1784,9 @@ export const ArticleForm = ({ organizationId, categories, initial }: ArticleForm
   const [body, setBody] = useState<ArticleBodyJSON>(
     initial?.body ?? { type: 'doc', content: [{ type: 'paragraph' }] }
   )
-  const [featuredImage, setFeaturedImage] = useState(initial?.featuredImage ?? '')
+  const [featuredImage, setFeaturedImage] = useState(
+    initial?.featuredImage ?? ''
+  )
   const [status, setStatus] = useState(initial?.status ?? 'draft')
   const [categoryId, setCategoryId] = useState(initial?.categoryId ?? '')
   const [tagsInput, setTagsInput] = useState(initial?.tags?.join(', ') ?? '')
@@ -1722,10 +1826,13 @@ export const ArticleForm = ({ organizationId, categories, initial }: ArticleForm
   }
 
   return (
-    <div className='space-y-4 max-w-2xl'>
+    <div className='max-w-2xl space-y-4'>
       <div className='space-y-2'>
         <Label>Tipe Artikel</Label>
-        <Select value={type} onValueChange={(v) => setType(v as 'page' | 'blog')}>
+        <Select
+          value={type}
+          onValueChange={(v) => setType(v as 'page' | 'blog')}
+        >
           <SelectTrigger>
             <SelectValue />
           </SelectTrigger>
@@ -1738,14 +1845,26 @@ export const ArticleForm = ({ organizationId, categories, initial }: ArticleForm
 
       <div className='space-y-2'>
         <Label htmlFor='title'>Judul</Label>
-        <Input id='title' value={title} onChange={(e) => setTitle(e.target.value)} />
-        {errors.title && <p className='text-sm text-destructive'>{errors.title[0]}</p>}
+        <Input
+          id='title'
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+        />
+        {errors.title && (
+          <p className='text-destructive text-sm'>{errors.title[0]}</p>
+        )}
       </div>
 
       <div className='space-y-2'>
         <Label htmlFor='slug'>Permalink</Label>
-        <Input id='slug' value={slug} onChange={(e) => setSlug(e.target.value)} />
-        {errors.slug && <p className='text-sm text-destructive'>{errors.slug[0]}</p>}
+        <Input
+          id='slug'
+          value={slug}
+          onChange={(e) => setSlug(e.target.value)}
+        />
+        {errors.slug && (
+          <p className='text-destructive text-sm'>{errors.slug[0]}</p>
+        )}
       </div>
 
       {type === 'blog' && (
@@ -1758,14 +1877,19 @@ export const ArticleForm = ({ organizationId, categories, initial }: ArticleForm
             onChange={(e) => setPublishedAt(e.target.value)}
           />
           {errors.publishedAt && (
-            <p className='text-sm text-destructive'>{errors.publishedAt[0]}</p>
+            <p className='text-destructive text-sm'>{errors.publishedAt[0]}</p>
           )}
         </div>
       )}
 
       <div className='space-y-2'>
         <Label>Gambar Fitur</Label>
-        <ImageUpload value={featuredImage} onChange={setFeaturedImage} variant='background' folder='articles' />
+        <ImageUpload
+          value={featuredImage}
+          onChange={setFeaturedImage}
+          variant='background'
+          folder='articles'
+        />
       </div>
 
       <div className='space-y-2'>
@@ -1786,7 +1910,11 @@ export const ArticleForm = ({ organizationId, categories, initial }: ArticleForm
 
       <div className='space-y-2'>
         <Label htmlFor='tags'>Tag (pisahkan dengan koma)</Label>
-        <Input id='tags' value={tagsInput} onChange={(e) => setTagsInput(e.target.value)} />
+        <Input
+          id='tags'
+          value={tagsInput}
+          onChange={(e) => setTagsInput(e.target.value)}
+        />
       </div>
 
       <div className='space-y-2'>
@@ -1796,7 +1924,10 @@ export const ArticleForm = ({ organizationId, categories, initial }: ArticleForm
 
       <div className='space-y-2'>
         <Label>Status</Label>
-        <Select value={status} onValueChange={(v) => setStatus(v as typeof status)}>
+        <Select
+          value={status}
+          onValueChange={(v) => setStatus(v as typeof status)}
+        >
           <SelectTrigger>
             <SelectValue />
           </SelectTrigger>
@@ -1838,10 +1969,16 @@ import { ArticleListView } from './_components/article-list-view'
 import { Button } from '~/components/shadcn/ui/button'
 
 interface ArticlesPageProps {
-  searchParams: Promise<{ search?: string; status?: string; categoryId?: string }>
+  searchParams: Promise<{
+    search?: string
+    status?: string
+    categoryId?: string
+  }>
 }
 
-export default async function ArticlesPage({ searchParams }: ArticlesPageProps) {
+export default async function ArticlesPage({
+  searchParams
+}: ArticlesPageProps) {
   const session = await readActiveSession()
   if (!session?.user) redirect('/login')
   const { user } = session
@@ -1928,12 +2065,17 @@ export default async function EditArticlePage({
   if (!existing) notFound()
 
   const allowed = isArticleOrgInScope(
-    { role: user.role, connectedOrganizationId: user.connectedOrganization?.id ?? null },
+    {
+      role: user.role,
+      connectedOrganizationId: user.connectedOrganization?.id ?? null
+    },
     existing.organizationId
   )
   if (!allowed) redirect('/dashboard/articles')
 
-  const categories = await articleCategoryQuery.listForOrg(existing.organizationId)
+  const categories = await articleCategoryQuery.listForOrg(
+    existing.organizationId
+  )
 
   return (
     <div className='space-y-4'>
@@ -1975,6 +2117,7 @@ git commit -m "feat: add article list/create/edit routes and ArticleForm"
 ## Task 14: Wire "Artikel" into the sidebar Publikasi menu
 
 **Files:**
+
 - Modify: `src/app/(dashboard)/dashboard/_components/app-sidebar/app-sidebar.tsx`
 
 The `menuBerita` array (around line 133) already has placeholder items "Tambah Artikel Baru" and "Daftar Artikel" with `url: '#'` — point them at the real routes.
@@ -2016,4 +2159,3 @@ git commit -m "feat: link sidebar Artikel menu items to article routes"
 - **Spec coverage:** title/body/date/featured image/category/tags/status/permalink — Tasks 1-2, 7, 13. Role restriction (`root`, `humas` only) — Tasks 4, 7-9, 13-14. Strict per-org scope (no hierarchy either direction) — Task 4 tests cover root, humas-own-org, humas-other-org, other roles. Nested per-org categories — Tasks 1, 6, 9. Free-text tags with autocomplete — Task 5 (`listDistinctTags`); wiring that into the form's tag input as an actual `<Combobox>` autocomplete UI is a reasonable follow-up but not blocking the core feature — flagged here rather than silently dropped.
 - **DB migration discipline:** Tasks 1-2 only write schema files; Task 3 is an explicit stop-and-ask checkpoint before any other task touches a live `article`/`article_category` table.
 - **Type consistency:** `ArticleStatus`/`ArticleType` defined once in `src/db/query/article.ts` (Task 5) and reused by name in later tasks' code comments — `action.ts` files inline their own Zod enums matching the same string literals rather than importing the type, which is consistent with how `training`'s `action.ts` files also redeclare their own Zod enums rather than importing `TrainingType`.
-

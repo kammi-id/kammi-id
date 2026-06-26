@@ -8,8 +8,10 @@ export const isArticleOrgInScope = (
 ): boolean => {
   if (user.role === 'root') return true
   if (user.role === 'humas')
-    return Boolean(user.connectedOrganizationId) &&
+    return (
+      Boolean(user.connectedOrganizationId) &&
       user.connectedOrganizationId === articleOrgId
+    )
   return false
 }
 
@@ -28,10 +30,7 @@ export const articleQuery = {
     return created
   },
 
-  update: async (
-    id: string,
-    values: Partial<typeof article.$inferInsert>
-  ) => {
+  update: async (id: string, values: Partial<typeof article.$inferInsert>) => {
     const [updated] = await db
       .update(article)
       .set({ ...values, updatedAt: new Date() })

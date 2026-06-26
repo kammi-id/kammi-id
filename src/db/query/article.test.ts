@@ -20,7 +20,10 @@ describe('isArticleOrgInScope', () => {
 
   test('other roles are never in scope', () => {
     expect(
-      isArticleOrgInScope({ role: 'bpk', connectedOrganizationId: 'org-a' }, 'org-a')
+      isArticleOrgInScope(
+        { role: 'bpk', connectedOrganizationId: 'org-a' },
+        'org-a'
+      )
     ).toBe(false)
     expect(isArticleOrgInScope({ role: 'member' }, 'org-a')).toBe(false)
   })
