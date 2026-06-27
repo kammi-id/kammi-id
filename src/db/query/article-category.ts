@@ -55,9 +55,12 @@ export const articleCategoryQuery = {
   },
 
   delete: async (id: string) => {
-    // Will throw a foreign key violation if any article still references this
-    // category (article.categoryId has onDelete: 'restrict') — caught by the
-    // calling action and surfaced as a friendly error message.
+    // Deleting a category referenced by an ARTICLE throws an FK-restrict
+    // violation (article.categoryId has onDelete: 'restrict') — caught by the
+    // calling action and surfaced as a friendly error message. Deleting a
+    // category that is a PARENT of other categories does NOT throw: its children
+    // are intentionally re-parented to null (become top-level) via the parentId
+    // onDelete: 'set null' rule.
     const [deleted] = await db
       .delete(articleCategory)
       .where(eq(articleCategory.id, id))

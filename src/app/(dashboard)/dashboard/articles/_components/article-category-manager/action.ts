@@ -182,8 +182,7 @@ export const deleteCategoryAction = async (
     logger.error('Gagal menghapus kategori: {error}', { error, categoryId: id })
     if (
       error instanceof Error &&
-      (error.message.includes('foreign key') ||
-        error.message.includes('violates'))
+      error.message.includes('foreign key constraint')
     )
       return {
         success: false,
