@@ -133,12 +133,12 @@ export const AppSidebar = ({
   const menuBerita = [
     {
       title: 'Tambah Artikel Baru',
-      url: '#',
+      url: '/dashboard/articles/new',
       icon: <HugeiconsIcon icon={Add01Icon} strokeWidth={2} />
     },
     {
       title: 'Daftar Artikel',
-      url: '#',
+      url: '/dashboard/articles',
       icon: <HugeiconsIcon icon={Note01Icon} strokeWidth={2} />
     }
   ]
