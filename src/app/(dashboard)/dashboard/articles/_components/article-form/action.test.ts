@@ -1,5 +1,5 @@
 import { expect, test, describe } from 'bun:test'
-import { ArticleInputSchema } from './action'
+import { ArticleInputSchema } from './schema'
 
 describe('ArticleInputSchema', () => {
   test('requires publishedAt when type is blog', () => {

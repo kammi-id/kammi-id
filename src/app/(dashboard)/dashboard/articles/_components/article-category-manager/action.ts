@@ -1,6 +1,5 @@
 'use server'
 
-import { z } from 'zod'
 import { revalidatePath, updateTag } from 'next/cache'
 import { readActiveSession } from '~/lib/auth/cookies'
 import { isArticleOrgInScope } from '~/db/query/article'
@@ -10,24 +9,9 @@ import {
 } from '~/db/query/article-category'
 import { getLogger } from '~/lib/logger'
 import type { ActionResponse } from '../article-form/types'
+import { CategoryInputSchema, type CategoryInput } from './schema'
 
 const logger = getLogger(['app', 'action', 'article-category'])
-
-export const CategoryInputSchema = z.object({
-  // not .uuid(): scope is still enforced via isArticleOrgInScope comparing
-  // against the session's real org id; DB column itself remains a strict
-  // uuid type
-  organizationId: z.string().min(1),
-  name: z.string().min(1, 'Nama kategori wajib diisi'),
-  slug: z
-    .string()
-    .min(1, 'Slug wajib diisi')
-    .regex(
-      /^[a-z0-9-]+$/,
-      'Slug hanya boleh huruf kecil, angka, dan tanda hubung'
-    ),
-  parentId: z.string().uuid().optional()
-})
 
 const assertCanManageOrg = (
   user: { role: string; connectedOrganization?: { id: string } | null },
@@ -46,7 +30,7 @@ const assertCanManageOrg = (
 }
 
 export const createCategoryAction = async (
-  input: z.infer<typeof CategoryInputSchema>
+  input: CategoryInput
 ): Promise<ActionResponse> => {
   try {
     const session = await readActiveSession()
@@ -91,7 +75,7 @@ export const createCategoryAction = async (
 
 export const updateCategoryAction = async (
   id: string,
-  input: z.infer<typeof CategoryInputSchema>
+  input: CategoryInput
 ): Promise<ActionResponse> => {
   try {
     const session = await readActiveSession()

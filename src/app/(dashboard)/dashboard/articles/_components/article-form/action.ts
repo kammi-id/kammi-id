@@ -1,40 +1,13 @@
 'use server'
 
-import { z } from 'zod'
 import { revalidatePath, updateTag } from 'next/cache'
 import { readActiveSession } from '~/lib/auth/cookies'
 import { articleQuery, isArticleOrgInScope } from '~/db/query/article'
 import { getLogger, redact } from '~/lib/logger'
 import type { ActionResponse } from './types'
+import { ArticleInputSchema, type ArticleInput } from './schema'
 
 const logger = getLogger(['app', 'action', 'article'])
-
-export const ArticleInputSchema = z
-  .object({
-    // not .uuid(): scope is still enforced via isArticleOrgInScope comparing
-    // against the session's real org id; DB column itself remains a strict
-    // uuid type
-    organizationId: z.string().min(1),
-    type: z.enum(['page', 'blog']),
-    title: z.string().min(1, 'Judul wajib diisi'),
-    slug: z
-      .string()
-      .min(1, 'Permalink wajib diisi')
-      .regex(
-        /^[a-z0-9-]+$/,
-        'Permalink hanya boleh huruf kecil, angka, dan tanda hubung'
-      ),
-    body: z.unknown(),
-    featuredImage: z.string().optional(),
-    status: z.enum(['draft', 'published', 'archived']),
-    tags: z.array(z.string()).default([]),
-    categoryId: z.string().uuid().optional(),
-    publishedAt: z.string().datetime().optional()
-  })
-  .refine((data) => data.type !== 'blog' || Boolean(data.publishedAt), {
-    message: 'Tanggal wajib diisi untuk artikel blog',
-    path: ['publishedAt']
-  })
 
 const assertCanManageOrg = (
   user: { role: string; connectedOrganization?: { id: string } | null },
@@ -62,7 +35,7 @@ const assertCanManageArticle = async (
 }
 
 export const createArticleAction = async (
-  input: z.infer<typeof ArticleInputSchema>
+  input: ArticleInput
 ): Promise<ActionResponse> => {
   try {
     const session = await readActiveSession()
@@ -110,7 +83,7 @@ export const createArticleAction = async (
 
 export const updateArticleAction = async (
   id: string,
-  input: z.infer<typeof ArticleInputSchema>
+  input: ArticleInput
 ): Promise<ActionResponse> => {
   try {
     const session = await readActiveSession()

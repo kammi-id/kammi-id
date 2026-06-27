@@ -1,5 +1,5 @@
 import { expect, test, describe } from 'bun:test'
-import { CategoryInputSchema } from './action'
+import { CategoryInputSchema } from './schema'
 
 describe('CategoryInputSchema', () => {
   test('requires name and organizationId', () => {
