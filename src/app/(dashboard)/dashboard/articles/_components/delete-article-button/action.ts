@@ -4,10 +4,9 @@ import { revalidatePath } from 'next/cache'
 import { readActiveSession } from '~/lib/auth/cookies'
 import { articleQuery, isArticleOrgInScope } from '~/db/query/article'
 import { getLogger } from '~/lib/logger'
+import type { ActionResponse } from '../article-form/types'
 
 const logger = getLogger(['app', 'action', 'article'])
-
-type ActionResponse = { success: boolean; message: string }
 
 export const deleteArticleAction = async (
   id: string,
