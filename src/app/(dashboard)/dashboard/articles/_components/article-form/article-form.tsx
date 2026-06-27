@@ -3,8 +3,15 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Loading03Icon } from '@hugeicons/core-free-icons'
 import { Input } from '~/components/shadcn/ui/input'
-import { Label } from '~/components/shadcn/ui/label'
+import {
+  Field,
+  FieldGroup,
+  FieldLabel,
+  FieldError
+} from '~/components/shadcn/ui/field'
 import { Button } from '~/components/shadcn/ui/button'
 import {
   Select,
@@ -16,10 +23,13 @@ import {
 import { ImageUpload } from '~/components/image-upload'
 import { ArticleBodyEditor } from '../article-body-editor'
 import type { ArticleBodyJSON } from '../article-body-editor'
+import {
+  ARTICLE_STATUS_LABELS,
+  ARTICLE_TYPE_LABELS,
+  type ArticleType,
+  type ArticleStatus
+} from '../_constants'
 import { createArticleAction, updateArticleAction } from './action'
-
-type ArticleType = 'page' | 'blog'
-type ArticleStatus = 'draft' | 'published' | 'archived'
 
 export type ArticleFormCategory = { id: string; name: string }
 
@@ -85,7 +95,8 @@ export const ArticleForm = ({
     initial?.status ?? 'draft'
   )
 
-  const fieldError = (name: string) => errors[name]?.[0]
+  const fieldErrors = (name: string) =>
+    errors[name]?.map((message) => ({ message }))
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -130,132 +141,148 @@ export const ArticleForm = ({
 
   return (
     <form onSubmit={handleSubmit} className='space-y-6'>
-      <div className='space-y-2'>
-        <Label htmlFor='article-type'>Tipe</Label>
-        <Select
-          value={type}
-          onValueChange={(val) => setType((val as ArticleType) ?? 'page')}
-        >
-          <SelectTrigger id='article-type' className='w-48'>
-            <SelectValue placeholder='Pilih tipe' />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value='page'>Halaman Statik</SelectItem>
-            <SelectItem value='blog'>Artikel Blog</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+      <FieldGroup>
+        <Field>
+          <FieldLabel htmlFor='article-type'>Tipe</FieldLabel>
+          <Select
+            value={type}
+            onValueChange={(val) => setType((val as ArticleType) ?? 'page')}
+          >
+            <SelectTrigger id='article-type' className='w-48'>
+              <SelectValue placeholder='Pilih tipe' />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value='page'>{ARTICLE_TYPE_LABELS.page}</SelectItem>
+              <SelectItem value='blog'>{ARTICLE_TYPE_LABELS.blog}</SelectItem>
+            </SelectContent>
+          </Select>
+        </Field>
 
-      <div className='space-y-2'>
-        <Label htmlFor='article-title'>Judul</Label>
-        <Input
-          id='article-title'
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          aria-invalid={Boolean(fieldError('title'))}
-        />
-        {fieldError('title') && (
-          <p className='text-destructive text-sm'>{fieldError('title')}</p>
-        )}
-      </div>
-
-      <div className='space-y-2'>
-        <Label htmlFor='article-slug'>Permalink</Label>
-        <Input
-          id='article-slug'
-          value={slug}
-          onChange={(e) => setSlug(e.target.value)}
-          aria-invalid={Boolean(fieldError('slug'))}
-        />
-        {fieldError('slug') && (
-          <p className='text-destructive text-sm'>{fieldError('slug')}</p>
-        )}
-      </div>
-
-      {type === 'blog' && (
-        <div className='space-y-2'>
-          <Label htmlFor='article-published-at'>Tanggal Terbit</Label>
+        <Field data-invalid={Boolean(fieldErrors('title')) || undefined}>
+          <FieldLabel htmlFor='article-title'>Judul</FieldLabel>
           <Input
-            id='article-published-at'
-            type='datetime-local'
-            value={publishedAt}
-            onChange={(e) => setPublishedAt(e.target.value)}
-            aria-invalid={Boolean(fieldError('publishedAt'))}
-            className='w-64'
+            id='article-title'
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            aria-invalid={Boolean(fieldErrors('title')) || undefined}
           />
-          {fieldError('publishedAt') && (
-            <p className='text-destructive text-sm'>
-              {fieldError('publishedAt')}
-            </p>
-          )}
-        </div>
-      )}
+          <FieldError errors={fieldErrors('title')} />
+        </Field>
 
-      <div className='space-y-2'>
-        <Label>Gambar Utama</Label>
-        <ImageUpload
-          value={featuredImage}
-          onChange={setFeaturedImage}
-          folder='articles'
-          variant='background'
-        />
-      </div>
+        <Field data-invalid={Boolean(fieldErrors('slug')) || undefined}>
+          <FieldLabel htmlFor='article-slug'>Permalink</FieldLabel>
+          <Input
+            id='article-slug'
+            value={slug}
+            onChange={(e) => setSlug(e.target.value)}
+            aria-invalid={Boolean(fieldErrors('slug')) || undefined}
+          />
+          <FieldError errors={fieldErrors('slug')} />
+        </Field>
 
-      <div className='space-y-2'>
-        <Label htmlFor='article-category'>Kategori</Label>
-        <Select
-          value={categoryId}
-          onValueChange={(val) => setCategoryId(val ?? NO_CATEGORY)}
-        >
-          <SelectTrigger id='article-category' className='w-64'>
-            <SelectValue placeholder='Pilih kategori' />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value={NO_CATEGORY}>Tanpa Kategori</SelectItem>
-            {categories.map((category) => (
-              <SelectItem key={category.id} value={category.id}>
-                {category.name}
+        {type === 'blog' && (
+          <Field
+            data-invalid={Boolean(fieldErrors('publishedAt')) || undefined}
+          >
+            <FieldLabel htmlFor='article-published-at'>
+              Tanggal Terbit
+            </FieldLabel>
+            <Input
+              id='article-published-at'
+              type='datetime-local'
+              value={publishedAt}
+              onChange={(e) => setPublishedAt(e.target.value)}
+              aria-invalid={Boolean(fieldErrors('publishedAt')) || undefined}
+              className='w-64'
+            />
+            <FieldError errors={fieldErrors('publishedAt')} />
+          </Field>
+        )}
+
+        <Field>
+          <FieldLabel>Gambar Utama</FieldLabel>
+          <ImageUpload
+            value={featuredImage}
+            onChange={setFeaturedImage}
+            folder='articles'
+            variant='background'
+          />
+        </Field>
+
+        <Field>
+          <FieldLabel htmlFor='article-category'>Kategori</FieldLabel>
+          <Select
+            value={categoryId}
+            onValueChange={(val) => setCategoryId(val ?? NO_CATEGORY)}
+          >
+            <SelectTrigger id='article-category' className='w-64'>
+              <SelectValue placeholder='Pilih kategori' />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={NO_CATEGORY}>Tanpa Kategori</SelectItem>
+              {categories.map((category) => (
+                <SelectItem key={category.id} value={category.id}>
+                  {category.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </Field>
+
+        <Field>
+          <FieldLabel htmlFor='article-tags'>Tag</FieldLabel>
+          <Input
+            id='article-tags'
+            value={tags}
+            onChange={(e) => setTags(e.target.value)}
+            placeholder='Pisahkan dengan koma'
+          />
+        </Field>
+
+        <Field>
+          <FieldLabel>Konten</FieldLabel>
+          <ArticleBodyEditor value={body} onChange={setBody} />
+        </Field>
+
+        <Field>
+          <FieldLabel htmlFor='article-status'>Status</FieldLabel>
+          <Select
+            value={status}
+            onValueChange={(val) =>
+              setStatus((val as ArticleStatus) ?? 'draft')
+            }
+          >
+            <SelectTrigger id='article-status' className='w-48'>
+              <SelectValue placeholder='Pilih status' />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value='draft'>
+                {ARTICLE_STATUS_LABELS.draft}
               </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div className='space-y-2'>
-        <Label htmlFor='article-tags'>Tag</Label>
-        <Input
-          id='article-tags'
-          value={tags}
-          onChange={(e) => setTags(e.target.value)}
-          placeholder='Pisahkan dengan koma'
-        />
-      </div>
-
-      <div className='space-y-2'>
-        <Label>Konten</Label>
-        <ArticleBodyEditor value={body} onChange={setBody} />
-      </div>
-
-      <div className='space-y-2'>
-        <Label htmlFor='article-status'>Status</Label>
-        <Select
-          value={status}
-          onValueChange={(val) => setStatus((val as ArticleStatus) ?? 'draft')}
-        >
-          <SelectTrigger id='article-status' className='w-48'>
-            <SelectValue placeholder='Pilih status' />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value='draft'>Draf</SelectItem>
-            <SelectItem value='published'>Terbit</SelectItem>
-            <SelectItem value='archived'>Diarsipkan</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+              <SelectItem value='published'>
+                {ARTICLE_STATUS_LABELS.published}
+              </SelectItem>
+              <SelectItem value='archived'>
+                {ARTICLE_STATUS_LABELS.archived}
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        </Field>
+      </FieldGroup>
 
       <div className='flex gap-2'>
         <Button type='submit' disabled={isPending}>
-          {initial ? 'Simpan Perubahan' : 'Buat Artikel'}
+          {isPending && (
+            <HugeiconsIcon
+              icon={Loading03Icon}
+              className='size-4 animate-spin'
+            />
+          )}
+          {isPending
+            ? 'Menyimpan...'
+            : initial
+              ? 'Simpan Perubahan'
+              : 'Buat Artikel'}
         </Button>
         <Button
           type='button'

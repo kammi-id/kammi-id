@@ -21,17 +21,12 @@ import {
 } from '~/components/shadcn/ui/table'
 import { Badge } from '~/components/shadcn/ui/badge'
 import { DeleteArticleButton } from '../delete-article-button'
+import { ARTICLE_STATUS_LABELS, ARTICLE_TYPE_LABELS } from '../_constants'
 import type { ArticleListItem, ArticleCategoryOption } from './types'
 
 interface ArticleListViewProps {
   articles: ArticleListItem[]
   categories: ArticleCategoryOption[]
-}
-
-const statusLabel: Record<ArticleListItem['status'], string> = {
-  draft: 'Draf',
-  published: 'Terbit',
-  archived: 'Diarsipkan'
 }
 
 export const ArticleListView = ({
@@ -140,16 +135,14 @@ export const ArticleListView = ({
                   {article.title}
                 </Link>
               </TableCell>
-              <TableCell>
-                {article.type === 'blog' ? 'Artikel Blog' : 'Halaman Statik'}
-              </TableCell>
+              <TableCell>{ARTICLE_TYPE_LABELS[article.type]}</TableCell>
               <TableCell>
                 <Badge
                   variant={
                     article.status === 'published' ? 'default' : 'secondary'
                   }
                 >
-                  {statusLabel[article.status]}
+                  {ARTICLE_STATUS_LABELS[article.status]}
                 </Badge>
               </TableCell>
               <TableCell>
