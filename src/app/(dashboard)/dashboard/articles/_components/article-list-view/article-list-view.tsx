@@ -1,5 +1,6 @@
 'use client'
 
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { Input } from '~/components/shadcn/ui/input'
@@ -40,24 +41,47 @@ export const ArticleListView = ({
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
+  const debounceRef = useRef<ReturnType<typeof setTimeout>>(null)
+  const currentSearch = searchParams.get('search') ?? ''
+  const [localSearch, setLocalSearch] = useState(currentSearch)
 
-  const updateParam = (key: string, value: string) => {
-    const params = new URLSearchParams(searchParams.toString())
-    if (value) {
-      params.set(key, value)
-    } else {
-      params.delete(key)
-    }
-    router.push(`${pathname}?${params.toString()}`)
-  }
+  useEffect(() => {
+    setLocalSearch(currentSearch)
+  }, [currentSearch])
+
+  const updateParam = useCallback(
+    (key: string, value: string) => {
+      const params = new URLSearchParams(searchParams.toString())
+      if (value) {
+        params.set(key, value)
+      } else {
+        params.delete(key)
+      }
+      const qs = params.toString()
+      router.push(qs ? `${pathname}?${qs}` : pathname)
+    },
+    [router, pathname, searchParams]
+  )
+
+  const handleSearchChange = useCallback(
+    (value: string) => {
+      setLocalSearch(value)
+      if (debounceRef.current) clearTimeout(debounceRef.current)
+      debounceRef.current = setTimeout(() => {
+        updateParam('search', value)
+      }, 300)
+    },
+    [updateParam]
+  )
 
   return (
     <div className='space-y-4'>
       <div className='flex flex-wrap gap-2'>
         <Input
           placeholder='Cari judul artikel...'
-          defaultValue={searchParams.get('search') ?? ''}
-          onChange={(e) => updateParam('search', e.target.value)}
+          aria-label='Cari judul artikel'
+          value={localSearch}
+          onChange={(e) => handleSearchChange(e.target.value)}
           className='max-w-sm'
         />
         <Select
@@ -66,7 +90,7 @@ export const ArticleListView = ({
             updateParam('status', val === 'all' ? '' : (val ?? ''))
           }
         >
-          <SelectTrigger className='w-40'>
+          <SelectTrigger className='w-40' aria-label='Filter status'>
             <SelectValue placeholder='Status' />
           </SelectTrigger>
           <SelectContent>
@@ -82,7 +106,7 @@ export const ArticleListView = ({
             updateParam('categoryId', val === 'all' ? '' : (val ?? ''))
           }
         >
-          <SelectTrigger className='w-48'>
+          <SelectTrigger className='w-48' aria-label='Filter kategori'>
             <SelectValue placeholder='Kategori' />
           </SelectTrigger>
           <SelectContent>
