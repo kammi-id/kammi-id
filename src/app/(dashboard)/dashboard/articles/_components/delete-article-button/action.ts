@@ -1,6 +1,6 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, updateTag } from 'next/cache'
 import { readActiveSession } from '~/lib/auth/cookies'
 import { articleQuery, isArticleOrgInScope } from '~/db/query/article'
 import { getLogger } from '~/lib/logger'
@@ -43,6 +43,7 @@ export const deleteArticleAction = async (
 
     await articleQuery.delete(id)
     revalidatePath('/dashboard/articles')
+    updateTag('articles')
 
     logger.info('Artikel dihapus', { actorId: user.id, articleId: id })
 

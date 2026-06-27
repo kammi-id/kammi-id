@@ -1,7 +1,7 @@
 'use server'
 
 import { z } from 'zod'
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, updateTag } from 'next/cache'
 import { readActiveSession } from '~/lib/auth/cookies'
 import { articleQuery, isArticleOrgInScope } from '~/db/query/article'
 import { getLogger, redact } from '~/lib/logger'
@@ -89,6 +89,7 @@ export const createArticleAction = async (
     })
 
     revalidatePath('/dashboard/articles')
+    updateTag('articles')
     logger.info('Artikel dibuat', { actorId: user.id, articleId: created.id })
 
     return { success: true, message: 'Artikel berhasil dibuat', data: created }
@@ -137,6 +138,7 @@ export const updateArticleAction = async (
 
     revalidatePath('/dashboard/articles')
     revalidatePath(`/dashboard/articles/${id}`)
+    updateTag('articles')
     logger.info('Artikel diperbarui', { actorId: user.id, articleId: id })
 
     return {
