@@ -3,6 +3,7 @@
 import { revalidatePath, updateTag } from 'next/cache'
 import { readActiveSession } from '~/lib/auth/cookies'
 import { articleQuery, isArticleOrgInScope } from '~/db/query/article'
+import { articleCategoryQuery } from '~/db/query/article-category'
 import { getLogger, redact } from '~/lib/logger'
 import type { ActionResponse } from './types'
 import { ArticleInputSchema, type ArticleInput } from './schema'
@@ -25,13 +26,18 @@ const assertCanManageOrg = (
   return null
 }
 
-const assertCanManageArticle = async (
-  articleId: string,
-  user: { role: string; connectedOrganization?: { id: string } | null }
+// Defense-in-depth: the client may send any categoryId, so verify it exists and
+// belongs to the same organization as the article — preventing a humas from
+// attaching another organization's category via a crafted request.
+const assertCategoryInOrg = async (
+  categoryId: string | undefined,
+  organizationId: string
 ): Promise<string | null> => {
-  const existing = await articleQuery.getById(articleId)
-  if (!existing) return 'Artikel tidak ditemukan.'
-  return assertCanManageOrg(user, existing.organizationId)
+  if (!categoryId) return null
+  const category = await articleCategoryQuery.getById(categoryId)
+  if (!category || category.organizationId !== organizationId)
+    return 'Kategori tidak ditemukan di organisasi ini.'
+  return null
 }
 
 export const createArticleAction = async (
@@ -53,6 +59,17 @@ export const createArticleAction = async (
 
     const scopeError = assertCanManageOrg(user, validated.data.organizationId)
     if (scopeError) return { success: false, message: scopeError }
+
+    const categoryError = await assertCategoryInOrg(
+      validated.data.categoryId,
+      validated.data.organizationId
+    )
+    if (categoryError)
+      return {
+        success: false,
+        message: categoryError,
+        errors: { categoryId: [categoryError] }
+      }
 
     const created = await articleQuery.create({
       ...validated.data,
@@ -99,8 +116,23 @@ export const updateArticleAction = async (
         errors: validated.error.flatten().fieldErrors
       }
 
-    const scopeError = await assertCanManageArticle(id, user)
+    const existing = await articleQuery.getById(id)
+    if (!existing)
+      return { success: false, message: 'Artikel tidak ditemukan.' }
+
+    const scopeError = assertCanManageOrg(user, existing.organizationId)
     if (scopeError) return { success: false, message: scopeError }
+
+    const categoryError = await assertCategoryInOrg(
+      validated.data.categoryId,
+      existing.organizationId
+    )
+    if (categoryError)
+      return {
+        success: false,
+        message: categoryError,
+        errors: { categoryId: [categoryError] }
+      }
 
     const updated = await articleQuery.update(id, {
       ...validated.data,

@@ -29,6 +29,20 @@ const assertCanManageOrg = (
   return null
 }
 
+// Defense-in-depth: the client may send any parentId, so verify the parent
+// category exists and belongs to the same organization — preventing a humas
+// from nesting a category under another organization's category.
+const assertParentInOrg = async (
+  parentId: string | undefined,
+  organizationId: string
+): Promise<string | null> => {
+  if (!parentId) return null
+  const parent = await articleCategoryQuery.getById(parentId)
+  if (!parent || parent.organizationId !== organizationId)
+    return 'Kategori induk tidak ditemukan di organisasi ini.'
+  return null
+}
+
 export const createCategoryAction = async (
   input: CategoryInput
 ): Promise<ActionResponse> => {
@@ -48,6 +62,17 @@ export const createCategoryAction = async (
 
     const scopeError = assertCanManageOrg(user, validated.data.organizationId)
     if (scopeError) return { success: false, message: scopeError }
+
+    const parentError = await assertParentInOrg(
+      validated.data.parentId,
+      validated.data.organizationId
+    )
+    if (parentError)
+      return {
+        success: false,
+        message: parentError,
+        errors: { parentId: [parentError] }
+      }
 
     const created = await articleCategoryQuery.create(validated.data)
     revalidatePath('/dashboard/articles')
@@ -102,6 +127,17 @@ export const updateCategoryAction = async (
       const allInOrg = await articleCategoryQuery.listForOrg(
         existing.organizationId
       )
+      // Parent must belong to the same organization (it is absent from this
+      // org-scoped list otherwise) — blocks cross-org nesting via a crafted
+      // request.
+      if (!allInOrg.some((category) => category.id === validated.data.parentId))
+        return {
+          success: false,
+          message: 'Kategori induk tidak ditemukan di organisasi ini.',
+          errors: {
+            parentId: ['Kategori induk tidak ditemukan di organisasi ini.']
+          }
+        }
       if (wouldCreateCycle(id, validated.data.parentId, allInOrg))
         return {
           success: false,
