@@ -40,6 +40,10 @@ export default async function EditArticlePage({
     name: category.name
   }))
 
+  const tagSuggestions = await articleQuery.listDistinctTags(
+    existing.organizationId
+  )
+
   return (
     <AccessGuard allowedRoles={['root', 'humas']}>
       <div className='flex flex-col gap-6 px-4 py-6 md:px-6 md:py-8 lg:px-8'>
@@ -54,6 +58,7 @@ export default async function EditArticlePage({
           key={existing.id}
           organizationId={existing.organizationId}
           categories={categories}
+          tagSuggestions={tagSuggestions}
           initial={{
             id: existing.id,
             type: existing.type,

@@ -21,6 +21,7 @@ import {
   SelectValue
 } from '~/components/shadcn/ui/select'
 import { ImageUpload } from '~/components/image-upload'
+import { TagInput } from '../tag-input'
 import { ArticleBodyEditor } from '../article-body-editor'
 import type { ArticleBodyJSON } from '../article-body-editor'
 import {
@@ -49,6 +50,7 @@ export type ArticleFormInitial = {
 interface ArticleFormProps {
   organizationId: string
   categories: ArticleFormCategory[]
+  tagSuggestions: string[]
   initial?: ArticleFormInitial
 }
 
@@ -69,6 +71,7 @@ const toDatetimeLocal = (iso?: string | null): string => {
 export const ArticleForm = ({
   organizationId,
   categories,
+  tagSuggestions,
   initial
 }: ArticleFormProps) => {
   const router = useRouter()
@@ -87,7 +90,7 @@ export const ArticleForm = ({
   const [categoryId, setCategoryId] = useState(
     initial?.categoryId ?? NO_CATEGORY
   )
-  const [tags, setTags] = useState((initial?.tags ?? []).join(', '))
+  const [tags, setTags] = useState<string[]>(initial?.tags ?? [])
   const [body, setBody] = useState<ArticleBodyJSON>(
     initial?.body ?? { type: 'doc', content: [{ type: 'paragraph' }] }
   )
@@ -102,11 +105,6 @@ export const ArticleForm = ({
     e.preventDefault()
     setErrors({})
 
-    const parsedTags = tags
-      .split(',')
-      .map((tag) => tag.trim())
-      .filter(Boolean)
-
     const isoPublishedAt = publishedAt
       ? new Date(publishedAt).toISOString()
       : undefined
@@ -119,7 +117,7 @@ export const ArticleForm = ({
       body,
       featuredImage: featuredImage || undefined,
       status,
-      tags: parsedTags,
+      tags,
       categoryId: categoryId === NO_CATEGORY ? undefined : categoryId,
       publishedAt: type === 'blog' ? isoPublishedAt : undefined
     }
@@ -231,11 +229,11 @@ export const ArticleForm = ({
 
         <Field>
           <FieldLabel htmlFor='article-tags'>Tag</FieldLabel>
-          <Input
+          <TagInput
             id='article-tags'
             value={tags}
-            onChange={(e) => setTags(e.target.value)}
-            placeholder='Pisahkan dengan koma'
+            onChange={setTags}
+            suggestions={tagSuggestions}
           />
         </Field>
 

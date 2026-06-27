@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { AccessGuard } from '~/components/access-guard'
 import { readActiveSession } from '~/lib/auth/cookies'
+import { articleQuery } from '~/db/query/article'
 import { articleCategoryQuery } from '~/db/query/article-category'
 import { ArticleForm } from '../_components/article-form'
 
@@ -18,6 +19,8 @@ export default async function NewArticlePage() {
     name: category.name
   }))
 
+  const tagSuggestions = await articleQuery.listDistinctTags(organizationId)
+
   return (
     <AccessGuard allowedRoles={['root', 'humas']}>
       <div className='flex flex-col gap-6 px-4 py-6 md:px-6 md:py-8 lg:px-8'>
@@ -28,7 +31,11 @@ export default async function NewArticlePage() {
           </p>
         </div>
 
-        <ArticleForm organizationId={organizationId} categories={categories} />
+        <ArticleForm
+          organizationId={organizationId}
+          categories={categories}
+          tagSuggestions={tagSuggestions}
+        />
       </div>
     </AccessGuard>
   )
