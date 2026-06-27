@@ -22,6 +22,7 @@ import {
   Database01Icon,
   Add01Icon,
   Note01Icon,
+  FolderLibraryIcon,
   Home01Icon,
   UserGroupIcon,
   InformationCircleIcon
@@ -140,6 +141,11 @@ export const AppSidebar = ({
       title: 'Daftar Artikel',
       url: '/dashboard/articles',
       icon: <HugeiconsIcon icon={Note01Icon} strokeWidth={2} />
+    },
+    {
+      title: 'Kategori Artikel',
+      url: '/dashboard/articles/categories',
+      icon: <HugeiconsIcon icon={FolderLibraryIcon} strokeWidth={2} />
     }
   ]
 
