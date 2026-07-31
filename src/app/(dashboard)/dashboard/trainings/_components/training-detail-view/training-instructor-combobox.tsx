@@ -68,6 +68,7 @@ export const TrainingInstructorCombobox = ({
     >
       <ComboboxInput
         placeholder={placeholder}
+        aria-label={placeholder}
         className={className}
         onChange={(e) => setQuery(e.target.value)}
       />

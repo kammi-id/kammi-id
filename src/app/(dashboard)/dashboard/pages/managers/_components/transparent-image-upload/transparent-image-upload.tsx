@@ -94,7 +94,7 @@ export const TransparentImageUpload = ({
   return (
     <div className={cn('flex flex-col', className)}>
       <label
-        className='group relative block cursor-pointer'
+        className='group focus-within:ring-primary relative block cursor-pointer ring-0 ring-offset-2 transition-all focus-within:ring-2'
         style={{ height, ...CHECKER_STYLE }}
         aria-label='Area upload foto PNG transparan'
       >

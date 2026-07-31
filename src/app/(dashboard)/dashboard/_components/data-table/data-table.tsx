@@ -197,6 +197,7 @@ export function DataTable<TData, TValue>({
             <div className='relative w-full max-w-sm'>
               <Input
                 placeholder={placeholder ?? `Cari ${searchKey}...`}
+                aria-label={placeholder ?? `Cari ${searchKey}...`}
                 value={searchValue}
                 onChange={(event) => setSearchValue(event.target.value)}
                 className='h-9 pl-9'
@@ -213,19 +214,29 @@ export function DataTable<TData, TValue>({
             {filterKeys.map((key) => {
               const value = searchParams.get(key)
               if (!value) return null
+              const filterLabel =
+                key === 'status'
+                  ? 'Jenjang'
+                  : key === 'gender'
+                    ? 'Jenis Kelamin'
+                    : key
               return (
                 <Badge
                   key={key}
                   variant='secondary'
-                  className='hover:bg-destructive/10 hover:text-destructive flex items-center gap-1 px-2 py-0.5 text-xs font-medium transition-colors'
+                  role='button'
+                  tabIndex={0}
+                  aria-label={`Hapus filter ${filterLabel}: ${value}`}
                   onClick={() => updateURL({ [key]: null, [pageKey]: '1' })}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault()
+                      updateURL({ [key]: null, [pageKey]: '1' })
+                    }
+                  }}
+                  className='hover:bg-destructive/10 hover:text-destructive focus-visible:ring-ring flex cursor-pointer items-center gap-1 px-2 py-0.5 text-xs font-medium transition-colors focus-visible:ring-2 focus-visible:outline-none'
                 >
-                  {key === 'status'
-                    ? 'Jenjang'
-                    : key === 'gender'
-                      ? 'Jenis Kelamin'
-                      : key}
-                  : {value}
+                  {filterLabel}: {value}
                   <HugeiconsIcon icon={FilterIcon} className='size-3' />
                 </Badge>
               )
@@ -293,9 +304,22 @@ export function DataTable<TData, TValue>({
                     key={row.id}
                     data-state={row.getIsSelected() && 'selected'}
                     onClick={() => onRowClick?.(row.original)}
+                    role={onRowClick ? 'button' : undefined}
+                    tabIndex={onRowClick ? 0 : undefined}
+                    onKeyDown={
+                      onRowClick
+                        ? (e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.preventDefault()
+                              onRowClick(row.original)
+                            }
+                          }
+                        : undefined
+                    }
                     className={cn(
                       'transition-colors',
-                      onRowClick && 'hover:bg-muted/50 cursor-pointer'
+                      onRowClick &&
+                        'hover:bg-muted/50 focus-visible:ring-ring cursor-pointer focus-visible:ring-2 focus-visible:outline-none'
                     )}
                   >
                     {row.getVisibleCells().map((cell) => (
