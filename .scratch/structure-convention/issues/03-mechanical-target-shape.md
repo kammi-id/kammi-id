@@ -2,7 +2,6 @@
 
 Type: grilling
 Status: open
-Blocked by: 01
 
 ## Question
 
@@ -37,9 +36,16 @@ Also settle the two stray non-arrow-function components the audit flagged
 (`SpecialistsWrapper` in `perangkat/page.tsx`, `DataTable` in `data-table.tsx`)
 — straightforward, but they need a decision recorded so execution is complete.
 
-**Blocked** because the ownership decision may relocate some of these exact
-folders out of `_components/` entirely, making a target shape decided now
-partly moot.
+**Unblocked** — the ownership decision has landed and the relocation set is
+now known and small: only `region-combobox/` leaves `kader/_components/`
+(to `src/components/`), and the region fetchers fold into `src/lib/api/region`.
+Everything else in the list above stays where it is, so the target shape
+decided here applies to it directly.
+
+One consequence to honour: `members-grid/` and the other kader folders that
+alumni/perangkat consume must end up with a **barrel**, since cross-route
+imports are now barrel-only. That makes item 3 below (are barrels universal or
+only for externally-imported folders?) load-bearing rather than cosmetic.
 
 ## Answer
 

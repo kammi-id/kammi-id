@@ -28,10 +28,37 @@ So the question is genuinely two-sided:
    route-scoped action layer, which AGENTS.md should document (with a rule
    for when it is allowed over per-component actions)?
 
-Inputs worth weighing: how much of each shared file is genuinely shared versus
-incidentally co-located; whether splitting would duplicate Zod schemas or
-`updateTag` calls; and whether per-component actions would make the
-`cacheTag`/`updateTag` pairings from commit `fdd609a` harder to keep correct.
+**What the code shows.** Measured rather than assumed:
+
+| File | LOC | Exported actions | Importing components |
+|---|---|---|---|
+| `pages/home` | 429 | 8 | 7 |
+| `pages/tentang` | 173 | 3 | 3 |
+| `user/account` | 161 | 2 | 2 |
+| `pages/managers` | 117 | 1 | 1 |
+| `profile/[registerNumber]` | 96 | 2 | — |
+
+Two facts sharpen the question:
+
+- The mapping is close to **one action per component**, not many components
+  sharing one action. `pages/home` is 8 actions for 7 components; `managers`
+  is a single action with a single importer. So these files are largely
+  *co-located*, not *shared* — which weakens the "legitimate shared layer"
+  reading for most of them.
+- But all three `pages/*` files open with a **byte-identical**
+  `SettingsActionState` type and a private `checkAccess()` helper. That
+  duplication is real sharing — just sharing that crosses these files rather
+  than living inside any one of them.
+
+So the split may be the wrong axis. A third option: keep per-component
+`action.ts` files (satisfying the convention) **and** extract the genuinely
+common part — `SettingsActionState` + `checkAccess` — into a shared module the
+`pages/*` routes import. That would leave `managers` (1 action, 1 importer) as
+a plain convention violation with no defence.
+
+Also weigh: whether splitting duplicates Zod schemas or `updateTag` calls, and
+whether per-component actions make the `cacheTag`/`updateTag` pairings from
+commit `fdd609a` harder to keep correct.
 
 Whatever is decided, the outcome must include the **AGENTS.md wording change** —
 either tightening the rule so these are clearly violations, or adding the

@@ -36,7 +36,12 @@ further.
 
 <!-- one line per resolved ticket -->
 
-_none yet_
+- [Who owns the cross-route shared components?](issues/01-shared-component-ownership.md)
+  — Decided per category: stateless utilities promote, the page-level composite
+  stays in kader with sanctioned consumers, the privileged action stays shared.
+  Promotion bar is **generic AND used by 2+ routes**; cross-route imports must
+  target a **barrel**, never an internal file. Also corrects the audit's
+  authorization-leak claim — it was misread.
 
 ## Not yet specified
 
@@ -49,10 +54,13 @@ _none yet_
   decisions come back as "the convention was wrong, not the code", the
   conventions section may need a rewrite rather than clarifying sentences.
   Depends on how the individual decision tickets resolve.
-- **Enforcement** — whether any of the settled conventions should be mechanically
-  enforced (lint rule, import boundary check, CI grep) rather than left to
-  reviewer discipline. Only worth specifying once the conventions themselves
-  are final, and partly depends on the reach-in decision.
+- **Enforcement** — whether the settled conventions should be mechanically
+  enforced rather than left to reviewer discipline. The ownership decision
+  sharpened this considerably: the barrel-only rule makes a cross-route
+  violation *textual*, so a lint rule or CI grep is now clearly feasible where
+  before it was speculative. Still fog because the other conventions
+  (target shape, action layer) aren't settled yet, and enforcing a partial set
+  may be worse than enforcing none. Revisit once those land.
 
 ## Out of scope
 

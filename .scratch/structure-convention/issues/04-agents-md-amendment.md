@@ -2,7 +2,7 @@
 
 Type: grilling
 Status: open
-Blocked by: 01, 02, 03
+Blocked by: 02, 03
 
 ## Question
 
@@ -10,6 +10,13 @@ Turn the settled decisions into the actual text of AGENTS.md's "Codebase
 Organization" section. This is the deliverable that makes the map's decisions
 durable — without it they live only in these ticket files and the next feature
 copies the drift again.
+
+**Already settled** by the ownership ticket, to be written up here verbatim:
+the promotion bar (**generic AND used by 2+ routes**), the **barrel-only**
+rule for cross-route imports, and a new **"owning route + sanctioned
+consumers"** pattern covering the case where shared code deliberately stays
+inside one route's `_components/`. That last one is genuinely new vocabulary —
+AGENTS.md's colocation rule currently has no way to express it.
 
 Produce:
 
