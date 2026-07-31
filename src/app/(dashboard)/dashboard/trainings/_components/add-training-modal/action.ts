@@ -5,7 +5,7 @@ import {
   trainingQuery,
   searchEligibleInstructorsGlobal
 } from '~/db/query/training'
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, updateTag } from 'next/cache'
 import { readActiveSession } from '~/lib/auth/cookies'
 import { getLogger, redact } from '~/lib/logger'
 
@@ -173,6 +173,7 @@ export const createTrainingAction = async (
 
     await trainingQuery.addInstructor(created.id, data.masterId, 'master')
 
+    updateTag('dauroh')
     revalidatePath('/dashboard/trainings')
 
     logger.info('Daurah dibuat', {

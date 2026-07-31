@@ -11,7 +11,7 @@ import { member } from '~/db/schema/member.sql'
 import { training as trainingTable } from '~/db/schema/training.sql'
 import { db } from '~/db/db'
 import { eq } from 'drizzle-orm'
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, updateTag } from 'next/cache'
 import { createMember } from '~/db/query/member'
 import { generateRegisterNumber } from '~/lib/utils/member'
 import { readActiveSession } from '~/lib/auth/cookies'
@@ -188,6 +188,7 @@ export const updateTrainingAction = async (
     }
 
     const updated = await trainingQuery.update(data.id, data)
+    updateTag('dauroh')
     revalidatePath('/dashboard/trainings')
 
     logger.info('Daurah diperbarui', {
@@ -260,6 +261,7 @@ export const deleteTrainingAction = async (
     }
 
     await trainingQuery.delete(id)
+    updateTag('dauroh')
     revalidatePath('/dashboard/trainings')
 
     logger.info('Daurah dihapus', {
@@ -311,6 +313,7 @@ export const addAttendantAction = async (
     }
 
     const data = await trainingQuery.addAttendant(trainingId, memberId)
+    updateTag('dauroh')
     revalidatePath('/dashboard/trainings')
     return { success: true, message: 'Attendant added successfully', data }
   } catch (error) {
@@ -347,6 +350,7 @@ export const updateAttendantStatusAction = async (
       memberId,
       isPassing as boolean
     )
+    updateTag('dauroh')
     revalidatePath('/dashboard/trainings')
     return {
       success: true,
@@ -393,6 +397,7 @@ export const addInstructorAction = async (
     }
 
     const data = await trainingQuery.addInstructor(trainingId, memberId, role)
+    updateTag('dauroh')
     revalidatePath('/dashboard/trainings')
     return { success: true, message: 'Instructor added successfully', data }
   } catch (error) {
@@ -412,6 +417,7 @@ export const removeInstructorAction = async (
     if (authError) return { success: false, message: authError }
 
     await trainingQuery.removeInstructor(trainingId, memberId)
+    updateTag('dauroh')
     revalidatePath('/dashboard/trainings')
     return { success: true, message: 'Instructor removed successfully' }
   } catch (error) {
@@ -431,6 +437,7 @@ export const removeAttendantAction = async (
     if (authError) return { success: false, message: authError }
 
     await trainingQuery.removeAttendant(trainingId, memberId)
+    updateTag('dauroh')
     revalidatePath('/dashboard/trainings')
     return { success: true, message: 'Peserta berhasil dihapus' }
   } catch (error) {
@@ -532,6 +539,8 @@ export const addDM1AttendantAction = async (
       return { success: false, message: 'Gagal membuat kader baru' }
 
     await trainingQuery.addAttendant(trainingId, newMember.id)
+    updateTag('dauroh')
+    updateTag('kader')
     revalidatePath('/dashboard/trainings')
 
     return {

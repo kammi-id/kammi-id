@@ -3,7 +3,7 @@
 import { z } from 'zod'
 import { db } from '~/db/db'
 import { eq, ilike, desc } from 'drizzle-orm'
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, updateTag } from 'next/cache'
 import { readActiveSession } from '~/lib/auth/cookies'
 import { isOrgInScope } from '~/db/query/organization'
 import { generatePassword, hashPassword } from '~/lib/utils/user'
@@ -198,6 +198,7 @@ export const bulkCreateMembersAction = async (
       return results
     })
 
+    updateTag('kader')
     revalidatePath('/dashboard/kader')
 
     logger.info('Bulk upload kader selesai', {

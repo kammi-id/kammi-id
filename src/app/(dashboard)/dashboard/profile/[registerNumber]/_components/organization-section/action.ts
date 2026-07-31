@@ -1,7 +1,7 @@
 'use server'
 
 import { z } from 'zod'
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, updateTag } from 'next/cache'
 import { readActiveSession } from '~/lib/auth/cookies'
 import {
   createMemberOrganizationHistory,
@@ -67,6 +67,7 @@ export const saveOrgHistoryAction = async (
     await createMemberOrganizationHistory(data, memberId)
   }
 
+  updateTag('kader')
   revalidatePath('/dashboard/profile')
   return {
     success: true,
@@ -86,6 +87,7 @@ export const deleteOrgHistoryAction = async (
     return { success: false, message: 'Akses ditolak.' }
 
   await deleteMemberOrganizationHistory(id, memberId)
+  updateTag('kader')
   revalidatePath('/dashboard/profile')
   return { success: true, message: 'Riwayat organisasi dihapus.' }
 }

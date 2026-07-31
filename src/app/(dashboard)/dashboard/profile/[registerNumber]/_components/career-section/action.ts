@@ -1,7 +1,7 @@
 'use server'
 
 import { z } from 'zod'
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, updateTag } from 'next/cache'
 import { readActiveSession } from '~/lib/auth/cookies'
 import {
   createMemberCareer,
@@ -67,6 +67,7 @@ export const saveCareerAction = async (
     await createMemberCareer(data, memberId)
   }
 
+  updateTag('kader')
   revalidatePath('/dashboard/profile')
   return {
     success: true,
@@ -84,6 +85,7 @@ export const deleteCareerAction = async (
     return { success: false, message: 'Akses ditolak.' }
 
   await deleteMemberCareer(id, memberId)
+  updateTag('kader')
   revalidatePath('/dashboard/profile')
   return { success: true, message: 'Riwayat karir dihapus.' }
 }

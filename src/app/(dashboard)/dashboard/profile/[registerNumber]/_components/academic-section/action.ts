@@ -1,7 +1,7 @@
 'use server'
 
 import { z } from 'zod'
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, updateTag } from 'next/cache'
 import { readActiveSession } from '~/lib/auth/cookies'
 import {
   createMemberAcademic,
@@ -97,6 +97,7 @@ export const saveAcademicAction = async (
     await createMemberAcademic(data, memberId)
   }
 
+  updateTag('kader')
   revalidatePath('/dashboard/profile')
   return {
     success: true,
@@ -114,6 +115,7 @@ export const deleteAcademicAction = async (
     return { success: false, message: 'Akses ditolak.' }
 
   await deleteMemberAcademic(id, memberId)
+  updateTag('kader')
   revalidatePath('/dashboard/profile')
   return { success: true, message: 'Data akademik dihapus.' }
 }

@@ -1,7 +1,7 @@
 'use server'
 
 import { z } from 'zod'
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, updateTag } from 'next/cache'
 import { updateMember } from '~/db/query/member'
 import { readActiveSession } from '~/lib/auth/cookies'
 
@@ -76,6 +76,7 @@ export const updateMemberProfileAction = async (
   }
 
   await updateMember(parsed.data, memberId)
+  updateTag('kader')
   revalidatePath(`/dashboard/profile`)
 
   return { success: true, message: 'Data berhasil diperbarui.' }
@@ -90,5 +91,6 @@ export const updateMemberPhotoAction = async (
   if (!canEditMember(session, memberId)) throw new Error('Akses ditolak.')
 
   await updateMember({ photo: photoPath }, memberId)
+  updateTag('kader')
   revalidatePath(`/dashboard/profile`)
 }
