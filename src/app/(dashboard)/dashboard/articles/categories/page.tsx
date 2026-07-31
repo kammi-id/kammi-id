@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { AccessGuard } from '~/components/access-guard'
 import { readActiveSession } from '~/lib/auth/cookies'
-import { articleCategoryQuery } from '~/db/query/article-category'
+import { getCachedArticleCategories } from '../../_data/articles'
 import { ArticleCategoryManager } from '../_components/article-category-manager'
 
 export default async function ArticleCategoriesPage() {
@@ -12,7 +12,7 @@ export default async function ArticleCategoriesPage() {
   const organizationId = user.connectedOrganization?.id
   if (!organizationId) redirect('/dashboard')
 
-  const categories = await articleCategoryQuery.listForOrg(organizationId)
+  const categories = await getCachedArticleCategories(organizationId)
 
   return (
     <AccessGuard allowedRoles={['root', 'humas']}>

@@ -4,9 +4,14 @@ import {
   readDescendantMembers,
   readMemberYearDistribution,
   readMemberDistributionByOrgType,
+  readMemberByRegisterNumber,
   type MemberFilters,
   type MemberAggregatesFilters
 } from '~/db/query/member'
+import { readMemberTrainingHistory } from '~/db/query/training'
+import { readMemberAcademic } from '~/db/query/academic'
+import { readMemberCareer } from '~/db/query/career'
+import { readMemberOrganizationHistory } from '~/db/query/organization-history'
 
 type DescendantMemberFilters = MemberFilters & {
   limit?: number
@@ -14,7 +19,9 @@ type DescendantMemberFilters = MemberFilters & {
 }
 
 export async function getCachedMemberAggregates(
-  filters: MemberAggregatesFilters
+  filters: MemberAggregatesFilters & {
+    user?: { role: string; connectedOrganizationId: string | null }
+  }
 ) {
   'use cache'
   cacheLife('minutes')
@@ -53,4 +60,45 @@ export async function getCachedMemberDistributionByOrgType(
   cacheTag('kader')
 
   return readMemberDistributionByOrgType(orgType, allowedOrgIds)
+}
+
+export async function getCachedMemberByRegisterNumber(registerNumber: string) {
+  'use cache'
+  cacheLife('minutes')
+  cacheTag('kader')
+
+  return readMemberByRegisterNumber(registerNumber)
+}
+
+export async function getCachedMemberTrainingHistory(memberId: string) {
+  'use cache'
+  cacheLife('minutes')
+  cacheTag('kader')
+  cacheTag('dauroh')
+
+  return readMemberTrainingHistory(memberId)
+}
+
+export async function getCachedMemberAcademic(memberId: string) {
+  'use cache'
+  cacheLife('minutes')
+  cacheTag('kader')
+
+  return readMemberAcademic(memberId)
+}
+
+export async function getCachedMemberCareer(memberId: string) {
+  'use cache'
+  cacheLife('minutes')
+  cacheTag('kader')
+
+  return readMemberCareer(memberId)
+}
+
+export async function getCachedMemberOrganizationHistory(memberId: string) {
+  'use cache'
+  cacheLife('minutes')
+  cacheTag('kader')
+
+  return readMemberOrganizationHistory(memberId)
 }

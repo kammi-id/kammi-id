@@ -1,8 +1,9 @@
 import { notFound } from 'next/navigation'
-import { trainingQuery } from '~/db/query/training'
 import { TrainingDetailView } from '~/app/(dashboard)/dashboard/trainings/_components/training-detail-view'
-import { readOrganization, isOrgInScope } from '~/db/query/organization'
+import { isOrgInScope } from '~/db/query/organization'
 import { readActiveSession } from '~/lib/auth/cookies'
+import { getCachedOrganization } from '../../../_data/organizations'
+import { getCachedTrainingByIdentifier } from '../../../_data/trainings'
 
 interface PageProps {
   params: Promise<{
@@ -14,13 +15,13 @@ interface PageProps {
 const TrainingPage = async ({ params }: PageProps) => {
   const { branch, id } = await params
 
-  const [[org], session] = await Promise.all([
-    readOrganization({ slug: branch }),
+  const [org, session] = await Promise.all([
+    getCachedOrganization(branch),
     readActiveSession()
   ])
   if (!org) notFound()
 
-  const training = await trainingQuery.getByIdentifier(org.id, id)
+  const training = await getCachedTrainingByIdentifier(org.id, id)
   if (!training) notFound()
 
   const user = session?.user

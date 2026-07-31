@@ -2,6 +2,7 @@ import { cacheLife, cacheTag } from 'next/cache'
 import {
   readOrganization,
   countOrganization,
+  readOrgHierarchyChain,
   type Organization,
   type OrganizationFilters
 } from '~/db/query/organization'
@@ -31,4 +32,12 @@ export async function getCachedOrganizationCount(filters: OrganizationFilters) {
   cacheTag('organizations')
 
   return countOrganization(filters)
+}
+
+export async function getCachedOrgHierarchyChain(orgId: string) {
+  'use cache'
+  cacheLife('hours')
+  cacheTag('organizations')
+
+  return readOrgHierarchyChain(orgId)
 }

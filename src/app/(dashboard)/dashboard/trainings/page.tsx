@@ -1,5 +1,6 @@
-import { trainingQuery } from '~/db/query/training'
-import { readOrganization, fetchAllowedOrgIds } from '~/db/query/organization'
+import { fetchAllowedOrgIds } from '~/db/query/organization'
+import { getCachedTrainingList } from '../_data/trainings'
+import { getCachedOrganizations } from '../_data/organizations'
 import { AddTrainingModal } from './_components/add-training-modal'
 import { TrainingSectionCards } from './_components/training-section-cards'
 import { TrainingPageHeader } from './_components/training-page-header'
@@ -34,7 +35,7 @@ export default async function TrainingsPage({
   const userRole = user?.role ?? ''
 
   const [result, allOrganizations] = await Promise.all([
-    trainingQuery.getAll({
+    getCachedTrainingList({
       organizationId,
       year,
       search,
@@ -42,14 +43,14 @@ export default async function TrainingsPage({
       page,
       pageSize: PAGE_SIZE
     }),
-    readOrganization({ isNonActive: false })
+    getCachedOrganizations({ isNonActive: false })
   ])
 
   const { rows: trainings, totalCount } = result
   const pageCount = Math.max(1, Math.ceil(totalCount / PAGE_SIZE))
 
   // Metrics use unfiltered count for summary cards
-  const allResult = await trainingQuery.getAll({ organizationId, year })
+  const allResult = await getCachedTrainingList({ organizationId, year })
   const allTrainings = allResult.rows
   const currentYear = new Date().getFullYear()
   const typesCount: Record<string, number> = {}

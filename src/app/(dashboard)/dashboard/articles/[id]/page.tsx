@@ -1,8 +1,12 @@
 import { notFound, redirect } from 'next/navigation'
 import { AccessGuard } from '~/components/access-guard'
 import { readActiveSession } from '~/lib/auth/cookies'
-import { articleQuery, isArticleOrgInScope } from '~/db/query/article'
-import { articleCategoryQuery } from '~/db/query/article-category'
+import { isArticleOrgInScope } from '~/db/query/article'
+import {
+  getCachedArticleById,
+  getCachedArticleCategories,
+  getCachedArticleTags
+} from '../../_data/articles'
 import { ArticleForm } from '../_components/article-form'
 import type { ArticleBodyJSON } from '../_components/article-body-editor'
 
@@ -20,7 +24,7 @@ export default async function EditArticlePage({
   const role = user.role ?? ''
 
   const { id } = await params
-  const existing = await articleQuery.getById(id)
+  const existing = await getCachedArticleById(id)
   if (!existing) notFound()
 
   const allowed = isArticleOrgInScope(
@@ -32,7 +36,7 @@ export default async function EditArticlePage({
   )
   if (!allowed) redirect('/dashboard/articles')
 
-  const categoryRows = await articleCategoryQuery.listForOrg(
+  const categoryRows = await getCachedArticleCategories(
     existing.organizationId
   )
   const categories = categoryRows.map((category) => ({
@@ -40,9 +44,7 @@ export default async function EditArticlePage({
     name: category.name
   }))
 
-  const tagSuggestions = await articleQuery.listDistinctTags(
-    existing.organizationId
-  )
+  const tagSuggestions = await getCachedArticleTags(existing.organizationId)
 
   return (
     <AccessGuard allowedRoles={['root', 'humas']}>

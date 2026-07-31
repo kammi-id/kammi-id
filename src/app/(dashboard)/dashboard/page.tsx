@@ -1,8 +1,11 @@
 import type { Metadata } from 'next'
 import { readActiveSession } from '~/lib/auth/cookies'
 import { fetchAllowedOrgIds } from '~/db/query/organization'
-import { readMemberAggregates } from '~/db/query/member'
-import { getCachedMemberDistributionByOrgType } from './_data/members'
+import type { readMemberAggregates } from '~/db/query/member'
+import {
+  getCachedMemberAggregates,
+  getCachedMemberDistributionByOrgType
+} from './_data/members'
 import { getCachedOrganizationCount } from './_data/organizations'
 import { getCachedUpcomingTrainings } from './_data/trainings'
 import { DashboardHeader } from './_components/dashboard-header'
@@ -63,13 +66,16 @@ const Page = async () => {
     pdDistribution
   ] = await Promise.all([
     showKader
-      ? readMemberAggregates({ user: userForScope, isAlumn: false })
+      ? getCachedMemberAggregates({ user: userForScope, isAlumn: false })
       : Promise.resolve([]),
     showKader
-      ? readMemberAggregates({ user: userForScope, isCertifiedMentor: true })
+      ? getCachedMemberAggregates({
+          user: userForScope,
+          isCertifiedMentor: true
+        })
       : Promise.resolve([]),
     showKader
-      ? readMemberAggregates({
+      ? getCachedMemberAggregates({
           user: userForScope,
           isCertifiedInstructor: true
         })

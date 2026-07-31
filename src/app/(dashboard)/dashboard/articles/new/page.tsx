@@ -1,8 +1,10 @@
 import { redirect } from 'next/navigation'
 import { AccessGuard } from '~/components/access-guard'
 import { readActiveSession } from '~/lib/auth/cookies'
-import { articleQuery } from '~/db/query/article'
-import { articleCategoryQuery } from '~/db/query/article-category'
+import {
+  getCachedArticleCategories,
+  getCachedArticleTags
+} from '../../_data/articles'
 import { ArticleForm } from '../_components/article-form'
 
 export default async function NewArticlePage() {
@@ -13,13 +15,13 @@ export default async function NewArticlePage() {
   const organizationId = user.connectedOrganization?.id
   if (!organizationId) redirect('/dashboard')
 
-  const categoryRows = await articleCategoryQuery.listForOrg(organizationId)
+  const categoryRows = await getCachedArticleCategories(organizationId)
   const categories = categoryRows.map((category) => ({
     id: category.id,
     name: category.name
   }))
 
-  const tagSuggestions = await articleQuery.listDistinctTags(organizationId)
+  const tagSuggestions = await getCachedArticleTags(organizationId)
 
   return (
     <AccessGuard allowedRoles={['root', 'humas']}>

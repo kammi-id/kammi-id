@@ -1,11 +1,14 @@
 import { notFound } from 'next/navigation'
 import { readActiveSession } from '~/lib/auth/cookies'
-import { readMemberByRegisterNumber } from '~/db/query/member'
-import { readMemberTrainingHistory } from '~/db/query/training'
-import { readOrgHierarchyChain, isOrgInScope } from '~/db/query/organization'
-import { readMemberAcademic } from '~/db/query/academic'
-import { readMemberCareer } from '~/db/query/career'
-import { readMemberOrganizationHistory } from '~/db/query/organization-history'
+import { isOrgInScope } from '~/db/query/organization'
+import {
+  getCachedMemberByRegisterNumber,
+  getCachedMemberTrainingHistory,
+  getCachedMemberAcademic,
+  getCachedMemberCareer,
+  getCachedMemberOrganizationHistory
+} from '../../_data/members'
+import { getCachedOrgHierarchyChain } from '../../_data/organizations'
 import { ProfileInlineEditForm } from './_components/profile-inline-edit-form'
 import { ProfileOrgHierarchy } from './_components/profile-org-hierarchy'
 import { ResetPasswordButton } from './_components/reset-password'
@@ -35,7 +38,7 @@ const ProfilePage = async ({
 
   const [session, member] = await Promise.all([
     readActiveSession(),
-    readMemberByRegisterNumber(decodeURIComponent(registerNumber))
+    getCachedMemberByRegisterNumber(decodeURIComponent(registerNumber))
   ])
 
   if (!member) notFound()
@@ -47,13 +50,13 @@ const ProfilePage = async ({
     careerHistory,
     organizationHistory
   ] = await Promise.all([
-    readMemberTrainingHistory(member.id),
+    getCachedMemberTrainingHistory(member.id),
     member.organization?.id
-      ? readOrgHierarchyChain(member.organization.id)
+      ? getCachedOrgHierarchyChain(member.organization.id)
       : Promise.resolve([]),
-    readMemberAcademic(member.id),
-    readMemberCareer(member.id),
-    readMemberOrganizationHistory(member.id)
+    getCachedMemberAcademic(member.id),
+    getCachedMemberCareer(member.id),
+    getCachedMemberOrganizationHistory(member.id)
   ])
 
   const userCanEdit = canEdit(session, member.id)
