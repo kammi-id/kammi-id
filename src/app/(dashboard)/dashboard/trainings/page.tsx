@@ -5,6 +5,7 @@ import { AddTrainingModal } from './_components/add-training-modal'
 import { TrainingSectionCards } from './_components/training-section-cards'
 import { TrainingPageHeader } from './_components/training-page-header'
 import { TrainingGrid } from './_components/training-grid'
+import { FilterForm } from './_components/filter-form'
 import { AccessGuard } from '~/components/access-guard'
 import { readActiveSession } from '~/lib/auth/cookies'
 
@@ -104,6 +105,15 @@ export default async function TrainingsPage({
         </div>
 
         <TrainingSectionCards data={metrics} />
+
+        <FilterForm
+          initialOrganizationId={organizationId}
+          initialYear={params.year}
+          organizations={organizations.map((o) => ({
+            id: o.id,
+            name: o.name
+          }))}
+        />
 
         <TrainingGrid
           data={gridData}
