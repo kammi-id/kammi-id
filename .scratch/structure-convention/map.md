@@ -42,6 +42,12 @@ further.
   Promotion bar is **generic AND used by 2+ routes**; cross-route imports must
   target a **barrel**, never an internal file. Also corrects the audit's
   authorization-leak claim — it was misread.
+- [Is a route-level shared `action.ts` a violation, or a missing convention?](issues/02-route-level-shared-action.md)
+  — A violation: split per component, but **extract** the byte-identical
+  `checkAccess()` into `src/lib/auth/` built on `readActiveSession` rather than
+  duplicating it. Folds in the session-helper bypass found in the same four
+  files; the performance rationale was checked against the Next.js docs and
+  **withdrawn** — the case is correctness, not speed.
 
 ## Not yet specified
 

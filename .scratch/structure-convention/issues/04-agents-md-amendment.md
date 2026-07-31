@@ -2,7 +2,7 @@
 
 Type: grilling
 Status: open
-Blocked by: 02, 03
+Blocked by: 03
 
 ## Question
 
@@ -17,6 +17,13 @@ rule for cross-route imports, and a new **"owning route + sanctioned
 consumers"** pattern covering the case where shared code deliberately stays
 inside one route's `_components/`. That last one is genuinely new vocabulary —
 AGENTS.md's colocation rule currently has no way to express it.
+
+From the action-layer ticket: the `action.ts`-per-component rule **stands as
+written** — no new pattern is needed there. What must be added is that shared
+**authorization** logic belongs in `src/lib/auth/` and is never duplicated
+across route-level action files, plus a pointer to `readActiveSession` as the
+single sanctioned way to read a session. That omission is what let the same
+copy-pasted `checkAccess()` reach five files unflagged.
 
 Produce:
 
