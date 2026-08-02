@@ -34,6 +34,11 @@ further.
   component folders — `base-ui/`, `ui/`), and "**repo-wide**" meant *not
   dashboard-scoped*, not *all of `src/`* — `src/lib/` keeps its flat per-domain
   convention and is out of scope. Read 03 through 04 §1.
+- **Constraint — the safety net is thinner than stated (found in 06).** CI
+  (`.github/workflows/ci.yml`) runs `check:format`, `check:lint`, unit and e2e
+  tests but **not `check:types`**, though the script exists. So `tsc --noEmit` —
+  "nearly the only guard" over ~18 file moves — is not wired into CI at all and
+  holds only if run locally. Adding the step is an execution item for 05.
 - **Constraint**: `cacheComponents: true` is live. Decisions about where
   `action.ts` / `_data/*.ts` live must not break the existing `cacheTag` /
   `updateTag` pairings retrofitted in the I2 work (commit `fdd609a`).
@@ -75,16 +80,29 @@ further.
   violation as a matchable path pattern covering both relative and `~/`
   spellings — which is what leaves 06 choosing an enforcer rather than a rule.
   Corrects two of its own premises from 03 (see Notes).
+- [How are the settled conventions enforced mechanically?](issues/06-enforcement-mechanism.md)
+  — **Split by rule, not one tool**: ESLint `no-restricted-imports` for
+  cross-route imports, one ~40-line CI script for the four filesystem rules,
+  **nothing** for arrow-functions (3 violations, all `loading.tsx`, fixed once by
+  execution). Lands **warn-first at the start** of the execution effort so the
+  script output *is* the worklist, flipping to error in the PR that finishes it.
+  **Found 04 §6's violation pattern to be wrong** — it cannot tell a route's own
+  `_components/` from another's, is blind to the route-group-level shared
+  `_components/`, and treats depth as legality (`user/account/_components/action`
+  is 1 deep and *is* a violation). Corrected invariant needs path resolution, met
+  by banning deep relative `_components/` imports outright — stricter than §6, at
+  a measured cost of one already-scheduled edit.
 
 ## Not yet specified
 
-_Empty — the fog has cleared. Two tickets remain live, both unblocked:
-[05](issues/05-execution-handoff-shape.md) (execution shape — ~18 mechanical
-edits, all `tsc`-guarded: ticket 03's ~16 plus the 2 bare `src/components/`
-files found in 04) and [06](issues/06-enforcement-mechanism.md) (enforcement —
-now picking a **tool**, since 04 §6 states the violation as a matchable path
-pattern). The AGENTS.md question resolved as
-[04](issues/04-agents-md-amendment.md)._
+_Empty — the fog has cleared. **One ticket remains live**:
+[05](issues/05-execution-handoff-shape.md) (execution shape). Its load is now
+~18 mechanical edits, all `tsc`-guarded (ticket 03's ~16 plus the 2 bare
+`src/components/` files found in 04), **plus the enforcement scaffolding from
+06** — which 06 deliberately staged inside the execution effort rather than
+before or after it. The AGENTS.md question resolved as
+[04](issues/04-agents-md-amendment.md); enforcement as
+[06](issues/06-enforcement-mechanism.md)._
 
 ## Out of scope
 
