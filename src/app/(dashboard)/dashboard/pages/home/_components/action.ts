@@ -1,8 +1,7 @@
 'use server'
 
-import { cookies } from 'next/headers'
 import { revalidatePath, updateTag } from 'next/cache'
-import { validateSession } from '~/lib/auth/api'
+import { requireSiteSettingsAccess } from '~/lib/auth/site-settings'
 import { upsertSiteSettings } from '~/db/query/site-settings'
 import { z } from 'zod'
 
@@ -11,23 +10,6 @@ export type SettingsActionState = {
   error?: string
   fieldErrors?: Record<string, string[]>
   values?: Record<string, string>
-}
-
-const checkAccess = async (): Promise<{ orgId: string } | null> => {
-  const cookieStore = await cookies()
-  const token = cookieStore.get('kammi_id_session')?.value
-  if (!token) return null
-
-  const session = await validateSession(token)
-  if (!session) return null
-
-  const { role, connectedOrganization } = session.user
-  if (role !== 'root' && role !== 'humas') return null
-
-  const orgId = connectedOrganization?.id
-  if (!orgId) return null
-
-  return { orgId }
 }
 
 // ─── Home Hero Items ──────────────────────────────────────────────────────────
@@ -46,7 +28,7 @@ export const saveHomeHeroItemsAction = async (
   _prev: SettingsActionState,
   formData: FormData
 ): Promise<SettingsActionState> => {
-  const access = await checkAccess()
+  const access = await requireSiteSettingsAccess()
   if (!access) return { error: 'Akses ditolak.' }
   const { orgId } = access
 
@@ -81,7 +63,7 @@ export const saveHomeExtraItemsAction = async (
   _prev: SettingsActionState,
   formData: FormData
 ): Promise<SettingsActionState> => {
-  const access = await checkAccess()
+  const access = await requireSiteSettingsAccess()
   if (!access) return { error: 'Akses ditolak.' }
   const { orgId } = access
 
@@ -138,7 +120,7 @@ export const saveHeroAction = async (
   _prev: SettingsActionState,
   formData: FormData
 ): Promise<SettingsActionState> => {
-  const access = await checkAccess()
+  const access = await requireSiteSettingsAccess()
   if (!access) return { error: 'Akses ditolak.' }
   const { orgId } = access
 
@@ -187,7 +169,7 @@ export const saveAboutAction = async (
   _prev: SettingsActionState,
   formData: FormData
 ): Promise<SettingsActionState> => {
-  const access = await checkAccess()
+  const access = await requireSiteSettingsAccess()
   if (!access) return { error: 'Akses ditolak.' }
   const { orgId } = access
 
@@ -240,7 +222,7 @@ export const saveActionsAction = async (
   _prev: SettingsActionState,
   formData: FormData
 ): Promise<SettingsActionState> => {
-  const access = await checkAccess()
+  const access = await requireSiteSettingsAccess()
   if (!access) return { error: 'Akses ditolak.' }
   const { orgId } = access
 
@@ -289,7 +271,7 @@ export const saveNavAction = async (
   _prev: SettingsActionState,
   formData: FormData
 ): Promise<SettingsActionState> => {
-  const access = await checkAccess()
+  const access = await requireSiteSettingsAccess()
   if (!access) return { error: 'Akses ditolak.' }
   const { orgId } = access
 
@@ -342,7 +324,7 @@ export const saveFooterAction = async (
   _prev: SettingsActionState,
   formData: FormData
 ): Promise<SettingsActionState> => {
-  const access = await checkAccess()
+  const access = await requireSiteSettingsAccess()
   if (!access) return { error: 'Akses ditolak.' }
   const { orgId } = access
 
@@ -398,7 +380,7 @@ export const saveMetadataAction = async (
   _prev: SettingsActionState,
   formData: FormData
 ): Promise<SettingsActionState> => {
-  const access = await checkAccess()
+  const access = await requireSiteSettingsAccess()
   if (!access) return { error: 'Akses ditolak.' }
   const { orgId } = access
 
