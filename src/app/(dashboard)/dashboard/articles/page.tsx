@@ -16,9 +16,7 @@ interface ArticlesPageProps {
   }>
 }
 
-export default async function ArticlesPage({
-  searchParams
-}: ArticlesPageProps) {
+const ArticlesPage = async ({ searchParams }: ArticlesPageProps) => {
   const session = await readActiveSession()
   const user = session?.user
   if (!user) redirect('/login')
@@ -71,3 +69,5 @@ export default async function ArticlesPage({
     </AccessGuard>
   )
 }
+
+export default ArticlesPage

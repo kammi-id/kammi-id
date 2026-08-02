@@ -21,9 +21,7 @@ interface TrainingsPageProps {
   }>
 }
 
-export default async function TrainingsPage({
-  searchParams
-}: TrainingsPageProps) {
+const TrainingsPage = async ({ searchParams }: TrainingsPageProps) => {
   const params = await searchParams
   const organizationId = params.organizationId
   const year = params.year ? parseInt(params.year) : undefined
@@ -126,3 +124,5 @@ export default async function TrainingsPage({
     </AccessGuard>
   )
 }
+
+export default TrainingsPage

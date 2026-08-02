@@ -4,7 +4,7 @@ import { readActiveSession } from '~/lib/auth/cookies'
 import { getCachedArticleCategories } from '../../_data/articles'
 import { ArticleCategoryManager } from '../_components/article-category-manager'
 
-export default async function ArticleCategoriesPage() {
+const ArticleCategoriesPage = async () => {
   const session = await readActiveSession()
   const user = session?.user
   if (!user) redirect('/login')
@@ -32,3 +32,5 @@ export default async function ArticleCategoriesPage() {
     </AccessGuard>
   )
 }
+
+export default ArticleCategoriesPage

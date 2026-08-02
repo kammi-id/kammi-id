@@ -14,9 +14,7 @@ interface EditArticlePageProps {
   params: Promise<{ id: string }>
 }
 
-export default async function EditArticlePage({
-  params
-}: EditArticlePageProps) {
+const EditArticlePage = async ({ params }: EditArticlePageProps) => {
   const session = await readActiveSession()
   const user = session?.user
   if (!user) redirect('/login')
@@ -36,9 +34,7 @@ export default async function EditArticlePage({
   )
   if (!allowed) redirect('/dashboard/articles')
 
-  const categoryRows = await getCachedArticleCategories(
-    existing.organizationId
-  )
+  const categoryRows = await getCachedArticleCategories(existing.organizationId)
   const categories = categoryRows.map((category) => ({
     id: category.id,
     name: category.name
@@ -78,3 +74,5 @@ export default async function EditArticlePage({
     </AccessGuard>
   )
 }
+
+export default EditArticlePage

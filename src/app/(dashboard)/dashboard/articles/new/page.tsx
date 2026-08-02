@@ -7,7 +7,7 @@ import {
 } from '../../_data/articles'
 import { ArticleForm } from '../_components/article-form'
 
-export default async function NewArticlePage() {
+const NewArticlePage = async () => {
   const session = await readActiveSession()
   const user = session?.user
   if (!user) redirect('/login')
@@ -42,3 +42,5 @@ export default async function NewArticlePage() {
     </AccessGuard>
   )
 }
+
+export default NewArticlePage

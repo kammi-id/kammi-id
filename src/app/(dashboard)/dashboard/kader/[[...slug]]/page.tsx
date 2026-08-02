@@ -1,12 +1,12 @@
 import { MembersPageContent } from '../_components/members-page-content'
 
-export default async function Page({
+const Page = async ({
   params,
   searchParams
 }: {
   params: Promise<{ slug?: string[] }>
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
-}) {
+}) => {
   const resolvedParams = await params
   const resolvedSearchParams = await searchParams
 
@@ -18,3 +18,5 @@ export default async function Page({
     />
   )
 }
+
+export default Page

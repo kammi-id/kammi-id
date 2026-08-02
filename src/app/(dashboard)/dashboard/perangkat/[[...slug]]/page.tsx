@@ -13,13 +13,13 @@ import { getCachedMemberAggregates } from '../../_data/members'
 import { readActiveSession } from '~/lib/auth/cookies'
 import { redirect } from 'next/navigation'
 
-async function Page({
+const Page = async ({
   params,
   searchParams
 }: {
   params: Promise<{ slug?: string[] }>
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
-}) {
+}) => {
   const resolvedParams = await params
   const resolvedSearchParams = await searchParams
 
@@ -73,7 +73,7 @@ async function Page({
   )
 }
 
-function SpecialistsWrapper({
+const SpecialistsWrapper = ({
   params,
   searchParams,
   pemanduCount,
@@ -83,7 +83,7 @@ function SpecialistsWrapper({
   searchParams: { [key: string]: string | string[] | undefined }
   pemanduCount: number
   instrukturCount: number
-}) {
+}) => {
   return (
     <div className='space-y-10 px-4 py-6 md:px-6 md:py-8 lg:px-8'>
       <MembersPageHeader
