@@ -16,8 +16,11 @@ import {
   enterEditMode,
   exitEditMode,
   clearRowEdits,
-  type InlineRow
-} from '~/app/(dashboard)/dashboard/kader/_components/add-form/store'
+  type InlineRow,
+  createMemberAction,
+  updateMemberAction,
+  type MemberFormState
+} from '~/app/(dashboard)/dashboard/kader/_components/add-form'
 import { Button } from '~/components/shadcn/ui/button'
 import { InlineQuickAddRow } from '../members-table/inline-quick-add-row'
 import { HugeiconsIcon } from '@hugeicons/react'
@@ -27,11 +30,6 @@ import {
   PencilEdit01Icon
 } from '@hugeicons/core-free-icons'
 import { Spinner } from '~/components/shadcn/ui/spinner'
-import {
-  createMemberAction,
-  updateMemberAction,
-  type MemberFormState
-} from '~/app/(dashboard)/dashboard/kader/_components/add-form/action'
 import { toast } from 'sonner'
 
 interface IndividualMemberTableProps {

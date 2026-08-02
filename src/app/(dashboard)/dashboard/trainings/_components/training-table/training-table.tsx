@@ -1,6 +1,6 @@
 'use client'
 
-import { DataTable } from '~/app/(dashboard)/dashboard/_components/data-table/data-table'
+import { DataTable } from '~/app/(dashboard)/dashboard/_components/data-table'
 import { getColumns, type Training } from './columns'
 
 interface TrainingTableProps {

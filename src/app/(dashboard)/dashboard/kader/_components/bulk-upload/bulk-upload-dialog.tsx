@@ -20,7 +20,7 @@ import {
 import {
   appendCredentials,
   type CredentialEntry
-} from '~/components/credential-store/store'
+} from '~/components/credential-store'
 import {
   generateTemplate,
   parseXLSXFile,

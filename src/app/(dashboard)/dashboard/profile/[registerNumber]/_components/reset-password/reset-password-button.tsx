@@ -25,7 +25,7 @@ import {
 import {
   appendCredentials,
   type CredentialEntry
-} from '~/components/credential-store/store'
+} from '~/components/credential-store'
 import { regenerateCredentialAction } from './action'
 
 const CopyButton = ({ value }: { value: string }) => {

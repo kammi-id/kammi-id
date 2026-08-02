@@ -1,12 +1,12 @@
 import { MembersPageContent } from '~/app/(dashboard)/dashboard/kader/_components/members-page-content'
-import { AccessGuard } from '~/components/access-guard/access-guard'
+import { AccessGuard } from '~/components/access-guard'
 import {
   Tabs,
   TabsList,
   TabsTrigger,
   TabsContent
 } from '~/components/shadcn/ui/tabs'
-import { MembersPageHeader } from '../../kader/_components/members-page-header/members-page-header'
+import { MembersPageHeader } from '~/app/(dashboard)/dashboard/kader/_components/members-page-header'
 import { SpecialistSummaryCards } from '~/app/(dashboard)/dashboard/kader/_components/specialist-summary-cards'
 import { getCachedOrganization } from '../../_data/organizations'
 import { getCachedMemberAggregates } from '../../_data/members'

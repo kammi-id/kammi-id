@@ -17,7 +17,7 @@ import {
   fetchCitiesAction,
   fetchDistrictsAction,
   fetchVillagesAction
-} from '~/app/(dashboard)/dashboard/kader/_components/add-form/action'
+} from '~/app/(dashboard)/dashboard/kader/_components/add-form'
 import type { RegionItem } from '~/lib/api/region'
 import type { Member } from '~/db/query/member'
 import { useProfileEdit } from '../profile-edit-context'

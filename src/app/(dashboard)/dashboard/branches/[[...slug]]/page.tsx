@@ -9,7 +9,7 @@ import {
 import { Globe02Icon, ArrowLeft02Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { BranchesGrid } from '../_components/branches-grid'
-import { type Organization } from '../_components/branches-table/columns'
+import { type Organization } from '../_components/branches-table'
 import Link from 'next/link'
 import { cn } from '~/lib/shadcn/utils'
 import { buttonVariants } from '~/components/shadcn/ui/button'
