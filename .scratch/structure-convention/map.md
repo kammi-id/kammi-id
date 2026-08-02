@@ -92,17 +92,35 @@ further.
   is 1 deep and *is* a violation). Corrected invariant needs path resolution, met
   by banning deep relative `_components/` imports outright — stricter than §6, at
   a measured cost of one already-scheduled edit.
+- [How should the execution effort be shaped and guarded?](issues/05-execution-handoff-shape.md)
+  — **One effort, four commits, mechanical-first**: (A) barrels + file shape,
+  (B) repoint imports, (C) authorization consolidation, (D) AGENTS.md +
+  enforcement + wiring `check:types` into CI. Order is forced by dependency —
+  barrels must exist before imports can point at them. **The authorization risk
+  this ticket was built around dissolved on measurement**: `checkAccess` is 3
+  byte-identical copies (not 5), and its body is character-for-character
+  `readActiveSession`, which already exists with 40 callers — a move, not a
+  rewrite, so **no tests need writing first**. `user/account` has *no role check
+  at all* and must not be folded in. Credentials were never missing:
+  `db:seed` writes `users.csv`. Measured load **19 items** — 03's "4 renames"
+  and "7 barrels" overlapped.
 
 ## Not yet specified
 
-_Empty — the fog has cleared. **One ticket remains live**:
-[05](issues/05-execution-handoff-shape.md) (execution shape). Its load is now
-~18 mechanical edits, all `tsc`-guarded (ticket 03's ~16 plus the 2 bare
-`src/components/` files found in 04), **plus the enforcement scaffolding from
-06** — which 06 deliberately staged inside the execution effort rather than
-before or after it. The AGENTS.md question resolved as
-[04](issues/04-agents-md-amendment.md); enforcement as
-[06](issues/06-enforcement-mechanism.md)._
+_Empty — **the map has cleared.** All six tickets are resolved: ownership
+[01](issues/01-shared-component-ownership.md), the action layer
+[02](issues/02-route-level-shared-action.md), target shape
+[03](issues/03-mechanical-target-shape.md), the AGENTS.md rewrite
+[04](issues/04-agents-md-amendment.md), enforcement
+[06](issues/06-enforcement-mechanism.md), and execution shape
+[05](issues/05-execution-handoff-shape.md).
+
+**The destination is met**: someone can now pick up the decisions and execute
+without deciding anything further. Ticket 05 is the brief they start from —
+four commits (A barrels/shape → B repoint imports → C authorization → D
+AGENTS.md + enforcement), 19 measured items, with the constraints listed in its
+§5. Opening that execution effort is the next action, and it is out of this
+map's scope._
 
 ## Out of scope
 
