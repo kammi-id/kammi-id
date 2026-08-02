@@ -13,20 +13,19 @@ import {
   getCachedMemberAggregates,
   getCachedDescendantMembers
 } from '~/app/(dashboard)/dashboard/_data/members'
-import { MembersTable } from './members-table'
-import { IndividualMemberTable } from './individual-table'
-import { MemberSectionCards } from './member-section-cards'
-import { MembersGrid } from './members-grid/members-grid'
-import { TierSummary } from './members-grid/tier-summary'
+import { MembersTable } from '../members-table'
+import { IndividualMemberTable } from '../individual-table'
+import { MemberSectionCards } from '../member-section-cards'
+import { MembersGrid } from '../members-grid'
 import { type Organization } from '~/app/(dashboard)/dashboard/_data/organizations'
 import { AccessGuard } from '~/components/access-guard'
 
-import { MembersPageHeader } from './members-page-header'
+import { MembersPageHeader } from '../members-page-header'
 import {
   getMembersPageLabels,
   parseMembersSearchParams
-} from './members-page-utils'
-import { BulkUploadDialog } from './bulk-upload'
+} from '../members-page-utils'
+import { BulkUploadDialog } from '../bulk-upload'
 
 interface MembersPageContentProps {
   params: { slug?: string[] }

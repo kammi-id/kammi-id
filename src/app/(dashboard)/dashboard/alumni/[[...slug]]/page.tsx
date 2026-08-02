@@ -1,4 +1,4 @@
-import { MembersPageContent } from '../../kader/_components/MembersPageContent'
+import { MembersPageContent } from '~/app/(dashboard)/dashboard/kader/_components/members-page-content'
 import { AccessGuard } from '~/components/access-guard/access-guard'
 
 export default async function Page({
