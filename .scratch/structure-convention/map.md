@@ -28,6 +28,12 @@ further.
   be restructured (kader, trainings, pages, profile); the other ~19 sit on
   `articles`, which is already clean. Any decision that implies large-scale
   file movement must account for `tsc --noEmit` being nearly the only guard.
+- **Correction to ticket 03 (made in 04).** Two of its claims were measured on
+  `src/app/**/_components/` only and are narrowed: "barrels are universal, **no
+  exceptions**" now exempts **grouping folders** (folders holding only other
+  component folders — `base-ui/`, `ui/`), and "**repo-wide**" meant *not
+  dashboard-scoped*, not *all of `src/`* — `src/lib/` keeps its flat per-domain
+  convention and is out of scope. Read 03 through 04 §1.
 - **Constraint**: `cacheComponents: true` is live. Decisions about where
   `action.ts` / `_data/*.ts` live must not break the existing `cacheTag` /
   `updateTag` pairings retrofitted in the I2 work (commit `fdd609a`).
@@ -48,25 +54,37 @@ further.
   duplicating it. Folds in the session-helper bypass found in the same four
   files; the performance rationale was checked against the Next.js docs and
   **withdrawn** — the case is correctness, not speed.
+- [What is the exact target shape for the mechanical drift?](issues/03-mechanical-target-shape.md)
+  — A folder is an **exported unit**, so the 7 "flattened" folders are correct
+  and are *not* split; barrels become **universal** (the thing that makes
+  enforcement greppable); `index.tsx` → `<folder-name>.tsx`; sibling names must
+  be domain-specific (idiom exceptions: `columns.tsx`, `*-client.tsx`); rules
+  are **repo-wide** because `(main)` is already the cleanest area. `DataTable`
+  stays a function declaration — generics in `.tsx` become an AGENTS.md
+  exception. Re-measurement cut the drift 3-4x below the audit's figures and
+  surfaced the unlisted `MembersPageContent.tsx`, whose missing barrel had left
+  ticket 01's decision unenforceable.
+- [What exactly changes in AGENTS.md?](issues/04-agents-md-amendment.md)
+  — **Rewrite, not amend**: the old section's shape is what let the drift
+  through (the exemption list names files but not which rules they escape —
+  the hole `SpecialistsWrapper` fell through). Carries all of 01-03 unchanged
+  and adds scope (**component code**, not `src/lib/`), a **grouping folder**
+  exception to universal barrels, side-effect-free `_`-prefixed files at a
+  `_components/` root, and `schema.ts` / `_data/` as documented conventions.
+  Discharges ticket 03's **greppable** claim by stating the cross-route
+  violation as a matchable path pattern covering both relative and `~/`
+  spellings — which is what leaves 06 choosing an enforcer rather than a rule.
+  Corrects two of its own premises from 03 (see Notes).
 
 ## Not yet specified
 
-- **What the execution effort actually looks like** — sequencing, whether it
-  lands as one big mechanical commit or several per-area passes, and whether it
-  needs its own test scaffolding first given the thin safety net. Can't be
-  specified until the ownership and `action.ts` decisions land, because those
-  determine how much of the work is risky-vs-mechanical.
-- **Whether `AGENTS.md` needs restructuring, not just amending** — if several
-  decisions come back as "the convention was wrong, not the code", the
-  conventions section may need a rewrite rather than clarifying sentences.
-  Depends on how the individual decision tickets resolve.
-- **Enforcement** — whether the settled conventions should be mechanically
-  enforced rather than left to reviewer discipline. The ownership decision
-  sharpened this considerably: the barrel-only rule makes a cross-route
-  violation *textual*, so a lint rule or CI grep is now clearly feasible where
-  before it was speculative. Still fog because the other conventions
-  (target shape, action layer) aren't settled yet, and enforcing a partial set
-  may be worse than enforcing none. Revisit once those land.
+_Empty — the fog has cleared. Two tickets remain live, both unblocked:
+[05](issues/05-execution-handoff-shape.md) (execution shape — ~18 mechanical
+edits, all `tsc`-guarded: ticket 03's ~16 plus the 2 bare `src/components/`
+files found in 04) and [06](issues/06-enforcement-mechanism.md) (enforcement —
+now picking a **tool**, since 04 §6 states the violation as a matchable path
+pattern). The AGENTS.md question resolved as
+[04](issues/04-agents-md-amendment.md)._
 
 ## Out of scope
 

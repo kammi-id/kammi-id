@@ -45,6 +45,25 @@ Decide:
    execution effort need seeded credentials arranged first (`src/scripts/seed.ts`),
    or is pure file movement low-risk enough not to need a browser pass?
 
+**Now unblocked** — and ticket 03's re-measurement changes the risk balance
+this ticket is weighing. The mechanical half is far smaller than the audit
+implied: **~16 edits total** (4 `index.tsx` renames, 1 sibling rename, 2
+files→folders, 7 new barrels, 1 arrow conversion, 1 de-duplication), plus
+repointing the deep-path cross-route imports. No folders are split — the 7
+"flattened" ones were ruled correct as-is. Every mechanical item is a rename or
+a re-export, so `tsc --noEmit` genuinely does guard that half.
+
+That sharpens the ordering question rather than answering it: the mechanical
+work is now small enough that "mechanical-first to build confidence" buys less
+than it did, while the authorization consolidation (item 3) remains the entire
+real risk. Consider whether the two halves should even be one effort.
+
+One mechanical item is **not** purely cosmetic and should be sequenced
+deliberately: giving `members-page-content/` and `specialist-summary-cards/`
+their barrels is what makes ticket 01's barrel-only rule enforceable at all,
+and it touches the `perangkat` and `alumni` route imports. It is the one place
+where the mechanical pass and the ownership decision meet.
+
 Output: a short written brief the execution effort starts from — not a full
 plan, just the constraints and sequencing it must respect.
 
