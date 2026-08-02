@@ -1,9 +1,8 @@
 import { type CSSProperties, type ReactNode } from 'react'
 
 import { AppSidebar } from './_components/app-sidebar'
-import { SiteHeader } from './_components/site-header'
-import { CredentialPanelServer } from './_components/site-header/credential-panel-server'
-import { LogoutDialog } from './_components/logout/logout'
+import { SiteHeader, CredentialPanelServer } from './_components/site-header'
+import { LogoutDialog } from './_components/logout'
 import { SidebarInset, SidebarProvider } from '~/components/shadcn/ui/sidebar'
 import { readActiveSession } from '~/lib/auth/cookies'
 import { redirect } from 'next/navigation'

@@ -16,10 +16,8 @@ mock.module('next/cache', () => ({
   updateTag: () => {}
 }))
 
-const {
-  addAttendantAction,
-  updateAttendantStatusAction
-} = await import('./action')
+const { addAttendantAction, updateAttendantStatusAction } =
+  await import('./action')
 
 const toFormData = (fields: Record<string, string>): FormData => {
   const fd = new FormData()

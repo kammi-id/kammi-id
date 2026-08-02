@@ -20,6 +20,45 @@ const eslintConfig = defineConfig([
     '.claire/**',
     '.agents/**'
   ]),
+  // Cross-route imports: a component folder is reached through its barrel and
+  // nothing else. Relative and aliased spellings are the same violation — an
+  // earlier audit missed three of five reach-ins by searching relative paths
+  // only. See the Codebase Organization section of AGENTS.md.
+  //
+  // The relative pattern is deliberately over-strict: it also forbids a route
+  // deep-importing its own folder, which is not harmful in itself, but a glob
+  // cannot tell a route's own directory from another's and ownership-aware
+  // matching would need real path resolution.
+  {
+    files: ['src/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['**/_components/*/*'],
+              message:
+                'Import the component through its folder barrel, not a file inside it.'
+            },
+            {
+              // `shadcn/` is CLI-generated and exempt. `base-ui/` and `ui/`
+              // are grouping folders, so a path one level inside them still
+              // terminates at a component's own barrel.
+              group: [
+                '~/components/*/*',
+                '!~/components/shadcn/**',
+                '!~/components/base-ui/**',
+                '!~/components/ui/**'
+              ],
+              message:
+                'Import the component through its folder barrel, not a file inside it.'
+            }
+          ]
+        }
+      ]
+    }
+  },
   // TODO: Address these as part of ongoing code quality improvements.
   // These rules flag widespread pre-existing patterns in the codebase.
   {

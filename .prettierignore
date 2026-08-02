@@ -53,5 +53,8 @@ src/lib/shadcn/*
 .gemini
 .antigravitycli
 
+# agent working notes (issue tracker, specs)
+.scratch
+
 # seeder data 
 src/scripts/data/organization.json

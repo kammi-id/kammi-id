@@ -22,7 +22,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - **Arrow Functions:** Always write functions and components in arrow-format (e.g., `const MyComponent = () => {}`) instead of traditional function declarations (e.g., `function MyComponent() {}`).
 - **Generics exception:** Generic components in `.tsx` **may** use function declarations, because generic arrow syntax needs a parser workaround (`<T,>` or `extends unknown`) that is uglier than the problem it solves. Reference: `DataTable<TData, TValue>` in `dashboard/_components/data-table/`.
 - **Generated-code exception:** The arrow rule does not apply to `src/components/shadcn/`, `src/lib/shadcn/`, or any file outside `src/`.
-- **Route convention files are not exempt.** `page.tsx`, `layout.tsx`, `loading.tsx` and friends follow the arrow rule like everything else. Their exemption (see *Organization Exceptions*) covers structure and colocation only.
+- **Route convention files are not exempt.** `page.tsx`, `layout.tsx`, `loading.tsx` and friends follow the arrow rule like everything else. Their exemption (see _Organization Exceptions_) covers structure and colocation only.
 
 # Codebase Organization
 
@@ -37,7 +37,7 @@ They are **not** dashboard-scoped. The `(main)` route group measured as the most
 ## General Principles
 
 - **Colocation:** Components live near the route that uses them (inside a `_components/` folder), or in `src/components/` if they clear the promotion bar below.
-- **A folder is an exported unit.** A component folder is one unit exported through its barrel. Sibling files are legitimate as long as they are consumed only by their sibling parent. The moment a file is imported from *outside* its folder, it graduates to its own folder with its own barrel.
+- **A folder is an exported unit.** A component folder is one unit exported through its barrel. Sibling files are legitimate as long as they are consumed only by their sibling parent. The moment a file is imported from _outside_ its folder, it graduates to its own folder with its own barrel.
 - **Named-File Atomic Pattern:**
   - The implementation file is named for its folder (e.g., `my-component/my-component.tsx`).
   - `index.ts` is a barrel and nothing else (`export * from './my-component'`).
@@ -64,7 +64,7 @@ Do not add barrels to grouping folders. A registry someone has to remember to up
 
 Both spellings are named deliberately: three of five reach-ins once escaped an audit because only relative paths were searched.
 
-Enforced by the restricted-import patterns in `eslint.config.mjs`. The rule bans deep relative component imports outright — including a route deep-importing its *own* folder, which is not harmful in itself. A pattern matcher cannot tell a route's own directory from another's, and the strict form keeps the rule a one-liner.
+Enforced by the restricted-import patterns in `eslint.config.mjs`. The rule bans deep relative component imports outright — including a route deep-importing its _own_ folder, which is not harmful in itself. A pattern matcher cannot tell a route's own directory from another's, and the strict form keeps the rule a one-liner.
 
 ## Ownership
 
@@ -98,7 +98,7 @@ Each component folder may contain the following supporting files:
 
 ### Files at a `_components/` root
 
-> A companion file may sit at a `_components/` root **only if it is free of side effects** — types and constants only; no `'use server'`, no session read, no DB access. Prefix it `_`. Anything that *does* something belongs to a component folder.
+> A companion file may sit at a `_components/` root **only if it is free of side effects** — types and constants only; no `'use server'`, no session read, no DB access. Prefix it `_`. Anything that _does_ something belongs to a component folder.
 
 This is why a root-level `action.ts` is a violation while `articles/_components/_constants.ts` is not.
 
@@ -108,7 +108,7 @@ This is why a root-level `action.ts` is a violation while `articles/_components/
 - **No `index` implementation files** — the implementation is `<folder-name>.tsx`; `index.ts` is a barrel only.
 - **Sibling names are domain-specific, not role-generic.** A name stating only its role (`form`, `card`, `list`, `item`, `content`, `wrapper`) takes its parent component's name as a prefix.
 - **Sanctioned idioms:** `columns.tsx` (TanStack column definitions) and `*-client.tsx` (the RSC/client boundary).
-- React component identifiers stay **PascalCase**. Only the *filename* convention is at issue.
+- React component identifiers stay **PascalCase**. Only the _filename_ convention is at issue.
 
 ## Engineering Standards (Ultra-Atomic)
 
@@ -122,12 +122,12 @@ This is why a root-level `action.ts` is a violation while `articles/_components/
 
 Each exemption states **which rules** it covers. An exemption not listed here does not exist.
 
-| Exempt | From | Not from |
-| --- | --- | --- |
-| `src/components/shadcn/`, `src/lib/shadcn/` (CLI-generated) | Everything in this section, plus the arrow-function rule | — |
-| Next.js convention files (`page.tsx`, `layout.tsx`, `loading.tsx`, `error.tsx`, `not-found.tsx`, `route.ts`) | Atomic structure and colocation | **The arrow-function rule**, which still applies |
-| Grouping folders (content-defined, see *Barrels*) | Needing a barrel | The naming rules |
-| `_`-prefixed side-effect-free files at a `_components/` root | The bare-file rule and kebab-case | Being side-effect-free |
+| Exempt                                                                                                       | From                                                     | Not from                                         |
+| ------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------- | ------------------------------------------------ |
+| `src/components/shadcn/`, `src/lib/shadcn/` (CLI-generated)                                                  | Everything in this section, plus the arrow-function rule | —                                                |
+| Next.js convention files (`page.tsx`, `layout.tsx`, `loading.tsx`, `error.tsx`, `not-found.tsx`, `route.ts`) | Atomic structure and colocation                          | **The arrow-function rule**, which still applies |
+| Grouping folders (content-defined, see _Barrels_)                                                            | Needing a barrel                                         | The naming rules                                 |
+| `_`-prefixed side-effect-free files at a `_components/` root                                                 | The bare-file rule and kebab-case                        | Being side-effect-free                           |
 
 ## Reference implementations
 

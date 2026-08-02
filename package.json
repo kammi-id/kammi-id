@@ -7,6 +7,7 @@
     "build": "next build",
     "check:format": "prettier --check .",
     "check:lint": "eslint",
+    "check:structure": "bun src/scripts/check-structure.ts",
     "check:types": "tsc --noEmit",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
