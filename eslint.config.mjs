@@ -42,14 +42,25 @@ const eslintConfig = defineConfig([
                 'Import the component through its folder barrel, not a file inside it.'
             },
             {
-              // `shadcn/` is CLI-generated and exempt. `base-ui/` and `ui/`
-              // are grouping folders, so a path one level inside them still
-              // terminates at a component's own barrel.
+              // `shadcn/` is CLI-generated and exempt outright. `base-ui/` and
+              // `ui/` are grouping folders, so one level inside them still
+              // lands on a component's own barrel — but only one level. A path
+              // deeper than that reaches past that barrel and is re-banned
+              // below.
               group: [
                 '~/components/*/*',
                 '!~/components/shadcn/**',
-                '!~/components/base-ui/**',
-                '!~/components/ui/**'
+                '!~/components/base-ui/*',
+                '!~/components/ui/*'
+              ],
+              message:
+                'Import the component through its folder barrel, not a file inside it.'
+            },
+            {
+              group: [
+                '~/components/base-ui/*/*',
+                '~/components/ui/*/*',
+                '!~/components/shadcn/**'
               ],
               message:
                 'Import the component through its folder barrel, not a file inside it.'

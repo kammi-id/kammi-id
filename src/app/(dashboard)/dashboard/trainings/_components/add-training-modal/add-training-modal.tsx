@@ -11,7 +11,7 @@ import {
 import { Button } from '~/components/shadcn/ui/button'
 import { Add01Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { TrainingForm } from './form'
+import { TrainingForm } from './training-form'
 import { useRouter } from 'next/navigation'
 import { addTrainingSheetStore } from './store'
 
