@@ -19,6 +19,16 @@ import { type DBExecutor } from '../types'
 import { createUser } from './user'
 import { generatePassword, hashPassword } from '~/lib/utils/user'
 
+/**
+ * The Cakupan a read runs under: who is asking, and the Struktur their Akun
+ * is connected to. Scoped reads take this as a *required* argument so that
+ * skipping Cakupan is a type error rather than a silent leak.
+ */
+export type AccessScope = {
+  role: string
+  connectedOrganizationId: string | null
+}
+
 export const fetchAllowedOrgIds = async (user: {
   role: string
   connectedOrganization?: { id: string } | null

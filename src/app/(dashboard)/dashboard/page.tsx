@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { readActiveSession } from '~/lib/auth/cookies'
-import { fetchAllowedOrgIds } from '~/db/query/organization'
+import { fetchAllowedOrgIds, type AccessScope } from '~/db/query/organization'
 import type { readMemberAggregates } from '~/db/query/member'
 import {
   getCachedMemberAggregates,
@@ -48,7 +48,7 @@ const Page = async () => {
   const role = user.role
   const connectedOrganizationId = user.connectedOrganization?.id ?? null
 
-  const userForScope = { role, connectedOrganizationId }
+  const userForScope: AccessScope = { role, connectedOrganizationId }
   const allowedOrgIds = await fetchAllowedOrgIds(userForScope)
 
   const showKader = ['root', 'bph', 'bpk'].includes(role)

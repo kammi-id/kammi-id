@@ -11,6 +11,7 @@ import { SpecialistSummaryCards } from '~/app/(dashboard)/dashboard/kader/_compo
 import { getCachedOrganization } from '../../_data/organizations'
 import { getCachedMemberAggregates } from '../../_data/members'
 import { readActiveSession } from '~/lib/auth/cookies'
+import { readAccessScope } from '~/lib/auth/access-scope'
 import { redirect } from 'next/navigation'
 
 const Page = async ({
@@ -42,10 +43,8 @@ const Page = async ({
     )
   }
 
-  const userForScope = {
-    role: session.user?.role ?? '',
-    connectedOrganizationId: session.user?.connectedOrganization?.id ?? null
-  }
+  const userForScope = await readAccessScope()
+  if (!userForScope) redirect('/login')
 
   // Fetch counts for the summary cards
   const [pemanduAgg, instrukturAgg] = await Promise.all([

@@ -80,6 +80,8 @@ Shared **authorization** logic lives in `src/lib/auth/` and is never duplicated 
 
 Name a shared gate for the **privilege it grants**, not for the act of checking — a generic name invites reuse for a check that is merely authentication. Reference: `requireSiteSettingsAccess` in `src/lib/auth/site-settings.ts`.
 
+**Cakupan is a required argument, never an optional one.** A scoped read takes `AccessScope` (`src/db/query/organization.ts`) as a **required** parameter, so omitting it is a `tsc` error rather than a silent leak. `readAccessScope` in `src/lib/auth/access-scope.ts` is the only sanctioned way to build one — do not re-derive `{ role, connectedOrganizationId }` from a session at a call site. Reference: `readDescendantMembers` and `readMemberAggregates` in `src/db/query/member.ts`.
+
 ## Component Folder Conventions
 
 Each component folder may contain the following supporting files:

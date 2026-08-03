@@ -12,17 +12,16 @@ import { readMemberTrainingHistory } from '~/db/query/training'
 import { readMemberAcademic } from '~/db/query/academic'
 import { readMemberCareer } from '~/db/query/career'
 import { readMemberOrganizationHistory } from '~/db/query/organization-history'
-
-type ScopedUser = { role: string; connectedOrganizationId: string | null }
+import { type AccessScope } from '~/db/query/organization'
 
 type DescendantMemberFilters = MemberFilters & {
   limit?: number
   offset?: number
-  user: ScopedUser
+  user: AccessScope
 }
 
 export async function getCachedMemberAggregates(
-  filters: MemberAggregatesFilters & { user: ScopedUser }
+  filters: MemberAggregatesFilters & { user: AccessScope }
 ) {
   'use cache'
   cacheLife('minutes')

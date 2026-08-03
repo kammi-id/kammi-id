@@ -3,6 +3,7 @@
 import React from 'react'
 import { notFound, redirect } from 'next/navigation'
 import { readActiveSession } from '~/lib/auth/cookies'
+import { readAccessScope } from '~/lib/auth/access-scope'
 import {
   getCachedOrganization,
   getCachedOrganizations,
@@ -132,9 +133,9 @@ export const MembersPageContent = async ({
     offset: summary.offset
   }
 
-  const userForScope = {
-    role: user.role,
-    connectedOrganizationId: user.connectedOrganization?.id ?? null
+  const userForScope = await readAccessScope()
+  if (!userForScope) {
+    redirect('/login')
   }
 
   const mFilters = {

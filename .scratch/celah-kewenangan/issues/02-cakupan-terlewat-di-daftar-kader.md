@@ -55,12 +55,25 @@ Ikut diperbaiki: `getCachedMemberAggregates` di dalam
 `members-page-content.tsx` juga dipanggil tanpa `user` — lubang yang sama
 persis pada kartu ringkasan di halaman yang sama.
 
+Bentuk `{role, connectedOrganizationId}` sekarang punya satu rumah: tipe
+`AccessScope` di `src/db/query/organization.ts`, dibangun lewat
+`readAccessScope` di `src/lib/auth/access-scope.ts`. Sebelumnya bentuk ini
+disalin di tiga route — persis yang dilarang AGENTS.md § Authorization.
+Aturannya ikut ditulis ke AGENTS.md.
+
 Catatan cache: `user` sekarang bagian dari argumen fungsi `'use cache'`, jadi
 entri cache terpisah per `{role, connectedOrganizationId}`. Kardinalitasnya
 naik, dan memang harus begitu — sebelumnya satu entri per Struktur dipakai
 bersama lintas Cakupan.
 
-Belum dikerjakan (di luar cakupan isu ini): `currentOrg` masih diambil dari
-slug URL tanpa `isOrgInScope`. Akun BPK yang menembak slug asing sekarang
-melihat halaman kosong, bukan penolakan — nama Struktur dan daftar anaknya
-masih terbaca. Layak jadi isu tersendiri.
+Belum dikerjakan (di luar cakupan isu ini):
+
+- `currentOrg` masih diambil dari slug URL tanpa `isOrgInScope`. Akun BPK yang
+  menembak slug asing sekarang melihat halaman kosong, bukan penolakan — nama
+  Struktur dan daftar anaknya (`getCachedOrganizations`) masih terbaca. Layak
+  jadi isu tersendiri.
+- `readMember` masih menerima `user?` opsional. Pemanggilnya hanya tes untuk
+  saat ini, tapi "tidak mungkin dilewatkan" belum berlaku se-modul.
+- `readDescendantMembers` menegakkan Cakupan tapi tidak Kewenangan — tidak ada
+  allowlist `['root','bph','bpk']` seperti di `readMemberAggregates`. Sengaja:
+  isu ini soal Cakupan, dan `AccessGuard` masih menjaga Kewenangan.

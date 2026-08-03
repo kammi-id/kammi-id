@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll } from 'bun:test'
-import { inArray } from 'drizzle-orm'
+import { eq, inArray } from 'drizzle-orm'
 import { db } from '~/db/db'
 import { organization } from '~/db/schema/organization.sql'
 import { member } from '~/db/schema/member.sql'
@@ -100,7 +100,7 @@ describe('Cakupan on member reads', () => {
     }
     // Children first — parent_id is a foreign key.
     for (const id of orgIds) {
-      await db.delete(organization).where(inArray(organization.id, [id]))
+      await db.delete(organization).where(eq(organization.id, id))
     }
   })
 

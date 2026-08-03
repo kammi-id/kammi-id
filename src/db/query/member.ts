@@ -18,7 +18,7 @@ import { user as userTable } from '../schema/user.sql'
 import { createUser } from './user'
 import { generatePassword, hashPassword } from '~/lib/utils/user'
 import { organization } from '../schema/organization.sql'
-import { fetchAllowedOrgIds } from './organization'
+import { fetchAllowedOrgIds, type AccessScope } from './organization'
 
 type MemberInsertValues = typeof member.$inferInsert
 export type MemberFilters = {
@@ -73,7 +73,7 @@ type MemberAggregatesRow = {
 
 export const readMemberAggregates = async (
   filters: MemberAggregatesFilters & {
-    user: { role: string; connectedOrganizationId: string | null }
+    user: AccessScope
   }
 ): Promise<Array<MemberAggregatesResult>> => {
   const {
@@ -424,7 +424,7 @@ export const readDescendantMembers = async (
   filters: MemberFilters & {
     limit?: number
     offset?: number
-    user: { role: string; connectedOrganizationId: string | null }
+    user: AccessScope
   }
 ): Promise<[Member[], number]> => {
   const { limit = 10, offset = 0, user, ...memberFilters } = filters
@@ -521,7 +521,7 @@ export const readDescendantMembers = async (
     JOIN organization o ON m.organization_id = o.id
     WHERE m.organization_id IN (SELECT id FROM org_tree)
       AND m.deleted_at IS NULL
-      ${filters.user ? sql`AND m.organization_id IN ${await fetchAllowedOrgIds(filters.user)}` : sql``}
+      ${sql`AND m.organization_id IN ${allowedIds}`}
       ${filters.isAlumn !== undefined ? sql`AND m.is_alumn = ${filters.isAlumn}` : sql``}
       ${filters.isCertifiedMentor !== undefined ? sql`AND m.is_certified_mentor = ${filters.isCertifiedMentor}` : sql``}
       ${filters.isCertifiedInstructor !== undefined ? sql`AND m.is_certified_instructor = ${filters.isCertifiedInstructor}` : sql``}
@@ -585,7 +585,7 @@ export const readDescendantMembers = async (
     FROM member m
     WHERE m.organization_id IN (SELECT id FROM org_tree)
       AND m.deleted_at IS NULL
-      ${filters.user ? sql`AND m.organization_id IN ${await fetchAllowedOrgIds(filters.user)}` : sql``}
+      ${sql`AND m.organization_id IN ${allowedIds}`}
       ${filters.isAlumn !== undefined ? sql`AND m.is_alumn = ${filters.isAlumn}` : sql``}
       ${filters.isCertifiedMentor !== undefined ? sql`AND m.is_certified_mentor = ${filters.isCertifiedMentor}` : sql``}
       ${filters.isCertifiedInstructor !== undefined ? sql`AND m.is_certified_instructor = ${filters.isCertifiedInstructor}` : sql``}
