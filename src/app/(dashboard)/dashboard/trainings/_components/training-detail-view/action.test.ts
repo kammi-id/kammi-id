@@ -170,6 +170,11 @@ describe('training-detail-view actions', () => {
     })
   })
 
+  // Aturan Masa Penetapan Kelulusan sendiri — kedua sisi jendela, batas hari
+  // ke-30/31, dan pengecualian Root — diuji di
+  // `src/lib/daurah/masa-penetapan-kelulusan.test.ts`. Yang tersisa di sini
+  // adalah jahitannya: bahwa gate ini benar-benar memanggil modul itu, dan
+  // bahwa kedua alasan tertutup dipetakan ke pesan yang benar.
   describe('assertCanEditPassing (via updateAttendantStatusAction)', () => {
     it('rejects grading before the training has ended', async () => {
       mockSession = {
@@ -244,101 +249,6 @@ describe('training-detail-view actions', () => {
       expect(result.message).toBe(
         'Batas waktu 30 hari setelah daurah selesai telah terlampaui.'
       )
-    })
-
-    it('allows grading on exactly the 30th day after the training ends', async () => {
-      mockSession = {
-        user: { id: 'u1', role: 'bpk', connectedOrganizationId: pkItbId }
-      }
-      const training = await createTraining(pkItbId, {
-        startDate: daysAgo(35),
-        endDate: daysAgo(30)
-      })
-      const member = await createTestMember(pkItbId)
-      await trainingQuery.addAttendant(training.id, member.id)
-
-      const result = await updateAttendantStatusAction(
-        undefined,
-        toFormData({
-          trainingId: training.id,
-          memberId: member.id,
-          isPassing: 'true'
-        })
-      )
-
-      expect(result.success).toBe(true)
-    })
-
-    it('rejects grading on the 31st day after the training ends', async () => {
-      mockSession = {
-        user: { id: 'u1', role: 'bpk', connectedOrganizationId: pkItbId }
-      }
-      const training = await createTraining(pkItbId, {
-        startDate: daysAgo(36),
-        endDate: daysAgo(31)
-      })
-      const member = await createTestMember(pkItbId)
-      await trainingQuery.addAttendant(training.id, member.id)
-
-      const result = await updateAttendantStatusAction(
-        undefined,
-        toFormData({
-          trainingId: training.id,
-          memberId: member.id,
-          isPassing: 'true'
-        })
-      )
-
-      expect(result.success).toBe(false)
-      expect(result.message).toBe(
-        'Batas waktu 30 hari setelah daurah selesai telah terlampaui.'
-      )
-    })
-
-    it('allows root to grade while the training is still running', async () => {
-      mockSession = {
-        user: { id: 'u1', role: 'root', connectedOrganizationId: pkItbId }
-      }
-      const training = await createTraining(pkItbId, {
-        startDate: daysFromNow(1),
-        endDate: daysFromNow(3)
-      })
-      const member = await createTestMember(pkItbId)
-      await trainingQuery.addAttendant(training.id, member.id)
-
-      const result = await updateAttendantStatusAction(
-        undefined,
-        toFormData({
-          trainingId: training.id,
-          memberId: member.id,
-          isPassing: 'true'
-        })
-      )
-
-      expect(result.success).toBe(true)
-    })
-
-    it('allows root to grade more than 30 days after the training ends', async () => {
-      mockSession = {
-        user: { id: 'u1', role: 'root', connectedOrganizationId: pkItbId }
-      }
-      const training = await createTraining(pkItbId, {
-        startDate: daysAgo(45),
-        endDate: daysAgo(31)
-      })
-      const member = await createTestMember(pkItbId)
-      await trainingQuery.addAttendant(training.id, member.id)
-
-      const result = await updateAttendantStatusAction(
-        undefined,
-        toFormData({
-          trainingId: training.id,
-          memberId: member.id,
-          isPassing: 'true'
-        })
-      )
-
-      expect(result.success).toBe(true)
     })
 
     it('rejects grading for a training outside the org scope even within the window', async () => {

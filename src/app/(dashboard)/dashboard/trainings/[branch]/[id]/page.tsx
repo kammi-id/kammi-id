@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation'
 import { TrainingDetailView } from '~/app/(dashboard)/dashboard/trainings/_components/training-detail-view'
 import { isOrgInScope } from '~/db/query/organization'
 import { readActiveSession } from '~/lib/auth/cookies'
+import { masaPenetapanKelulusan } from '~/lib/daurah/masa-penetapan-kelulusan'
 import { getCachedOrganization } from '../../../_data/organizations'
 import { getCachedTrainingByIdentifier } from '../../../_data/trainings'
 
@@ -29,21 +30,12 @@ const TrainingPage = async ({ params }: PageProps) => {
     ? await isOrgInScope(user, training.organizationId)
     : false
 
-  const endDate = new Date(training.endDate)
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
-  const daysSinceEnd = Math.floor(
-    (today.getTime() - endDate.getTime()) / (1000 * 60 * 60 * 24)
-  )
-  const isCompleted = today > endDate
-  // Cermin dari gate server di `training-detail-view/action.ts`: Root menembus
-  // Masa Penetapan Kelulusan di kedua sisinya, kewenangan lain tetap terkunci.
-  const canEditPassing =
-    canManage && (user?.role === 'root' || (isCompleted && daysSinceEnd <= 30))
-
-  const passingDeadline = isCompleted
-    ? new Date(endDate.getTime() + 30 * 24 * 60 * 60 * 1000)
-    : null
+  const masa = masaPenetapanKelulusan({
+    endDate: training.endDate,
+    role: user?.role ?? ''
+  })
+  const canEditPassing = canManage && masa.terbuka
+  const passingDeadline = masa.batasAkhir
 
   return (
     <TrainingDetailView

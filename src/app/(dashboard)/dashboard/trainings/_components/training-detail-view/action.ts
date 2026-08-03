@@ -15,6 +15,10 @@ import { revalidatePath, updateTag } from 'next/cache'
 import { createMember } from '~/db/query/member'
 import { generateRegisterNumber } from '~/lib/utils/member'
 import { readActiveSession } from '~/lib/auth/cookies'
+import {
+  masaPenetapanKelulusan,
+  type AlasanTertutup
+} from '~/lib/daurah/masa-penetapan-kelulusan'
 import { isOrgInScope } from '~/db/query/organization'
 import { getLogger, redact } from '~/lib/logger'
 
@@ -40,17 +44,16 @@ const assertCanManage = async (trainingId: string): Promise<string | null> => {
   return null
 }
 
+const PESAN_TERTUTUP: Record<AlasanTertutup, string> = {
+  'belum-selesai': 'Kelulusan hanya dapat diubah setelah daurah selesai.',
+  terlampaui: 'Batas waktu 30 hari setelah daurah selesai telah terlampaui.'
+}
+
 const assertCanEditPassing = async (
   trainingId: string
 ): Promise<string | null> => {
   const manageError = await assertCanManage(trainingId)
   if (manageError) return manageError
-
-  // Root menembus Masa Penetapan Kelulusan di kedua sisinya: ia kewenangan
-  // pemulih keadaan, dan koreksi data yang terlanjur salah tidak mengenal
-  // arah waktu. Kewenangan lain tetap terkunci oleh masa di bawah ini.
-  const session = await readActiveSession()
-  if (session?.user.role === 'root') return null
 
   const [t] = await db
     .select({ endDate: trainingTable.endDate })
@@ -60,18 +63,13 @@ const assertCanEditPassing = async (
 
   if (!t) return 'Daurah tidak ditemukan.'
 
-  const endDate = new Date(t.endDate)
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
-  if (today <= endDate)
-    return 'Kelulusan hanya dapat diubah setelah daurah selesai.'
-  const daysSinceEnd = Math.floor(
-    (today.getTime() - endDate.getTime()) / (1000 * 60 * 60 * 24)
-  )
-  if (daysSinceEnd > 30)
-    return 'Batas waktu 30 hari setelah daurah selesai telah terlampaui.'
+  const session = await readActiveSession()
+  const masa = masaPenetapanKelulusan({
+    endDate: t.endDate,
+    role: session?.user.role ?? ''
+  })
 
-  return null
+  return masa.terbuka ? null : PESAN_TERTUTUP[masa.alasan]
 }
 
 const UpdateTrainingSchema = z.object({
