@@ -15,6 +15,7 @@ import {
   sql
 } from 'drizzle-orm'
 import { type DBExecutor } from '../types'
+import { cache } from 'react'
 
 import { createUser } from './user'
 import { generatePassword, hashPassword } from '~/lib/utils/user'
@@ -33,36 +34,46 @@ export const fetchAllowedOrgIds = async (user: {
   role: string
   connectedOrganization?: { id: string } | null
   connectedOrganizationId?: string | null
-}): Promise<string[]> => {
-  const connectedOrgId =
-    user.connectedOrganization?.id || user.connectedOrganizationId
+}): Promise<string[]> =>
+  fetchAllowedOrgIdsFor(
+    user.role,
+    user.connectedOrganization?.id ?? user.connectedOrganizationId ?? null
+  )
 
-  if (user.role === 'root') {
-    const result = await db.select({ id: organization.id }).from(organization)
-    return result.map((r) => r.id)
-  }
+/**
+ * The recursive walk itself, keyed on primitives so React's per-request cache
+ * can actually hit. `fetchAllowedOrgIds` above takes an object, and a fresh
+ * object literal per call site would miss the cache every time — several
+ * places on one page ask this same question.
+ */
+const fetchAllowedOrgIdsFor = cache(
+  async (role: string, connectedOrgId: string | null): Promise<string[]> => {
+    if (role === 'root') {
+      const result = await db.select({ id: organization.id }).from(organization)
+      return result.map((r) => r.id)
+    }
 
-  if (!connectedOrgId) {
-    return []
-  }
+    if (!connectedOrgId) {
+      return []
+    }
 
-  const userOrg = await db
-    .select({ type: organization.type })
-    .from(organization)
-    .where(eq(organization.id, connectedOrgId))
-    .limit(1)
-    .then((res) => res[0])
+    const userOrg = await db
+      .select({ type: organization.type })
+      .from(organization)
+      .where(eq(organization.id, connectedOrgId))
+      .limit(1)
+      .then((res) => res[0])
 
-  if (!userOrg) {
-    return []
-  }
+    if (!userOrg) {
+      return []
+    }
 
-  if (user.role === 'humas') {
-    return [connectedOrgId]
-  }
+    if (role === 'humas') {
+      return [connectedOrgId]
+    }
 
-  try {
-    const result = await db.execute(sql`
+    try {
+      const result = await db.execute(sql`
       WITH RECURSIVE org_hierarchy AS (
         SELECT id FROM ${organization} WHERE id = ${connectedOrgId}
         UNION ALL
@@ -72,13 +83,14 @@ export const fetchAllowedOrgIds = async (user: {
       SELECT id FROM org_hierarchy
     `)
 
-    const rows = (result as any).rows || result
-    const ids = (Array.isArray(rows) ? rows : []).map((r: any) => r.id)
-    return ids
-  } catch (error) {
-    return [connectedOrgId]
+      const rows = (result as any).rows || result
+      const ids = (Array.isArray(rows) ? rows : []).map((r: any) => r.id)
+      return ids
+    } catch (error) {
+      return [connectedOrgId]
+    }
   }
-}
+)
 
 type OrganizationInsertValues = typeof organization.$inferInsert
 export type OrganizationFilters = {
@@ -321,6 +333,21 @@ type OrgChainNode = {
   code: string | null
   slug: string
   parentId: string | null
+}
+
+/**
+ * Whether a Struktur falls inside a Cakupan — purely a question of reach.
+ * It does not ask what the Akun may *do* once there; that is the caller's
+ * gate to name. `isOrgInScope` below answers the narrower "may this Akun
+ * manage it", which folds in a BPK requirement and so is wrong for reads.
+ */
+export const isOrgInAccessScope = async (
+  scope: AccessScope,
+  targetOrgId: string
+): Promise<boolean> => {
+  if (scope.role === 'root') return true
+  const allowedIds = await fetchAllowedOrgIds(scope)
+  return allowedIds.includes(targetOrgId)
 }
 
 export const isOrgInScope = async (

@@ -12,7 +12,8 @@ import { getCachedOrganization } from '../../_data/organizations'
 import { getCachedMemberAggregates } from '../../_data/members'
 import { readActiveSession } from '~/lib/auth/cookies'
 import { readAccessScope } from '~/lib/auth/access-scope'
-import { redirect } from 'next/navigation'
+import { requireKekaderanAccess } from '~/lib/auth/kekaderan'
+import { notFound, redirect } from 'next/navigation'
 
 const Page = async ({
   params,
@@ -45,6 +46,14 @@ const Page = async ({
 
   const userForScope = await readAccessScope()
   if (!userForScope) redirect('/login')
+
+  // Sama seperti `members-page-content`: slug asing tidak boleh membocorkan
+  // nama Struktur lewat remah roti atau kartu ringkasannya. Slug kosong jatuh
+  // ke Struktur Akun sendiri dan tidak perlu diperiksa.
+  if (slug && slug.length > 0) {
+    const allowed = await requireKekaderanAccess(currentOrg.id)
+    if (!allowed) notFound()
+  }
 
   // Fetch counts for the summary cards
   const [pemanduAgg, instrukturAgg] = await Promise.all([

@@ -54,13 +54,92 @@ pemanggil.
 Slug kosong (`!slug || slug.length === 0`) jatuh ke `connectedOrganization`
 Akun sendiri dan tidak perlu diperiksa.
 
-- [ ] Slug Struktur di luar Cakupan ditolak, bukan ditampilkan kosong
-- [ ] Penolakannya konsisten di `kader` dan `perangkat`
-- [ ] Root masih bisa membuka Struktur mana pun
-- [ ] Slug kosong masih jatuh ke Struktur Akun sendiri
-- [ ] Nasib Akun BPH diputuskan sadar, bukan sebagai efek samping
+- [x] Slug Struktur di luar Cakupan ditolak, bukan ditampilkan kosong
+- [x] Penolakannya konsisten di `kader` dan `perangkat`
+- [x] Root masih bisa membuka Struktur mana pun
+- [x] Slug kosong masih jatuh ke Struktur Akun sendiri
+- [x] Nasib Akun BPH diputuskan sadar, bukan sebagai efek samping
       `isOrgInScope`
-- [ ] Jalur `bulk-upload` tidak berubah perilakunya
-- [ ] Ada tes untuk slug asing, slug sendiri, dan Root
-- [ ] `bun run check:types` lolos
-- [ ] Seluruh tes lolos
+- [x] Jalur `bulk-upload` tidak berubah perilakunya
+- [x] Ada tes untuk slug asing, slug sendiri, dan Root
+- [x] `bun run check:types` lolos
+- [x] Seluruh tes lolos
+
+## Comments
+
+**BPH berhak, dan itu bukan keputusan sulit.** `CONTEXT.md:89` menulis
+Kewenangan BPH sebagai "memantau — melihat data kekaderan maupun kestrukturan,
+tanpa boleh mengubahnya". Kode sudah sejalan di mana-mana kecuali satu tempat:
+`readMemberAggregates` dan `readDescendantMembers` (`db/query/member.ts:87`,
+`:265`) memasukkan `bph` ke daftar peran, dan `AccessGuard` halaman Kader
+sudah mengizinkannya. Yang menyendiri justru `isOrgInScope` — dan alasannya
+masuk akal: ia menjaga **jalur tulis** `bulk-upload`, jadi wajar mensyaratkan
+BPK. Ia salah dipakai untuk baca, bukan salah ditulis.
+
+Maka `isOrgInScope` tidak disentuh sama sekali — `bulk-upload` berperilaku
+persis seperti sebelumnya. Yang ditambahkan adalah `isOrgInAccessScope`
+(`db/query/organization.ts`), predikat Cakupan murni: apakah Struktur ini
+terjangkau, tanpa ikut bertanya boleh berbuat apa di sana. Pemisahan ini
+persis yang diminta review arsitektur kandidat #3 — `isOrgInScope` "mencampur
+Cakupan dengan peran harus BPK".
+
+**Gate-nya `requireKekaderanAccess`** (`src/lib/auth/kekaderan.ts`), dinamai
+menurut hak yang diberikan: membaca data Kekaderan untuk satu Struktur. Ia
+menjawab **jangkauan saja** — peran mana yang boleh masuk ke sebuah halaman
+tetap urusan `AccessGuard` halaman itu.
+
+**Gate hanya jalan kalau slugnya ada**, persis seperti bunyi tiket. Versi
+pertama menjalankannya tanpa syarat, dan itu diam-diam mengubah nasib Akun
+BPW/Humas yang membuka `/dashboard/kader` tanpa slug: dari halaman "tidak
+berhak" milik `AccessGuard` jadi 404. Itu lalu lintas di luar kebocoran yang
+tiket ini bicarakan, jadi dikembalikan.
+
+**Satu pencarian Cakupan per request, bukan tiga.** Gate memanggil
+`fetchAllowedOrgIds`, dan `members-page-content` memanggilnya lagi untuk
+menyaring daftar Struktur di form — sementara halaman Perangkat me-render
+`MembersPageContent` dua kali (satu per tab). Versi pertama karena itu
+menambah CTE rekursif yang justru dihapus commit `955e49e`. Sekarang badan
+fungsinya dibungkus `cache()` React dan di-key pada primitif (`role`,
+`connectedOrgId`) — kalau di-key pada objek, tiap pemanggil membuat literal
+baru dan cache tidak pernah kena. Di luar konteks request React `cache()`
+tidak memoize sama sekali, jadi tes tidak melihat nilai basi (sudah diperiksa).
+
+**Penolakannya `notFound()`, bukan pesan "tidak berhak".** Yang bocor di tiket
+ini adalah nama dan keberadaan Struktur; halaman 403 justru mengonfirmasi
+keberadaannya. `forbidden()` juga belum tersedia — `authInterrupts` tidak
+menyala di `next.config`.
+
+**Kebocoran daftar Struktur anak (poin 2) ikut tertutup** tanpa perubahan
+terpisah: `getCachedOrganizations({ parentId: [currentOrg.id] })` tidak pernah
+terjangkau lagi kalau `currentOrg` di luar Cakupan.
+
+**Satu ketidakkonsistenan sengaja dibiarkan.** `AccessGuard` halaman Kader
+mengizinkan `['root','bph','bpk']`, halaman Perangkat hanya `['root','bpk']`.
+Itu perbedaan **daftar peran**, bukan Cakupan, dan sudah ada sebelum tiket ini.
+Penolakan Cakupan-nya sendiri sekarang identik di kedua halaman. Apakah BPH
+boleh memantau Perangkat adalah pertanyaan tersendiri — layak tiket, jangan
+diselundupkan lewat sini.
+
+**Tesnya di seam gate, bukan di render RSC.** Repo ini belum punya satu pun
+tes yang me-render halaman; 12 tes di `kekaderan.test.ts` mengunci matriks
+peran × Cakupan (root, bpk sendiri/turunan/asing/atas, bph di dalam/luar, bpw,
+humas, tanpa sesi, tanpa Struktur terhubung) — semuanya lewat id Struktur,
+bukan lewat slug. Bahwa gate benar-benar duduk **sebelum**
+`getMembersPageLabels` dan remah roti tidak terkunci tes; itu diverifikasi
+dengan membaca, `tsc`, dan `bun run build` (kedua route tetap terbangun sebagai
+PPR). Kalau nanti repo ini punya tes render, itu lubang tes pertama yang layak
+ditutup.
+
+Daftar peran ditulis `satisfies UserRole[]` supaya salah ketik jadi galat
+`tsc`, bukan penolakan diam-diam; dibuktikan dengan mengubah `bph` jadi `bhp`
+— `tsc` merah di baris itu.
+
+Seed pohon Struktur di tes pindah ke `beforeAll` karena tesnya hanya membaca.
+Menyemai per tes membuat berkas ini ikut antre TRUNCATE dan sempat kena hook
+timeout yang sama seperti `tests/access-control.test.ts`; setelah dipindah,
+48 detik jadi 5 detik dan hijau tiga kali berturut-turut.
+
+Satu duplikasi sengaja dibiarkan: badan `isOrgInScope` sekarang mirip
+`isOrgInAccessScope` ditambah syarat BPK. Menyatukannya berarti menyentuh gate
+jalur tulis `bulk-upload`, dan tiket ini justru meminta jalur itu tidak
+berubah. Layak dirapikan bersama kandidat #3 review arsitektur, bukan di sini.

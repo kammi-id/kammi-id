@@ -4,6 +4,7 @@ import React from 'react'
 import { notFound, redirect } from 'next/navigation'
 import { readActiveSession } from '~/lib/auth/cookies'
 import { readAccessScope } from '~/lib/auth/access-scope'
+import { requireKekaderanAccess } from '~/lib/auth/kekaderan'
 import {
   getCachedOrganization,
   getCachedOrganizations,
@@ -85,6 +86,21 @@ export const MembersPageContent = async ({
     )
   }
 
+  const userForScope = await readAccessScope()
+  if (!userForScope) {
+    redirect('/login')
+  }
+
+  // Slug datang dari URL. Sebelum halaman menyebut apa pun tentang Struktur itu
+  // — judulnya, daftar anaknya, remah rotinya — pastikan ia ada di dalam
+  // Cakupan Akun; di luar itu halaman tidak mengakui keberadaannya. Slug kosong
+  // jatuh ke Struktur Akun sendiri, jadi tidak ada yang bisa bocor, dan
+  // penolakan perannya tetap urusan AccessGuard di bawah.
+  if (slug && slug.length > 0) {
+    const allowed = await requireKekaderanAccess(currentOrg.id)
+    if (!allowed) notFound()
+  }
+
   if (
     (activeType === 'instruktur' || activeType === 'pemandu') &&
     currentOrg.type === 'pk'
@@ -131,11 +147,6 @@ export const MembersPageContent = async ({
     type: summary.orgType,
     limit: summary.limit,
     offset: summary.offset
-  }
-
-  const userForScope = await readAccessScope()
-  if (!userForScope) {
-    redirect('/login')
   }
 
   const mFilters = {
