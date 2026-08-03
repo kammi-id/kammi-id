@@ -458,6 +458,12 @@ export const searchTrainingAttendantsAction = async (
   query: string
 ) => {
   try {
+    // Pada kedua aksi pencarian, gate mendahului pintasan panjang query: aksi
+    // ini endpoint POST tersendiri, jadi pemanggilnya belum tentu combobox yang
+    // sudah menyaring di sisi klien. Urutannya dikunci oleh tes.
+    const authError = await assertCanManage(trainingId)
+    if (authError) return { data: [], success: false, message: authError }
+
     if (query.length < 2) return { data: [], success: true }
     const data = await searchEligibleAttendants(trainingId, trainingType, query)
     return { data, success: true }
@@ -471,6 +477,9 @@ export const searchTrainingInstructorsAction = async (
   query: string
 ) => {
   try {
+    const authError = await assertCanManage(trainingId)
+    if (authError) return { data: [], success: false, message: authError }
+
     if (query.length < 2) return { data: [], success: true }
     const data = await searchEligibleInstructors(trainingId, query)
     return { data, success: true }

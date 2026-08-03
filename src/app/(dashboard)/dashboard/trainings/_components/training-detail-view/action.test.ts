@@ -16,8 +16,12 @@ mock.module('next/cache', () => ({
   updateTag: () => {}
 }))
 
-const { addAttendantAction, updateAttendantStatusAction } =
-  await import('./action')
+const {
+  addAttendantAction,
+  updateAttendantStatusAction,
+  searchTrainingAttendantsAction,
+  searchTrainingInstructorsAction
+} = await import('./action')
 
 const toFormData = (fields: Record<string, string>): FormData => {
   const fd = new FormData()
@@ -96,6 +100,19 @@ describe('training-detail-view actions', () => {
       startDate: overrides.startDate,
       endDate: overrides.endDate,
       type: 'dm1'
+    })
+    return created
+  }
+
+  const createTestInstructor = async (organizationId: string) => {
+    const [created] = await createMember({
+      name: 'Instruktur Test',
+      registerNumber: 'PK01-0002',
+      organizationId,
+      status: 'ab3',
+      gender: 'ikhwan',
+      yearOfEntry: 2015,
+      isCertifiedInstructor: true
     })
     return created
   }
@@ -275,6 +292,161 @@ describe('training-detail-view actions', () => {
       expect(result.message).toBe(
         'Antum tidak memiliki hak akses untuk mengelola daurah ini.'
       )
+    })
+  })
+
+  describe('searchTrainingAttendantsAction', () => {
+    it('rejects when there is no active session', async () => {
+      mockSession = undefined
+      const training = await createTraining(pkItbId, {
+        startDate: daysFromNow(5),
+        endDate: daysFromNow(7)
+      })
+      await createTestMember(pkItbId)
+
+      const result = await searchTrainingAttendantsAction(
+        training.id,
+        'dm1',
+        'Anggota'
+      )
+
+      expect(result.success).toBe(false)
+      expect(result.data).toEqual([])
+      expect(result.message).toBe('Sesi tidak ditemukan.')
+    })
+
+    it('rejects searching a training outside the org scope', async () => {
+      mockSession = {
+        user: { id: 'u1', role: 'bpk', connectedOrganizationId: pkItbId }
+      }
+      const training = await createTraining(pkOtherId, {
+        startDate: daysFromNow(5),
+        endDate: daysFromNow(7)
+      })
+      await createTestMember(pkOtherId)
+
+      const result = await searchTrainingAttendantsAction(
+        training.id,
+        'dm1',
+        'Anggota'
+      )
+
+      expect(result.success).toBe(false)
+      expect(result.data).toEqual([])
+      expect(result.message).toBe(
+        'Antum tidak memiliki hak akses untuk mengelola daurah ini.'
+      )
+    })
+
+    it('searches when the training is in scope', async () => {
+      mockSession = {
+        user: { id: 'u1', role: 'bpk', connectedOrganizationId: pkItbId }
+      }
+      const training = await createTraining(pkItbId, {
+        startDate: daysFromNow(5),
+        endDate: daysFromNow(7)
+      })
+      const member = await createTestMember(pkItbId)
+
+      const result = await searchTrainingAttendantsAction(
+        training.id,
+        'dm1',
+        'Anggota'
+      )
+
+      expect(result.success).toBe(true)
+      expect(result.data.map((m) => m.id)).toContain(member.id)
+    })
+
+    // Mengunci urutannya: gate harus mendahului pintasan panjang query. Tanpa
+    // kasus ini, memindahkan gate ke bawah pintasan tetap membuat tes hijau.
+    it('rejects a query too short to search before short-circuiting', async () => {
+      mockSession = undefined
+      const training = await createTraining(pkItbId, {
+        startDate: daysFromNow(5),
+        endDate: daysFromNow(7)
+      })
+
+      const result = await searchTrainingAttendantsAction(
+        training.id,
+        'dm1',
+        'a'
+      )
+
+      expect(result.success).toBe(false)
+      expect(result.message).toBe('Sesi tidak ditemukan.')
+    })
+  })
+
+  describe('searchTrainingInstructorsAction', () => {
+    it('rejects when there is no active session', async () => {
+      mockSession = undefined
+      const training = await createTraining(pkItbId, {
+        startDate: daysFromNow(5),
+        endDate: daysFromNow(7)
+      })
+
+      const result = await searchTrainingInstructorsAction(
+        training.id,
+        'Anggota'
+      )
+
+      expect(result.success).toBe(false)
+      expect(result.data).toEqual([])
+      expect(result.message).toBe('Sesi tidak ditemukan.')
+    })
+
+    it('rejects searching a training outside the org scope', async () => {
+      mockSession = {
+        user: { id: 'u1', role: 'bpk', connectedOrganizationId: pkItbId }
+      }
+      const training = await createTraining(pkOtherId, {
+        startDate: daysFromNow(5),
+        endDate: daysFromNow(7)
+      })
+
+      const result = await searchTrainingInstructorsAction(
+        training.id,
+        'Anggota'
+      )
+
+      expect(result.success).toBe(false)
+      expect(result.data).toEqual([])
+      expect(result.message).toBe(
+        'Antum tidak memiliki hak akses untuk mengelola daurah ini.'
+      )
+    })
+
+    it('searches when the training is in scope', async () => {
+      mockSession = {
+        user: { id: 'u1', role: 'bpk', connectedOrganizationId: pkItbId }
+      }
+      const training = await createTraining(pkItbId, {
+        startDate: daysFromNow(5),
+        endDate: daysFromNow(7)
+      })
+      const instructor = await createTestInstructor(pkItbId)
+
+      const result = await searchTrainingInstructorsAction(
+        training.id,
+        'Instruktur'
+      )
+
+      expect(result.success).toBe(true)
+      expect(result.data.map((m) => m.id)).toContain(instructor.id)
+    })
+
+    it('rejects a query too short to search before short-circuiting', async () => {
+      mockSession = undefined
+      const training = await createTraining(pkItbId, {
+        startDate: daysFromNow(5),
+        endDate: daysFromNow(7)
+      })
+
+      const result = await searchTrainingInstructorsAction(training.id, 'a')
+
+      expect(result.success).toBe(false)
+      expect(result.message).toBe('Sesi tidak ditemukan.')
     })
   })
 })

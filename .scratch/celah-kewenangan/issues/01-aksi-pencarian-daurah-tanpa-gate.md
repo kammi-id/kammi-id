@@ -29,10 +29,47 @@ jangan sekalian merombak bentuk balikan kedua aksi — pemanggilnya di
 `training-attendant-combobox.tsx` dan `training-instructor-combobox.tsx`
 mengandalkan bentuk `{ data, success }` yang sekarang.
 
-- [ ] Kedua aksi menolak ketika tidak ada sesi
-- [ ] Kedua aksi menolak Daurah di luar Cakupan pemanggil
-- [ ] Bentuk balikan `{ data, success, message? }` tidak berubah
-- [ ] Combobox pemanggilnya masih berfungsi seperti sekarang
-- [ ] Ada tes untuk kedua jalur penolakan, mengikuti pola `action.test.ts`
-- [ ] `bun run check:types` lolos
-- [ ] Seluruh tes lolos
+- [x] Kedua aksi menolak ketika tidak ada sesi
+- [x] Kedua aksi menolak Daurah di luar Cakupan pemanggil
+- [x] Bentuk balikan `{ data, success, message? }` tidak berubah
+- [x] Combobox pemanggilnya masih berfungsi seperti sekarang
+- [x] Ada tes untuk kedua jalur penolakan, mengikuti pola `action.test.ts`
+- [x] `bun run check:types` lolos
+- [x] Seluruh tes lolos
+
+## Comments
+
+**Gate-nya terpasang, tapi lubangnya tidak tertutup seluruhnya.** Perlu dicatat
+supaya tidak dikira selesai: `searchEligibleAttendants` dan
+`searchEligibleInstructors` (`db/query/training.ts:499`, `:590`) **tidak
+memfilter berdasarkan Struktur sama sekali**. Setelah tiket ini, seorang BPK
+yang sah mengelola Daurahnya tetap melihat Kader dari seluruh Struktur
+se-Indonesia di hasil pencarian.
+
+Yang berubah pada **dua aksi ini**: dari siapa pun tanpa sesi bisa
+mengenumerasi seluruh Kader, menjadi hanya Akun yang berhak atas Daurah itu.
+Penyempitan besar, bukan penutupan.
+
+**Dan celah sekelasnya masih ada satu lagi di tempat lain.**
+`searchMasterCandidatesAction`
+(`trainings/_components/add-training-modal/action.ts:47`) juga tidak membaca
+sesi sama sekali, dan memanggil `searchEligibleInstructorsGlobal` — enumerasi
+seluruh Instruktur bersertifikat se-Indonesia, tanpa sesi. Ia terlewat dari
+survei yang melahirkan tiket ini karena survei itu hanya menelusuri
+`training-detail-view`. Ditulis sebagai tiket 04; tidak dikerjakan di sini
+karena gate-nya berbeda bentuk — aksi itu tidak punya `trainingId`, sehingga
+`assertCanManage` tidak berlaku.
+
+Untuk Instruktur perilaku ini mungkin memang disengaja — ada
+`searchEligibleInstructorsGlobal` dengan nama yang menyatakannya, dan Instruktur
+dari Struktur lain memang lazim mengajar. Untuk Peserta jauh lebih meragukan:
+DM1 di sebuah PK semestinya menjangkau Kader PK itu, bukan nasional.
+
+Ini pertanyaan domain, bukan bug yang jelas — perlu diputuskan lebih dulu apakah
+Peserta boleh lintas Struktur. Layak tiket sendiri dan sebaiknya lewat
+`/domain-modeling`, karena `CONTEXT.md` belum menyebut apa pun tentang dari mana
+Peserta sebuah Daurah boleh berasal.
+
+**Gate mendahului pintasan `query.length < 2`** — bukan sesudahnya. Aksi ini
+endpoint POST tersendiri, jadi tidak boleh mengandalkan combobox yang sudah
+menyaring di sisi klien.
