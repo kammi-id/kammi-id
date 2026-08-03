@@ -2,6 +2,10 @@ import { validateSession } from './api'
 import { cookies } from 'next/headers'
 import { cache } from 'react'
 
+export type SessionUser = NonNullable<
+  Awaited<ReturnType<typeof readActiveSession>>
+>['user']
+
 export const readActiveSession = cache(async () => {
   const cookieStore = await cookies()
   const token = cookieStore.get('kammi_id_session')?.value

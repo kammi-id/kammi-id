@@ -6,7 +6,8 @@ import {
   searchEligibleInstructorsGlobal
 } from '~/db/query/training'
 import { revalidatePath, updateTag } from 'next/cache'
-import { readActiveSession } from '~/lib/auth/cookies'
+import { type SessionUser } from '~/lib/auth/cookies'
+import { requireDaurahCreationAccess } from '~/lib/auth/daurah'
 import { getLogger, redact } from '~/lib/logger'
 
 const logger = getLogger(['app', 'action', 'training'])
@@ -45,8 +46,16 @@ type ActionResponse<T = unknown> = {
 }
 
 export const searchMasterCandidatesAction = async (query: string) => {
-  if (query.length < 2) return { data: [], success: true }
   try {
+    // Gate mendahului pintasan `query.length < 2`: aksi ini endpoint POST
+    // tersendiri, jadi tidak boleh mengandalkan form yang sudah menyaring di
+    // sisi klien.
+    const access = await requireDaurahCreationAccess()
+    if (!access.allowed)
+      return { data: [], success: false, message: access.message }
+
+    if (query.length < 2) return { data: [], success: true }
+
     const data = await searchEligibleInstructorsGlobal(query)
     return { data, success: true }
   } catch {
@@ -58,25 +67,14 @@ export const createTrainingAction = async (
   _prevState: ActionResponse,
   formData: FormData
 ): Promise<ActionResponse> => {
-  let user:
-    | NonNullable<Awaited<ReturnType<typeof readActiveSession>>>['user']
-    | undefined
+  let user: SessionUser | undefined
   let rawData: Record<string, FormDataEntryValue> | undefined
 
   try {
-    const session = await readActiveSession()
-    if (!session) return { success: false, message: 'Sesi tidak ditemukan.' }
+    const access = await requireDaurahCreationAccess()
+    if (!access.allowed) return { success: false, message: access.message }
 
-    user = session.user
-    if (!user) return { success: false, message: 'Pengguna tidak ditemukan.' }
-
-    const mutationRoles = ['root', 'bpk']
-    if (!mutationRoles.includes(user.role)) {
-      return {
-        success: false,
-        message: 'Antum tidak memiliki hak akses untuk menambah daurah.'
-      }
-    }
+    user = access.user
 
     rawData = Object.fromEntries(formData.entries())
     const validated = TrainingSchema.safeParse(rawData)
