@@ -46,6 +46,12 @@ const assertCanEditPassing = async (
   const manageError = await assertCanManage(trainingId)
   if (manageError) return manageError
 
+  // Root menembus Masa Penetapan Kelulusan di kedua sisinya: ia kewenangan
+  // pemulih keadaan, dan koreksi data yang terlanjur salah tidak mengenal
+  // arah waktu. Kewenangan lain tetap terkunci oleh masa di bawah ini.
+  const session = await readActiveSession()
+  if (session?.user.role === 'root') return null
+
   const [t] = await db
     .select({ endDate: trainingTable.endDate })
     .from(trainingTable)

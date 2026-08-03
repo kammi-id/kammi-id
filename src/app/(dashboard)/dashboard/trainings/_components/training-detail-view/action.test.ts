@@ -295,6 +295,52 @@ describe('training-detail-view actions', () => {
       )
     })
 
+    it('allows root to grade while the training is still running', async () => {
+      mockSession = {
+        user: { id: 'u1', role: 'root', connectedOrganizationId: pkItbId }
+      }
+      const training = await createTraining(pkItbId, {
+        startDate: daysFromNow(1),
+        endDate: daysFromNow(3)
+      })
+      const member = await createTestMember(pkItbId)
+      await trainingQuery.addAttendant(training.id, member.id)
+
+      const result = await updateAttendantStatusAction(
+        undefined,
+        toFormData({
+          trainingId: training.id,
+          memberId: member.id,
+          isPassing: 'true'
+        })
+      )
+
+      expect(result.success).toBe(true)
+    })
+
+    it('allows root to grade more than 30 days after the training ends', async () => {
+      mockSession = {
+        user: { id: 'u1', role: 'root', connectedOrganizationId: pkItbId }
+      }
+      const training = await createTraining(pkItbId, {
+        startDate: daysAgo(45),
+        endDate: daysAgo(31)
+      })
+      const member = await createTestMember(pkItbId)
+      await trainingQuery.addAttendant(training.id, member.id)
+
+      const result = await updateAttendantStatusAction(
+        undefined,
+        toFormData({
+          trainingId: training.id,
+          memberId: member.id,
+          isPassing: 'true'
+        })
+      )
+
+      expect(result.success).toBe(true)
+    })
+
     it('rejects grading for a training outside the org scope even within the window', async () => {
       mockSession = {
         user: { id: 'u1', role: 'bpk', connectedOrganizationId: pkItbId }

@@ -35,11 +35,26 @@ sudah ada dan cukup rapat (enam kasus, termasuk batas hari ke-30 dan ke-31) di
 `action.test.ts` sebelahnya — tambahkan kasus baru mengikuti pola yang sudah
 ada di sana, jangan bikin gaya baru.
 
-- [ ] Root dapat menetapkan Kelulusan saat Daurah masih berlangsung
-- [ ] Root dapat menetapkan Kelulusan lebih dari 30 hari setelah Daurah selesai
-- [ ] Kewenangan selain Root masih ditolak di kedua sisi jendela, dengan pesan
+- [x] Root dapat menetapkan Kelulusan saat Daurah masih berlangsung
+- [x] Root dapat menetapkan Kelulusan lebih dari 30 hari setelah Daurah selesai
+- [x] Kewenangan selain Root masih ditolak di kedua sisi jendela, dengan pesan
       yang sama persis seperti sekarang
-- [ ] Pengecekan kewenangan dan Cakupan sebelum gate ini tidak berubah
-- [ ] Tes baru mengikuti pola tes yang sudah ada di file yang sama
-- [ ] `bun run check:types` lolos
-- [ ] Seluruh tes lolos
+- [x] Pengecekan kewenangan dan Cakupan sebelum gate ini tidak berubah
+- [x] Tes baru mengikuti pola tes yang sudah ada di file yang sama
+- [x] `bun run check:types` lolos
+- [x] Seluruh tes lolos
+
+## Comments
+
+**Gate-nya ada dua, tiket ini baru menyebut satu.** Selain
+`assertCanEditPassing`, aturan Masa Penetapan Kelulusan disalin ulang di
+`trainings/[branch]/[id]/page.tsx` sebagai prop `canEditPassing` yang
+mematikan kontrol di UI. Kalau hanya `action.ts` yang dibuka, Root tetap
+melihat checkbox non-aktif dan banner "Periode 30 hari … telah berakhir" —
+kewenangan barunya tidak bisa dipakai lewat aplikasi. Jadi satu klausa yang
+sama ditambahkan di sana juga; bentuknya tetap sesempit yang diminta dan tidak
+melonggarkan apa pun untuk kewenangan lain.
+
+**Follow-up:** aturan ini sekarang hidup di dua tempat dan bisa hanyut
+sendiri-sendiri. Layak satu tiket terpisah untuk menyatukannya menjadi satu
+fungsi yang dipakai gate server dan page.

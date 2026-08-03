@@ -36,7 +36,10 @@ const TrainingPage = async ({ params }: PageProps) => {
     (today.getTime() - endDate.getTime()) / (1000 * 60 * 60 * 24)
   )
   const isCompleted = today > endDate
-  const canEditPassing = canManage && isCompleted && daysSinceEnd <= 30
+  // Cermin dari gate server di `training-detail-view/action.ts`: Root menembus
+  // Masa Penetapan Kelulusan di kedua sisinya, kewenangan lain tetap terkunci.
+  const canEditPassing =
+    canManage && (user?.role === 'root' || (isCompleted && daysSinceEnd <= 30))
 
   const passingDeadline = isCompleted
     ? new Date(endDate.getTime() + 30 * 24 * 60 * 60 * 1000)
