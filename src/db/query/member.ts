@@ -73,8 +73,8 @@ type MemberAggregatesRow = {
 
 export const readMemberAggregates = async (
   filters: MemberAggregatesFilters & {
-    user?: { role: string; connectedOrganizationId: string | null }
-  } = {}
+    user: { role: string; connectedOrganizationId: string | null }
+  }
 ): Promise<Array<MemberAggregatesResult>> => {
   const {
     organizationId,
@@ -84,16 +84,13 @@ export const readMemberAggregates = async (
     user
   } = filters
 
-  let allowedOrgIds: string[] = []
-  if (user) {
-    const allowedRoles = ['root', 'bph', 'bpk']
-    if (!allowedRoles.includes(user.role)) {
-      return []
-    }
-
-    allowedOrgIds = await fetchAllowedOrgIds(user)
-    if (allowedOrgIds.length === 0) return []
+  const allowedRoles = ['root', 'bph', 'bpk']
+  if (!allowedRoles.includes(user.role)) {
+    return []
   }
+
+  const allowedOrgIds = await fetchAllowedOrgIds(user)
+  if (allowedOrgIds.length === 0) return []
 
   // Determine the single anchor org for the recursive CTE.
   // When organizationId is given, we expand from that org downward.
@@ -102,7 +99,7 @@ export const readMemberAggregates = async (
   // We NEVER use multiple anchors — that's what caused double-counting before.
   let anchorId: string | null = organizationId || null
 
-  if (!anchorId && user) {
+  if (!anchorId) {
     const connectedOrgId =
       user.connectedOrganizationId ??
       (await db
@@ -427,22 +424,20 @@ export const readDescendantMembers = async (
   filters: MemberFilters & {
     limit?: number
     offset?: number
-    user?: { role: string; connectedOrganizationId: string | null }
-  } = {}
+    user: { role: string; connectedOrganizationId: string | null }
+  }
 ): Promise<[Member[], number]> => {
   const { limit = 10, offset = 0, user, ...memberFilters } = filters
 
-  if (user) {
-    const allowedIds = await fetchAllowedOrgIds(user)
-    if (allowedIds.length === 0) {
-      return [[], 0]
-    }
-    // We need to make sure the requested parentId is also in the allowed list,
-    // or the user is root. Root is handled by fetchAllowedOrgIds returning all.
-    // But for specific subtree queries, the user must have access to the root of that subtree.
-    if (!allowedIds.includes(parentId)) {
-      return [[], 0]
-    }
+  const allowedIds = await fetchAllowedOrgIds(user)
+  if (allowedIds.length === 0) {
+    return [[], 0]
+  }
+  // We need to make sure the requested parentId is also in the allowed list,
+  // or the user is root. Root is handled by fetchAllowedOrgIds returning all.
+  // But for specific subtree queries, the user must have access to the root of that subtree.
+  if (!allowedIds.includes(parentId)) {
+    return [[], 0]
   }
 
   const { name, status, gender } = memberFilters

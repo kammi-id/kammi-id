@@ -13,15 +13,16 @@ import { readMemberAcademic } from '~/db/query/academic'
 import { readMemberCareer } from '~/db/query/career'
 import { readMemberOrganizationHistory } from '~/db/query/organization-history'
 
+type ScopedUser = { role: string; connectedOrganizationId: string | null }
+
 type DescendantMemberFilters = MemberFilters & {
   limit?: number
   offset?: number
+  user: ScopedUser
 }
 
 export async function getCachedMemberAggregates(
-  filters: MemberAggregatesFilters & {
-    user?: { role: string; connectedOrganizationId: string | null }
-  }
+  filters: MemberAggregatesFilters & { user: ScopedUser }
 ) {
   'use cache'
   cacheLife('minutes')

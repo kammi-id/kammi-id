@@ -132,7 +132,13 @@ export const MembersPageContent = async ({
     offset: summary.offset
   }
 
+  const userForScope = {
+    role: user.role,
+    connectedOrganizationId: user.connectedOrganization?.id ?? null
+  }
+
   const mFilters = {
+    user: userForScope,
     name: individuals.mQuery,
     limit: individuals.mLimit,
     offset: individuals.mOffset,
@@ -163,6 +169,7 @@ export const MembersPageContent = async ({
     : Promise.resolve([[], 0] as [Organization[], number])
 
   const aggregatesPromise = getCachedMemberAggregates({
+    user: userForScope,
     organizationId: currentOrg.id,
     isCertifiedMentor: activeType === 'pemandu' ? true : undefined,
     isCertifiedInstructor: activeType === 'instruktur' ? true : undefined,
@@ -202,10 +209,7 @@ export const MembersPageContent = async ({
 
   // Fetch all allowed organizations for the member form
   const allActiveOrgs = await getCachedOrganizations({ isNonActive: false })
-  const allowedOrgIds = await fetchAllowedOrgIds({
-    role: user.role,
-    connectedOrganizationId: user.connectedOrganization?.id || null
-  })
+  const allowedOrgIds = await fetchAllowedOrgIds(userForScope)
   const allowedOrganizations = allActiveOrgs.filter((org) =>
     allowedOrgIds.includes(org.id)
   )

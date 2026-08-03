@@ -42,14 +42,21 @@ const Page = async ({
     )
   }
 
+  const userForScope = {
+    role: session.user?.role ?? '',
+    connectedOrganizationId: session.user?.connectedOrganization?.id ?? null
+  }
+
   // Fetch counts for the summary cards
   const [pemanduAgg, instrukturAgg] = await Promise.all([
     getCachedMemberAggregates({
+      user: userForScope,
       organizationId: currentOrg.id,
       isCertifiedMentor: true,
       isAlumn: false
     }),
     getCachedMemberAggregates({
+      user: userForScope,
       organizationId: currentOrg.id,
       isCertifiedInstructor: true,
       isAlumn: false
