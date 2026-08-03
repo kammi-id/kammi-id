@@ -1,7 +1,12 @@
 /**
  * Masa Penetapan Kelulusan — rentang waktu Kelulusan sebuah Daurah boleh
- * ditetapkan atau diubah. Terbuka sehari setelah Daurah selesai, tertutup
+ * ditetapkan atau dicabut. Terbuka sehari setelah Daurah selesai, tertutup
  * `MASA_HARI` hari sesudahnya.
+ *
+ * Pencabutan tunduk pada masa ini lewat pintu mana pun, termasuk mengeluarkan
+ * Peserta yang memegangnya. Mengeluarkan Peserta yang tidak memegang Kelulusan
+ * adalah koreksi roster, bukan pencabutan, dan tidak lewat sini sama sekali —
+ * lihat `docs/adr/0003-kelulusan-hanya-punya-satu-sisi.md`.
  *
  * Root menembus kedua sisinya, bukan hanya sisi penutupnya: ia kewenangan
  * pemulih keadaan, dan koreksi data yang terlanjur salah tidak mengenal arah

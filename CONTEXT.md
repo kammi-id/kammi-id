@@ -161,14 +161,20 @@ Kader yang mengikuti sebuah Daurah.
 _Avoid_: Attendant, Partisipan
 
 **Kelulusan**:
-Keputusan lulus atau tidaknya seorang Peserta dari sebuah Daurah — inilah yang
-menaikkan Jenjang Kekaderan atau memberi sertifikasi Perangkat.
-_Avoid_: Passing, Kelolosan
+Penetapan bahwa seorang Peserta lulus dari sebuah Daurah — inilah yang
+menaikkan Jenjang Kekaderan atau memberi sertifikasi Perangkat. Peserta yang
+tidak memegang Kelulusan tidak dibedakan antara belum dinilai dan dinilai
+tidak lulus: keduanya sama-sama ketiadaan Kelulusan, bukan dua keadaan yang
+berbeda.
+_Avoid_: Passing, Kelolosan, Kelulusan negatif
 
 **Masa Penetapan Kelulusan**:
-Rentang waktu Kelulusan sebuah Daurah boleh ditetapkan atau diubah: terbuka
-sehari setelah Daurah selesai, tertutup 30 hari sesudahnya. Hanya Root yang
-boleh mengubah Kelulusan di luar masa ini.
+Rentang waktu Kelulusan sebuah Daurah boleh ditetapkan atau dicabut: terbuka
+sehari setelah Daurah selesai, tertutup 30 hari sesudahnya. Pencabutan tunduk
+pada masa ini lewat pintu mana pun ia terjadi — termasuk ketika Peserta yang
+memegangnya dikeluarkan dari Daurah. Mengeluarkan Peserta yang tidak memegang
+Kelulusan bukan pencabutan melainkan koreksi roster, dan sah dilakukan kapan
+pun. Hanya Root yang boleh menembus masa ini.
 _Avoid_: Grading window, Masa penilaian
 
 **Peran Instruktur**:
