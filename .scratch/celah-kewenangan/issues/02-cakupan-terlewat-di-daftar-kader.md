@@ -70,8 +70,8 @@ Belum dikerjakan (di luar cakupan isu ini):
 
 - `currentOrg` masih diambil dari slug URL tanpa `isOrgInScope`. Akun BPK yang
   menembak slug asing sekarang melihat halaman kosong, bukan penolakan — nama
-  Struktur dan daftar anaknya (`getCachedOrganizations`) masih terbaca. Layak
-  jadi isu tersendiri.
+  Struktur dan daftar anaknya (`getCachedOrganizations`) masih terbaca.
+  Dilanjutkan di tiket 05.
 - `readMember` masih menerima `user?` opsional. Pemanggilnya hanya tes untuk
   saat ini, tapi "tidak mungkin dilewatkan" belum berlaku se-modul.
 - `readDescendantMembers` menegakkan Cakupan tapi tidak Kewenangan — tidak ada
