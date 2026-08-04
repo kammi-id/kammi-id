@@ -22,16 +22,30 @@ CI sudah melakukan hal yang benar dan bisa dicontoh langsung:
 
 ## Kenapa `ready-for-human`
 
-Pertanyaan pertamanya bukan pertanyaan teknis: **apakah
-`103.126.117.171:5432/kammi-id` itu basis data yang sama dengan production?**
+`103.126.117.171:5432/kammi-id` adalah non-localhost, dan aturan yang ditetapkan
+pengguna 4 Agustus 2026 menyatakan **non-localhost dianggap production** (lihat
+tiket `01`). Jadi klasifikasinya tidak lagi jadi pertanyaan terbuka: sampai ada
+yang membuktikan sebaliknya, host itu production.
 
-Tidak ada yang mencatatnya di repo, dan aplikasinya sudah jalan di production
-dengan data nyata. Jawabannya menentukan apakah ini pekerjaan kebersihan atau
-insiden. Agen tidak boleh menjawabnya sendirian, dan tidak boleh menebaknya.
+Yang tersisa justru lebih berat daripada sekadar klasifikasi — **menilai apa yang
+sudah terlanjur mengenainya.**
 
-- [ ] Terjawab: host di `.env.local` itu production, staging, atau bukan keduanya
-- [ ] Kalau ternyata production — dinilai apakah pernah ada `bun test`, `db:reset`,
-      atau `db:push` yang mengenainya, dan kredensialnya dirotasi
+`bun test` dijalankan rutin selama beberapa sesi terakhir, termasuk dua kali full
+suite pada 4 Agustus 2026. Sembilan berkasnya menjalankan
+`TRUNCATE TABLE "user", "member", training, training_attendants, organization CASCADE`
+di tiap `beforeEach`, terhadap host itu. Tidak ada satu pun pagar yang
+menghalanginya, dan tidak ada yang bertanya lebih dulu.
+
+Satu bukti tandingan, dicatat supaya penilaiannya jujur: kalau host itu benar
+production, `TRUNCATE` atas `"user"` dan `"member"` berulang kali akan langsung
+terlihat — orang gagal masuk, data Kader hilang. Tidak ada tanda itu terjadi.
+Jadi kemungkinan besar ia basis data pengembangan yang kebetulan remote. Tapi
+"kemungkinan besar" bukan dasar untuk memutuskan, dan yang memegang faktanya
+manusia, bukan agen. Itu sebabnya tiket ini tidak turun ke `ready-for-agent`.
+
+- [ ] Dipastikan host itu benar-benar production atau bukan — dengan melihat, bukan menyimpulkan
+- [ ] Dinilai apa yang sudah mengenainya: `bun test`, `db:reset`, `db:push`
+- [ ] Kalau ternyata production — kredensial di `.env.local` dirotasi
 - [ ] `DATABASE_URL` tes terpisah dari `DATABASE_URL` aplikasi
 - [ ] Basis data tes hidup di mesin yang menjalankan tes (container lokal, seperti CI)
 - [ ] Caranya terdokumentasi, supaya pagar tiket 01 tidak jadi penghalang

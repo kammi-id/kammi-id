@@ -42,16 +42,30 @@ Satu modul, dipanggil semua pintu. Namanya menyebut hak yang diberikan, bukan
 aksi memeriksanya — misal `assertLocalDatabase` / `requireDatabaseConsent` di
 `src/lib/db-guard/`. Jangan diduplikasi ke tiap skrip.
 
-### Mendeteksi "bukan mesin ini"
+### Aturan klasifikasinya
+
+**Non-localhost dianggap production.** Bukan "mungkin production", bukan
+"tanyakan dulu" — diperlakukan sebagai production, titik. Keputusan pengguna,
+4 Agustus 2026. Tidak ada daftar pengecualian host, tidak ada penanda yang bisa
+menurunkan derajatnya. Sebuah host staging yang salah dianggap production hanya
+berbiaya satu konfirmasi; kebalikannya berbiaya basis data.
 
 Host lokal: `localhost`, `127.0.0.1`, `::1`, `host.docker.internal`.
 
-**Localhost adalah syarat perlu, bukan syarat cukup.** SSH tunnel dan
+**Tapi localhost tidak otomatis berarti aman.** SSH tunnel dan
 `kubectl port-forward` membuat basis data production tampak persis seperti
 localhost, dan justru itu cara orang menyentuh production dari mesinnya. Jadi
-perlu sinyal kedua yang eksplisit — nama basis data yang mengandung `test`,
-atau sebuah `DATABASE_IS_DISPOSABLE=1`. Yang tidak boleh: menyimpulkan aman
-hanya dari host-nya.
+aturannya berjalan satu arah saja:
+
+| `DATABASE_URL`                        | Diperlakukan sebagai                                    |
+| ------------------------------------- | ------------------------------------------------------- |
+| Non-localhost                         | **Production.** Selalu.                                 |
+| Localhost + sinyal kedua yang eksplisit | Basis data sekali pakai                                 |
+| Localhost, tanpa sinyal kedua         | **Production.** Gagal ke sisi yang aman.                |
+
+Sinyal kedua itu eksplisit dan dipasang orang, bukan disimpulkan: nama basis
+data yang mengandung `test`, atau sebuah `DATABASE_IS_DISPOSABLE=1`. Yang tidak
+boleh: menyimpulkan aman hanya dari host-nya.
 
 ### Perilakunya berbeda per pintu, karena yang menonton berbeda
 
@@ -83,7 +97,8 @@ Sebaliknya, memperingatkan `next dev` setiap hari untuk keadaan yang memang
 normal hanya melatih orang mengabaikan peringatan. Sebut sekali, lalu diam.
 
 - [ ] Satu modul pagar, dipakai semua pintu, tidak diduplikasi
-- [ ] Deteksi memakai host **dan** sinyal kedua yang eksplisit — bukan host saja
+- [ ] Non-localhost selalu diperlakukan production — tanpa daftar pengecualian
+- [ ] Localhost tanpa sinyal kedua yang eksplisit juga diperlakukan production
 - [ ] `db:reset`/`db:seed`/`db:migrate`/`db:push` meminta konfirmasi; tanpa TTY menolak
 - [ ] `bun test` menolak tanpa `ALLOW_REMOTE_TEST_DB=1`
 - [ ] `next dev`/`next start` memperingatkan tanpa memblokir
