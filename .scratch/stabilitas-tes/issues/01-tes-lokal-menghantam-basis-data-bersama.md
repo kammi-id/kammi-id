@@ -42,76 +42,89 @@ Satu modul, dipanggil semua pintu. Namanya menyebut hak yang diberikan, bukan
 aksi memeriksanya — misal `assertLocalDatabase` / `requireDatabaseConsent` di
 `src/lib/db-guard/`. Jangan diduplikasi ke tiap skrip.
 
-### Aturan klasifikasinya
+### Aturannya
 
-**Non-localhost dianggap production.** Bukan "mungkin production", bukan
-"tanyakan dulu" — diperlakukan sebagai production, titik. Keputusan pengguna,
-4 Agustus 2026. Tidak ada daftar pengecualian host, tidak ada penanda yang bisa
-menurunkan derajatnya. Sebuah host staging yang salah dianggap production hanya
-berbiaya satu konfirmasi; kebalikannya berbiaya basis data.
+Keputusan pengguna, 4 Agustus 2026. Dua baris, tidak lebih:
 
-Host lokal: `localhost`, `127.0.0.1`, `::1`, `host.docker.internal`.
+| `DATABASE_URL` | Perilaku                                            |
+| -------------- | --------------------------------------------------- |
+| Localhost      | **Jalan segera. Jangan bertanya.**                  |
+| Non-localhost  | **Production. Konfirmasi pengguna wajib.**          |
 
-**Tapi localhost tidak otomatis berarti aman.** SSH tunnel dan
-`kubectl port-forward` membuat basis data production tampak persis seperti
-localhost, dan justru itu cara orang menyentuh production dari mesinnya. Jadi
-aturannya berjalan satu arah saja:
+Host lokal: `localhost`, `127.0.0.1`, `::1`, `host.docker.internal`. Selain itu
+production — tanpa daftar pengecualian, tanpa penanda yang bisa menurunkan
+derajatnya. Host staging yang salah dianggap production cuma berbiaya satu
+konfirmasi; kebalikannya berbiaya basis data.
 
-| `DATABASE_URL`                        | Diperlakukan sebagai                                    |
-| ------------------------------------- | ------------------------------------------------------- |
-| Non-localhost                         | **Production.** Selalu.                                 |
-| Localhost + sinyal kedua yang eksplisit | Basis data sekali pakai                                 |
-| Localhost, tanpa sinyal kedua         | **Production.** Gagal ke sisi yang aman.                |
+**Jangan tambahkan sinyal kedua.** Localhost lolos apa adanya. Pertimbangannya
+sudah dibahas dan ditolak — lihat _Risiko yang diterima_ di bawah. Kesederhanaan
+aturannya adalah fiturnya: pagar yang butuh dua kondisi adalah pagar yang
+diakali orang, dan pagar yang diakali tidak menjaga apa pun.
 
-Sinyal kedua itu eksplisit dan dipasang orang, bukan disimpulkan: nama basis
-data yang mengandung `test`, atau sebuah `DATABASE_IS_DISPOSABLE=1`. Yang tidak
-boleh: menyimpulkan aman hanya dari host-nya.
+### Bentuk konfirmasinya
 
-### Perilakunya berbeda per pintu, karena yang menonton berbeda
+Satu jalur untuk semua pintu yang merusak — `db:reset`, `db:seed`, `db:migrate`,
+`db:push`, `bun test`:
 
-Satu mekanisme untuk semuanya justru membuat pagarnya jebol — lihat _Kenapa
-tidak satu bentuk saja_ di bawah.
+1. Tampilkan host dan nama basis data yang akan disentuh.
+2. Minta pengguna **mengetik nama basis datanya**, bukan menekan `y`.
+3. **Tanpa TTY → tolak, jangan menebak.** Test runner di IDE, CI, dan agen yang
+   memanggil lewat shell tidak punya stdin interaktif. Prompt di sana bukan
+   bertanya — ia menggantung selamanya, atau membaca EOF dan lolos diam-diam.
+   Yang kedua lebih buruk: pagar yang gagal terbuka.
+4. Sediakan satu env var untuk memberi izin di muka (mis. `DB_GUARD_ACK=1`),
+   supaya runner non-interaktif punya jalan yang sengaja dan terlihat, bukan
+   jalan pintas yang diam.
 
-| Pintu                                            | Perilaku                                                                                                                  |
-| ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------- |
-| `db:reset`, `db:seed`, `db:migrate`, `db:push`   | **Prompt interaktif.** Tampilkan host + nama basis data, minta pengguna mengetik nama basis datanya. Tanpa TTY → **tolak**. |
-| `bun test`                                       | **Tolak mentah.** Opt-out hanya lewat `ALLOW_REMOTE_TEST_DB=1` yang eksplisit.                                            |
-| `next dev`, `next start`                         | **Satu baris peringatan saat boot. Jangan blokir.**                                                                       |
+Mengetik nama basis data, bukan `y`, itu disengaja. Tes dijalankan puluhan kali
+sehari; konfirmasi yang cukup dijawab satu tombol berhenti dibaca dalam hitungan
+hari.
 
-### Kenapa tidak satu bentuk saja
+`next dev` dan `next start` **tidak** ikut jalur ini — keduanya tidak merusak,
+dan basis data remote justru keadaan normal di sana. Cukup satu baris peringatan
+saat boot, jangan blokir. Memperingatkan hal yang normal setiap hari hanya
+melatih orang mengabaikan peringatan.
 
-Prompt interaktif di `bun test` punya dua cara gagal:
+### Risiko yang diterima
 
-1. **Tidak ada TTY.** Test runner di IDE, CI, dan agen yang memanggil lewat
-   shell tidak punya stdin interaktif. Prompt di sana bukan bertanya — ia
-   menggantung selamanya, atau membaca EOF dan lolos diam-diam. Yang kedua lebih
-   buruk: pagar yang gagal terbuka.
-2. **Muscle memory.** Tes dijalankan puluhan kali sehari. Konfirmasi sesering itu
-   berhenti dibaca dalam hitungan hari; yang tersisa refleks `y`+Enter. Pagar
-   yang selalu disetujui bukan pagar.
+SSH tunnel dan `kubectl port-forward` membuat basis data production tampak
+persis seperti localhost. Di bawah aturan ini, basis data production yang
+di-tunnel akan lolos tanpa ditanya.
 
-`ALLOW_REMOTE_TEST_DB=1` tetap memenuhi "wajib konfirmasi" — ia perbuatan yang
-disengaja — tapi tidak bisa di-muscle-memory dan tidak bisa menggantung.
+**Ini diterima secara sadar, bukan terlewat.** Alternatifnya — menuntut sinyal
+kedua yang eksplisit di jalur localhost — membuat setiap pengembang harus
+menyalakan sesuatu sebelum bisa menjalankan tes, tiap hari, untuk menutup kasus
+yang jarang. Biaya hariannya nyata dan langsung; kalau pagarnya terasa
+menghalangi, ia akan diakali, dan pagar yang diakali tidak menjaga apa pun.
 
-Sebaliknya, memperingatkan `next dev` setiap hari untuk keadaan yang memang
-normal hanya melatih orang mengabaikan peringatan. Sebut sekali, lalu diam.
+Kalau kelak ada yang benar-benar men-tunnel production ke localhost di repo ini,
+tinjau ulang keputusan ini.
 
 - [ ] Satu modul pagar, dipakai semua pintu, tidak diduplikasi
-- [ ] Non-localhost selalu diperlakukan production — tanpa daftar pengecualian
-- [ ] Localhost tanpa sinyal kedua yang eksplisit juga diperlakukan production
-- [ ] `db:reset`/`db:seed`/`db:migrate`/`db:push` meminta konfirmasi; tanpa TTY menolak
-- [ ] `bun test` menolak tanpa `ALLOW_REMOTE_TEST_DB=1`
+- [ ] Localhost lolos tanpa pertanyaan — tanpa syarat tambahan
+- [ ] Non-localhost selalu production — tanpa daftar pengecualian
+- [ ] `db:reset`/`db:seed`/`db:migrate`/`db:push`/`bun test` minta ketik nama basis data
+- [ ] Tanpa TTY → menolak, bukan menggantung dan bukan lolos
+- [ ] Ada env var izin-di-muka untuk runner non-interaktif
 - [ ] `next dev`/`next start` memperingatkan tanpa memblokir
-- [ ] CI tetap hijau tanpa perlu opt-out apa pun (`DATABASE_URL`-nya sudah localhost)
+- [ ] CI tetap hijau tanpa opt-out apa pun (`DATABASE_URL`-nya sudah localhost)
 - [ ] Cara menyalakan basis data tes lokal terdokumentasi
 
 ## Comments
 
-**Bentuk pagar ini keputusan pengguna, 4 Agustus 2026.** Usul awalnya: peringatan
-+ konfirmasi wajib untuk operasi apa pun begitu `DATABASE_URL` bukan localhost.
-Prinsipnya diambil utuh — pagar di lapisan koneksi, bukan di `tests/setup.ts`.
-Yang disesuaikan hanya bentuk konfirmasinya per pintu, dengan alasan TTY dan
-muscle memory di atas.
+**Bentuk pagar ini keputusan pengguna, 4 Agustus 2026,** lewat tiga kali
+penajaman. Riwayatnya ditulis di sini supaya tidak diulang dari nol.
+
+1. Usul awal: peringatan + konfirmasi wajib untuk operasi apa pun begitu
+   `DATABASE_URL` bukan localhost. Prinsipnya diambil utuh — pagarnya milik
+   lapisan koneksi, bukan `tests/setup.ts`.
+2. Ditetapkan: non-localhost **dianggap production**, tanpa daftar pengecualian.
+3. Ditetapkan: localhost **jalan segera tanpa bertanya**.
+
+Poin 3 membatalkan usulan sebelumnya yang menuntut sinyal kedua di jalur
+localhost. Usulan itu berangkat dari kasus tunnel, dan **sudah dipertimbangkan
+lalu ditolak** — bukan terlewat. Alasannya ada di _Risiko yang diterima_. Jangan
+menghidupkannya lagi tanpa kasus nyata di repo ini.
 
 Memisahkan `DATABASE_URL` tes dari `DATABASE_URL` aplikasi tidak ada di tiket
 ini — lihat tiket `03`. Keduanya berdiri sendiri: pagar ini tetap benar entah
