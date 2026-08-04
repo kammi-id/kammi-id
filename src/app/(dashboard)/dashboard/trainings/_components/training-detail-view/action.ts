@@ -49,12 +49,15 @@ const PESAN_TERTUTUP: Record<AlasanTertutup, string> = {
   terlampaui: 'Batas waktu 30 hari setelah daurah selesai telah terlampaui.'
 }
 
-const assertCanEditPassing = async (
+// Separuh Masa Penetapan saja, tanpa Cakupan. Dipisah supaya pemanggil yang
+// sudah lolos `assertCanManage` tidak memanggilnya untuk kedua kalinya.
+//
+// Yang tidak ia hemat: sesi dan baris Daurah masih dibaca ulang di sini, sama
+// seperti sebelum dipecah. Menyatukannya berarti mengubah kontrak
+// `assertCanManage` yang dipakai delapan aksi lain — di luar tiket ini.
+const assertPassingWindowOpen = async (
   trainingId: string
 ): Promise<string | null> => {
-  const manageError = await assertCanManage(trainingId)
-  if (manageError) return manageError
-
   const [t] = await db
     .select({ endDate: trainingTable.endDate })
     .from(trainingTable)
@@ -70,6 +73,38 @@ const assertCanEditPassing = async (
   })
 
   return masa.terbuka ? null : PESAN_TERTUTUP[masa.alasan]
+}
+
+const assertCanEditPassing = async (
+  trainingId: string
+): Promise<string | null> => {
+  const manageError = await assertCanManage(trainingId)
+  if (manageError) return manageError
+
+  return assertPassingWindowOpen(trainingId)
+}
+
+/**
+ * Mengeluarkan Peserta yang memegang Kelulusan adalah pencabutan Kelulusan
+ * lewat pintu lain, jadi ia tunduk pada Masa Penetapan. Mengeluarkan Peserta
+ * yang tidak memegangnya adalah koreksi roster dan sah kapan pun — termasuk
+ * yang bernilai `false`, karena ketiadaan Kelulusan bukan keputusan yang
+ * tersimpan (`docs/adr/0003-kelulusan-hanya-punya-satu-sisi.md`).
+ */
+const assertCanRemoveAttendant = async (
+  trainingId: string,
+  memberId: string
+): Promise<string | null> => {
+  const manageError = await assertCanManage(trainingId)
+  if (manageError) return manageError
+
+  const isPassing = await trainingQuery.readAttendantPassing(
+    trainingId,
+    memberId
+  )
+  if (!isPassing) return null
+
+  return assertPassingWindowOpen(trainingId)
 }
 
 const UpdateTrainingSchema = z.object({
@@ -437,7 +472,7 @@ export const removeAttendantAction = async (
   memberId: string
 ): Promise<ActionResponse> => {
   try {
-    const authError = await assertCanManage(trainingId)
+    const authError = await assertCanRemoveAttendant(trainingId, memberId)
     if (authError) return { success: false, message: authError }
 
     await trainingQuery.removeAttendant(trainingId, memberId)

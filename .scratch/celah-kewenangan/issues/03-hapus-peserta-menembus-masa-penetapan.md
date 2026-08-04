@@ -6,7 +6,7 @@ tetap cukup dengan Cakupan.
 
 **Blocked by:** None — can start immediately.
 
-**Status:** ready-for-agent
+**Status:** done
 
 `removeAttendantAction`
 (`trainings/_components/training-detail-view/action.ts:437`) menjaga dirinya
@@ -34,13 +34,13 @@ Modul `src/lib/daurah/masa-penetapan-kelulusan.ts` sudah ada dan sudah memuat
 aturannya; tiket ini soal memanggilnya di tempat yang terlewat, bukan menulis
 ulang aturannya.
 
-- [ ] Menghapus Peserta ber-Kelulusan di luar Masa Penetapan ditolak
-- [ ] Menghapus Peserta tanpa Kelulusan tetap boleh kapan pun
-- [ ] Root masih boleh menghapus keduanya kapan pun
+- [x] Menghapus Peserta ber-Kelulusan di luar Masa Penetapan ditolak
+- [x] Menghapus Peserta tanpa Kelulusan tetap boleh kapan pun
+- [x] Root masih boleh menghapus keduanya kapan pun
 - [x] Definisi Masa Penetapan Kelulusan di `CONTEXT.md` menyusul keputusan ini
-- [ ] Ada tes untuk ketiga kasus di atas
-- [ ] `bun run check:types` lolos
-- [ ] Seluruh tes lolos
+- [x] Ada tes untuk ketiga kasus di atas
+- [x] `bun run check:types` lolos
+- [x] Seluruh tes lolos
 
 ## Comments
 
@@ -65,3 +65,17 @@ tertutup tanpa perubahan tambahan di `deleteTrainingAction`.
 **Jangan ikut mengunci penghapusan Instruktur.** `removeInstructor` ada di
 sebelahnya dan bentuknya mirip, tapi Peran Instruktur bukan Kelulusan dan tidak
 tunduk pada masa ini.
+
+---
+
+**Sisa yang sengaja tidak dikerjakan di sini (temuan `/code-review`).** Gate di
+`action.ts` membaca sesi dan baris Daurah dua kali kalau dirangkai:
+`assertCanManage` sekali, `assertPassingWindowOpen` sekali lagi. Ini
+pre-existing — `assertCanEditPassing` sudah begitu sejak sebelum tiket ini —
+tapi `removeAttendantAction` sekarang ikut menanggungnya, jadi ia berbiaya 5
+round-trip padahal cukup 3.
+
+Menyatukannya berarti mengubah kontrak `assertCanManage` dari `string | null`
+menjadi sesuatu yang membawa baris yang sudah terbaca, dan delapan aksi lain
+memanggilnya. Itu perubahan bentuk, bukan perubahan Kewenangan. **Layak tiket
+sendiri.**

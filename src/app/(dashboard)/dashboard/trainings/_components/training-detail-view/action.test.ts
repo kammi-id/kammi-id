@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, mock } from 'bun:test'
 import { db } from '~/db/db'
-import { sql } from 'drizzle-orm'
+import { and, eq, sql } from 'drizzle-orm'
+import { trainingAttendants } from '~/db/schema/training.sql'
 import { createOrganization } from '~/db/query/organization'
 import { createMember } from '~/db/query/member'
 import { trainingQuery } from '~/db/query/training'
@@ -19,6 +20,7 @@ mock.module('next/cache', () => ({
 const {
   addAttendantAction,
   updateAttendantStatusAction,
+  removeAttendantAction,
   searchTrainingAttendantsAction,
   searchTrainingInstructorsAction
 } = await import('./action')
@@ -287,6 +289,184 @@ describe('training-detail-view actions', () => {
           isPassing: 'true'
         })
       )
+
+      expect(result.success).toBe(false)
+      expect(result.message).toBe(
+        'Antum tidak memiliki hak akses untuk mengelola daurah ini.'
+      )
+    })
+  })
+
+  // Mengeluarkan Peserta adalah pintu kedua menuju pencabutan Kelulusan. Yang
+  // diuji di sini adalah percabangannya: hanya Peserta ber-Kelulusan yang
+  // tunduk pada Masa Penetapan; sisanya koreksi roster biasa.
+  describe('removeAttendantAction', () => {
+    const seedAttendant = async (
+      organizationId: string,
+      dates: { startDate: string; endDate: string },
+      isPassing: boolean
+    ) => {
+      const training = await createTraining(organizationId, dates)
+      const member = await createTestMember(organizationId)
+      await trainingQuery.addAttendant(training.id, member.id)
+      if (isPassing)
+        await trainingQuery.updateAttendantStatus(training.id, member.id, true)
+      return { training, member }
+    }
+
+    // `readAttendantPassing` memetakan baris hilang ke `false`, jadi ia tidak
+    // bisa membedakan "terhapus" dari "tidak lulus". Kasus yang berhasil
+    // butuh pertanyaan yang lain.
+    const attendantExists = async (trainingId: string, memberId: string) => {
+      const rows = await db
+        .select({ memberId: trainingAttendants.memberId })
+        .from(trainingAttendants)
+        .where(
+          and(
+            eq(trainingAttendants.trainingId, trainingId),
+            eq(trainingAttendants.memberId, memberId)
+          )
+        )
+      return rows.length > 0
+    }
+
+    it('rejects removing an attendant who holds a passing mark once the window has closed', async () => {
+      mockSession = {
+        user: { id: 'u1', role: 'bpk', connectedOrganizationId: pkItbId }
+      }
+      const { training, member } = await seedAttendant(
+        pkItbId,
+        { startDate: daysAgo(45), endDate: daysAgo(31) },
+        true
+      )
+
+      const result = await removeAttendantAction(training.id, member.id)
+
+      expect(result.success).toBe(false)
+      expect(result.message).toBe(
+        'Batas waktu 30 hari setelah daurah selesai telah terlampaui.'
+      )
+      expect(
+        await trainingQuery.readAttendantPassing(training.id, member.id)
+      ).toBe(true)
+    })
+
+    // Sisi lain dari jendela yang tertutup. Bisa terjadi kalau Root menandai
+    // Kelulusan sebelum Daurah selesai, lalu BPK mencoba mengeluarkan
+    // Pesertanya. Pesannya memang berbicara soal Kelulusan, bukan soal
+    // mengeluarkan Peserta — memang itu yang sedang dijaga.
+    it('rejects removing an attendant who holds a passing mark before the training has ended', async () => {
+      mockSession = {
+        user: { id: 'u1', role: 'bpk', connectedOrganizationId: pkItbId }
+      }
+      const { training, member } = await seedAttendant(
+        pkItbId,
+        { startDate: daysFromNow(1), endDate: daysFromNow(3) },
+        true
+      )
+
+      const result = await removeAttendantAction(training.id, member.id)
+
+      expect(result.success).toBe(false)
+      expect(result.message).toBe(
+        'Kelulusan hanya dapat diubah setelah daurah selesai.'
+      )
+      expect(await attendantExists(training.id, member.id)).toBe(true)
+    })
+
+    it('allows removing an attendant without a passing mark at any time', async () => {
+      mockSession = {
+        user: { id: 'u1', role: 'bpk', connectedOrganizationId: pkItbId }
+      }
+      const { training, member } = await seedAttendant(
+        pkItbId,
+        { startDate: daysAgo(45), endDate: daysAgo(31) },
+        false
+      )
+
+      const result = await removeAttendantAction(training.id, member.id)
+
+      expect(result.success).toBe(true)
+      expect(await attendantExists(training.id, member.id)).toBe(false)
+    })
+
+    // Daurah yang belum selesai menutup Masa Penetapan lewat alasan yang lain.
+    // Roster-nya tetap harus bisa dikoreksi selama daurah berlangsung.
+    it('allows removing an unmarked attendant from a training that has not ended', async () => {
+      mockSession = {
+        user: { id: 'u1', role: 'bpk', connectedOrganizationId: pkItbId }
+      }
+      const { training, member } = await seedAttendant(
+        pkItbId,
+        { startDate: daysFromNow(1), endDate: daysFromNow(3) },
+        false
+      )
+
+      const result = await removeAttendantAction(training.id, member.id)
+
+      expect(result.success).toBe(true)
+      expect(await attendantExists(training.id, member.id)).toBe(false)
+    })
+
+    it('allows removing a marked attendant while the window is still open', async () => {
+      mockSession = {
+        user: { id: 'u1', role: 'bpk', connectedOrganizationId: pkItbId }
+      }
+      const { training, member } = await seedAttendant(
+        pkItbId,
+        { startDate: daysAgo(10), endDate: daysAgo(5) },
+        true
+      )
+
+      const result = await removeAttendantAction(training.id, member.id)
+
+      expect(result.success).toBe(true)
+      expect(await attendantExists(training.id, member.id)).toBe(false)
+    })
+
+    it('lets root remove a marked attendant long after the window has closed', async () => {
+      mockSession = {
+        user: { id: 'root1', role: 'root', connectedOrganizationId: null }
+      }
+      const { training, member } = await seedAttendant(
+        pkOtherId,
+        { startDate: daysAgo(45), endDate: daysAgo(31) },
+        true
+      )
+
+      const result = await removeAttendantAction(training.id, member.id)
+
+      expect(result.success).toBe(true)
+      expect(await attendantExists(training.id, member.id)).toBe(false)
+    })
+
+    it('lets root remove an unmarked attendant long after the window has closed', async () => {
+      mockSession = {
+        user: { id: 'root1', role: 'root', connectedOrganizationId: null }
+      }
+      const { training, member } = await seedAttendant(
+        pkOtherId,
+        { startDate: daysAgo(45), endDate: daysAgo(31) },
+        false
+      )
+
+      const result = await removeAttendantAction(training.id, member.id)
+
+      expect(result.success).toBe(true)
+      expect(await attendantExists(training.id, member.id)).toBe(false)
+    })
+
+    it('rejects removing an attendant from a training outside the org scope', async () => {
+      mockSession = {
+        user: { id: 'u1', role: 'bpk', connectedOrganizationId: pkItbId }
+      }
+      const { training, member } = await seedAttendant(
+        pkOtherId,
+        { startDate: daysFromNow(5), endDate: daysFromNow(7) },
+        false
+      )
+
+      const result = await removeAttendantAction(training.id, member.id)
 
       expect(result.success).toBe(false)
       expect(result.message).toBe(

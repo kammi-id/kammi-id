@@ -426,6 +426,26 @@ export const trainingQuery = {
     return updated
   },
 
+  // Peserta yang barisnya tidak ada ikut terbaca `false` — itu disengaja:
+  // pemanggilnya bertanya "apakah ada Kelulusan yang ikut tercabut", dan
+  // jawabannya sama-sama tidak.
+  readAttendantPassing: async (
+    trainingId: string,
+    memberId: string
+  ): Promise<boolean> => {
+    const [row] = await db
+      .select({ isPassing: trainingAttendants.isPassing })
+      .from(trainingAttendants)
+      .where(
+        and(
+          eq(trainingAttendants.trainingId, trainingId),
+          eq(trainingAttendants.memberId, memberId)
+        )
+      )
+      .limit(1)
+    return row?.isPassing ?? false
+  },
+
   removeAttendant: async (trainingId: string, memberId: string) => {
     const [deleted] = await db
       .delete(trainingAttendants)
