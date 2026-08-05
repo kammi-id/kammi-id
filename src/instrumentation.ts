@@ -6,6 +6,11 @@ import type { Instrumentation } from 'next'
  * handling requests. Configures LogTape so every `getLogger(...)` call
  * across the app writes to the console sink.
  *
+ * Also warns once, here at boot, when `DATABASE_URL` points somewhere remote.
+ * Serving traffic against a remote database is the normal case, so this never
+ * blocks — the blocking guard lives in `src/db/db.ts` and only fires outside
+ * Next.js, where the destructive commands run.
+ *
  * Guarded by `NEXT_RUNTIME` because `instrumentation.ts` also runs in the
  * Edge runtime, where `@logtape/logtape`'s Node-oriented console sink isn't
  * needed (and importing it eagerly would bloat the edge bundle).
@@ -14,6 +19,10 @@ export const register = async (): Promise<void> => {
   if (process.env.NEXT_RUNTIME === 'nodejs') {
     const { configureLogger } = await import('~/lib/logger/config')
     await configureLogger()
+
+    // After `configureLogger`, never before — it logs through the app logger.
+    const { warnRemoteDatabase } = await import('~/lib/db-guard/warn')
+    warnRemoteDatabase()
   }
 }
 
