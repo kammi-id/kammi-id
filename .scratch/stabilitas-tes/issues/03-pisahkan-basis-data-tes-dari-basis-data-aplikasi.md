@@ -73,3 +73,62 @@ dan tetap mengenai basis data yang dipakai bersama sesuatu yang lain.
 Yang menyelesaikannya cuma basis data tes yang hidup di mesin yang menjalankan
 tesnya. `.github/workflows/ci.yml` sudah melakukannya — `postgres:16` sebagai
 service, `DATABASE_URL` ditimpa ke `localhost:5432/kammi_test`. Contek itu.
+
+---
+
+### Scope yang disepakati, 5 Agustus 2026
+
+Ronde pertama tiket ini dibuang seluruhnya karena scope-nya tidak disepakati di
+depan. Dua pertanyaan itu sekarang sudah dijawab pengguna:
+
+**1. Jalurnya: Docker.** Bukan Postgres native. Service `db-test` di
+`docker-compose.yml`, senapas dengan `db` dan Adminer yang sudah ada di sana.
+
+Usulan Postgres native lewat Homebrew **diajukan dan ditolak.** Alasan
+pengajuannya: tidak satu pun checkbox tiket ini menuntut Docker. Pengguna
+memilih tetap Docker demi konsistensi dengan compose yang sudah ada. Dicatat di
+sini supaya tidak diajukan ulang tanpa alasan baru.
+
+### Koreksi: restart mesin belum pernah terjadi
+
+Handoff sesi 4 Agustus menyatakan pengguna me-restart mesin untuk membangunkan
+daemon, dan sesi ini sempat mengulanginya sebagai fakta. **Keduanya keliru,**
+dan keliru karena klaimnya ditelan tanpa diperiksa.
+
+Diverifikasi 5 Agustus 2026:
+
+```
+uptime            → up 17 days, 4:26
+kern.boottime     → Sun Jul 19 18:02:02 2026
+com.docker.backend → berjalan 17 hari 4 jam, tanpa putus
+~/.docker/run/docker.sock → mtime Jul 19 18:18
+```
+
+Log backend berhenti di `2026-08-03T12:48` — daemon-nya **nyangkut**, bukan mati,
+dan sudah nyangkut dua hari. Jadi restart bukan langkah yang sudah gagal; ia
+langkah yang **belum pernah dijalankan**. Itu kandidat perbaikan pertama, bukan
+terakhir.
+
+**2. Batasnya: dua hal, lalu buktikan hijau.**
+
+- `DATABASE_URL` tes terpisah dan menunjuk localhost.
+- `tests/access-control.test.ts` hijau sepuluh kali berturut-turut.
+
+Docs, skrip penyalaan, dan penyelarasan `ci.yml` **menyusul terpisah**, setelah
+hijau terbukti. Itu kebalikan langsung dari ronde pertama, yang menulis 67 baris
+konfigurasi tanpa satu pun tes pernah hijau lewat `db-test`.
+
+**Prasyarat mutlak: daemon Docker harus terbukti hidup dulu.**
+`docker info --format '{{.ServerVersion}}'` harus balas dalam hitungan detik.
+Kalau masih gantung — **berhenti dan bilang, jangan menulis konfigurasi.**
+Menulis implementasi selama feedback loop-nya mati adalah cara ronde pertama
+berakhir di tempat sampah.
+
+### Hubungannya dengan tiket 01
+
+Tiket 01 sudah mendarat (`dfffa85`, 8/9). Pagarnya memperlakukan non-localhost
+sebagai production, jadi basis data tes di sini **harus** localhost — kalau ya,
+ia lolos senyap tanpa `DB_GUARD_ACK` apa pun, persis seperti CI hari ini.
+
+Checkbox docs di tiket ini sepasang dengan checkbox no.9 tiket 01 yang sengaja
+dibiarkan terbuka. Keduanya tutup bersama, dalam putaran setelah hijau terbukti.
