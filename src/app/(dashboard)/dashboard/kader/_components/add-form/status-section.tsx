@@ -40,6 +40,28 @@ export const StatusSection = ({
     if (isAb1 && isCertifiedInstructor) setIsCertifiedInstructor(false)
   }, [isAb1, isCertifiedMentor, isCertifiedInstructor])
 
+  // ADR-0001: seorang Kader berada pada tepat satu Keadaan. Ketiga Switch di
+  // bawah karena itu bukan tiga saklar bebas — ia satu pilihan yang dieja
+  // sebagai tiga boolean, dengan Aktif diwakili ketiganya padam. Bentuk yang
+  // sama sudah dipakai `profile-sidebar`; keduanya harus berperilaku identik.
+  type Keadaan = 'alumn' | 'nonActive' | 'suspended' | null
+  const keadaan: Keadaan = isSuspended
+    ? 'suspended'
+    : isNonActive
+      ? 'nonActive'
+      : isAlumn
+        ? 'alumn'
+        : null
+
+  const pilihKeadaan = (dipilih: Exclude<Keadaan, null>) => {
+    // Menekan Switch yang sedang menyala berarti kembali ke Aktif.
+    const berikutnya: Keadaan = keadaan === dipilih ? null : dipilih
+    setIsAlumn(berikutnya === 'alumn')
+    setIsNonActive(berikutnya === 'nonActive')
+    setIsSuspended(berikutnya === 'suspended')
+    handleInputChange()
+  }
+
   return (
     <FieldGroup>
       <h3 className='font-heading mb-4 text-lg font-semibold'>
@@ -92,11 +114,8 @@ export const StatusSection = ({
           <div className='flex items-center gap-2'>
             <Switch
               id='isAlumn'
-              checked={isAlumn}
-              onCheckedChange={(val) => {
-                setIsAlumn(val)
-                handleInputChange()
-              }}
+              checked={keadaan === 'alumn'}
+              onCheckedChange={() => pilihKeadaan('alumn')}
             />
             <input
               type='hidden'
@@ -110,11 +129,8 @@ export const StatusSection = ({
           <div className='flex items-center gap-2'>
             <Switch
               id='isNonActive'
-              checked={isNonActive}
-              onCheckedChange={(val) => {
-                setIsNonActive(val)
-                handleInputChange()
-              }}
+              checked={keadaan === 'nonActive'}
+              onCheckedChange={() => pilihKeadaan('nonActive')}
             />
             <input
               type='hidden'
@@ -128,11 +144,8 @@ export const StatusSection = ({
           <div className='flex items-center gap-2'>
             <Switch
               id='isSuspended'
-              checked={isSuspended}
-              onCheckedChange={(val) => {
-                setIsSuspended(val)
-                handleInputChange()
-              }}
+              checked={keadaan === 'suspended'}
+              onCheckedChange={() => pilihKeadaan('suspended')}
             />
             <input
               type='hidden'
