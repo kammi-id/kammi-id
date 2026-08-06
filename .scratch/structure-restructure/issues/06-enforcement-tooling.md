@@ -16,7 +16,7 @@ Two enforcers, split by what each rule actually is:
 
 **Blocked by:** 05 — AGENTS.md is the specification this tooling encodes.
 
-**Status:** ready-for-agent
+**Status:** done — 82be4b7
 
 **Land it warn-only, then flip it to error inside this same ticket.** Install the
 tooling as a warning, read its output as the worklist, clear whatever it finds,

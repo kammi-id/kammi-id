@@ -6,7 +6,9 @@ Berlaku untuk semua pintu, bukan hanya tes.
 
 **Blocked by:** None.
 
-**Status:** ready-for-agent
+**Status:** done — dfffa85. Pagarnya mendarat utuh. Sisa satu checkbox docs
+(no.9), yang tadinya diblokir tiket 03 — blokirnya sudah hilang sejak 74511e9,
+jadi ia tinggal menunggu putaran docs bersama checkbox docs tiket 03.
 
 ## Kenapa
 

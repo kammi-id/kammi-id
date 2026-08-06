@@ -5,7 +5,7 @@ luar Cakupan Akun, bukan menampilkannya kosong.
 
 **Blocked by:** None — tiket 02 sudah selesai dan tidak memblokir ini.
 
-**Status:** ready-for-agent
+**Status:** done — 78bd068
 
 Sisa dari tiket 02. Di sana daftar Kader-nya sudah ditutup — tapi hanya
 daftarnya.

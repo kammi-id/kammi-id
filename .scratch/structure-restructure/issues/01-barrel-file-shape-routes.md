@@ -15,7 +15,7 @@ Nine mechanical items, one repeated pattern:
 
 **Blocked by:** None — can start immediately.
 
-**Status:** ready-for-agent
+**Status:** done — 94a0ca5
 
 Two of the promoted components — the member-page composite and the specialist
 summary — are consumed by other routes. Their barrels are what make ticket 03

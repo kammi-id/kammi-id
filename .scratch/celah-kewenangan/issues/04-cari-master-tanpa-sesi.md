@@ -5,7 +5,7 @@ menegakkan Kewenangan sebelum mencari.
 
 **Blocked by:** None — can start immediately.
 
-**Status:** ready-for-agent
+**Status:** done — 6ba13be
 
 Aksinya ada di `trainings/_components/add-training-modal/action.ts:47`:
 

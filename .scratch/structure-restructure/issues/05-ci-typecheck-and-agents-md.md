@@ -11,7 +11,7 @@ cross-checking against the code.
 **Blocked by:** 01, 02, 03, 04 — AGENTS.md must describe the finished tree, and
 the type check should go green on the restructured code.
 
-**Status:** ready-for-agent
+**Status:** done — f9b5123
 
 **The CI gap is the higher-value half.** The type checker is the primary guard
 for this entire effort, and CI has never run it despite the script existing. It

@@ -7,7 +7,7 @@ each — and every one of those importers keeps working untouched.
 
 **Blocked by:** None — can start immediately.
 
-**Status:** ready-for-agent
+**Status:** done — 3b627a8
 
 The import paths do not change: a consumer importing the component by its name
 resolves to the folder's barrel exactly as it previously resolved to the file.

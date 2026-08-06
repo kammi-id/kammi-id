@@ -10,7 +10,7 @@ test asserting the gate.
 
 **Blocked by:** None — can start immediately.
 
-**Status:** ready-for-agent
+**Status:** done — b296524
 
 This is deliberately independent of tickets 01–03: it touches different files
 and a different concern, so it can run in parallel with the file-shape work.

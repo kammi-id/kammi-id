@@ -14,7 +14,7 @@ Four imports move:
 
 **Blocked by:** 01 — the barrels those imports will target are created there.
 
-**Status:** ready-for-agent
+**Status:** done — 21ace5a
 
 This is where the barrel-only rule becomes real, and it is the one place the
 mechanical pass and the ownership decision meet.

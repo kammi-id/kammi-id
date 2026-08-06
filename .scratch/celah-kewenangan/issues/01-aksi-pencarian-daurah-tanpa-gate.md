@@ -6,7 +6,7 @@ seperti aksi lain di file yang sama.
 
 **Blocked by:** None — can start immediately.
 
-**Status:** ready-for-agent
+**Status:** done — 8d7ab19
 
 Keduanya ada di `trainings/_components/training-detail-view/action.ts:457` dan
 `:471`. Isinya hanya `try` → panggil query → balikkan hasil. Tidak ada

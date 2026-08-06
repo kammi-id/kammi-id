@@ -22,9 +22,13 @@ Bukan kandidat arsitektur — cacat yang perlu tiket sendiri. Sudah ditulis di
 | # | Celah | Tiket | Status |
 | - | ----- | ----- | ------ |
 | 1 | `searchTrainingAttendantsAction` / `searchTrainingInstructorsAction` tanpa gate | `celah-kewenangan/01` | ✅ selesai (`8d7ab19`) |
-| 2 | Cakupan dilewati di daftar Kader & Perangkat (slug URL + `if (user)` yang di-skip) | `celah-kewenangan/02` | ⏭️ terbuka — paling serius |
-| 3 | `removeAttendantAction` menembus Masa Penetapan Kelulusan | `celah-kewenangan/03` | ⏸️ butuh `/domain-modeling` dulu |
-| 4 | `searchMasterCandidatesAction` tanpa sesi (terlewat dari survei awal) | `celah-kewenangan/04` | 🆕 terbuka |
+| 2 | Cakupan dilewati di daftar Kader & Perangkat (slug URL + `if (user)` yang di-skip) | `celah-kewenangan/02` | ✅ selesai |
+| 3 | `removeAttendantAction` menembus Masa Penetapan Kelulusan | `celah-kewenangan/03` | ✅ selesai (`d8265a7`) |
+| 4 | `searchMasterCandidatesAction` tanpa sesi (terlewat dari survei awal) | `celah-kewenangan/04` | ✅ selesai (`6ba13be`) |
+| 5 | Struktur dari slug tanpa Cakupan (sisa tiket 02) | `celah-kewenangan/05` | ✅ selesai (`78bd068`) |
+
+**Keempat celah sudah tertutup per 6 Agustus 2026.** Kandidat deepening di bawah
+belum — nomor 1 selesai, sisanya masih berdiri.
 
 ## Tujuh kandidat deepening
 

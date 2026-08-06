@@ -1,6 +1,8 @@
 # Spec: Structure & convention restructure (I1 execution)
 
-Status: ready-for-agent
+Status: done — keenam tiketnya mendarat (94a0ca5, 3b627a8, 21ace5a, b296524,
+f9b5123, 82be4b7). `check:structure`, `check:lint`, dan `check:types` ketiganya
+hijau di CI.
 
 Collapses the six resolved decision tickets of
 `.scratch/structure-convention/map.md` into a buildable plan. That map decided;
