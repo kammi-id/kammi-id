@@ -22,5 +22,17 @@ if (existsSync(envLocalPath)) {
   }
 }
 
+// `bun test` tidak boleh menyentuh basis data yang dipakai aplikasi. Kalau
+// TEST_DATABASE_URL ada, ia menang mutlak: `.env.local` memuat keduanya, dan
+// yang bernama tes itulah yang didapat tes.
+//
+// Berkas ini tidak memutuskan apakah sasarannya aman — itu tetap milik pagar di
+// `src/db/db.ts`, yang menolak host non-lokal. Di sini cuma soal memilih yang
+// mana. CI menyetel DATABASE_URL langsung di tingkat job dan tidak punya
+// TEST_DATABASE_URL, jadi ia lewat tanpa berubah.
+if (process.env.TEST_DATABASE_URL) {
+  process.env.DATABASE_URL = process.env.TEST_DATABASE_URL
+}
+
 GlobalRegistrator.register()
 expect.extend(matchers)

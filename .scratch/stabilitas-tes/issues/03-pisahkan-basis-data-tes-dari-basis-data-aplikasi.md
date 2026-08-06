@@ -6,7 +6,9 @@ yang menjalankannya.
 **Blocked by:** None. Berdiri sendiri dari tiket 01 — pagar itu tetap benar
 entah pemisahan ini terjadi atau tidak.
 
-**Status:** ready-for-human
+**Status:** ready-for-agent — dua batas yang disepakati sudah hijau (lihat
+_Hasil_ di bawah). Sisa satu checkbox docs, yang memang sengaja ditunda ke
+putaran berikutnya bersama checkbox no.9 tiket 01.
 
 Tiket 01 memasang pagar supaya kerusakan tidak terjadi diam-diam. Tiket ini
 menghilangkan keadaan yang membuat pagar itu perlu tiap hari.
@@ -58,10 +60,10 @@ sama, memisahkan kejadian ini dari kejadian yang sesungguhnya.
 
 - [x] Dipastikan host itu production atau bukan — bukan production, dikonfirmasi pengguna
 - [x] Dinilai apa yang sudah mengenainya — basis data non-production, isinya residu tes
-- [ ] `DATABASE_URL` tes terpisah dari `DATABASE_URL` aplikasi
-- [ ] Basis data tes hidup di mesin yang menjalankan tes — **lokal**, bukan server remote lain
+- [x] `DATABASE_URL` tes terpisah dari `DATABASE_URL` aplikasi
+- [x] Basis data tes hidup di mesin yang menjalankan tes — **lokal**, bukan server remote lain
 - [ ] Caranya terdokumentasi, supaya pagar tiket 01 tidak jadi penghalang
-- [ ] `tests/access-control.test.ts` hijau sepuluh kali berturut-turut
+- [x] `tests/access-control.test.ts` hijau sepuluh kali berturut-turut
 
 ## Comments
 
@@ -123,6 +125,49 @@ konfigurasi tanpa satu pun tes pernah hijau lewat `db-test`.
 Kalau masih gantung — **berhenti dan bilang, jangan menulis konfigurasi.**
 Menulis implementasi selama feedback loop-nya mati adalah cara ronde pertama
 berakhir di tempat sampah.
+
+### Hasil, 6 Agustus 2026
+
+Prasyarat mutlaknya lewat lebih dulu: `docker info` membalas `29.6.2` seketika.
+Daemon yang nyangkut dua hari itu sudah pulih dengan sendirinya — restart tidak
+pernah dibutuhkan. Karena itu tiket ini berhenti jadi `ready-for-human`.
+
+Yang mendarat, tiga berkas saja:
+
+- `docker-compose.yml` — service `db-test`, `postgres:18.3-bookworm` (senapas
+  dengan `db`), `kammi_test` di port 5434, sengaja tanpa volume.
+- `tests/setup.ts` — `TEST_DATABASE_URL` menimpa `DATABASE_URL` kalau ada.
+  Tidak ada pagar kedua di sini; keamanan sasaran tetap milik `src/db/db.ts`.
+  CI menyetel `DATABASE_URL` langsung dan tidak punya `TEST_DATABASE_URL`,
+  jadi ia lewat tanpa berubah — `ci.yml` tidak disentuh.
+- `.env.local` — `TEST_DATABASE_URL` (tidak masuk git, `.env*` di `.gitignore`).
+
+Buktinya:
+
+- `bun test tests/access-control.test.ts` hijau **10/10 berturut-turut**.
+- Sasarannya diperiksa, bukan diandaikan: `db-test` berisi 6 baris
+  `organization` sesudahnya — persis hierarki enam Struktur yang disemai berkas
+  itu.
+- Suite penuh **182 lewat, 0 gagal** dalam 69 detik. Ini pertama kalinya
+  `bun test` selesai tanpa menyentuh basis data bersama.
+- Pagar tiket 01 lolos senyap tanpa `DB_GUARD_ACK`, persis seperti CI.
+
+### Temuan review: lubang yang tersisa, sengaja tidak ditutup di sini
+
+`/code-review` menemukan satu kasus yang pagar tiket 01 **tidak** tangkap.
+
+Kalau `TEST_DATABASE_URL` hilang atau salah ketik, `DATABASE_URL` jatuh kembali
+ke milik aplikasi. Di mesin ini itu aman — `DATABASE_URL` aplikasi menunjuk host
+remote, jadi pagar menolaknya. Tapi di mesin kontributor yang `next dev`-nya
+menunjuk service `db` di `localhost:5432` — persis yang disediakan
+`docker-compose.yml` ini — sasarannya lokal, pagar lolos senyap, dan `TRUNCATE`
+mengenai basis data dev-nya. Bug aslinya lahir kembali, cuma pindah mesin.
+
+**Tidak ditutup dalam putaran ini, dan itu disengaja.** Menutupnya berarti pagar
+kedua, sementara batas yang disepakati 5 Agustus cuma dua hal. Ronde pertama
+tiket ini mati justru karena menulis konfigurasi yang tidak diminta. Catat, lalu
+bawa ke putaran docs bersama checkbox no.9 tiket 01 — di situ keputusannya
+diambil sadar, bukan diselipkan.
 
 ### Hubungannya dengan tiket 01
 
