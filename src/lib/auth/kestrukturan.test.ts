@@ -117,7 +117,9 @@ describe('gerbang kestrukturan', () => {
     it('menolak Kewenangan selain BPW dan Root', async () => {
       for (const role of ['bph', 'bpk', 'humas', 'member']) {
         mockSession = sessionWith(role, ppId)
-        expect(await requireCreateStrukturAccess(pwJabarId, 'pd')).not.toBeNull()
+        expect(
+          await requireCreateStrukturAccess(pwJabarId, 'pd')
+        ).not.toBeNull()
       }
     })
 
