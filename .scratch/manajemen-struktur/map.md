@@ -88,13 +88,18 @@ bukan hasil tiket. Sudah final — jangan dibuka ulang tanpa alasan baru.
   `deletedAt`/`deletedBy` dan `nonActiveAt`/`nonActiveBy` — bukan tabel
   riwayat penuh.
 
-**Celah aktif di produksi — tidak menunggu peta ini.**
-`branches/_components/add-form/action.ts:43` dan `:115` hanya memeriksa
-`role === 'bpw' || 'root'`. Tidak ada Cakupan, tidak ada cek Jenjang, dan
-`type` serta `parentId` datang dari form. **Akun BPD PW mana pun bisa membuat
-dan mengedit Struktur mana pun se-Indonesia, termasuk PP.** Menambalnya tidak
-butuh satu pun keputusan di peta ini. Ia dicatat di sini supaya tidak
-terlupakan, bukan supaya ditunda.
+**~~Celah aktif di produksi~~ — SUDAH DITAMBAL** (commit `a9c535b`).
+`add-form/action.ts` dulu hanya memeriksa `role === 'bpw' || 'root'` — nol
+Cakupan, nol cek Jenjang, dan `type` serta `parentId` datang dari form.
+Gerbangnya sekarang di `src/lib/auth/kestrukturan.ts`
+(`requireCreateStrukturAccess`, `requireEditStrukturAccess`, `isLegalChildType`),
+`type`/`parentId` tidak lagi dibaca saat memperbarui, dan 17 tes menjaganya.
+
+**Ini bukan implementasi tiket 02.** Ia tambalan keamanan yang sengaja sempit:
+Cakupan, Jenjang, dan pembekuan `type`/`parentId`. Matriks penuh tiket 02 —
+`canManageKestrukturan` beserta dua gate async-nya — tetap pekerjaan
+implementasi yang tiket 09 potong, dan ia **menggantikan** dua gerbang sempit di
+berkas itu, bukan berdiri di sebelahnya.
 
 **Keadaan kode saat charting.** CRUD-nya baru C-R-U:
 
@@ -308,13 +313,15 @@ terlupakan, bukan supaya ditunda.
   diuji di CI. Tiket 06 menambah satu permukaan tak tertes lagi: **nol tes**
   untuk seluruh mekanisme NIA, padahal 06 mengubah cara penurunannya di **dua**
   tempat sekaligus.
-- **Gladi bersih migrasi.** Tiket 04 meninggalkan satu aset yang belum dipakai:
-  basis data remote kosong yang meniru bentuk produksi. Ia target yang tepat
-  untuk menjalankan seluruh migrasi peta ini dari nol sampai bersih sebelum
-  menyentuh produksi, dan ia menjawab langsung apakah servernya mendukung
-  `uuidv7()` (PG 18+) — pertanyaan yang sama yang mengganjal CI `postgres:16` di
-  butir sebelumnya. Belum bisa dijadikan tiket sebelum ketahuan migrasi apa saja
-  yang sebenarnya lahir dari peta ini.
+- **Gladi bersih migrasi.** Sebagian sudah terjawab di luar peta: seluruh migrasi
+  yang ada hari ini **sudah dijalankan dari nol sampai bersih** di basis data
+  staging kosong itu, dan **servernya PG 18+** — `uuidv7()` jalan, jadi ganjalan
+  CI `postgres:16` di butir sebelumnya terbukti soal CI-nya, bukan soal
+  migrasinya. Seluruh 199 tes repo juga hijau terhadapnya. Yang belum: gladi
+  untuk migrasi yang **lahir dari peta ini** — kolom `deleted_at`, kolom Keadaan
+  `generatedAlwaysAs` beserta `SET NOT NULL` tangannya, partial unique index, dan
+  pencabutan cascade. Belum bisa dijadikan tiket sebelum tiket 09 menetapkan
+  migrasi apa saja yang sebenarnya dipecah.
 
 ## Out of scope
 

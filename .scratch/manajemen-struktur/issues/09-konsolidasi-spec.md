@@ -81,9 +81,18 @@ Isinya minimal:
 - Nasib publikasi milik Struktur Terhapus dan Non-Aktif (dari 10)
 
 Lalu pecah jadi tiket implementasi di `.scratch/manajemen-struktur/issues/`,
-melanjutkan penomoran. Urutkan supaya **penambalan celah Cakupan di
-`add-form/action.ts` jadi yang pertama** — ia hidup di produksi sekarang dan
-tidak bergantung pada satu pun keputusan di peta ini.
+melanjutkan penomoran. ~~Urutkan supaya **penambalan celah Cakupan di
+`add-form/action.ts` jadi yang pertama**~~ — **sudah ditambal di luar peta**
+(commit `a9c535b`), jadi ia tidak perlu tiket sendiri lagi.
+
+Yang menggantikannya sebagai catatan urutan: tambalan itu **sengaja sempit**
+(Cakupan, Jenjang, pembekuan `type`/`parentId`) dan meninggalkan dua gerbang
+sempit di `src/lib/auth/kestrukturan.ts`. Tiket implementasi matriks tiket 02
+harus **menggantikan** keduanya dengan `canManageKestrukturan` beserta dua gate
+async-nya — bukan menambahkan lapis ketiga di sebelahnya. Tes
+`kestrukturan.test.ts` yang sudah ada ikut dirombak bersamanya, dan ia sekaligus
+memberi jawaban pertama untuk kabut **bentuk tes**: pola seam
+`kekaderan.test.ts` terbukti jalan untuk permukaan ini.
 
 Sesi ini **tidak menulis kode aplikasi**. Kalau muncul dorongan untuk mulai
 membangun, itu tandanya peta sudah selesai dan pekerjaannya berpindah tangan.
