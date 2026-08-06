@@ -52,6 +52,7 @@ src/lib/shadcn/*
 .claude
 .gemini
 .antigravitycli
+.impeccable
 
 # agent working notes (issue tracker, specs)
 .scratch
