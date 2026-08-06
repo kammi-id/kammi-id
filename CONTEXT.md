@@ -49,9 +49,10 @@ riwayatnya perlu dilengkapi.
 _Avoid_: Sertifikasi palsu, Data tidak valid
 
 **Nomor Induk Anggota**:
-Identitas permanen seorang Kader, tersusun dari Struktur tempatnya terdaftar,
-tahun masuknya, dan nomor urutnya di sana. Dipakai sekaligus sebagai identitas
-login.
+Identitas permanen seorang Kader, tersusun dari Wilayah dan Daerah tempatnya
+bernaung, tahun masuknya, dan nomor urutnya di dalam Daerah itu. Komisariat
+tempat Kader terdaftar **tidak** muncul di dalamnya, sehingga seluruh Kader satu
+Daerah berbagi satu deret nomor. Dipakai sekaligus sebagai identitas login.
 _Avoid_: Register number, NIK, Nomor anggota
 
 ### Struktur
@@ -72,10 +73,6 @@ Struktur milik sebuah Akun beserta seluruh Struktur turunannya. Cakupan
 menentukan data siapa saja yang boleh disentuh Akun tersebut.
 _Avoid_: Scope, Jangkauan, Binaan
 
-**Struktur Non-Aktif**:
-Struktur yang kepengurusannya sedang tidak berjalan. Menyangkut keadaan
-kepengurusan, bukan keadaan Kader di dalamnya.
-
 **Organisasi Eksternal**:
 Organisasi di luar KAMMI tempat seorang Kader pernah berkhidmat — dicatat
 sebagai riwayat, bukan sebagai Struktur.
@@ -87,14 +84,17 @@ _Avoid_: Organisasi (tanpa kualifikasi)
 Kewenangan penuh atas seluruh Struktur, tanpa batas Cakupan.
 
 **BPH**:
-Kewenangan memantau — melihat data kekaderan maupun kestrukturan, tanpa boleh
-mengubahnya.
+Kewenangan memantau seluruh data dalam Cakupannya, ditambah satu hak ubah:
+menyunting **Strukturnya sendiri**. Yang boleh disunting adalah identitas
+Struktur itu, bukan kedudukannya di pohon maupun Keadaannya.
 
 **BPK**:
 Kewenangan mengelola kekaderan: Member, Daurah, dan Perangkat.
 
 **BPW**:
-Kewenangan mengelola kestrukturan: Struktur beserta pohonnya.
+Kewenangan mengelola kestrukturan — Struktur **di bawah** Strukturnya sendiri,
+tidak pernah Strukturnya sendiri. Seberapa jauh ke bawah ditentukan Jenjang
+Strukturnya, sehingga sebagian BPW tidak mengelola apa pun dan hanya memantau.
 
 **Humas**:
 Kewenangan mengelola publikasi: Artikel dan Pengaturan Situs. Satu-satunya
@@ -105,6 +105,35 @@ Strukturnya sendiri.
 Kewenangan paling dasar: hanya atas datanya sendiri. Dipegang oleh Kader yang
 punya Akun tanpa peran operasional.
 _Avoid_: Member (sebagai nama kewenangan), Personal
+
+### Keadaan Struktur
+
+Sebuah Struktur berada pada **tepat satu** Keadaan dalam satu waktu. Keadaan
+saling meniadakan, dan Struktur Terhapus mendahului Struktur Non-Aktif —
+Struktur yang dihapus berhenti disebut Non-Aktif. Keadaan Struktur berjalan
+terpisah dari Keadaan Kader di dalamnya.
+
+**Struktur Aktif**:
+Struktur yang kepengurusannya sedang berjalan. Keadaan asali setiap Struktur
+yang baru dibuat, dan satu-satunya Keadaan yang tidak membatasi apa pun.
+
+**Struktur Non-Aktif**:
+Struktur yang kepengurusannya sedang tidak berjalan. Menyangkut keadaan
+kepengurusan, bukan keadaan Kader di dalamnya. Selama Non-Aktif ia tidak
+mencatat Kader baru, tidak menyelenggarakan Daurah, **Akun kepengurusannya**
+berhenti bisa dipakai, dan situs publiknya berhenti melayani — tapi ia dan
+seluruh isinya tetap terlihat dari dalam dasbor, dan Akun Kader di dalamnya
+tetap hidup.
+
+**Struktur Terhapus**:
+Struktur yang dicabut dari pohon karena tercatat keliru — salah Jenjang,
+duplikat, atau dibuat lalu tidak jadi berjalan. Karena itu hanya Struktur yang
+belum mengumpulkan apa pun yang bisa dihapus; yang sudah punya sejarah tidak
+keliru, ia hanya berhenti. Struktur Terhapus diperlakukan seolah barisnya tidak
+pernah ada — ia tidak menahan penghapusan induknya, dan tidak terbaca di
+permukaan mana pun kecuali satu: tempat Root dan BPW PP melihat serta
+memulihkannya. Memulihkannya mengembalikannya sebagai Struktur Aktif.
+_Avoid_: Dihapus permanen, Diarsipkan, Dibubarkan
 
 ### Keadaan Kader
 
