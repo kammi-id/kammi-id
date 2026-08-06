@@ -134,7 +134,8 @@ _Avoid_: Mantan kader, Lulusan
 
 **Jenjang Kekaderan**:
 Tahapan pembinaan seorang Kader: AB1, AB2, AB3. Naik jenjang lewat Kelulusan
-sebuah Daurah.
+sebuah Daurah — lihat catatan pada **Kelulusan**: kenaikan itu belum
+disambungkan di kode, dan masih disetel dengan tangan.
 _Avoid_: Level kader, Tingkat kader, Status
 
 ### Daurah
@@ -166,6 +167,14 @@ menaikkan Jenjang Kekaderan atau memberi sertifikasi Perangkat. Peserta yang
 tidak memegang Kelulusan tidak dibedakan antara belum dinilai dan dinilai
 tidak lulus: keduanya sama-sama ketiadaan Kelulusan, bukan dua keadaan yang
 berbeda.
+
+> **Kode belum menyusul definisi ini.** Menetapkan Kelulusan hanya menulis satu
+> boolean pada baris Peserta (`updateAttendantStatus`, `db/query/training.ts`).
+> Jenjang Kekaderan, sertifikasi Pemandu, dan sertifikasi Instruktur seluruhnya
+> masih disetel dengan tangan lewat permukaan lain. Jangan menulis kode baru
+> yang mengandaikan Kelulusan sudah menurunkan ketiganya — sambungan itu belum
+> ada, dan apakah ia harus ada adalah keputusan produk yang belum diambil.
+
 _Avoid_: Passing, Kelolosan, Kelulusan negatif
 
 **Masa Penetapan Kelulusan**:
