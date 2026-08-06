@@ -4,6 +4,10 @@ import { readActiveSession } from '~/lib/auth/cookies'
 import { z } from 'zod'
 import { revalidatePath, updateTag } from 'next/cache'
 import { createOrganization, updateOrganization } from '~/db/query/organization'
+import {
+  requireCreateStrukturAccess,
+  requireEditStrukturAccess
+} from '~/lib/auth/kestrukturan'
 import { getLogger, redact } from '~/lib/logger'
 
 const logger = getLogger(['app', 'action', 'organization'])
@@ -18,6 +22,14 @@ const orgSchema = z.object({
   slug: z.string().min(1, 'Slug organisasi wajib diisi.'),
   logo: z.string().optional()
 })
+
+/**
+ * `type` and `parentId` are fixed at creation and never edited afterwards — a
+ * Struktur's Jenjang and its place in the tree are what the Hapus action exists
+ * for, not what Edit is for. Omitting them here means a posted value is
+ * ignored outright rather than trusted.
+ */
+const orgUpdateSchema = orgSchema.omit({ type: true, parentId: true })
 
 export type OrgFormState = {
   success?: boolean
@@ -40,12 +52,6 @@ export async function createOrganizationAction(
     if (!session) return { success: false, message: 'Sesi tidak ditemukan.' }
 
     user = session.user
-    if (!user || (user.role !== 'bpw' && user.role !== 'root')) {
-      return {
-        success: false,
-        message: 'Antum tidak memiliki hak akses untuk menambah organisasi.'
-      }
-    }
 
     rawData = {
       name: formData.get('name'),
@@ -67,6 +73,24 @@ export async function createOrganizationAction(
           Object.entries(rawData).filter(([, v]) => v != null)
         ) as Record<string, string>
       }
+    }
+
+    // Gated after parsing, because the gate's questions are about the posted
+    // `parentId` and `type` — it cannot be asked before they are known to be
+    // well-formed.
+    const denial = await requireCreateStrukturAccess(
+      validated.data.parentId,
+      validated.data.type
+    )
+    if (denial) {
+      logger.warn('Pembuatan Struktur ditolak', {
+        actorId: user?.id,
+        actorRole: user?.role,
+        parentId: validated.data.parentId,
+        requestedType: validated.data.type,
+        reason: denial
+      })
+      return { success: false, message: denial }
     }
 
     const created = await createOrganization(validated.data)
@@ -112,28 +136,31 @@ export async function updateOrganizationAction(
     if (!session) return { success: false, message: 'Sesi tidak ditemukan.' }
 
     user = session.user
-    if (!user || (user.role !== 'bpw' && user.role !== 'root')) {
-      return {
-        success: false,
-        message: 'Antum tidak memiliki hak akses untuk memperbarui organisasi.'
-      }
-    }
 
     id = formData.get('id') as string
     if (!id) {
       return { success: false, message: 'ID organisasi tidak ditemukan.' }
     }
 
+    const denial = await requireEditStrukturAccess(id)
+    if (denial) {
+      logger.warn('Penyuntingan Struktur ditolak', {
+        actorId: user?.id,
+        actorRole: user?.role,
+        organizationId: id,
+        reason: denial
+      })
+      return { success: false, message: denial }
+    }
+
     rawData = {
       name: formData.get('name'),
       code: formData.get('code'),
-      type: formData.get('type'),
-      parentId: formData.get('parentId'),
       slug: formData.get('slug'),
       logo: formData.get('logo') as string | null
     }
 
-    const validated = orgSchema.safeParse(rawData)
+    const validated = orgUpdateSchema.safeParse(rawData)
 
     if (!validated.success) {
       return {

@@ -136,30 +136,48 @@ export const AddOrganizationForm = ({
           />
         </Field>
 
-        <Field data-invalid={!!state.errors?.type || undefined}>
-          <FieldLabel htmlFor='type'>Tipe Organisasi</FieldLabel>
-          <Select
-            name='type'
-            value={type}
-            onValueChange={(val) => {
-              if (val) setType(val)
-            }}
-          >
-            <SelectTrigger id='type' className='w-full'>
-              <SelectValue placeholder='Pilih tipe' />
-            </SelectTrigger>
-            <SelectContent>
-              {availableTypes.map((typeOption) => (
-                <SelectItem key={typeOption.value} value={typeOption.value}>
-                  {typeOption.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <FieldError
-            errors={state.errors?.type?.map((m) => ({ message: m }))}
-          />
-        </Field>
+        {/* Tipe ditetapkan sekali saat pembuatan dan tidak pernah berubah
+            sesudahnya — memindahkan sebuah Struktur ke Jenjang lain bukan
+            penyuntingan, dan server mengabaikan `type` yang dikirim saat
+            memperbarui. Jadi saat mengedit ia ditampilkan sebagai keterangan,
+            bukan sebagai kontrol yang tampak bisa dipakai. */}
+        {editData ? (
+          <Field>
+            <FieldLabel>Tipe Organisasi</FieldLabel>
+            <p className='text-foreground text-sm font-medium'>
+              {availableTypes.find((t) => t.value === editData.type)?.label ??
+                editData.type.toUpperCase()}
+            </p>
+            <FieldDescription>
+              Tipe tidak dapat diubah setelah organisasi dibuat.
+            </FieldDescription>
+          </Field>
+        ) : (
+          <Field data-invalid={!!state.errors?.type || undefined}>
+            <FieldLabel htmlFor='type'>Tipe Organisasi</FieldLabel>
+            <Select
+              name='type'
+              value={type}
+              onValueChange={(val) => {
+                if (val) setType(val)
+              }}
+            >
+              <SelectTrigger id='type' className='w-full'>
+                <SelectValue placeholder='Pilih tipe' />
+              </SelectTrigger>
+              <SelectContent>
+                {availableTypes.map((typeOption) => (
+                  <SelectItem key={typeOption.value} value={typeOption.value}>
+                    {typeOption.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <FieldError
+              errors={state.errors?.type?.map((m) => ({ message: m }))}
+            />
+          </Field>
+        )}
 
         <Field data-invalid={!!state.errors?.slug || undefined}>
           <FieldLabel htmlFor='slug'>Slug</FieldLabel>
