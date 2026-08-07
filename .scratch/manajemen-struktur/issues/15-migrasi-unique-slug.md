@@ -1,7 +1,7 @@
 # 15 — Migrasi B: partial unique index `slug`
 
 **Type:** implementation
-**Status:** open
+**Status:** resolved
 **Blocked by:** 13, 14
 
 Spec: [`../spec.md`](../spec.md) §4.2, §4.3, §4.7
@@ -58,6 +58,58 @@ Yang dipertaruhkan adalah **keterdugaan deploy**, bukan data rusak.
 
 ## Selesai bila
 
-- Migrasinya jalan bersih di staging
+- ~~Migrasinya jalan bersih di staging~~ — **dipindahkan ke tiket 17.** Kriteria
+  ini tidak pernah bisa dipenuhi dari sini: tiket 17 yang memegang penjalanan ke
+  staging, dan pra-terbang tiket 14 wajib jalan lebih dulu terhadap sasaran
+  sungguhannya. Yang bisa dipertanggungjawabkan tiket ini adalah migrasinya jalan
+  bersih di basis data yang bisa ia sentuh — lihat _Jangkauan penjalanannya_.
 - Dua Struktur hidup ber-slug sama ditolak `23505`
 - Struktur baru boleh memungut slug milik Struktur Terhapus (itu **sah**, bukan bug)
+
+## Answer
+
+`uniqueIndex('organization_slug_live_unique').on(table.slug).where(isNull(table.deletedAt))`
+di `src/db/schema/organization.sql.ts`, dan `drizzle-kit generate` memancarkan
+persis satu baris — tidak ada yang perlu ditulis tangan, beda dari migrasi A:
+
+```sql
+CREATE UNIQUE INDEX "organization_slug_live_unique"
+  ON "organization" ("slug") WHERE ("deleted_at" is null);
+```
+
+`src/db/__migrations/20260807194827_organization_slug_live_unique/`. Berkasnya
+dikepalai komentar yang memuat prasyarat pra-terbang dan alasan ia tidak boleh
+disatukan dengan tiket 16 — orang yang men-deploy tidak perlu membuka spec.
+
+### Yang dibuktikan, dan di mana
+
+`tests/organization-slug-unique.test.ts` — tujuh kasus, fixture bersufiks, nol
+`TRUNCATE`. Tiga di antaranya melampaui "selesai bila", dan sengaja:
+
+| Kasus | Kenapa ada |
+| --- | --- |
+| dua Struktur hidup ber-slug sama → `23505` | "selesai bila" |
+| Struktur baru memungut slug milik Terhapus → **berhasil** | "selesai bila" |
+| Struktur **Non-Aktif** tetap memegang slugnya → `23505` | indeksnya membaca `deleted_at`, bukan Keadaan; tanpa kasus ini, indeks yang keliru longgar ke Non-Aktif lolos |
+| dua Struktur Terhapus berbagi slug → **berhasil** | membuktikan parsialnya benar-benar parsial |
+| pemulihan Terhapus yang slugnya dipungut → `23505` di `UPDATE` | spec §4.3, momen ketiga; jadi pijakan tiket 28 |
+| `pg_indexes.indexdef` memuat `CREATE UNIQUE INDEX` dan `WHERE (deleted_at IS NULL)` | bentuknya tidak bisa dibuktikan dari tipe TS |
+| nol indeks menyentuh `code_slug` | spec §4.2 sengaja membiarkannya telanjang |
+
+Nama indeksnya dipakai sebagai assertion, bukan cuma SQLSTATE-nya — penanganan
+`23505` di §4.3 memang menyebutnya langsung, jadi nama yang bergeser diam-diam
+akan gagal di sini.
+
+### Jangkauan penjalanannya
+
+Dipasang ke **basis data tes lokal** (`localhost:5434/kammi_test`, PG 18.3),
+dengan urutan yang sama yang akan dipakai di sasaran sungguhan:
+
+1. `bun run check:duplicates` — nol duplikat `code`, `slug`, maupun `code_slug`.
+   Putusannya: kedua migrasi constraint boleh berangkat.
+2. `bun run db:migrate` — jalan bersih.
+3. `bun test` — hijau seluruhnya (517 tes, 45 berkas), jadi nol pemakai slug
+   kembar tersembunyi di fixture yang sudah ada.
+
+**Staging dan produksi belum disentuh** — itu tiket 17, dan pra-terbang wajib
+diulang di sana; menjalankannya di sini membuktikan urutannya, bukan datanya.
