@@ -12,7 +12,7 @@ export const articleCategory = pgTable(
     organizationId: t
       .uuid('organization_id')
       .notNull()
-      .references(() => organization.id, { onDelete: 'cascade' }),
+      .references(() => organization.id),
     name: t.text().notNull(),
     slug: t.text().notNull(),
     parentId: t

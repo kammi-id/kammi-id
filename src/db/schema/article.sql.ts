@@ -13,7 +13,7 @@ export const article = pgTable(
     organizationId: t
       .uuid('organization_id')
       .notNull()
-      .references(() => organization.id, { onDelete: 'cascade' }),
+      .references(() => organization.id),
     type: t.text({ enum: ['page', 'blog'] }).notNull(),
     title: t.text().notNull(),
     slug: t.text().notNull(),

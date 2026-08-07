@@ -48,9 +48,19 @@ Ini disengaja. Jangan menambahkan `code` ke daftar kolom yang boleh disunting
 cuma URL dan tidak pernah masuk ke Nomor Induk. Jangan menyamakan perlakuan
 keduanya demi konsistensi.
 
-`onDelete: 'cascade'` yang terpasang di `user.connected_organization_id` dan di
+~~`onDelete: 'cascade'` yang terpasang di `user.connected_organization_id` dan di
 tabel-tabel publikasi tidak akan pernah menyala, karena tidak ada lagi jalur
-yang menghapus baris `organization`. Membiarkannya di skema tidak berbahaya,
-tapi jangan membacanya sebagai jaminan bahwa data ikutan akan terbereskan
-sendiri — pembereskannya sekarang tugas jalur penghapusan, bukan tugas basis
-data.
+yang menghapus baris `organization`. Membiarkannya di skema tidak berbahaya~~ —
+**dicabut**, dan alasan "tidak berbahaya" itulah yang ternyata keliru. Selama
+cascade terpasang, `DELETE FROM organization` **berhasil diam-diam sambil
+membawa serta Akun kepengurusannya**: satu pemanggilan yang tak sengaja adalah
+kehilangan senyap, bukan galat. Keempatnya (`article`, `article_category`,
+`site_settings`, `user.connected_organization_id`) dicabut dan
+`deleteOrganization` dihapus, jadi perintah yang sama sekarang gagal dengan
+`23503 foreign_key_violation` dan **nol baris berubah**.
+
+Akibatnya larangan di ADR ini berhenti dijaga ingatan manusia dan mulai dijaga
+basis data — ia naik dari konvensi jadi **jaminan skema**. Yang tidak berubah:
+mencabut cascade bukan jaminan bahwa data ikutan akan terbereskan sendiri.
+Pembereskannya tetap tugas jalur penghapusan, dan sekarang basis data menolak
+melangkah kalau jalur itu lalai.

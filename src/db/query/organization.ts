@@ -93,6 +93,15 @@ const fetchAllowedOrgIdsFor = cache(
 )
 
 type OrganizationInsertValues = typeof organization.$inferInsert
+
+/**
+ * Keadaan Struktur — satu sumbu di domain, dua kolom di simpanan (ADR 0005).
+ * Ia dibaca dari kolom turunan `organization.state`, tidak pernah disusun ulang
+ * dari `deleted_at` dan `is_non_active` di pemanggil. Kolomnya membuat Keadaan
+ * bisa dibaca; reader di berkas ini yang membuatnya bisa disaring.
+ */
+export type OrganizationState = Organization['state']
+
 export type OrganizationFilters = {
   id?: string[]
   slug?: string
@@ -101,6 +110,11 @@ export type OrganizationFilters = {
   level?: number[]
   parentId?: string[] | null
   isNonActive?: boolean
+  /**
+   * Menyaring Keadaan. Belum ada asali di sini — invarian "tiap pembacaan
+   * menyaring Terhapus, dan tidak menyaring Non-Aktif" adalah tiket 20.
+   */
+  state?: OrganizationState[]
   // Pagination & Sorting
   limit?: number
   offset?: number
@@ -215,6 +229,8 @@ export const countOrganization = async (
   }
   if (filters.isNonActive !== undefined)
     where.push(eq(withOrganizationCTE.isNonActive, filters.isNonActive))
+  if (filters.state)
+    where.push(inArray(withOrganizationCTE.state, filters.state))
 
   const [result] = await db
     .with(withOrganizationCTE)
@@ -248,6 +264,8 @@ export const readOrganization = async (
   }
   if (filters.isNonActive !== undefined)
     where.push(eq(withOrganizationCTE.isNonActive, filters.isNonActive))
+  if (filters.state)
+    where.push(inArray(withOrganizationCTE.state, filters.state))
 
   const query = executor
     .with(withOrganizationCTE)
@@ -262,6 +280,11 @@ export const readOrganization = async (
       logo: withOrganizationCTE.logo,
       parentId: withOrganizationCTE.parentId,
       isNonActive: withOrganizationCTE.isNonActive,
+      nonActiveAt: withOrganizationCTE.nonActiveAt,
+      nonActiveBy: withOrganizationCTE.nonActiveBy,
+      deletedAt: withOrganizationCTE.deletedAt,
+      deletedBy: withOrganizationCTE.deletedBy,
+      state: withOrganizationCTE.state,
       childrenCount: sql`
         (SELECT count(*) FROM ${organization} WHERE parent_id = ${withOrganizationCTE.id})
       `.mapWith(Number)
@@ -320,10 +343,6 @@ export const updateOrganization = async (
       .from(withOrganizationCTE)
       .where(eq(withOrganizationCTE.id, id))
   })
-}
-
-export const deleteOrganization = async (id: Array<string>): Promise<void> => {
-  await db.delete(organization).where(inArray(organization.id, id))
 }
 
 type OrgChainNode = {

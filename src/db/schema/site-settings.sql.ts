@@ -9,7 +9,7 @@ export const siteSettings = pgTable(
     organizationId: t
       .uuid('organization_id')
       .notNull()
-      .references(() => organization.id, { onDelete: 'cascade' }),
+      .references(() => organization.id),
     data: t.jsonb().notNull(),
     updatedAt: t
       .timestamp('updated_at')
