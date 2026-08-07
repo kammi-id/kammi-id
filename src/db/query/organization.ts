@@ -389,6 +389,76 @@ export const readOrganization = async (
 }
 
 /**
+ * The induk of a Struktur, or null when it has none.
+ *
+ * **`null` is two answers wearing one shape, and both callers want the same
+ * thing done about it.** It means "this Struktur is the root of the tree" when
+ * `parentId` is null, and it means "the induk is Terhapus" when `parentId` is
+ * set but the read invariant (spec §7) drops the row. Every rule that consults
+ * an induk refuses a dead one, so collapsing the two here is safe — and it is
+ * why callers are handed `parentId` alongside, so a rule that ever needs to
+ * tell them apart still can.
+ */
+export const readParentOrganization = async (org: {
+  parentId: string | null
+}): Promise<Organization | null> => {
+  if (!org.parentId) return null
+  const [parent] = await readOrganization({ id: [org.parentId] })
+  return parent ?? null
+}
+
+/**
+ * Marks a Struktur Non-Aktif, with its trace — **the columns it names and no
+ * others.** Narrow for the same reason `moveOrganizationParent` is: a write
+ * that can only ever carry these three cannot quietly grow a fourth.
+ *
+ * `deleted_at` is untouched. So is `parent_id`: children already Non-Aktif stay
+ * where they are (spec §6.4).
+ */
+export const deactivateOrganization = async (
+  id: string,
+  actorId: string
+): Promise<void> => {
+  await db
+    .update(organization)
+    .set({ isNonActive: true, nonActiveAt: new Date(), nonActiveBy: actorId })
+    .where(eq(organization.id, id))
+}
+
+/**
+ * Clears Non-Aktif and its trace. The exact inverse of the above, and nothing
+ * else — reviving an induk does **not** revive its children (spec §6.4): an
+ * unrequested mass state change is the fastest way to wake up Struktur that
+ * were deliberately put to sleep.
+ */
+export const reactivateOrganization = async (id: string): Promise<void> => {
+  await db
+    .update(organization)
+    .set({ isNonActive: false, nonActiveAt: null, nonActiveBy: null })
+    .where(eq(organization.id, id))
+}
+
+/**
+ * Deletes a Struktur — **always soft, and there is no other kind** (ADR 0004).
+ * Since tiket 13 the database itself guarantees it: every FK into
+ * `organization` is NO ACTION, so a hard `DELETE` fails with `23503`.
+ *
+ * **`is_non_active` is deliberately not swept.** Terhapus dominates Non-Aktif,
+ * but dominating is not erasing: a Struktur that was Non-Aktif and then deleted
+ * keeps `is_non_active` lit, and that is correct — the derived `state` column
+ * already answers which one wins.
+ */
+export const softDeleteOrganization = async (
+  id: string,
+  actorId: string
+): Promise<void> => {
+  await db
+    .update(organization)
+    .set({ deletedAt: new Date(), deletedBy: actorId })
+    .where(eq(organization.id, id))
+}
+
+/**
  * Moves one or more Struktur beneath a new induk — **one column, one
  * statement, zero other rows.**
  *

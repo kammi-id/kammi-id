@@ -5,6 +5,7 @@ import { readActiveSession } from '~/lib/auth/cookies'
 import {
   moveOrganizationParent,
   readOrganization,
+  readParentOrganization,
   type Organization
 } from '~/db/query/organization'
 import { requireStrukturMoveAccess } from '~/lib/auth/kestrukturan'
@@ -12,6 +13,10 @@ import {
   checkMoveCandidate,
   type StrukturRef
 } from '~/lib/struktur/pindah-induk'
+import {
+  confirmsStrukturCode,
+  WRONG_STRUKTUR_CODE
+} from '~/lib/struktur/konfirmasi'
 import { getLogger } from '~/lib/logger'
 import { moveParentSchema, moveChildrenToParentSchema } from './schema'
 
@@ -29,22 +34,6 @@ const toRef = (org: Organization): StrukturRef => ({
   code: org.code,
   state: org.state
 })
-
-/**
- * The sheet gates every action behind typing the Struktur's `code` (spec §8.2).
- * Checked here rather than in the dialog so it is a gate and not a decoration —
- * a server action is reachable without the dialog that renders it.
- */
-const confirmsCode = (org: Organization, typed: string) =>
-  typed.trim() === org.code
-
-const WRONG_CODE = 'Kode struktur yang dimasukkan tidak sesuai.'
-
-const readParent = async (org: Organization): Promise<Organization | null> => {
-  if (!org.parentId) return null
-  const [parent] = await readOrganization({ id: [org.parentId] })
-  return parent ?? null
-}
 
 /**
  * Moves one Struktur beneath a different induk.
@@ -94,11 +83,11 @@ export const moveStrukturParentAction = async (
       return { success: false, message: 'Struktur tidak ditemukan.' }
     }
 
-    if (!confirmsCode(org, confirmCode)) {
-      return { success: false, message: WRONG_CODE }
+    if (!confirmsStrukturCode(org, confirmCode)) {
+      return { success: false, message: WRONG_STRUKTUR_CODE }
     }
 
-    const parent = await readParent(org)
+    const parent = await readParentOrganization(org)
     const refusal = checkMoveCandidate(
       toRef(org),
       parent ? toRef(parent) : null,
@@ -172,11 +161,11 @@ export const moveActiveChildrenToParentAction = async (
     const [org] = await readOrganization({ id: [id] })
     if (!org) return { success: false, message: 'Struktur tidak ditemukan.' }
 
-    if (!confirmsCode(org, confirmCode)) {
-      return { success: false, message: WRONG_CODE }
+    if (!confirmsStrukturCode(org, confirmCode)) {
+      return { success: false, message: WRONG_STRUKTUR_CODE }
     }
 
-    const destination = await readParent(org)
+    const destination = await readParentOrganization(org)
     if (!destination) {
       return {
         success: false,

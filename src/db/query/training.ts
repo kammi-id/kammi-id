@@ -158,6 +158,26 @@ export type TrainingCreateInput = Omit<
 > & { identifier?: number }
 export type TrainingUpdateInput = Partial<typeof training.$inferInsert>
 
+/**
+ * How many Daurah one Struktur has held — the `nol Daurah` half of the deletion
+ * prerequisite (spec §3).
+ *
+ * Asked without `organizationNotDeleted`, unlike every read above it: the
+ * caller is deciding whether that Struktur may *become* Terhapus, so it is
+ * still live when this runs, and going through the invariant here would make
+ * the prerequisite depend on the answer it is being asked to produce.
+ */
+export const countTrainingsByOrganization = async (
+  organizationId: string
+): Promise<number> => {
+  const [row] = await db
+    .select({ total: count() })
+    .from(training)
+    .where(eq(training.organizationId, organizationId))
+
+  return Number(row?.total ?? 0)
+}
+
 export const trainingQuery = {
   getAll: async (filters: TrainingFilters = {}) => {
     const { organizationId, year, search, types, page = 1, pageSize } = filters

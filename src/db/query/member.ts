@@ -229,6 +229,32 @@ export const readMemberAggregates = async (
   return Object.values(accumulated)
 }
 
+/**
+ * How many **living** Kader sit directly in one Struktur — the `nol Member`
+ * half of the deletion prerequisite (spec §3).
+ *
+ * Directly, not in the subtree: children are counted separately and hold the
+ * deletion up on their own, so counting theirs here would report the same
+ * obstacle twice in one sentence.
+ *
+ * A Kader who is suspended or Non-Aktif still counts. The prerequisite reads
+ * "nol Member", not "nol Member yang sedang aktif" — someone recorded there is
+ * evidence the Struktur was not a mis-entry (spec §1.3). Only a soft-deleted
+ * Kader is gone.
+ */
+export const countLiveMembersByOrganization = async (
+  organizationId: string
+): Promise<number> => {
+  const [row] = await db
+    .select({ count: sql<number>`count(*)::int` })
+    .from(member)
+    .where(
+      and(eq(member.organizationId, organizationId), isNull(member.deletedAt))
+    )
+
+  return Number(row?.count ?? 0)
+}
+
 export const createMember = async (
   values: MemberInsertValues,
   tx?: DBExecutor
