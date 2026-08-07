@@ -1,5 +1,6 @@
 import { db } from '~/db/db'
 import { article } from '~/db/schema/article.sql'
+import { organizationNotDeleted } from '~/db/query/organization'
 import { eq, and, ilike, desc, sql } from 'drizzle-orm'
 
 export const isArticleOrgInScope = (
@@ -51,13 +52,22 @@ export const articleQuery = {
     const [row] = await db
       .select()
       .from(article)
-      .where(eq(article.id, id))
+      .where(
+        and(eq(article.id, id), organizationNotDeleted(article.organizationId))
+      )
       .limit(1)
     return row
   },
 
+  // Spec §7 lists `article.organization_id` among the seven references, and
+  // spec §3 klausa 3 lets Publikasi dangle rather than block a deletion — so
+  // Artikel of a Terhapus Struktur do exist, and the rule that hides them is
+  // installed here even though no public surface reads them yet (spec §7.2).
   listForOrg: async (organizationId: string, filters: ArticleListFilters) => {
-    const conditions = [eq(article.organizationId, organizationId)]
+    const conditions = [
+      eq(article.organizationId, organizationId),
+      organizationNotDeleted(article.organizationId)
+    ]
     if (filters.status) conditions.push(eq(article.status, filters.status))
     if (filters.categoryId)
       conditions.push(eq(article.categoryId, filters.categoryId))
@@ -76,6 +86,7 @@ export const articleQuery = {
       SELECT DISTINCT unnest(${article.tags}) AS tag
       FROM ${article}
       WHERE ${article.organizationId} = ${organizationId}
+        AND ${organizationNotDeleted(article.organizationId)}
     `)
     const rows = ((result as any).rows ?? result) as { tag: string }[]
     return rows.map((r) => r.tag)

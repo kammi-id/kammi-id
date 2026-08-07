@@ -1,5 +1,6 @@
 import { db } from '../db'
 import { siteSettings } from '../schema/site-settings.sql'
+import { organizationNotDeleted } from './organization'
 import { eq, sql } from 'drizzle-orm'
 
 export type HeroSettings = {
@@ -249,6 +250,12 @@ export const SETTINGS_DEFAULTS = {
   homeExtraItems: { items: [] } satisfies HomeExtraItemsSettings
 } as const
 
+/**
+ * Spec §7, `site_settings.organization_id`. Pengaturan Situs milik Struktur
+ * Terhapus jatuh ke `fallback` — persis jawaban yang didapat Struktur yang
+ * memang tidak pernah punya pengaturan, jadi tidak ada beda jawaban antara
+ * "tidak pernah ada" dan "pernah ada lalu dihapus" (spec §1.4).
+ */
 export const readSiteSettings = async <T>(
   key: string,
   fallback: T,
@@ -259,7 +266,9 @@ export const readSiteSettings = async <T>(
       .select({ data: siteSettings.data })
       .from(siteSettings)
       .where(
-        sql`${siteSettings.key} = ${key} AND ${siteSettings.organizationId} = ${organizationId}`
+        sql`${siteSettings.key} = ${key}
+          AND ${siteSettings.organizationId} = ${organizationId}
+          AND ${organizationNotDeleted(siteSettings.organizationId)}`
       )
       .limit(1)
 

@@ -1,7 +1,7 @@
 import { db } from '~/db/db'
 import { member } from '~/db/schema/member.sql'
 import { organization } from '~/db/schema/organization.sql'
-import { eq, and, sql, desc, ilike } from 'drizzle-orm'
+import { eq, and, sql, desc, ilike, isNull } from 'drizzle-orm'
 
 type OrgCodeRow = { type: string; code: string }
 
@@ -79,11 +79,15 @@ export const generateRegisterNumber = async (
   organizationId: string,
   year: number
 ) => {
-  // 1. Get organization details including parent
+  // 1. Get organization details including parent. A Terhapus Struktur reads as
+  //    absent (spec §7), so numbering a Kader into one fails the same way as
+  //    numbering into an id that was never issued.
   const [org] = await db
     .select()
     .from(organization)
-    .where(eq(organization.id, organizationId))
+    .where(
+      and(eq(organization.id, organizationId), isNull(organization.deletedAt))
+    )
     .limit(1)
 
   if (!org) throw new Error('Organization not found')

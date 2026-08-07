@@ -105,7 +105,12 @@ export const readMemberAggregates = async (
       (await db
         .select({ id: organization.id })
         .from(organization)
-        .where(eq(organization.type, 'pp' as any))
+        .where(
+          and(
+            eq(organization.type, 'pp' as any),
+            isNull(organization.deletedAt)
+          )
+        )
         .limit(1)
         .then((r) => r[0]?.id ?? null))
     anchorId = connectedOrgId
@@ -115,6 +120,14 @@ export const readMemberAggregates = async (
 
   // 1. Recursive CTE starting from a single anchor, expanding the entire subtree.
   //    Each org appears exactly once.  We then LEFT JOIN member to get direct counts.
+  //
+  //    `org_tree` emits one row per Struktur regardless of how many Member hang
+  //    off it, so an unfiltered walk puts Struktur Terhapus in the result as a
+  //    zero-count entry — a Struktur that should not be visible, present in the
+  //    list. Hence `deleted_at IS NULL` on both legs (spec §7.1).
+  //
+  //    Non-Aktif is pointedly **not** filtered: its Kader must keep rolling up
+  //    into its induk's totals (spec §8.3).
   const directRows = await db
     .execute(
       sql`
@@ -128,7 +141,7 @@ export const readMemberAggregates = async (
                ELSE 5
              END AS level
       FROM organization
-      WHERE id = ${anchorId}
+      WHERE id = ${anchorId} AND deleted_at IS NULL
       UNION ALL
       SELECT o.id, o.parent_id,
              CASE
@@ -140,6 +153,7 @@ export const readMemberAggregates = async (
              END AS level
       FROM organization o
       JOIN org_tree ot ON o.parent_id = ot.id
+      WHERE o.deleted_at IS NULL
     )
     SELECT
       ot.id AS "organizationId",
@@ -419,6 +433,18 @@ type MemberDescendantRow = {
   } | null
 }
 
+/**
+ * Its `org_tree` carries **no Keadaan filter, and adding one would be the wrong
+ * patch** (spec §7.1). This read emits Member rows, not Struktur rows: a
+ * Terhapus Struktur has zero live Member by the deletion prerequisite, and
+ * `m.deleted_at IS NULL` below already drops the dead ones, so it produces
+ * nothing to leak. What actually keeps a Terhapus subtree out is `allowedIds`,
+ * which `fetchAllowedOrgIds` has already stripped of Terhapus — the invariant
+ * arrives here through Cakupan rather than through a second filter.
+ *
+ * Non-Aktif passes, and must: Kader beneath a Non-Aktif PD are still read from
+ * its induk's list (spec §8.3).
+ */
 export const readDescendantMembers = async (
   parentId: string,
   filters: MemberFilters & {
@@ -658,11 +684,13 @@ export const readMemberDistributionByOrgType = async (
 
   // Recursive CTE: for each org of the target type, expand its entire subtree
   // so members in child orgs (PD, PK under a PW) are counted toward the parent.
+  // Terhapus is excluded on both legs and Non-Aktif is not (spec §7).
   const results = await db.execute(sql`
     WITH RECURSIVE subtree AS (
       SELECT id, id AS root_id
       FROM organization
       WHERE type = ${orgType}
+        AND deleted_at IS NULL
         AND id IN (${sql.join(
           allowedOrgIds.map((id) => sql`${id}`),
           sql`, `
@@ -671,6 +699,7 @@ export const readMemberDistributionByOrgType = async (
       SELECT o.id, s.root_id
       FROM organization o
       JOIN subtree s ON o.parent_id = s.id
+      WHERE o.deleted_at IS NULL
     )
     SELECT
       root_org.id as "organizationId",

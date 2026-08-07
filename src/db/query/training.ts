@@ -18,6 +18,7 @@ import {
   trainingInstructors
 } from '~/db/schema/training.sql'
 import { organization } from '~/db/schema/organization.sql'
+import { organizationNotDeleted } from '~/db/query/organization'
 import { member } from '~/db/schema/member.sql'
 
 export type TrainingType = 'dm1' | 'dm2' | 'dpmk' | 'tfi' | 'dm3' | 'other'
@@ -66,7 +67,12 @@ export const readMemberTrainingHistory = async (
       .from(trainingAttendants)
       .innerJoin(training, eq(trainingAttendants.trainingId, training.id))
       .leftJoin(organization, eq(training.organizationId, organization.id))
-      .where(eq(trainingAttendants.memberId, memberId))
+      .where(
+        and(
+          eq(trainingAttendants.memberId, memberId),
+          organizationNotDeleted(training.organizationId)
+        )
+      )
       .orderBy(desc(training.startDate)),
 
     db
@@ -84,7 +90,12 @@ export const readMemberTrainingHistory = async (
       .from(trainingInstructors)
       .innerJoin(training, eq(trainingInstructors.trainingId, training.id))
       .leftJoin(organization, eq(training.organizationId, organization.id))
-      .where(eq(trainingInstructors.memberId, memberId))
+      .where(
+        and(
+          eq(trainingInstructors.memberId, memberId),
+          organizationNotDeleted(training.organizationId)
+        )
+      )
       .orderBy(desc(training.startDate))
   ])
 
@@ -152,6 +163,10 @@ export const trainingQuery = {
     const { organizationId, year, search, types, page = 1, pageSize } = filters
 
     const where = [
+      // Daurah milik Struktur Terhapus hampa oleh prasyarat penghapusan; ia
+      // tetap disaring demi keseragaman, supaya aturannya satu dan berlaku
+      // untuk ketujuh referensi (spec §7).
+      organizationNotDeleted(training.organizationId),
       organizationId ? eq(training.organizationId, organizationId) : undefined,
       year ? eq(training.year, year) : undefined,
       search ? ilike(training.name, `%${search}%`) : undefined,
@@ -237,6 +252,7 @@ export const trainingQuery = {
       .where(
         and(
           eq(training.organizationId, orgId),
+          organizationNotDeleted(training.organizationId),
           eq(training.year, year),
           eq(training.identifier, identifier)
         )
@@ -284,6 +300,7 @@ export const trainingQuery = {
 
     const where = [
       gte(training.startDate, today),
+      organizationNotDeleted(training.organizationId),
       organizationIds && organizationIds.length > 0
         ? inArray(training.organizationId, organizationIds)
         : undefined
@@ -508,10 +525,12 @@ export type EligibleMember = {
 
 const pwNameSubquery = sql<string | null>`(
   WITH RECURSIVE anc AS (
-    SELECT id, name, type, parent_id FROM organization WHERE id = ${member.organizationId}
+    SELECT id, name, type, parent_id FROM organization
+    WHERE id = ${member.organizationId} AND deleted_at IS NULL
     UNION ALL
     SELECT org.id, org.name, org.type, org.parent_id
     FROM organization org JOIN anc ON org.id = anc.parent_id
+    WHERE org.deleted_at IS NULL
   )
   SELECT name FROM anc WHERE type = 'pw' LIMIT 1
 )`

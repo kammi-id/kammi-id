@@ -12,7 +12,9 @@ import {
   asc,
   desc,
   count,
-  sql
+  sql,
+  isNotNull,
+  type SQLWrapper
 } from 'drizzle-orm'
 import { type DBExecutor } from '../types'
 import { cache } from 'react'
@@ -30,6 +32,25 @@ export type AccessScope = {
   connectedOrganizationId: string | null
 }
 
+/**
+ * The invariant of spec §7 in the one dialect `withOrganizationCTE` cannot
+ * reach: a table that merely *points at* `organization` and never joins it.
+ *
+ * Give it that table's own organization-id column and it answers "does this row
+ * belong to a Struktur that is not Terhapus" — Non-Aktif answers yes, because
+ * Non-Aktif is never filtered. Callers put it straight into a `where`, or
+ * interpolate it into a raw `sql` template; it is the same fragment either way,
+ * so `article`, `training`, and `site_settings` state the rule identically
+ * instead of each spelling out an `EXISTS` of its own.
+ */
+export const organizationNotDeleted = (
+  organizationIdColumn: SQLWrapper
+): SQL => sql`EXISTS (
+    SELECT 1 FROM ${organization} live_org
+    WHERE live_org.id = ${organizationIdColumn}
+      AND live_org.deleted_at IS NULL
+  )`
+
 export const fetchAllowedOrgIds = async (user: {
   role: string
   connectedOrganization?: { id: string } | null
@@ -45,11 +66,24 @@ export const fetchAllowedOrgIds = async (user: {
  * can actually hit. `fetchAllowedOrgIds` above takes an object, and a fresh
  * object literal per call site would miss the cache every time — several
  * places on one page ask this same question.
+ *
+ * **Terhapus is outside every Cakupan** (spec §7). That is stated here rather
+ * than at each scoped read, and it is what carries the invariant into the reads
+ * that never touch `withOrganizationCTE` at all: `readDescendantMembers`
+ * intersects its `org_tree` with this list, so a Terhapus subtree drops out of
+ * it without that function being patched. `requireStrukturRestoreAccess` takes
+ * no target for exactly this reason — a Terhapus row is reachable by no walk.
+ *
+ * **Non-Aktif is inside it, and the walk does not stop there.** Kader beneath a
+ * Non-Aktif PD stay readable from its induk's list (spec §8.3).
  */
 const fetchAllowedOrgIdsFor = cache(
   async (role: string, connectedOrgId: string | null): Promise<string[]> => {
     if (role === 'root') {
-      const result = await db.select({ id: organization.id }).from(organization)
+      const result = await db
+        .select({ id: organization.id })
+        .from(organization)
+        .where(isNull(organization.deletedAt))
       return result.map((r) => r.id)
     }
 
@@ -60,7 +94,9 @@ const fetchAllowedOrgIdsFor = cache(
     const userOrg = await db
       .select({ type: organization.type })
       .from(organization)
-      .where(eq(organization.id, connectedOrgId))
+      .where(
+        and(eq(organization.id, connectedOrgId), isNull(organization.deletedAt))
+      )
       .limit(1)
       .then((res) => res[0])
 
@@ -75,10 +111,12 @@ const fetchAllowedOrgIdsFor = cache(
     try {
       const result = await db.execute(sql`
       WITH RECURSIVE org_hierarchy AS (
-        SELECT id FROM ${organization} WHERE id = ${connectedOrgId}
+        SELECT id FROM ${organization}
+        WHERE id = ${connectedOrgId} AND deleted_at IS NULL
         UNION ALL
         SELECT o.id FROM ${organization} o
         JOIN org_hierarchy oh ON o.parent_id = oh.id
+        WHERE o.deleted_at IS NULL
       )
       SELECT id FROM org_hierarchy
     `)
@@ -102,6 +140,14 @@ type OrganizationInsertValues = typeof organization.$inferInsert
  */
 export type OrganizationState = Organization['state']
 
+/**
+ * The Keadaan a normal read can ask about — Terhapus is absent, and its absence
+ * is the type-level half of spec §7. `readOrganization({ state: ['terhapus'] })`
+ * is a `tsc` error rather than a way around the filter in `withOrganizationCTE`,
+ * so the invariant does not depend on nobody thinking of it.
+ */
+export type VisibleOrganizationState = Exclude<OrganizationState, 'terhapus'>
+
 export type OrganizationFilters = {
   id?: string[]
   slug?: string
@@ -111,10 +157,11 @@ export type OrganizationFilters = {
   parentId?: string[] | null
   isNonActive?: boolean
   /**
-   * Menyaring Keadaan. Belum ada asali di sini — invarian "tiap pembacaan
-   * menyaring Terhapus, dan tidak menyaring Non-Aktif" adalah tiket 20.
+   * Menyaring Keadaan **di antara yang terlihat**. Terhapus tidak ada di
+   * pilihannya: penyaringannya sudah dikerjakan `withOrganizationCTE`, dan
+   * menaruhnya di sini akan jadi jalan memutarnya.
    */
-  state?: OrganizationState[]
+  state?: VisibleOrganizationState[]
   // Pagination & Sorting
   limit?: number
   offset?: number
@@ -285,8 +332,19 @@ export const readOrganization = async (
       deletedAt: withOrganizationCTE.deletedAt,
       deletedBy: withOrganizationCTE.deletedBy,
       state: withOrganizationCTE.state,
+      // Anak Terhapus tidak dihitung — konsisten dengan spec §3 klausa 2, yang
+      // menyatakan anak Terhapus tidak menahan penghapusan induknya. Angka di
+      // sini dan prasyarat di sana wajib menghitung kumpulan yang sama.
+      //
+      // The inner table is aliased and **both sides are qualified** because
+      // `${withOrganizationCTE.id}` renders as a bare `"id"` inside a raw `sql`
+      // template — only `.where()` qualifies it — and a bare `"id"` binds to
+      // the subquery's own scope. That made the predicate `parent_id = id`,
+      // which is true of no row, so this count read 0 for every Struktur.
       childrenCount: sql`
-        (SELECT count(*) FROM ${organization} WHERE parent_id = ${withOrganizationCTE.id})
+        (SELECT count(*) FROM ${organization} child
+         WHERE child.parent_id = ${withOrganizationCTE}.id
+           AND child.deleted_at IS NULL)
       `.mapWith(Number)
     })
     .from(withOrganizationCTE)
@@ -354,6 +412,14 @@ export const moveOrganizationParent = async (
     .where(inArray(organization.id, ids))
 }
 
+/**
+ * Reads the row back from `organization` directly rather than through
+ * `withOrganizationCTE`, and that is deliberate: an update must return what it
+ * just wrote. Going through the CTE would make a write that sets `deleted_at`
+ * — the soft delete of spec §1.2 — return an empty array, and a caller would
+ * read that as failure. The read invariant governs reads; this is the echo of a
+ * write.
+ */
 export const updateOrganization = async (
   values: Partial<OrganizationInsertValues>,
   id: string
@@ -361,12 +427,53 @@ export const updateOrganization = async (
   return await db.transaction(async (tx) => {
     await tx.update(organization).set(values).where(eq(organization.id, id))
 
-    return await tx
-      .with(withOrganizationCTE)
-      .select()
-      .from(withOrganizationCTE)
-      .where(eq(withOrganizationCTE.id, id))
+    return await tx.select().from(organization).where(eq(organization.id, id))
   })
+}
+
+/**
+ * The single read that does the opposite of spec §7 — **Terhapus and nothing
+ * else** — for the single surface that needs it (`/dashboard/branches/terhapus`,
+ * spec §8.4), gated by `requireStrukturRestoreAccess`.
+ *
+ * Kept as its own function rather than a flag on `readOrganization` on purpose.
+ * A flag is reachable from every call site that already reads Struktur, and a
+ * role-based filter on `/dashboard/branches` would punch the hole through the
+ * most-read page in the dashboard. One function, one caller, one surface: the
+ * blast radius of getting this wrong is the size of the recycle bin.
+ *
+ * `parentId` is carried because a restore has to happen top-down and the induk
+ * is what states the order (spec §8.4).
+ *
+ * ## Why it takes no `AccessScope`, against the rule in AGENTS.md
+ *
+ * "Cakupan is a required argument, never an optional one" governs **scoped**
+ * reads, and this read cannot be one: a Terhapus row is outside every Cakupan
+ * by construction — `fetchAllowedOrgIdsFor` strips it from all of them — so a
+ * scope passed here would have nothing to narrow. `requireStrukturRestoreAccess`
+ * takes no target for the identical reason, and the two roles that hold
+ * `pulihkan` at all (Root, and BPW whose Struktur is PP) both reach the whole
+ * country, so the argument would be a provable no-op rather than a guard.
+ *
+ * What actually stands between this function and a caller is therefore the gate
+ * alone. That is a weaker pairing than a required parameter, and it is stated
+ * here rather than left to be discovered: **call this only behind
+ * `requireStrukturRestoreAccess`.**
+ */
+export const readDeletedOrganizations = async (
+  filters: { id?: string[] } = {}
+): Promise<Array<Organization>> => {
+  const where: SQL[] = [isNotNull(organization.deletedAt)]
+  if (filters.id) {
+    if (filters.id.length === 0) return []
+    where.push(inArray(organization.id, filters.id))
+  }
+
+  return await db
+    .select()
+    .from(organization)
+    .where(and(...where))
+    .orderBy(desc(organization.deletedAt))
 }
 
 type OrgChainNode = {
@@ -413,11 +520,16 @@ export const readOrganizationIdByType = async (
   const rows = await db
     .select({ id: organization.id })
     .from(organization)
-    .where(eq(organization.type, type))
+    .where(and(eq(organization.type, type), isNull(organization.deletedAt)))
     .limit(1)
   return rows[0]?.id ?? null
 }
 
+/**
+ * Walks `parent_id` upward. The chain **stops at a Terhapus ancestor** rather
+ * than stepping over it: a breadcrumb that skipped the gap would state a
+ * lineage that does not exist, which is a louder lie than a short chain.
+ */
 export const readOrgHierarchyChain = async (
   orgId: string
 ): Promise<OrgChainNode[]> => {
@@ -425,11 +537,12 @@ export const readOrgHierarchyChain = async (
     WITH RECURSIVE ancestors AS (
       SELECT id, name, type, code, slug, parent_id
       FROM organization
-      WHERE id = ${orgId}
+      WHERE id = ${orgId} AND deleted_at IS NULL
       UNION ALL
       SELECT o.id, o.name, o.type, o.code, o.slug, o.parent_id
       FROM organization o
       JOIN ancestors a ON o.id = a.parent_id
+      WHERE o.deleted_at IS NULL
     )
     SELECT id, name, type, code, slug, parent_id as "parentId"
     FROM ancestors

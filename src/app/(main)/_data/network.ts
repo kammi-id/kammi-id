@@ -1,7 +1,7 @@
 import { cacheLife, cacheTag } from 'next/cache'
 import { db } from '~/db/db'
 import { organization } from '~/db/schema/organization.sql'
-import { count, eq, inArray } from 'drizzle-orm'
+import { and, count, eq, inArray, isNull } from 'drizzle-orm'
 
 export type NetworkStats = {
   wilayah: number
@@ -21,11 +21,19 @@ export type PWOrg = {
 // closure variables for cache key generation. By separating the db logic here,
 // the cached wrappers below only capture serializable function references.
 
+// Struktur Terhapus tidak muncul di pohon, di agregat, di pencarian, di mana
+// pun (spec §1.4) — dan yang publik melihat adalah "di mana pun" yang paling
+// terbuka. Non-Aktif tetap dihitung: ia ada, ia cuma sedang tidak berjalan.
 const _fetchNetworkStats = async (): Promise<NetworkStats> => {
   const results = await db
     .select({ type: organization.type, total: count() })
     .from(organization)
-    .where(inArray(organization.type, ['pw', 'pd', 'pdln', 'pk']))
+    .where(
+      and(
+        inArray(organization.type, ['pw', 'pd', 'pdln', 'pk']),
+        isNull(organization.deletedAt)
+      )
+    )
     .groupBy(organization.type)
 
   const map: Record<string, number> = {}
@@ -46,7 +54,7 @@ const _fetchPWOrganizations = async (): Promise<PWOrg[]> =>
       code: organization.code
     })
     .from(organization)
-    .where(eq(organization.type, 'pw'))
+    .where(and(eq(organization.type, 'pw'), isNull(organization.deletedAt)))
     .orderBy(organization.code)
 
 // ── Public cached exports ─────────────────────────────────────────────────────

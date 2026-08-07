@@ -1,6 +1,7 @@
 import { db } from '~/db/db'
 import { articleCategory } from '~/db/schema/article-category.sql'
-import { eq } from 'drizzle-orm'
+import { organizationNotDeleted } from '~/db/query/organization'
+import { and, eq } from 'drizzle-orm'
 
 type CategoryNode = { id: string; parentId: string | null }
 
@@ -27,11 +28,18 @@ export const wouldCreateCycle = (
 }
 
 export const articleCategoryQuery = {
+  // Spec §7, same standing as `articleQuery.listForOrg`: the rule is installed
+  // ahead of the surface that will read it.
   listForOrg: async (organizationId: string) => {
     return await db
       .select()
       .from(articleCategory)
-      .where(eq(articleCategory.organizationId, organizationId))
+      .where(
+        and(
+          eq(articleCategory.organizationId, organizationId),
+          organizationNotDeleted(articleCategory.organizationId)
+        )
+      )
   },
 
   create: async (values: typeof articleCategory.$inferInsert) => {
@@ -72,7 +80,12 @@ export const articleCategoryQuery = {
     const [row] = await db
       .select()
       .from(articleCategory)
-      .where(eq(articleCategory.id, id))
+      .where(
+        and(
+          eq(articleCategory.id, id),
+          organizationNotDeleted(articleCategory.organizationId)
+        )
+      )
       .limit(1)
     return row
   }

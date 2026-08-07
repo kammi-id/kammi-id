@@ -2,7 +2,7 @@
 
 import { z } from 'zod'
 import { db } from '~/db/db'
-import { eq, ilike, desc } from 'drizzle-orm'
+import { and, eq, ilike, desc, isNull } from 'drizzle-orm'
 import { revalidatePath, updateTag } from 'next/cache'
 import { readActiveSession } from '~/lib/auth/cookies'
 import { isOrgInScope } from '~/db/query/organization'
@@ -102,10 +102,17 @@ export const bulkCreateMembersAction = async (
       const results: CredentialResult[] = []
 
       // Resolve organization codes once — same for all members in this batch
+      // Terhapus reads as absent here too — the batch path must not number
+      // Kader into a Struktur the single-member path refuses (spec §7).
       const [org] = await tx
         .select()
         .from(organization)
-        .where(eq(organization.id, organizationId))
+        .where(
+          and(
+            eq(organization.id, organizationId),
+            isNull(organization.deletedAt)
+          )
+        )
         .limit(1)
 
       if (!org) throw new Error('Organization not found')

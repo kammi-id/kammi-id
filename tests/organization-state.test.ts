@@ -100,13 +100,18 @@ describe('Keadaan Struktur', () => {
   })
 
   it('menyaring lewat pembaca terpusat tanpa menyusun ulang derivasinya', async () => {
+    // `state` disaring lewat kolom turunan, bukan dengan menyusun ulang
+    // `deleted_at`/`is_non_active` di pemanggil. Terhapus tidak ikut diuji di
+    // sini karena ia bukan pilihan yang bisa diminta — tiket 20 mengeluarkannya
+    // dari tipe filternya, dan penyaringannya diuji di
+    // `organization-read-invariant.test.ts`.
     await db
       .update(organization)
-      .set({ deletedAt: new Date() })
+      .set({ isNonActive: true, nonActiveAt: new Date() })
       .where(eq(organization.id, orgId))
 
     expect(await readOrganization({ state: ['aktif'] })).toHaveLength(0)
-    expect(await readOrganization({ state: ['terhapus'] })).toHaveLength(1)
+    expect(await readOrganization({ state: ['non_aktif'] })).toHaveLength(1)
   })
 
   it('mencatat siapa yang menghapus dan siapa yang menonaktifkan', async () => {
