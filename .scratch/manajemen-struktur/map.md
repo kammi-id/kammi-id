@@ -1,6 +1,9 @@
 # Peta: Manajemen Struktur (PW/PD/PK)
 
 **Label:** `wayfinder:map`
+**Status: TUNTAS** — 12 dari 12 tiket keputusan tuntas, nol kabut tersisa.
+Destinasinya ada di **[`spec.md`](spec.md)**; pekerjaannya berpindah tangan ke
+tiket implementasi **13–29**. Peta ini sekarang arsip, bukan antrean.
 
 ## Destination
 
@@ -298,30 +301,36 @@ berkas itu, bukan berdiri di sebelahnya.
   Pemulihan berantai otomatis **ditolak**; penolakan menyebut langkah berikutnya
   dan menautkan induknya.
 
+- [09 — Konsolidasi jadi spec siap-serah](issues/09-konsolidasi-spec.md)
+  — **Destinasi tercapai: [`spec.md`](spec.md) ada, 11 bagian, berdiri sendiri**,
+  plus **17 tiket implementasi (13–29)** dalam lima rombongan. Konsolidasi ternyata
+  bukan penyalinan — tiga hal baru muncul justru karena semuanya diletakkan
+  berdampingan. **`isLegalChildType` nyaris ikut terbuang**: tiket 02 menyuruh
+  `canManageKestrukturan` menggantikan "dua gerbang sempit", padahal berkasnya
+  memuat **tiga** hal dan yang ketiga menjaga **bentuk pohon**, bukan kewenangan —
+  nol tiket pernah menggantikannya. **`parentId` punya dua status yang
+  bertentangan** sampai dirakit (tiket 02 membekukannya untuk semua orang; tiket 06
+  lalu membuat aksi yang mengubahnya) — diselesaikan sebagai catatan kaki: beku di
+  form Sunting, berubah hanya lewat aksi Pindah Induk. Dan **tiga momen tabrakan
+  `23505` ternyata satu tabel**, di mana terlihat bahwa momen pertama memang
+  sengaja **tidak** gagal — hal yang gampang dibaca sebagai bug. Urutan yang tidak
+  boleh dibalik: **24 sebelum 23** (penurunan NIA harus benar sebelum pemindahan
+  mungkin, kalau dibalik ada jendela NIA salah), 13 sebelum apa pun yang menyentuh
+  Keadaan, 18 sebelum permukaan mana pun, 14 sebelum 15 dan 16. Nol kode aplikasi
+  ditulis.
+
 ## Not yet specified
 
-- **Bentuk tesnya.** Belum ada satu pun tes untuk permukaan ini. Tiket 02 sudah
-  memberi lapis pertamanya: `canManageKestrukturan` itu fungsi murni, jadi
-  matriksnya dites sebagai tabel argumen-ke-hasil tanpa fixture. Yang masih
-  kabur adalah lapis sisanya — tes seam untuk dua gate async (pola
-  `lib/auth/kekaderan.test.ts`), tes transisi Keadaan, dan tes prasyarat hapus.
-  Berapa lapis dan di seam mana belum bisa dijawab sebelum 05, 06, dan 08
-  memberi tahu berapa permukaan yang sebenarnya ada. Satu ganjalan konkret
-  ditemukan tiket 03: `.github/workflows/ci.yml` memakai `postgres:16`
-  sementara migrasi dasarnya memanggil `uuidv7()` yang butuh PG 18+. Dua-duanya
-  tidak bisa benar, dan selama itu belum diluruskan, migrasi peta ini tidak bisa
-  diuji di CI. Tiket 06 menambah satu permukaan tak tertes lagi: **nol tes**
-  untuk seluruh mekanisme NIA, padahal 06 mengubah cara penurunannya di **dua**
-  tempat sekaligus.
-- **Gladi bersih migrasi.** Sebagian sudah terjawab di luar peta: seluruh migrasi
-  yang ada hari ini **sudah dijalankan dari nol sampai bersih** di basis data
-  staging kosong itu, dan **servernya PG 18+** — `uuidv7()` jalan, jadi ganjalan
-  CI `postgres:16` di butir sebelumnya terbukti soal CI-nya, bukan soal
-  migrasinya. Seluruh 199 tes repo juga hijau terhadapnya. Yang belum: gladi
-  untuk migrasi yang **lahir dari peta ini** — kolom `deleted_at`, kolom Keadaan
-  `generatedAlwaysAs` beserta `SET NOT NULL` tangannya, partial unique index, dan
-  pencabutan cascade. Belum bisa dijadikan tiket sebelum tiket 09 menetapkan
-  migrasi apa saja yang sebenarnya dipecah.
+**Kosong. Petanya tuntas.**
+
+Dua butir terakhir lulus di tiket 09 dan sekarang hidup sebagai tiket
+implementasi, bukan sebagai kabut:
+
+- ~~Bentuk tesnya~~ → dinyatakan penuh di `spec.md` §9.3 (empat lapis beserta
+  seam-nya), jadi **tiket 29**. Ganjalan CI `postgres:16` ikut lulus jadi
+  **tiket 17**.
+- ~~Gladi bersih migrasi~~ → bisa ditiketkan begitu tiket 09 menetapkan tiga
+  rombongan migrasinya (`spec.md` §4.7). Ikut **tiket 17**.
 
 ## Out of scope
 
