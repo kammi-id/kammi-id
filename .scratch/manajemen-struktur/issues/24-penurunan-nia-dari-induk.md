@@ -1,7 +1,7 @@
 # 24 — Penurunan NIA dari induk untuk PK
 
 **Type:** implementation
-**Status:** open
+**Status:** resolved
 **Blocked by:** —
 
 Spec: [`../spec.md`](../spec.md) §6.5, §6.6
@@ -85,3 +85,40 @@ diselundupkan ke sini** — ia menuntut putusan sendiri soal Kader yang sudah be
 - PK menurunkan `pwCode`/`pdCode` dari **induknya**, dengan cadangan ke kode sendiri
 - PD/PDLN/PW tidak berubah perilakunya sama sekali
 - Nol pendaftaran yang hari ini berhasil jadi gagal
+
+## Answer
+
+Keputusannya diekstrak jadi **satu fungsi murni** di `src/lib/utils/member.ts`,
+bukan disalin ke tiap pemanggil — "kedua salinan sepakat" jadi jaminan konstruksi,
+bukan jaminan ingatan:
+
+```ts
+needsParentCodes(org)                    // kapan baris induk perlu ditarik
+resolveRegisterNumberCodes(org, parent)  // PK → induk dulu; selain PK → sendiri dulu
+```
+
+Pemanggilnya menyediakan pembacaan barisnya masing-masing, jadi yang tx-aware tetap
+tx-aware. Ongkos query tidak berubah: PK menarik induk (memang wajib), PD/PW/PDLN
+yang kodenya terurai nol query tambahan.
+
+**Salinan ketiga ditemukan dan ikut dibereskan.** `src/scripts/seed-members.ts`
+punya `getNikPrefix` yang menulis ulang cabang per-Jenjang, dan ia **sudah menyimpang
+sebelum tiket ini**: regex-nya lebih sempit (`23.PD.1` gagal terurai di seeder tapi
+berhasil di produksi) dan ia menyaring induk dengan `parentOrg.type === 'pd'`
+sehingga PK di bawah PDLN tidak pernah dapat kode induk. Sekarang ia memanggil fungsi
+bersama; cadangan `0000<tahun>` tetap utuh.
+
+**PD/PDLN/PW nol perubahan perilaku** — cabang non-PK jalannya identik dengan kode
+lama, cadangan-ke-induk yang sudah ada sengaja dipertahankan supaya PD berkode aneh
+yang hari ini berhasil mendaftar tidak jadi gagal.
+
+**PK di bawah PW menghasilkan `pdCode = 00`**, dan itu benar, bukan cacat: §6.2
+menyatakan PW itu sendiri calon induk sah bagi PK di bawah PD, dan yang dijaga
+invariannya adalah `pwCode` — yang memang tetap. Sempat ditandai `/code-review`
+sebagai regresi; diperiksa terhadap §6.2 dan ternyata persis yang diminta.
+
+Tes: `src/lib/utils/member.test.ts`, 23 tes, **nol basis data**. Tes terakhir memindai
+`src/**` dan memastikan `resolveOrgCodes(` cuma muncul di satu berkas — salinan
+keempat akan memerahkan tes, bukan lolos diam-diam.
+
+**Tembok 1000 tidak disentuh**, sesuai Out of scope spec §10.

@@ -7,7 +7,10 @@ import { revalidatePath, updateTag } from 'next/cache'
 import { readActiveSession } from '~/lib/auth/cookies'
 import { isOrgInScope } from '~/db/query/organization'
 import { generatePassword, hashPassword } from '~/lib/utils/user'
-import { resolveOrgCodes } from '~/lib/utils/member'
+import {
+  needsParentCodes,
+  resolveRegisterNumberCodes
+} from '~/lib/utils/member'
 import { member as memberTable } from '~/db/schema/member.sql'
 import { user as userTable } from '~/db/schema/user.sql'
 import { organization } from '~/db/schema/organization.sql'
@@ -108,16 +111,20 @@ export const bulkCreateMembersAction = async (
       if (!org) throw new Error('Organization not found')
       if (org.type === 'pp') throw new Error('Cannot register members under PP')
 
-      let codes = resolveOrgCodes(org)
-
-      if (!codes && org.parentId) {
-        const [parent] = await tx
+      // Only the row reads are local to this transaction; the decision itself
+      // is the shared pure one, so this batch cannot number differently from
+      // the single-member path.
+      let parent: { type: string; code: string } | null = null
+      if (org.parentId && needsParentCodes(org)) {
+        const [parentRow] = await tx
           .select()
           .from(organization)
           .where(eq(organization.id, org.parentId))
           .limit(1)
-        if (parent) codes = resolveOrgCodes(parent)
+        parent = parentRow ?? null
       }
+
+      const codes = resolveRegisterNumberCodes(org, parent)
 
       if (!codes) throw new Error('Failed to parse organization codes')
 

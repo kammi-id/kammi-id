@@ -41,6 +41,40 @@ export const resolveOrgCodes = (
   return null
 }
 
+// Whether the parent row has to be read before the codes can be decided.
+// Lets a caller pay for the extra query only when it changes the answer: a PK
+// always asks its parent first, everything else only when its own code fails.
+export const needsParentCodes = (org: OrgCodeRow): boolean =>
+  org.type === 'pk' || resolveOrgCodes(org) === null
+
+// The one decision behind every NIA prefix. Pure on purpose: both the plain and
+// the transaction-aware caller feed it their own row reads, so the two cannot
+// drift into two different numbering systems.
+//
+// NIA names the PW/PD level, so the rule is deliberately not uniform:
+//
+//   - PK  — it is the parent that gets named, so the parent's code is asked
+//     first, and the PK's own code is only the fallback. A PK's code carries
+//     its parent PD's code today, so both directions answer identically; they
+//     part ways only after the PK is moved, and there the parent is right.
+//     `code` is frozen (ADR 0004), so a moved PK would otherwise emit a wrong
+//     NIA forever.
+//   - PD / PDLN / PW — they are the ones being named, so their own code wins.
+//     Asking their parent first would flatten a PD's own number to `00`.
+//     Their pre-existing fallback to the parent is kept untouched, so no
+//     registration that succeeds today starts failing.
+export const resolveRegisterNumberCodes = (
+  org: OrgCodeRow,
+  parent: OrgCodeRow | null
+): { pwCode: string; pdCode: string } | null => {
+  const ownCodes = () => resolveOrgCodes(org)
+  const parentCodes = () => (parent ? resolveOrgCodes(parent) : null)
+
+  return org.type === 'pk'
+    ? (parentCodes() ?? ownCodes())
+    : (ownCodes() ?? parentCodes())
+}
+
 export const generateRegisterNumber = async (
   organizationId: string,
   year: number
@@ -55,17 +89,17 @@ export const generateRegisterNumber = async (
   if (!org) throw new Error('Organization not found')
   if (org.type === 'pp') throw new Error('Cannot register members under PP')
 
-  let codes = resolveOrgCodes(org)
-
-  if (!codes && org.parentId) {
-    // Fallback: derive codes from the parent (e.g. PK directly under a PW or PDLN)
-    const [parent] = await db
+  let parent: OrgCodeRow | null = null
+  if (org.parentId && needsParentCodes(org)) {
+    const [parentRow] = await db
       .select()
       .from(organization)
       .where(eq(organization.id, org.parentId))
       .limit(1)
-    if (parent) codes = resolveOrgCodes(parent)
+    parent = parentRow ?? null
   }
+
+  const codes = resolveRegisterNumberCodes(org, parent)
 
   if (!codes) throw new Error('Failed to parse organization codes')
 

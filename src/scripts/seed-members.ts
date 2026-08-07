@@ -2,6 +2,7 @@ import { db } from '../db/db'
 import { member } from '../db/schema/member.sql'
 import { organization } from '../db/schema/organization.sql'
 import { eq } from 'drizzle-orm'
+import { resolveRegisterNumberCodes } from '../lib/utils/member'
 
 const INDONESIAN_NAMES_MALE = [
   'Ahmad',
@@ -108,49 +109,6 @@ const generatePhone = () =>
     .toString()
     .padStart(10, '0')}`
 
-/**
- * Simulated version of generateRegisterNumber to avoid thousands of DB queries during seeding.
- * Replicates the logic in src/lib/utils/member.ts
- */
-const getNikPrefix = (org: any, parentOrg?: any) => {
-  let pwCode = ''
-  let pdCode = ''
-
-  if (org.type === 'pw') {
-    const match = org.code.match(/PW\s*(\d+)/i)
-    pwCode = match ? match[1].padStart(2, '0') : '00'
-    pdCode = '00'
-  } else if (org.type === 'pdln') {
-    const match = org.code.match(/-\s*(\d+)/)
-    pwCode = '99'
-    pdCode = match ? match[1].padStart(2, '0') : '00'
-  } else {
-    const extract = (code: string) => {
-      const match =
-        code.match(/(\d+)\s*\.\s*PD\s*(\d+)/i) ||
-        code.match(/(\d+)\s*\.\s*PD\s*-\s*(\d+)/i)
-      return match
-        ? { pw: match[1].padStart(2, '0'), pd: match[2].padStart(2, '0') }
-        : null
-    }
-
-    const selfMatch = extract(org.code)
-    if (selfMatch) {
-      pwCode = selfMatch.pw
-      pdCode = selfMatch.pd
-    } else if (parentOrg && parentOrg.type === 'pd') {
-      const parentMatch = extract(parentOrg.code)
-      if (parentMatch) {
-        pwCode = parentMatch.pw
-        pdCode = parentMatch.pd
-      }
-    }
-  }
-
-  if (!pwCode || !pdCode) return null
-  return { pwCode, pdCode }
-}
-
 const main = async () => {
   console.log('🌱 Starting members seeding (Production NIK Logic)...')
 
@@ -188,9 +146,12 @@ const main = async () => {
       const phone = generatePhone()
       const yearOfEntry = getRandom(1998, new Date().getFullYear())
 
-      // NIK Generation
+      // NIK Generation. Seeding skips the per-member DB round trip of
+      // generateRegisterNumber, but the prefix itself is decided by the same
+      // shared pure function the application uses — a private copy of that
+      // branch would seed numbers the app would never issue.
       const parentOrg = pk.parentId ? orgMap.get(pk.parentId) : null
-      const prefixData = getNikPrefix(pk, parentOrg)
+      const prefixData = resolveRegisterNumberCodes(pk, parentOrg ?? null)
 
       if (!prefixData) {
         // We'll use a fallback to avoid skipping too many members if some codes are weird
