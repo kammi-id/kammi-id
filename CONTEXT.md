@@ -93,8 +93,10 @@ Kewenangan mengelola kekaderan: Member, Daurah, dan Perangkat.
 
 **BPW**:
 Kewenangan mengelola kestrukturan — Struktur **di bawah** Strukturnya sendiri,
-tidak pernah Strukturnya sendiri. Seberapa jauh ke bawah ditentukan Jenjang
-Strukturnya, sehingga sebagian BPW tidak mengelola apa pun dan hanya memantau.
+tidak pernah Strukturnya sendiri. Jenjang Strukturnya menentukan dua hal
+sekaligus: seberapa jauh ke bawah jangkauannya, **dan seberapa jauh haknya di
+situ**. Yang paling bawah cuma memantau dan membetulkan identitas — membuat dan
+menghapus Struktur tersentralisasi, bukan tersebar mengikuti jangkauan.
 
 **Humas**:
 Kewenangan mengelola publikasi: Artikel dan Pengaturan Situs. Satu-satunya
