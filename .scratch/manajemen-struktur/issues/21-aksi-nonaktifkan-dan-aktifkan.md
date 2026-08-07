@@ -154,3 +154,41 @@ Akun bernama persis `root` untuk tiap PP dan `user.name` unik, jadi memakainya
 **mengharuskan** menyapu lebih dulu.
 
 `bun test`: 502 lolos, 0 gagal, dua run penuh berturut-turut.
+
+## Comments
+
+**8 Agustus 2026 — diagnosis "perebutan `TRUNCATE`" di §Answer dikoreksi. Ia
+tidak berdiri.**
+
+§Answer menyimpulkan bahwa empat belas berkas yang menyapu tabel yang sama
+membuat **urutan jalannya jadi bagian dari hasilnya**, berdasarkan satu kegagalan
+run penuh yang tidak terulang di tiga run berikutnya. Diagnosis itu diperiksa dan
+ketiga premisnya gugur:
+
+1. **Berkas tes jalan sekuensial mutlak.** Diukur dengan dua berkas probe
+   ber-`Bun.sleep`: `beforeAll` → tes → `afterAll` satu berkas tuntas sebelum
+   berkas berikutnya mulai, nol interleaving. `bunfig.toml` tidak menyetel
+   `--concurrent`, dan bawaannya mati. Jadi `TRUNCATE` di satu berkas tidak bisa
+   menyentuh fixture berkas lain.
+2. **Urutan berkasnya deterministik.** Empat berkas probe, tiga run, urutan
+   identik ketiga kalinya. Ia bukan urutan CLI-nya, tapi ia stabil — jadi ia
+   bukan sumber ketidakpastian antar-run.
+3. **`cache()` React bukan tersangkanya.** Dicurigai sebab
+   `fetchAllowedOrgIdsFor` dibungkusnya dan kuncinya (`role='root'`,
+   `connectedOrgId=null`) sama di tiap berkas, sehingga daftar Struktur basi bisa
+   menyeberang. Dibuktikan salah: di luar request scope React `cache()` **tidak
+   memoize sama sekali**, tiap panggilan jalan ulang.
+
+Kegagalan satu kali itu **tidak berhasil direproduksi**; dua run penuh
+berturut-turut hijau (510/510). Penyebab aslinya tidak diketahui dan sengaja
+tidak dikarang di sini.
+
+**Aturannya tetap berdiri, dengan alasan yang benar.** Berkas tes baru sebaiknya
+tetap memakai fixture bersufiks, bukan karena rebutan lock, melainkan karena
+berkas yang menyapu tabel bersama menuntut **kepemilikan tunggal atas basis
+datanya**: ia menghapus apa pun yang `db:seed` taruh di sana, dan ia menggantung
+kalau ada koneksi lain (mis. `next dev` atau `drizzle-kit studio`) memegang lock
+di tabel itu. Itu ongkos nyata; "urutan jalan jadi bagian dari hasil" bukan.
+
+**Dua belas berkas yang sudah menyapu tidak dikonversi** — tanpa bahaya
+antar-berkas, mengubahnya adalah refactor besar yang membeli kerapian saja.

@@ -54,3 +54,44 @@ dan tidak diminta** — gladi ini terhadap staging.
 - CI hijau dengan migrasi peta ini terpasang
 - Gladi dari nol sampai bersih di staging, ketiga migrasi
 - Ketiga verifikasi di-basis-data di atas terbukti, bukan diasumsikan
+
+## Comments
+
+**8 Agustus 2026 — migrasi A sudah digladi di staging. Tiket tetap `open`.**
+
+Pengguna mengonfirmasi bahwa `103.93.160.47:5432/postgres` adalah **staging**,
+bukan produksi — menyelesaikan perselisihan antara `map.md` (staging) dan handoff
+sesi lalu (perlakukan sebagai produksi). Diperiksa sebelum menulis apa pun:
+4 Struktur, 14 Akun, **0 Kader** — kerangka, bukan data hidup.
+
+`20260807060403_swift_anita_blake` diterapkan lewat
+`DB_GUARD_ACK=1 bun run db:migrate`. Pagar `requireDatabaseConsent` menuntut TTY
+atau `DB_GUARD_ACK`; jalur kedua itu memang yang repo sediakan untuk runner
+non-interaktif, bukan jalan memutar.
+
+**Tiga verifikasi di-basis-data, bukan di TypeScript:**
+
+- `organization.state` mendarat `is_nullable = 'NO'` dan
+  `is_generated = 'ALWAYS'`. **`SET NOT NULL` tulis-tangan itu selamat** — ini
+  butir yang tiket ini sebut "paling mungkin diam-diam salah".
+- Ketujuh FK ke `organization` sekarang `confdeltype = 'a'` (NO ACTION).
+  Keempat cascade (`article`, `article_category`, `site_settings`,
+  `user.connected_organization_id`) tercabut; tiga yang tak pernah bercascade
+  tidak bergerak.
+- `state` ter-backfill benar tanpa backfill eksplisit: 4 baris, seluruhnya
+  `aktif`.
+
+Sesudahnya, atas permintaan pengguna, **seluruh baris di skema `public`
+dikosongkan** (`TRUNCATE ... RESTART IDENTITY CASCADE`) — skema dan kedelapan
+baris `drizzle.__drizzle_migrations` sengaja dibiarkan berdiri. **`db:reset`
+tidak dipakai**: ia men-`DROP TABLE`, yang akan membatalkan migrasi yang barusan
+mendarat. Isi sebelumnya di-dump ke JSON lebih dulu.
+
+**Konsekuensi yang perlu dipikul tiket ini:** staging sekarang benar-benar nol
+baris, jadi pra-terbang `check:duplicates` di sana akan menjawab "nol duplikat"
+secara teknis benar dan hampa secara makna — persis jebakan yang tiket 04 namai.
+Gladi migrasi B dan C perlu menyemai bentuk yang mengandung duplikat lebih dulu,
+kalau yang mau dibuktikan adalah pra-terbangnya menangkap sesuatu.
+
+**Yang masih terbuka:** CI masih `postgres:16` (`.github/workflows/ci.yml:13`),
+dan migrasi B (tiket 15) serta C (tiket 16) belum ada.

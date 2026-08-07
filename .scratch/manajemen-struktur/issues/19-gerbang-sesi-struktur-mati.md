@@ -176,3 +176,42 @@ samping.
 
 `bun test`: 449 lolos, 0 gagal. `check:types`, `check:lint`, `check:structure`
 bersih.
+
+## Comments
+
+**8 Agustus 2026 — "Temuan sampingan, tidak diperbaiki" ditutup, dan alasannya
+ternyata terbalik.**
+
+Kedaluwarsa tak-aktif sekarang ditegakkan di `validateSession`, bukan cuma di
+`readSession`. Pengguna memutuskan menegakkannya.
+
+**Peringatan yang ikut dicatat di §Answer — "memperbaikinya akan mengeluarkan
+orang dari sesinya" — tidak benar, dan itu terlihat setelah cookie-nya dibaca.**
+`kammi_id_session` di-`set` sekali saat login dengan `maxAge` tiga hari dan
+**tidak pernah diperbarui**, sementara `lastVerifiedAt` mulai dari waktu login
+yang sama dan hanya bergerak maju. Jadi `lastVerifiedAt` tidak akan pernah basi
+tiga hari selagi cookie yang membawanya masih hidup: untuk peramban jujur,
+gerbang ini **nol efek**.
+
+Yang sebenarnya ditambal beda dan lebih besar: sebelum ini `validateSession`
+**tidak pernah menolak sesi karena umur sama sekali**, jadi sebuah baris di
+`session` berlaku selamanya. `maxAge` mengikat peramban dan tidak mengikat
+server, jadi token yang keluar dari peramban — disalin dari log, dari perangkat
+yang hilang, dari mana pun — tidak punya satu pun pintu yang menolaknya. Itu
+lubang keamanan, bukan sekadar konstanta yang menganggur.
+
+Dua urutan yang menentukan, dan dua-duanya diuji:
+
+- **Sesudah rahasianya**, sebab id sesi bukan rahasia (ia separuh pertama token).
+  Kalau umur ditanya lebih dulu, siapa pun yang memegang id bisa membuat pembaca
+  ini menghapus baris orang lain.
+- **Sebelum penyegaran `lastVerifiedAt`**, sebab menyegarkan lebih dulu justru
+  memperpanjang sesi yang gerbang ini ada untuk mempensiunkan — dan tes yang cuma
+  memeriksa `undefined` akan tetap hijau. Jadi yang dituntut adalah barisnya
+  hilang.
+
+`tests/sesi-kedaluwarsa.test.ts` — 7 kasus, fixture bersufiks, nol `TRUNCATE`.
+
+**Yang sengaja tidak ikut diubah:** cookie tetap absolut tiga hari sejak login,
+bukan sliding. Menjadikannya sliding adalah keputusan produk (berapa lama orang
+boleh tetap masuk tanpa login ulang), bukan efek samping dari menutup lubang ini.

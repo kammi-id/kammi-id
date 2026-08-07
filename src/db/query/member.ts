@@ -470,6 +470,13 @@ type MemberDescendantRow = {
  *
  * Non-Aktif passes, and must: Kader beneath a Non-Aktif PD are still read from
  * its induk's list (spec §8.3).
+ *
+ * The three `orgHierarchy` subqueries walk the other way — upward, to name each
+ * Kader's PK/PD/PW — and there the filter **is** the right patch, for the same
+ * reason `readOrgHierarchyChain` carries it: a lineage naming a Terhapus induk
+ * states a lineage that does not exist (§1.4). The `allowedIds` argument does
+ * not reach them, because ancestors are never members of the descendant set it
+ * constrains. A gap yields `null` for that rung rather than stepping over it.
  */
 export const readDescendantMembers = async (
   parentId: string,
@@ -540,30 +547,36 @@ export const readDescendantMembers = async (
       json_build_object(
         'pk', (
           WITH RECURSIVE anc AS (
-            SELECT id, name, slug, type, parent_id FROM organization WHERE id = o.id
+            SELECT id, name, slug, type, parent_id FROM organization
+            WHERE id = o.id AND deleted_at IS NULL
             UNION ALL
             SELECT org.id, org.name, org.slug, org.type, org.parent_id
             FROM organization org JOIN anc ON org.id = anc.parent_id
+            WHERE org.deleted_at IS NULL
           )
           SELECT json_build_object('id', id, 'name', name, 'slug', slug)
           FROM anc WHERE type = 'pk' LIMIT 1
         ),
         'pd', (
           WITH RECURSIVE anc AS (
-            SELECT id, name, slug, type, parent_id FROM organization WHERE id = o.id
+            SELECT id, name, slug, type, parent_id FROM organization
+            WHERE id = o.id AND deleted_at IS NULL
             UNION ALL
             SELECT org.id, org.name, org.slug, org.type, org.parent_id
             FROM organization org JOIN anc ON org.id = anc.parent_id
+            WHERE org.deleted_at IS NULL
           )
           SELECT json_build_object('id', id, 'name', name, 'slug', slug)
           FROM anc WHERE type IN ('pd', 'pdln') LIMIT 1
         ),
         'pw', (
           WITH RECURSIVE anc AS (
-            SELECT id, name, slug, type, parent_id FROM organization WHERE id = o.id
+            SELECT id, name, slug, type, parent_id FROM organization
+            WHERE id = o.id AND deleted_at IS NULL
             UNION ALL
             SELECT org.id, org.name, org.slug, org.type, org.parent_id
             FROM organization org JOIN anc ON org.id = anc.parent_id
+            WHERE org.deleted_at IS NULL
           )
           SELECT json_build_object('id', id, 'name', name, 'slug', slug)
           FROM anc WHERE type = 'pw' LIMIT 1

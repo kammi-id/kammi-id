@@ -32,6 +32,21 @@ const activityCheckIntervalMS = 1000 * 60 * 60 * 6
  * ungated is the "jalur-yang-bisa-lupa-dipanggil" the spec rejected an
  * alternative seam for being.
  */
+/**
+ * Sliding expiry, and it lives here because **the cookie cannot enforce it**.
+ * `maxAge` binds an honest browser and nothing else: a token lifted out of one
+ * is a plain string, and until this check existed on both readers no code path
+ * ever rejected a session for age. A row in `session` was valid forever.
+ *
+ * Which is also why turning it on evicts nobody. The cookie is written once at
+ * login with a 3-day `maxAge` and never refreshed, so `lastVerifiedAt` — which
+ * starts at that same login and only moves forward — can never be 3 days stale
+ * while the cookie that carries it is still alive. For a browser this is dead
+ * weight; for a leaked token it is the only door.
+ */
+const hasIdledOut = (session: { lastVerifiedAt: Date }, now: Date) =>
+  now.getTime() - session.lastVerifiedAt.getTime() >= inactivityTimeoutMS
+
 const ifAkunMayHoldIt = (session: Session | undefined) => {
   if (!session) return undefined
   return mayHoldSession(
@@ -74,7 +89,7 @@ export const readSession = async (id: string) => {
   }
 
   const now = new Date()
-  if (now.getTime() - session.lastVerifiedAt.getTime() >= inactivityTimeoutMS) {
+  if (hasIdledOut(session, now)) {
     await deleteSession([session.id])
     return undefined
   }
@@ -108,6 +123,16 @@ export const validateSession = async (token: string) => {
   }
 
   const now = new Date()
+
+  // Asked **after** the secret, not before: an id alone must never be enough to
+  // make this reader delete a row. Asked **before** the refresh below for the
+  // same reason it exists at all — refreshing first would renew the very
+  // session this is meant to retire.
+  if (hasIdledOut(session, now)) {
+    await deleteSession([session.id])
+    return undefined
+  }
+
   if (
     now.getTime() - session.lastVerifiedAt.getTime() >=
     activityCheckIntervalMS

@@ -206,3 +206,30 @@ ulang derivasinya) tetap utuh lewat `non_aktif`.
 
 `bun test`: 420 lolos, 0 gagal. `check:types`, `check:lint`, `check:structure`
 bersih.
+
+## Comments
+
+**8 Agustus 2026 — hutang "Yang sengaja tidak dikerjakan" ditutup.**
+
+Ketiga subkueri leluhur `orgHierarchy` di `readDescendantMembers` sekarang
+menyaring Terhapus di kedua kaki, persis pola `pwNameSubquery` dan
+`readOrgHierarchyChain`. Rantainya **berhenti** di leluhur Terhapus alih-alih
+melompatinya — melompat akan menyatakan garis keturunan yang tidak ada (§1.4).
+
+Alasan menutupnya sekarang, padahal tiket ini menyatakan kebocorannya tidak
+terjangkau: argumen "tidak terjangkau" itu **bersandar pada prasyarat
+penghapusan**, dan pembaca yang jujur hanya kalau tabel lain berperilaku benar
+bukan pembaca yang jujur. Argumennya sendiri tetap berdiri — PD dengan PK hidup
+tidak bisa dihapus, ticket 23 menolak induk tujuan Terhapus, tiket 12 menolak
+pemulihan di bawah induk Terhapus — jadi ini pengerasan, bukan perbaikan bug.
+
+Yang ikut terlihat saat memeriksanya: untuk Root, `fetchAllowedOrgIds`
+mengembalikan **seluruh** Struktur tidak-terhapus secara datar, bukan hasil
+penelusuran. Jadi PK hidup di bawah PD Terhapus **akan** lolos `allowedIds` dan
+`org_tree` yang memang sengaja tidak disaring. Kebocorannya ditahan oleh
+prasyarat saja, bukan oleh Cakupan seperti yang tertulis di docblock aslinya —
+kalimat itu sudah diluruskan di tempat.
+
+Tesnya satu kasus baru di `tests/organization-read-invariant.test.ts` dengan
+subtree sendiri, sebab menumpang `pw` akan mengubah dua hitungan yang diuji di
+atasnya. `bun test`: 510 lolos, 0 gagal, dua run penuh berturut-turut.

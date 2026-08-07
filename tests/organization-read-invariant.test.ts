@@ -348,6 +348,43 @@ describe('Invarian lapisan baca Struktur', () => {
       expect(orgIdsOfRows).toContain(pdNonAktif.id)
       expect(orgIdsOfRows).not.toContain(pdTerhapus.id)
     })
+
+    // Subtree-nya sendiri, bukan menumpang `pw`, sebab menambah Kader ke sana
+    // akan mengubah dua hitungan yang diuji di atasnya.
+    //
+    // Bentuknya sengaja dibuat tangan: prasyarat penghapusan membuat PK hidup
+    // di bawah PD Terhapus tak terjangkau lewat jalur mana pun. Justru itu
+    // sebabnya ia diuji di sini — yang dijaga adalah bahwa pembacanya tidak
+    // bersandar pada prasyarat itu untuk tetap jujur.
+    it('tidak menyebut nama leluhur Terhapus di orgHierarchy, dan memutus rantainya di situ', async () => {
+      const pwB = await insertOrg({
+        name: `PW Leluhur ${suffix}`,
+        type: 'pw',
+        parentId: pp.id
+      })
+      const pdTerhapusB = await insertOrg({
+        name: `PD Leluhur Terhapus ${suffix}`,
+        type: 'pd',
+        parentId: pwB.id,
+        deletedAt: new Date()
+      })
+      const pkB = await insertOrg({
+        name: `PK Leluhur ${suffix}`,
+        type: 'pk',
+        parentId: pdTerhapusB.id
+      })
+      orgIds.unshift(pkB.id, pdTerhapusB.id, pwB.id)
+      memberIds.push(await insertMember(pkB.id, `Kader Leluhur ${suffix}`))
+
+      const [rows] = await readDescendantMembers(pwB.id, { user: root })
+
+      expect(rows).toHaveLength(1)
+      expect(rows[0].orgHierarchy?.pk?.id).toBe(pkB.id)
+      expect(rows[0].orgHierarchy?.pd).toBeNull()
+      // PW-nya hidup, tapi jalan ke sana lewat PD Terhapus. Melompatinya akan
+      // menyatakan garis keturunan yang tidak ada.
+      expect(rows[0].orgHierarchy?.pw).toBeNull()
+    })
   })
 
   describe('tabel yang mereferensi organization', () => {
