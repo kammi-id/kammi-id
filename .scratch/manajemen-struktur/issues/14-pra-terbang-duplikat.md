@@ -1,7 +1,7 @@
 # 14 — Pra-terbang duplikat `code`/`slug`
 
 **Type:** implementation
-**Status:** open
+**Status:** resolved
 **Blocked by:** —
 
 Spec: [`../spec.md`](../spec.md) §4.5, §4.6
@@ -52,3 +52,20 @@ saat perencanaan.
 - `bun run check:duplicates` jalan dan mengorientasi diri di basis data staging
 - Pohon keputusannya terbaca tanpa membuka spec
 - `bun run check:structure` dan `check:types` hijau
+
+## Answer
+
+Skripnya pindah ke `src/scripts/check-duplicates.ts` lewat `git mv` (riwayat
+terbawa), dengan `bun run check:duplicates` di `package.json`. Isinya **tidak
+ditulis ulang** — yang berubah cuma jalur impor (`~/lib/db-guard/consent`,
+menyamai tetangganya `db-guard.ts`), komentar kepala, dan pencetakan pohon
+keputusan.
+
+Pohon keputusan §4.6 sekarang terbaca **dua kali**: di komentar kepala dan di
+keluaran skrip sendiri, diikuti putusan turunan untuk basis data yang barusan
+dibaca. Yang menjalankan migrasi tidak perlu membuka spec.
+
+Diverifikasi terhadap basis data tes lokal saja — ia mengorientasi diri (nama basis
+data, `search_path`, skema pemilik `organization`, versi server) dan menjawab basis
+data hampir kosong dengan kalimat, bukan galat mentah. **Produksi tidak disentuh**,
+sesuai batasan tetap 7 Agustus 2026.

@@ -1,5 +1,10 @@
 /**
- * Tiket 04 — pembacaan sekali pakai, nol tulis.
+ * Pra-terbang duplikat `code`/`slug` — pembacaan murni, nol tulis.
+ *
+ * DIJALANKAN SESAAT SEBELUM MIGRASI CONSTRAINT, terhadap basis data yang akan
+ * dimigrasi — oleh orang yang men-deploy migrasinya, bukan sekali saat
+ * perencanaan. Jendela antara inspeksi dan deploy adalah jendela pendaftaran
+ * Struktur baru, jadi hasil yang berumur berhari-hari tidak menjamin apa pun.
  *
  * Menghitung duplikat `code`, `slug`, dan `code_slug` di tabel `organization`,
  * lalu untuk tiap duplikat mencatat Strukturnya, Jenjangnya, dan berapa Member
@@ -7,23 +12,38 @@
  * ADR 0004 bergantung pada fakta bahwa Member terhapus masih memegang Nomor
  * Induk Anggota yang tersusun dari `code` itu.
  *
+ * --- Pohon keputusan (spec §4.6) ------------------------------------------
+ *
+ *   | Temuan             | Putusan                                          |
+ *   | ------------------ | ------------------------------------------------ |
+ *   | nol duplikat       | jalan; kedua migrasi constraint berangkat         |
+ *   | `slug` duplikat    | perbaiki mekanis (ganti nama yang kalah), lalu    |
+ *   |   saja             | jalan                                             |
+ *   | `code` duplikat    | BERHENTI. Kirim migrasi `slug` saja; `code`       |
+ *   |                    | menunggu putusan manusia                          |
+ *   | `code_slug`        | abaikan — ia tidak dipasangi constraint           |
+ *   |   duplikat         |                                                   |
+ *
+ * Kenapa `slug` dan `code` tidak setara: `slug` cuma URL dan bebas dipungut
+ * ulang, jadi yang kalah tinggal diganti namanya. `code` TIDAK BISA DIPERBAIKI
+ * SECARA MEKANIS, TITIK — ADR 0004 mengunci `code` selamanya, jadi menggantinya
+ * demi memuaskan constraint justru melanggar ADR yang melahirkan constraint
+ * itu. `code` duplikat bukan pekerjaan migrasi; ia insiden data yang menuntut
+ * putusan manusia.
+ *
+ * --------------------------------------------------------------------------
+ *
  * Sengaja lewat `requireDatabaseConsent` yang sama dengan `db:migrate`, supaya
  * skrip ini tidak jadi pintu belakang yang melewati guard.
  *
  * Percobaan pertama mati dengan `relation "organization" does not exist`, jadi
- * skrip ini sekarang MENGORIENTASI DIRI lebih dulu — versi server, search_path,
- * dan di skema mana `organization` sebenarnya berada — sebelum menghitung apa
- * pun. Kalau tabelnya memang tidak ada, ia bilang begitu dan berhenti dengan
- * tenang alih-alih melempar galat mentah.
- *
- * JANGAN dibuang. Tiket 04 menaikkannya dari pembacaan sekali pakai jadi
- * PRA-TERBANG WAJIB yang dijalankan sesaat sebelum migrasi constraint, terhadap
- * basis data yang akan dimigrasi. Akses produksi tidak pernah diberikan, jadi
- * inilah satu-satunya momen data itu benar-benar terbaca. Rumahnya nanti
- * `src/scripts/`, di sebelah `db-guard.ts` — pemindahannya kerja implementasi.
+ * skrip ini MENGORIENTASI DIRI lebih dulu — versi server, search_path, dan di
+ * skema mana `organization` sebenarnya berada — sebelum menghitung apa pun.
+ * Kalau tabelnya memang tidak ada, ia bilang begitu dan berhenti dengan tenang
+ * alih-alih melempar galat mentah.
  */
 import { SQL } from 'bun'
-import { requireDatabaseConsent } from '../../src/lib/db-guard/consent'
+import { requireDatabaseConsent } from '~/lib/db-guard/consent'
 
 requireDatabaseConsent()
 
@@ -120,12 +140,14 @@ const report = async (column: 'code' | 'slug' | 'code_slug') => {
 
   if (groups.length === 0) {
     console.log('nol duplikat.')
-    return
+    return 0
   }
 
   console.table(groups)
   console.log(`\nbaris yang terlibat (${column}):`)
   console.table(await rowsSharing(column))
+
+  return groups.length
 }
 
 const [{ total }] = await sql.unsafe(
@@ -133,8 +155,48 @@ const [{ total }] = await sql.unsafe(
 )
 console.log(`total baris organization: ${total}`)
 
-await report('code')
-await report('slug')
+const duplicateCode = await report('code')
+const duplicateSlug = await report('slug')
 await report('code_slug')
+
+// --- Putusan ---------------------------------------------------------------
+
+/**
+ * Pohon keputusan spec §4.6, dicetak apa adanya supaya orang yang menjalankan
+ * migrasi membacanya tanpa harus membuka spec.
+ */
+console.log(`
+=== pohon keputusan (spec §4.6) ===
+
+  temuan                | putusan
+  ----------------------+--------------------------------------------------
+  nol duplikat          | jalan; kedua migrasi constraint berangkat
+  \`slug\` duplikat saja  | perbaiki mekanis (ganti nama yang kalah), lalu jalan
+  \`code\` duplikat       | BERHENTI. Kirim migrasi \`slug\` saja; \`code\`
+                        | menunggu putusan manusia
+  \`code_slug\` duplikat  | abaikan — ia tidak dipasangi constraint
+
+\`code\` duplikat TIDAK BISA diperbaiki secara mekanis, titik. ADR 0004 mengunci
+\`code\` selamanya, jadi menggantinya demi memuaskan constraint justru melanggar
+ADR yang melahirkan constraint itu. Ia insiden data yang menuntut putusan
+manusia, bukan pekerjaan migrasi.`)
+
+console.log('\n=== putusan untuk basis data ini ===')
+
+if (duplicateCode > 0) {
+  console.log(
+    `BERHENTI. ${duplicateCode} kelompok \`code\` duplikat ditemukan.\n` +
+      'Kirim migrasi `slug` saja; migrasi unique `code` menunggu putusan manusia.'
+  )
+} else if (duplicateSlug > 0) {
+  console.log(
+    `${duplicateSlug} kelompok \`slug\` duplikat, nol duplikat \`code\`.\n` +
+      'Perbaiki `slug` yang kalah secara mekanis lebih dulu, lalu jalan.'
+  )
+} else {
+  console.log(
+    'Nol duplikat `code` dan `slug` — kedua migrasi constraint boleh berangkat.'
+  )
+}
 
 await sql.end()

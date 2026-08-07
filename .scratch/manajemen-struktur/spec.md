@@ -456,7 +456,8 @@ lemah daripada yang terlihat **bahkan seandainya akses diberikan** — jendela a
 inspeksi dan deploy bisa berhari-hari, dan pendaftaran Struktur baru jalan terus di
 dalamnya.
 
-**Skripnya sudah ditulis**: `.scratch/manajemen-struktur/check-duplicates.ts`. Ia
+**Skripnya sudah ditulis**: `src/scripts/check-duplicates.ts`, dijalankan lewat
+`bun run check:duplicates` (dipindahkan ke sana oleh [tiket 14](issues/14-pra-terbang-duplikat.md)). Ia
 murni `SELECT`, lewat `requireDatabaseConsent` yang sama dengan `db:migrate`
 (bukan pintu belakang), dan sudah mengorientasi diri lebih dulu (versi server,
 `search_path`, skema mana yang memuat `organization`) sehingga basis data kosong
@@ -466,9 +467,8 @@ Ia menghitung duplikat `code`, `slug`, **dan** `code_slug`, dan memisahkan Membe
 hidup dari Member yang sudah dihapus lunak — ADR 0004 bertumpu pada fakta bahwa
 Member terhapus **masih memegang** Nomor Induk yang tersusun dari `code` itu.
 
-**Yang harus dikerjakan:** pindahkan ke `src/scripts/`, bersebelahan dengan
-`db-guard.ts`, `reset.ts`, dan `seed.ts`, dengan skrip `package.json`-nya sendiri
-(mis. `check:duplicates`). Ia **artefak, bukan buangan**.
+Ia **artefak, bukan buangan** — rumahnya permanen di `src/scripts/`, bersebelahan
+dengan `db-guard.ts`, `reset.ts`, dan `seed.ts`.
 
 **Dijalankan sesaat sebelum migrasi**, terhadap basis data yang akan dimigrasi —
 bukan sekali saat perencanaan.

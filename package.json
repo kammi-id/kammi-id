@@ -5,6 +5,7 @@
   "scripts": {
     "prepare": "skills-npm",
     "build": "next build",
+    "check:duplicates": "bun src/scripts/check-duplicates.ts",
     "check:format": "prettier --check .",
     "check:lint": "eslint",
     "check:structure": "bun src/scripts/check-structure.ts",
