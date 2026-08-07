@@ -17,6 +17,11 @@ import { getColumns, eq, sql } from 'drizzle-orm'
  *
  * `withOrganizationCTE` stays in the `.with()` list below for `withMemberCTE`,
  * which does read through it.
+ *
+ * This is also why `state` is carried into `connected_organization`: the gate
+ * at `validateSession` needs the Struktur's Keadaan on **every** request, and a
+ * join that filtered Terhapus would hand it `null` for the one case it exists
+ * to catch. Reading the Terhapus row is the point.
  */
 export const withUserCTE = db.$with('with_user_cte').as(
   db
@@ -37,7 +42,8 @@ export const withUserCTE = db.$with('with_user_cte').as(
         'level', ${organization.level},
         'logo', ${organization.logo},
         'parentId', ${organization.parentId},
-        'isNonActive', ${organization.isNonActive}
+        'isNonActive', ${organization.isNonActive},
+        'state', ${organization.state}
       )`.as('connected_organization'),
       connectedMember: sql<Member>`json_build_object(
         'id', ${withMemberCTE.id},

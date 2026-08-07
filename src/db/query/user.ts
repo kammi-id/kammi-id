@@ -1,6 +1,7 @@
 import { db } from '../db'
 import { user } from '../schema/user.sql'
 import { withUserCTE, type User } from './cte/user'
+import { organization } from '../schema/organization.sql'
 import { inArray, eq, and, ilike, type SQL } from 'drizzle-orm'
 import { type DBExecutor } from '../types'
 
@@ -62,14 +63,32 @@ export const readUser = async (
     .where(and(...where))
 }
 
+/**
+ * The credential row, plus the two fields that decide whether it may become a
+ * session at all.
+ *
+ * `role` and `strukturState` ride along because login is the one door that does
+ * **not** pass through `validateSession`, so `mayHoldSession` has to be asked
+ * here separately (spec §5.5) — and asking it must not cost a second round trip
+ * on the hot path.
+ *
+ * Joined to `organization` directly rather than through `withOrganizationCTE`,
+ * for the same reason and with the same argument as `withUserCTE` — see the
+ * docblock in `./cte/user.ts`. A Terhapus Struktur must arrive here as
+ * `'terhapus'`, not as absent.
+ */
 export const readUserCredential = async (name: string) => {
   return await db
     .select({
+      id: user.id,
       name: user.name,
       displayName: user.displayName,
-      passwordHash: user.passwordHash
+      passwordHash: user.passwordHash,
+      role: user.role,
+      strukturState: organization.state
     })
     .from(user)
+    .leftJoin(organization, eq(user.connectedOrganizationId, organization.id))
     .where(eq(user.name, name))
     .limit(1)
 }

@@ -1,7 +1,7 @@
 # 19 — Gerbang sesi: Struktur mati = sesi tidak ada
 
 **Type:** implementation
-**Status:** open
+**Status:** resolved
 **Blocked by:** 13
 
 Spec: [`../spec.md`](../spec.md) §5 (seluruhnya)
@@ -74,3 +74,105 @@ jadi yang menonaktifkan wajib memberi tahu orangnya **di luar sistem**.
   berikutnya**, di halaman **dan** di Server Action yang dipanggil langsung
 - Akun Kader di Struktur Non-Aktif masih bisa masuk
 - Nol kolom baru di `user`
+
+## Answer
+
+**Nol kolom baru di `user`, dan itu dikunci sebuah tes** yang membaca
+`information_schema` dan menolak kolom apa pun bernama `state`/`non_active`/
+`deleted` di tabel itu. Keadaan Akun tetap turunan.
+
+### Gerbangnya
+
+`mayHoldSession(role, strukturState)` di `src/lib/auth/keadaan-akun.ts` —
+murni, nol basis data. Ia dinamai menurut **hak yang diberikannya**, bukan
+menurut tindakan memeriksanya, mengikuti aturan AGENTS.md; versi pertamanya
+bernama `deriveKeadaanAkun` dan mengembalikan `'hidup' | 'mati'`, yang memaksa
+tiap pemanggil mengeja ulang polaritasnya sebagai `=== 'mati'`.
+
+Di dalamnya **`Record<UserRole, boolean>`, bukan daftar empat peran yang mati.**
+Bentuk itu yang penting: menambah Kewenangan ke enum jadi galat `tsc` di sini
+sampai ada yang menyatakan ia jatuh di sisi mana. Daftar akan membiarkan
+Kewenangan baru diam-diam berasali "selamat" — persis arah kegagalan yang salah.
+Peran tak dikenal saat runtime juga dijawab mati; di seam ini, diam berarti
+tidak.
+
+### Seam-nya, dan pintu yang tadinya lolos
+
+Gerbangnya di `validateSession`, jadi tiap `if (!session) redirect('/login')`
+yang sudah tersebar berlaku apa adanya — **nol call-site baru**. Server Action
+yang dipanggil langsung ikut tertutup:
+`dashboard/user/account/_components/action/action.ts` memanggil
+`validateSession` sendiri dan mewarisinya tanpa diubah.
+
+**`readSession` di `lib/auth/api.ts` ikut digerbangi.** Ia diekspor dan hari ini
+nol pemanggil — dan justru itu alasannya: pintu ter-ekspor yang dibiarkan tanpa
+gerbang persis "jalur-yang-bisa-lupa-dipanggil" yang §5.3 pakai untuk menolak
+alternatif. Keduanya lewat satu helper, `ifAkunMayHoldIt`.
+
+Nol `deleteSession`. Pintunya menutup di **request berikutnya** dan membuka lagi
+begitu Strukturnya diaktifkan kembali, tanpa siapa pun login ulang — dan itu
+satu kasus tes tersendiri.
+
+### Jalur login digerbangi terpisah, dan wajib
+
+Login membuat sesi, jadi ia **tidak pernah lewat `validateSession`**. Tanpa
+gerbang kedua di sana, cookie-nya terpasang lalu request berikutnya
+membuangnya — itu redirect loop, bukan penolakan. Pesannya **"Username atau
+password salah."**, identik untuk Non-Aktif, Terhapus, dan password yang memang
+salah. Itu pilihan pengguna (§5.5) dan tidak dibuka ulang.
+
+Datanya ikut di baris yang sudah dibaca: `readUserCredential` sekarang membawa
+`id`, `role`, dan `strukturState` lewat `leftJoin` ke `organization` langsung —
+**nol round trip tambahan**, dan kueri kedua di aksi login yang cuma mengambil
+`id` jadi hilang.
+
+`withUserCTE` ikut membawa `state` ke `connected_organization`. Ia join ke tabel
+`organization` langsung (warisan tiket 20), dan di sini alasannya berbuah: join
+yang menyaring Terhapus akan menyerahkan `null` untuk satu-satunya kasus yang
+gerbang ini ada untuk menangkap.
+
+### Keputusan yang spec tidak buat
+
+**Akun kepengurusan tanpa Struktur terhubung (`strukturState` null) dianggap
+mati.** Spec tidak menyebutnya. Ia tidak terjangkau oleh data yang sehat —
+`createOrganization` selalu mengisi `connected_organization_id` — dan untuk
+Kewenangan yang seluruh otoritasnya bersandar pada sebuah Struktur, "tidak punya
+Struktur" bukan kasus yang lebih ringan daripada Terhapus. Fail-closed di seam
+keamanan. Dilaporkan ke pengguna, tidak dibantah.
+
+**Root diloloskan** meski §5.4 menyebut "empat Akun kepengurusan" tanpa
+menyebutnya. Perlindungan Root ada di tempat lain dan lebih kuat: PP tidak bisa
+dinonaktifkan oleh siapa pun (§2.3) dan prasyarat penghapusan menolaknya dalam
+praktik. Mencantumkannya tidak membeli apa pun, dan akan membuat PP yang entah
+bagaimana mati mengunci satu-satunya Akun yang bisa membatalkannya.
+
+### Yang tidak dikerjakan, dan kenapa
+
+**`withMemberCTE` tidak diperluas.** Tiket menyebutnya "jalur kedua untuk Akun
+Kader", tapi §5.4 memutuskan Akun Kader tetap hidup — jadi jalur itu tidak punya
+pertanyaan untuk dijawab. Membawa `state` ke sana hari ini adalah kolom yang nol
+pembacanya.
+
+### Temuan sampingan, tidak diperbaiki
+
+**Kedaluwarsa karena tidak aktif tidak pernah berjalan.** `inactivityTimeoutMS`
+(3 hari) hanya ditegakkan di `readSession`, yang nol pemanggil;
+`validateSession` cuma menyegarkan `lastVerifiedAt` dan tidak pernah menolak
+sesi yang sudah lama diam. Pra-ada, di luar tiket ini, dan memperbaikinya akan
+mengeluarkan orang dari sesinya — jadi ia keputusan tersendiri, bukan efek
+samping.
+
+### Tes
+
+- `src/lib/auth/keadaan-akun.test.ts` — 22 kasus, tabel argumen-ke-hasil, nol
+  fixture. Enam Kewenangan kali tiga Keadaan, plus baris tanpa Struktur. Tabelnya
+  ditulis penuh alih-alih dihasilkan dari daftar yang sama yang dipakai
+  implementasinya: tabel yang meminjam daftar dari yang diujinya tidak menguji
+  daftarnya. Satu kasus terakhir menuntut tiap Kewenangan benar-benar tercakup.
+- `tests/keadaan-akun-sesi.test.ts` — 7 kasus seam. Sesinya sengaja dibuat
+  **saat Struktur masih Aktif** lalu Strukturnya dimatikan, sebab itu bentuk
+  kejadiannya: penonaktifan terjadi di tengah `maxAge` tiga hari, bukan sebelum
+  orangnya login.
+
+`bun test`: 449 lolos, 0 gagal. `check:types`, `check:lint`, `check:structure`
+bersih.

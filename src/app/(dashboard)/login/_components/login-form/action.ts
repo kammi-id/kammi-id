@@ -2,11 +2,9 @@
 
 import { readUserCredential } from '~/db/query/user'
 import { createSession } from '~/lib/auth/api'
+import { mayHoldSession } from '~/lib/auth/keadaan-akun'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
-import { db } from '~/db/db'
-import { user as userTable } from '~/db/schema/user.sql'
-import { eq } from 'drizzle-orm'
 import { z } from 'zod'
 import { getLogger, redact } from '~/lib/logger'
 
@@ -65,20 +63,27 @@ const loginFormAction = async (
     return { error: 'Username atau password salah.' }
   }
 
-  const [dbUser] = await db!
-    .select({ id: userTable.id })
-    .from(userTable)
-    .where(eq(userTable.name, username))
-    .limit(1)
-
-  if (!dbUser) {
-    return { error: 'Terjadi kesalahan saat memproses login.' }
+  // Keadaan Akun, spec §5. Login is the one door that does not pass through
+  // `validateSession`, so the gate is asked again here — without it the cookie
+  // would be set and the very next request would throw it away, which is a
+  // redirect loop rather than a refusal.
+  //
+  // **The message is identical to a genuinely wrong password**, for a Struktur
+  // Non-Aktif and a Struktur Terhapus alike. That is the user's decision
+  // (spec §5.5), taken over an agent's proposal to distinguish Non-Aktif, and
+  // it is not to be reopened. The cost is carried elsewhere: whoever
+  // deactivates a Struktur must tell its officers **outside the system**.
+  if (!mayHoldSession(user.role, user.strukturState)) {
+    logger.warning('Percobaan login gagal: Struktur tidak aktif', {
+      input: redact({ username })
+    })
+    return { error: 'Username atau password salah.' }
   }
 
-  const session = await createSession(dbUser.id)
+  const session = await createSession(user.id)
 
   if (!session) {
-    logger.error('Gagal membuat sesi login', { userId: dbUser.id })
+    logger.error('Gagal membuat sesi login', { userId: user.id })
     return { error: 'Gagal membuat sesi login.' }
   }
 
@@ -91,7 +96,7 @@ const loginFormAction = async (
     maxAge: 60 * 60 * 24 * 3 // 3 hari
   })
 
-  logger.info('Login berhasil', { userId: dbUser.id, username })
+  logger.info('Login berhasil', { userId: user.id, username })
 
   redirect('/dashboard')
 }

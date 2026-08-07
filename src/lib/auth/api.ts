@@ -4,10 +4,43 @@ import {
   updateSession as updateSessionFromTable,
   deleteSession as deleteSessionFromTable
 } from '~/db/query/session'
+import { mayHoldSession } from './keadaan-akun'
+import { type Session } from '~/db/query/cte/session'
 import z from 'zod'
 
 const inactivityTimeoutMS = 1000 * 60 * 60 * 24 * 3
 const activityCheckIntervalMS = 1000 * 60 * 60 * 6
+
+/**
+ * Keadaan Akun, spec §5.2. **The seam is here and nowhere else** — every
+ * `if (!session) redirect('/login')` already scattered across pages and Server
+ * Actions inherits it unchanged, and surfaces not yet written inherit it too,
+ * because they must come through here as well.
+ *
+ * `readAccessScope` was rejected as the seam: a Server Action that does not use
+ * it walks straight past. The dashboard layout and `AccessGuard` were rejected
+ * harder — both close a **page**, while a Server Action can be invoked directly
+ * without rendering one.
+ *
+ * The door shuts on the **next request**, not the next login. `maxAge` is three
+ * days, and three days of a dead Struktur still recording Kader is exactly what
+ * deactivating it was meant to stop. Nothing is deleted, so reactivating the
+ * Struktur opens the same session again without anyone logging back in.
+ *
+ * Both readers below run through it. `readSession` has no caller today, and
+ * that is precisely why it is gated rather than trusted: an exported door left
+ * ungated is the "jalur-yang-bisa-lupa-dipanggil" the spec rejected an
+ * alternative seam for being.
+ */
+const ifAkunMayHoldIt = (session: Session | undefined) => {
+  if (!session) return undefined
+  return mayHoldSession(
+    session.user.role,
+    session.user.connectedOrganization?.state ?? null
+  )
+    ? session
+    : undefined
+}
 
 export const createSession = async (userId: string) => {
   const id = Bun.randomUUIDv7()
@@ -46,7 +79,7 @@ export const readSession = async (id: string) => {
     return undefined
   }
 
-  return session
+  return ifAkunMayHoldIt(session)
 }
 
 export const validateSession = async (token: string) => {
@@ -83,10 +116,10 @@ export const validateSession = async (token: string) => {
       { lastVerifiedAt: now },
       session.id
     )
-    return updatedSession
+    return ifAkunMayHoldIt(updatedSession)
   }
 
-  return session
+  return ifAkunMayHoldIt(session)
 }
 
 export const deleteSession = async (
