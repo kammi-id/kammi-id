@@ -55,8 +55,10 @@ bukan hasil tiket. Sudah final — jangan dibuka ulang tanpa alasan baru.
   dibuat (`db/query/organization.ts:148-161`). Memecahnya jadi tiga nilai enum
   **di luar cakupan** — itu migrasi enum di basis data produksi.
 - _Hak per Jenjang._ BPW PP: CRUD seluruh Struktur kecuali PP. BPW PD/PDLN:
-  CRUD Komisariat dalam Cakupannya. BPW PW: memantau saja. BPW tidak pernah
-  ada di PK (kode sudah melewatinya).
+  CRUD Komisariat dalam Cakupannya. BPW PW: ~~memantau saja~~ **memantau dan
+  menyunting** — diamandemen 7 Agustus 2026 saat tiket 18 dikerjakan; BPD
+  memegang `sunting` atas PD dan PK dalam Cakupannya, tetap nol buat dan nol
+  hapus (spec §2.2, §2.3). BPW tidak pernah ada di PK (kode sudah melewatinya).
 - _BPH menyunting Strukturnya sendiri_, kecuali `code`, `type`, `parentId`,
   dan penonaktifan. Termasuk BPH PP atas PP — dalam hierarki jabatan KAMMI,
   BPH (Ketua, Sekretaris, Bendahara) berada di atas BPW.

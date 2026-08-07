@@ -157,15 +157,17 @@ describe('canManageKestrukturan', () => {
       }
     },
     {
-      // Nol hak kelola, dan itu bukan kelalaian: pembuatan PD tersentralisasi di
-      // BPW PP, dan PK diurus PD.
+      // Baca dan sunting saja. Nol buat dan nol hapus bukan kelalaian:
+      // pembuatan PD tersentralisasi di BPW PP, dan aksi merusak tinggal di
+      // sana juga. PW absen dari `sunting` karena satu-satunya PW dalam
+      // Cakupannya adalah miliknya sendiri, dan itu ditutup aturan §2.1 no. 6.
       nama: 'BPW PW',
       role: 'bpw',
       jenjangAkun: 'pw',
       sel: {
         baca: SEMUA,
         buat: NOL,
-        sunting: NOL,
+        sunting: ['pd', 'pk'],
         nonaktifkan: NOL,
         aktifkan: NOL,
         hapus: NOL,
@@ -583,10 +585,26 @@ describe('gate kestrukturan', () => {
       ).not.toBeNull()
     })
 
-    it('menolak BPW PW mengelola apa pun di bawahnya — barisnya nol', async () => {
+    it('mengizinkan BPW PW menyunting PD di bawahnya', async () => {
       mockSession = sessionWith('bpw', pwJabarId)
       expect(
         await requireKestrukturanManageAccess(pdBandungId, 'sunting')
+      ).toBeNull()
+    })
+
+    it('menolak BPW PW merusak apa pun — sunting saja yang dipegangnya', async () => {
+      mockSession = sessionWith('bpw', pwJabarId)
+      for (const aksi of ['nonaktifkan', 'aktifkan', 'hapus'] as const) {
+        expect(
+          await requireKestrukturanManageAccess(pdBandungId, aksi)
+        ).not.toBeNull()
+      }
+    })
+
+    it('menolak BPW PW menyunting PW-nya sendiri', async () => {
+      mockSession = sessionWith('bpw', pwJabarId)
+      expect(
+        await requireKestrukturanManageAccess(pwJabarId, 'sunting')
       ).not.toBeNull()
     })
 

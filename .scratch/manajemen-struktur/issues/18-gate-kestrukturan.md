@@ -27,8 +27,9 @@ Yang wajib terbawa apa adanya dari spec §2.2 dan §2.3:
 - **BPW PP:** `PW, PDLN, PD, PK` untuk seluruh aksi. Termasuk **menghapus sebuah PW
   utuh** — yang melindungi PW bukan Kewenangan tapi isinya (prasyarat). Ditulis
   terang supaya orang berikutnya tidak mengira ini celah lalu "menambalnya".
-- **BPW PW:** nol hak kelola. Bukan kelalaian — pembuatan PD tersentralisasi di BPW
-  PP, dan PK diurus PD.
+- **BPW PW:** ~~nol hak kelola~~ — **diamandemen saat tiket ini dikerjakan, lihat
+  Answer.** `sunting` atas PD dan PK; `buat` tetap nol karena pembuatan PD
+  tersentralisasi di BPW PP.
 - **BPW PD/PDLN:** `PK` saja, nol `pulihkan`.
 - **BPH:** hanya `sunting` atas Strukturnya sendiri (gate nomor 4 di bawah).
 - **BPK, Humas, Akun Kader:** nol di seluruh baris.
@@ -136,9 +137,19 @@ baris matriks, UI akan menyalakan tombol Edit untuk seluruh Struktur dalam Cakup
 Dua gerbang sempit hilang total (nol call site tersisa), `isLegalChildType` hidup,
 prasyarat penghapusan nol di semua gate. `kestrukturan.test.ts` dirombak: 17 → 135 tes.
 
-**Perubahan perilaku yang disengaja spec dan perlu diketahui:** BPW PW (Akun "BPD")
-sekarang nol hak kelola — sebelumnya ia bisa membuat PD dalam Cakupannya. §2.3
-memerintahkan itu ("pembuatan PD tersentralisasi di BPW PP").
+**Baris BPW PW diamandemen di tengah tiket ini.** Matriks asli memberi BPD nol hak
+kelola, dan implementasi pertama mengikutinya — itu berarti Akun "BPD" **kehilangan**
+kemampuan membuat PD yang ia punya hari ini. Diangkat ke pengguna, dan putusannya
+(7 Agustus 2026): **BPD memegang `baca` dan `sunting` atas PD dan PK dalam
+Cakupannya, nol `buat`, nol `hapus`, nol `nonaktifkan`/`aktifkan`, nol `pulihkan`.**
+
+Jadi hak buat PD memang tetap dicabut dari BPD — sentralisasi di BPW PP itu
+konsekuensi konstitusi organisasi, bukan celah — tapi hak sunting yang tidak pernah
+sengaja diambil dikembalikan. `PW` sengaja tidak masuk sel: satu-satunya PW dalam
+Cakupan BPD adalah miliknya sendiri, dan aturan §2.1 nomor 6 sudah menutupnya.
+
+Mengamandemen **spec §2.2 dan §2.3**, **tiket 02**, dan satu ketetapan charting di
+`map.md`. Ketiganya sudah disunting.
 
 **Belum terpakai di produksi:** `canManageKestrukturan`, `requireKestrukturanReadAccess`,
 `requireOwnStrukturEditAccess`, dan `requireStrukturRestoreAccess` nol call site —

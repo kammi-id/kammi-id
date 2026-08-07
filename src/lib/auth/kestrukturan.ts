@@ -75,7 +75,7 @@ const ROOT_ROW: MatrixRow = {
 
 /**
  * Reach without authority — the row of a Kewenangan that may open the Struktur
- * surface inside its Cakupan and change nothing there. BPH and BPW PW share it.
+ * surface inside its Cakupan and change nothing there. BPH holds it.
  */
 const READ_ONLY_ROW: MatrixRow = {
   baca: ALL_JENJANG,
@@ -116,6 +116,30 @@ const BPW_PP_ROW: MatrixRow = {
 }
 
 /**
+ * BPW PW — the Akun named "BPD" — reads its whole Cakupan and may correct the
+ * identity of what it finds there, and nothing more: zero `buat`, zero `hapus`,
+ * zero `nonaktifkan`/`aktifkan`, zero `pulihkan`.
+ *
+ * The read/update split is the point. Creating a PD is centralised at BPW PP
+ * (a consequence of the organisation's constitution), and the destructive
+ * actions stay with BPW PP too, so a BPD can fix a misspelt Daerah without
+ * being able to bring one into being or take one out of it.
+ *
+ * PW is absent from `sunting` on purpose — its own PW is the only one inside
+ * its Cakupan, and a BPW never manages its own Struktur (spec §2.1 rule 6).
+ * Listing it here would state a privilege the manage gate then refuses.
+ */
+const BPW_PW_ROW: MatrixRow = {
+  baca: ALL_JENJANG,
+  buat: NONE,
+  sunting: ['pd', 'pk'],
+  nonaktifkan: NONE,
+  aktifkan: NONE,
+  hapus: NONE,
+  pulihkan: NONE
+}
+
+/**
  * BPW PD and BPW PDLN hold PK and nothing else, and hold zero `pulihkan` —
  * Struktur Terhapus is addressable by Root and BPW PP only (spec §2.1 rule 3).
  */
@@ -132,16 +156,16 @@ const BPW_PD_ROW: MatrixRow = {
 /**
  * Keyed by the Jenjang of the Struktur the BPW Akun is connected to.
  *
- * - `pw` is read-only on purpose, not by oversight: creating a PD is
- *   centralised at BPW PP, and a PK is handled by its PD. PW is skipped, and
- *   that is the only reason the rule is not "everything below you".
+ * - `pw` reads and edits and does nothing else — see `BPW_PW_ROW`. It is the
+ *   one row where reach and authority part company, which is the only reason
+ *   the rule is not "everything below you".
  * - `pk` has **no entry**: that Kewenangan is never issued at Jenjang PK
  *   (`src/db/query/organization.ts:148-161` skips it), so a BPW PK that somehow
  *   existed falls through to `NO_AUTHORITY_ROW`.
  */
 const BPW_ROWS: Partial<Record<StrukturJenjang, MatrixRow>> = {
   pp: BPW_PP_ROW,
-  pw: READ_ONLY_ROW,
+  pw: BPW_PW_ROW,
   pd: BPW_PD_ROW,
   pdln: BPW_PD_ROW
 }

@@ -173,7 +173,7 @@ kembali dari yang kolaps ini — tidak sebaliknya.
 | **Root** | semua | semua | semua | **semua kecuali PP** | semua | semua |
 | **BPH** (tiap Jenjang) | Cakupan | — | Strukturnya sendiri | — | — | — |
 | **BPW PP** | semua | PW, PDLN, PD, PK | PW, PDLN, PD, PK | PW, PDLN, PD, PK | PW, PDLN, PD, PK | PW, PDLN, PD, PK |
-| **BPW PW** | Cakupan | — | — | — | — | — |
+| **BPW PW** | Cakupan | — | PD, PK | — | — | — |
 | **BPW PD/PDLN** | Cakupan | PK | PK | PK | PK | — |
 | **BPK** | — | — | — | — | — | — |
 | **Humas** | — | — | — | — | — | — |
@@ -195,9 +195,22 @@ PK, dan kode sudah melewatinya (`src/db/query/organization.ts:148-161`).
   memang harus bisa dihapus — itu persis definisi "tercatat keliru"
   ([§1.3](#13-terhapus--catatan-yang-keliru-bukan-pensiun)). Ditulis terang supaya
   orang berikutnya tidak mengira ini celah lalu "menambalnya".
-- **BPW PW nol hak kelola** bukan kelalaian. Pembuatan PD tersentralisasi di BPW
-  PP (konsekuensi konstitusi organisasi), dan PK diurus PD. PW memang dilewati,
-  dan itu satu-satunya alasan aturannya bukan "semua yang di bawahmu".
+- **BPW PW membaca dan menyunting, dan cuma itu.** ~~Nol hak kelola.~~
+  **Diamandemen 7 Agustus 2026** atas putusan pengguna saat tiket 18 dikerjakan:
+  BPD memegang `sunting` atas **PD dan PK** di dalam Cakupannya, dan tetap nol
+  `buat`, nol `hapus`, nol `nonaktifkan`/`aktifkan`, nol `pulihkan`.
+
+  Yang tidak berubah adalah sebabnya: **pembuatan PD tetap tersentralisasi di BPW
+  PP** (konsekuensi konstitusi organisasi), dan aksi merusak tinggal di sana juga.
+  Yang dikoreksi adalah asimetrinya — BPD sudah membaca seluruh subtree-nya, jadi
+  melarangnya membetulkan nama Daerah yang salah ketik memaksa eskalasi ke PP
+  untuk pekerjaan yang tidak berisiko. **Baca dan sunting itu satu pasang; buat
+  dan hapus pasangan yang lain.**
+
+  **PW tidak masuk selnya.** Satu-satunya PW di dalam Cakupan sebuah BPD adalah
+  PW-nya sendiri, dan itu sudah ditutup [§2.1](#21-enam-aturan-baca--berlaku-untuk-seluruh-tabel)
+  aturan 6. Menuliskannya di sel ini akan menyatakan hak yang gate-nya lalu
+  tolak.
 - **BPK, Humas, dan Akun Kader nol di seluruh baris.** Diam berarti tidak boleh.
   Memberi Humas hak baca rekursif akan membatalkan ADR 0002 lewat pintu belakang.
 - **Penghapusan PP tidak diputuskan.** Prasyarat menolaknya dalam praktik karena

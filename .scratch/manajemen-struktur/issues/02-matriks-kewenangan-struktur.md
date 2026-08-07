@@ -91,7 +91,7 @@ utuhnya bisa dihasilkan kembali dari yang kolaps ini — tidak sebaliknya.
 | **Root**              | semua   | semua           | semua               | semua                  | semua           | semua    |
 | **BPH** (tiap Jenjang) | Cakupan | —               | Strukturnya sendiri | —                      | —               | —        |
 | **BPW PP**            | semua   | PW, PDLN, PD, PK | PW, PDLN, PD, PK     | PW, PDLN, PD, PK        | PW, PDLN, PD, PK | PW, PDLN, PD, PK <sup>(12)</sup> |
-| **BPW PW**            | Cakupan | —               | —                   | —                      | —               | —        |
+| **BPW PW**            | Cakupan | —               | PD, PK <sup>(A)</sup> | —                      | —               | —        |
 | **BPW PD/PDLN**       | Cakupan | PK              | PK                  | PK                     | PK              | —        |
 | **BPK**               | —       | —               | —                   | —                      | —               | —        |
 | **Humas**             | —       | —               | —                   | —                      | —               | —        |
@@ -108,9 +108,16 @@ Catatan per sel yang perlu dinyatakan, bukan disimpulkan:
   Jenjang salah memang harus bisa dihapus — itu persis definisi "tercatat
   keliru" dari tiket 01. Ditulis terang supaya orang berikutnya tidak mengira
   ini celah lalu "menambalnya".
-- **BPW PW nol hak kelola** bukan kelalaian. Pembuatan PD tersentralisasi di
-  BPW PP (konsekuensi konstitusi organisasi), dan PK diurus PD. Jadi PW memang
-  dilewati, dan itu satu-satunya alasan aturannya bukan "semua yang di bawahmu".
+- **BPW PW membaca dan menyunting.** <sup>(A)</sup> ~~Nol hak kelola.~~
+  **Diamandemen 7 Agustus 2026** oleh putusan pengguna saat tiket 18 dikerjakan:
+  BPD memegang `sunting` atas **PD dan PK** dalam Cakupannya, dan tetap nol
+  `buat`, `hapus`, `nonaktifkan`/`aktifkan`, dan `pulihkan`. Sebab aslinya tetap
+  berdiri untuk separuhnya — pembuatan PD tersentralisasi di BPW PP (konsekuensi
+  konstitusi organisasi) dan aksi merusak ikut tinggal di sana — tapi melarang
+  BPD membetulkan nama Daerah yang sudah ia baca memaksa eskalasi untuk kerja
+  tanpa risiko. Rumusan barunya: **baca dan sunting satu pasang, buat dan hapus
+  pasangan lain.** PW tidak masuk selnya; satu-satunya PW dalam Cakupan BPD
+  adalah miliknya sendiri, dan itu sudah ditutup aturan baca nomor 6.
 - **BPK, Humas, dan Akun Kader nol di seluruh baris.** Diam berarti tidak
   boleh. Ini juga yang berlaku hari ini — sidebar sudah membelah dasbor jadi
   tiga dunia (`app-sidebar.tsx:68-75`), dan pembelahan itu konsisten di seluruh
