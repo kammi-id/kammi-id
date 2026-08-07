@@ -1,7 +1,7 @@
 # 23 — Aksi pindah induk
 
 **Type:** implementation
-**Status:** open
+**Status:** resolved
 **Blocked by:** 18, 24
 
 Spec: [`../spec.md`](../spec.md) §6.1, §6.2, §6.3
@@ -76,3 +76,91 @@ kode anak (tiket 26).
 - Memindahkan PD **ditolak**
 - Nol baris selain `parentId` berubah
 - Nol sel baru di matriks tiket 18
+
+## Answer
+
+Empat berkas baru, nol permukaan — tiket 26 yang memasang dialognya. Aksinya
+sudah bisa dipanggil dan sudah dijaga.
+
+### Aturannya pindah ke satu berkas murni
+
+`src/lib/struktur/pindah-induk.ts` — `checkMoveCandidate` mengembalikan pesan
+penolakan atau `null`, seidiom gate-gate di `lib/auth/`, plus
+`filterMoveCandidates` untuk daftar calon. Nol basis data, jadi ia diuji sebagai
+tabel argumen ke hasil: 23 kasus, seluruh sel DoD di antaranya.
+
+**Ada satu hal yang spec klaim tapi tidak benar; `spec.md` §6.2 sudah
+diamandemen di tempat.** §6.3 bilang rumusan `pwCode` "sudah menolak" pemindahan
+PD "tanpa aturan khusus". Ia menolak PD **antar-PW** — pwCode tujuannya beda.
+Yang tidak ia tolak: PD ke PD lain di PW yang sama (pwCode dua-duanya `01`),
+yang secara bentuk pohon omong kosong. Hal yang sama berlaku PK ke PK. Jadi ada
+**dua aturan, bukan satu**:
+
+1. **`pwCode` tidak berubah** — rumusan spec, dihitung lewat
+   `resolveRegisterNumberCodes`, bukan ditulis ulang.
+2. **Bentuk pohon**, dengan klausa penitipan: calon sah bila ia boleh menampung
+   Struktur itu (`isLegalChildType`) **atau** boleh menampung induknya yang
+   sekarang. Klausa kedua itulah seluruh isi "naik satu tingkat ke PW" — PK di
+   bawah PW bukan bentuk yang boleh **dibuat**, tapi bentuk yang boleh
+   **dicapai** oleh pemindahan.
+
+Urutannya **penting untuk pesannya, bukan untuk hasilnya**: `pwCode` ditanya
+lebih dulu, sebab PK di bawah PDLN yang ditawari PW gagal di dua-duanya, dan
+hanya satu yang bisa menjelaskan diri. "PK tidak dapat berada di bawah PW"
+dibuat bohong oleh klausa penitipan; "Nomor Induk berubah" tetap benar.
+
+### Gerbangnya nol sel baru, dan konjungsinya yang menyempitkan
+
+`requireStrukturMoveAccess` di `lib/auth/kestrukturan.ts` = `sunting` atas
+Struktur yang dipindah (lewat gate yang sudah ada, Cakupan dan aturan
+bukan-Struktur-sendiri ikut) **dan** `buat` atas induk tujuan di dalam Cakupan.
+
+**Tujuannya ditanya dengan `buat`, bukan `sunting`, dan itu yang menentukan
+hasilnya.** "Kelola induk tujuan" adalah hak membuat Struktur muncul di
+bawahnya. Kalau ditanya `sunting`, BPD lolos — ia memang punya `sunting` atas PD
+dan PK. Dengan `buat`, BPD nol, dan BPKOM tersaring Cakupan tujuan. Yang tersisa
+persis **BPW PP dan Root**, tanpa nama siapa pun ditulis di kode.
+
+### Aksinya
+
+`branches/_components/move-parent/` — `moveStrukturParentAction` (satuan) dan
+`moveActiveChildrenToParentAction` (pintasan massal ke induk sumbernya). Ketik
+`code` diverifikasi di server. Kewenangan pada pintasan massal dicek **per
+anak**; yang tunggal adalah gerbang ketiknya, bukan pemeriksaannya.
+
+Penulisannya lewat `moveOrganizationParent(ids, parentId)` di
+`db/query/organization.ts` — satu kolom, satu statement, dan sengaja bukan
+`updateOrganization({ parentId })` supaya tidak ada tempat bagi kolom kedua untuk
+menyelinap. Diuji dengan membandingkan seluruh baris sebelum dan sesudah:
+**hanya `parentId` yang berbeda**, dan Kader beserta Nomor Induknya tidak
+bergerak.
+
+### Keadaan induk tujuan — di aturannya, bukan di daftarnya
+
+**Satu keputusan yang spec tidak buat**: induk tujuan wajib **Aktif**. Terhapus
+dijawab persis seperti slug yang tidak pernah ada (§1.4 — nol permukaan boleh
+bilang "sudah dihapus"); Non-Aktif ditolak atas dasar yang lebih sempit — aturan
+cermin §6.4 membuat Struktur yang diparkir di bawah induk mati tidak bisa
+dihidupkan sampai ia dipindahkan lagi, jadi menerimanya sama dengan menerima
+jalan buntu.
+
+Letaknya di `checkMoveCandidate`, **bukan** di query daftar calon. Versi pertama
+menaruhnya di pembaca daftar, dan review menemukan lubangnya: aksinya sendiri
+tetap menerima induk Terhapus, sebab jalur tulis tidak pernah lewat daftar itu.
+Aturan yang cuma menyaring pilihan bukan aturan.
+
+**Pembaca daftar calonnya sendiri dibuang.** Ia nol konsumen — permukaannya
+tiket 26 — dan versi yang ditulis membaca seluruh Struktur **tanpa Cakupan**,
+sesuatu yang hanya bisa diputuskan benar oleh permukaan yang tahu sesinya.
+`filterMoveCandidates` tetap ada sebagai aturannya; tiket 26 memanggilnya dengan
+kolam yang sudah ia batasi sendiri.
+
+### Satu tabrakan dengan penjaga tiket 24
+
+Tes `member.test.ts` melarang berkas mana pun selain `lib/utils/member.ts`
+memanggil `resolveOrgCodes` — penjaga yang dipasang setelah cabang per-Jenjang
+pernah tersalin. Berkas ini awalnya melanggarnya. Perbaikannya bukan
+memperlonggar penjaganya melainkan lewat pintu yang benar:
+`resolveRegisterNumberCodes(candidate, null)`. Untuk calon induk, pertanyaannya
+"PW mana yang ia namai", dan tanpa induk untuk ditanya itulah yang dijawab tiap
+Jenjang.

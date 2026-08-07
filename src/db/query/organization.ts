@@ -330,6 +330,30 @@ export const readOrganization = async (
   return await query
 }
 
+/**
+ * Moves one or more Struktur beneath a new induk — **one column, one
+ * statement, zero other rows.**
+ *
+ * It is deliberately not `updateOrganization({ parentId }, id)`: that takes a
+ * whole values object, and a move that can only ever carry `parentId` is a move
+ * that cannot quietly grow a second field. `member.organizationId` and
+ * `training.organizationId` both point at the Komisariat rather than at its
+ * induk, so Kader and Daurah do not travel and there is nothing else to update.
+ *
+ * The plural signature serves the bulk shortcut ("pindahkan semua Komisariat
+ * Aktif ke PW") without a second function or a loop of round trips.
+ */
+export const moveOrganizationParent = async (
+  ids: string[],
+  newParentId: string
+): Promise<void> => {
+  if (ids.length === 0) return
+  await db
+    .update(organization)
+    .set({ parentId: newParentId })
+    .where(inArray(organization.id, ids))
+}
+
 export const updateOrganization = async (
   values: Partial<OrganizationInsertValues>,
   id: string

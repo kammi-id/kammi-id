@@ -661,6 +661,17 @@ yang persis kebohongan permanen yang [§6.3](#63-pd-tidak-pindah-antar-pw) tolak
 Rumusan ini membatasi **daftar calon**, bukan **siapa yang boleh** — ia tidak
 menyentuh kewenangan sama sekali.
 
+> **Amandemen 7 Agustus 2026, saat [tiket 23](issues/23-aksi-pindah-induk.md)
+> dikerjakan.** ~~Satu invarian~~ — ternyata **dua**. `pwCode` menolak setiap
+> penyeberangan PW, tapi ia **tidak** menolak calon yang ber-`pwCode` sama
+> padahal bentuk pohonnya omong kosong: PD ditawari PD lain di PW-nya sendiri
+> (dua-duanya `01`), atau PK ditawari PK lain. Aturan keduanya **bentuk pohon**,
+> dan ia bukan `isLegalChildType` apa adanya — ia `isLegalChildType` **ditambah
+> klausa penitipan**: calon sah juga bila ia boleh menampung induk yang sekarang,
+> yang persis itulah "PK boleh naik ke PW-nya". Klaim §6.3 di bawah ("rumusan
+> `pwCode` sudah menolaknya tanpa aturan khusus") benar untuk PD **antar-PW**
+> saja, bukan untuk pemindahan PD secara umum.
+
 ### 6.3 PD tidak pindah antar-PW
 
 Secara mekanis bisa — satu kolom — tapi **tidak ada versi pemindahan langsung yang

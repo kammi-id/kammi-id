@@ -287,7 +287,17 @@ export const requireKestrukturanReadAccess = async (
  * your own Struktur" rule has nothing to bite on here — a BPW PD creates its
  * PK directly beneath itself, and the Struktur being created is the child.
  */
-export const requireKestrukturanCreateAccess = async (
+/**
+ * The privilege of making a Struktur of `childType` appear directly beneath
+ * `parentId` — the `buat` cell, inside Cakupan, and nothing about the shape of
+ * the tree. Shared by the create gate and the move gate, which need exactly
+ * this and disagree only about what shape rule comes after it.
+ *
+ * Cakupan is checked against the **parent** while the matrix is asked about the
+ * **child**: the child may not exist yet, and which Jenjang is allowed to land
+ * where is precisely the question.
+ */
+const requirePlacementAccess = async (
   parentId: string,
   childType: StrukturJenjang
 ): Promise<string | null> => {
@@ -302,7 +312,18 @@ export const requireKestrukturanCreateAccess = async (
     return DENIAL
   }
 
-  if (!(await isOrgInAccessScope(scope, parentId))) return DENIAL
+  return (await isOrgInAccessScope(scope, parentId)) ? null : DENIAL
+}
+
+export const requireKestrukturanCreateAccess = async (
+  parentId: string,
+  childType: StrukturJenjang
+): Promise<string | null> => {
+  const denial = await requirePlacementAccess(parentId, childType)
+  if (denial) return denial
+
+  const [parent] = await readOrganization({ id: [parentId] })
+  if (!parent) return 'Struktur induk tidak ditemukan.'
 
   if (!isLegalChildType(parent.type, childType)) {
     return `Struktur ${childType.toUpperCase()} tidak dapat berada langsung di bawah ${parent.type.toUpperCase()}.`
@@ -353,6 +374,56 @@ export const requireKestrukturanManageAccess = async (
   if (!(await isOrgInAccessScope(scope, targetOrgId))) return DENIAL
 
   return null
+}
+
+/**
+ * Grants the privilege of moving a Struktur beneath a different induk. Returns
+ * a denial message, or null when the caller holds it.
+ *
+ * **Zero new cells.** A move is nothing more than the conjunction of two
+ * privileges that already exist: managing the Struktur being moved (`sunting`,
+ * through the gate above, Cakupan and the never-your-own rule included) and
+ * being allowed to place a Struktur of that Jenjang beneath the destination
+ * (`buat`, inside Cakupan). The conjunction is what narrows the actor down to
+ * BPW PP and Root without anyone writing their names down: a BPD holds
+ * `sunting` over PD and PK but zero `buat`, and a BPKOM's `buat` reaches only
+ * inside its own PD, where there is nothing to move a Komisariat *to*.
+ *
+ * The destination is asked with `buat` rather than `sunting` on purpose.
+ * "Kelola induk tujuan" is the right to make a Struktur appear beneath it —
+ * `sunting` is the right to correct its name, which is a different question
+ * with a different answer, and the one that would have let a BPD move
+ * Komisariat around its Daerah.
+ *
+ * The never-your-own rule is deliberately **not** applied to the destination,
+ * for the same reason `requireKestrukturanCreateAccess` does not: a BPW PD
+ * placing a PK directly beneath itself is the ordinary case, not a privilege
+ * escalation.
+ *
+ * Which Struktur may legally *receive* the move is a separate question and
+ * lives in `~/lib/struktur/pindah-induk` — it is about the Nomor Induk, not
+ * about authority, and folding it in here would invite the reading that a high
+ * enough Kewenangan can push through it.
+ *
+ * Its tests sit with its only caller, in
+ * `branches/_components/move-parent/action.test.ts`, rather than in this file's
+ * companion: the claim worth guarding is which Kewenangan the conjunction
+ * admits, and that is only true end-to-end.
+ */
+export const requireStrukturMoveAccess = async (
+  orgId: string,
+  newParentId: string
+): Promise<string | null> => {
+  const denial = await requireKestrukturanManageAccess(orgId, 'sunting')
+  if (denial) return denial
+
+  // Reachable only through a race, since the gate above already refused an
+  // unknown id. Kept because the Jenjang has to be read from somewhere and a
+  // non-null assertion would be a worse way to say the same thing.
+  const [org] = await readOrganization({ id: [orgId] })
+  if (!org) return 'Struktur tidak ditemukan.'
+
+  return requirePlacementAccess(newParentId, org.type)
 }
 
 /**
