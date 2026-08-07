@@ -2,6 +2,7 @@ import { describe, it, expect, beforeAll, beforeEach, mock } from 'bun:test'
 import { db } from '~/db/db'
 import { sql } from 'drizzle-orm'
 import { createOrganization } from '~/db/query/organization'
+import type { StrukturJenjang, KestrukturanAction } from './kestrukturan'
 
 let mockSession: unknown = undefined
 
@@ -11,9 +12,34 @@ mock.module('~/lib/auth/cookies', () => ({
 
 const {
   isLegalChildType,
-  requireCreateStrukturAccess,
-  requireEditStrukturAccess
+  canManageKestrukturan,
+  requireKestrukturanReadAccess,
+  requireKestrukturanCreateAccess,
+  requireKestrukturanManageAccess,
+  requireOwnStrukturEditAccess,
+  requireStrukturRestoreAccess
 } = await import('./kestrukturan')
+
+// Imported rather than re-declared: a union that grows in the gate has to grow
+// here too, and a local copy would keep passing while the table went stale.
+type Jenjang = StrukturJenjang
+type Aksi = KestrukturanAction
+
+const JENJANG: Jenjang[] = ['pp', 'pw', 'pdln', 'pd', 'pk']
+const AKSI: Aksi[] = [
+  'baca',
+  'buat',
+  'sunting',
+  'nonaktifkan',
+  'aktifkan',
+  'hapus',
+  'pulihkan'
+]
+
+const SEMUA = JENJANG
+const KECUALI_PP: Jenjang[] = ['pw', 'pdln', 'pd', 'pk']
+const HANYA_PK: Jenjang[] = ['pk']
+const NOL: Jenjang[] = []
 
 // Bentuknya mengikuti `kekaderan.test.ts`: Struktur terhubung datang sebagai
 // objek, dan `readAccessScope` yang memerasnya jadi `connectedOrganizationId`.
@@ -55,16 +81,263 @@ describe('isLegalChildType', () => {
   })
 })
 
-describe('gerbang kestrukturan', () => {
+/**
+ * Lapis matriks: tabel argumen-ke-hasil, nol fixture, nol basis data. Tiap baris
+ * di bawah adalah satu baris spec §2.2 — nilainya Jenjang sasaran yang boleh,
+ * dan setiap Jenjang di luar daftar itu wajib ditolak.
+ */
+describe('canManageKestrukturan', () => {
+  const baris: Array<{
+    nama: string
+    role: string
+    jenjangAkun: Jenjang | null
+    sel: Record<Aksi, Jenjang[]>
+  }> = [
+    {
+      nama: 'Root',
+      role: 'root',
+      jenjangAkun: 'pp',
+      sel: {
+        baca: SEMUA,
+        buat: SEMUA,
+        sunting: SEMUA,
+        // Larangan ada pada sasaran, bukan pengecualian pada pelaku.
+        nonaktifkan: KECUALI_PP,
+        aktifkan: KECUALI_PP,
+        hapus: SEMUA,
+        pulihkan: SEMUA
+      }
+    },
+    {
+      // Root tanpa Struktur terhubung tetap Root — Jenjang Akun tidak dipakai.
+      nama: 'Root tanpa Struktur terhubung',
+      role: 'root',
+      jenjangAkun: null,
+      sel: {
+        baca: SEMUA,
+        buat: SEMUA,
+        sunting: SEMUA,
+        nonaktifkan: KECUALI_PP,
+        aktifkan: KECUALI_PP,
+        hapus: SEMUA,
+        pulihkan: SEMUA
+      }
+    },
+    {
+      // BPH punya satu sel kelola — `sunting` atas Strukturnya SENDIRI — dan sel
+      // itu bersumbu identitas, bukan Jenjang, jadi rumahnya
+      // `requireOwnStrukturEditAccess`. Di sumbu Jenjang, BPH nol kelola.
+      nama: 'BPH PW',
+      role: 'bph',
+      jenjangAkun: 'pw',
+      sel: {
+        baca: SEMUA,
+        buat: NOL,
+        sunting: NOL,
+        nonaktifkan: NOL,
+        aktifkan: NOL,
+        hapus: NOL,
+        pulihkan: NOL
+      }
+    },
+    {
+      // Termasuk menghapus sebuah PW utuh: yang melindungi PW bukan Kewenangan
+      // tapi prasyarat penghapusan (spec §3), yang bukan urusan gate ini.
+      nama: 'BPW PP',
+      role: 'bpw',
+      jenjangAkun: 'pp',
+      sel: {
+        baca: SEMUA,
+        buat: KECUALI_PP,
+        sunting: KECUALI_PP,
+        nonaktifkan: KECUALI_PP,
+        aktifkan: KECUALI_PP,
+        hapus: KECUALI_PP,
+        pulihkan: KECUALI_PP
+      }
+    },
+    {
+      // Nol hak kelola, dan itu bukan kelalaian: pembuatan PD tersentralisasi di
+      // BPW PP, dan PK diurus PD.
+      nama: 'BPW PW',
+      role: 'bpw',
+      jenjangAkun: 'pw',
+      sel: {
+        baca: SEMUA,
+        buat: NOL,
+        sunting: NOL,
+        nonaktifkan: NOL,
+        aktifkan: NOL,
+        hapus: NOL,
+        pulihkan: NOL
+      }
+    },
+    {
+      nama: 'BPW PD',
+      role: 'bpw',
+      jenjangAkun: 'pd',
+      sel: {
+        baca: SEMUA,
+        buat: HANYA_PK,
+        sunting: HANYA_PK,
+        nonaktifkan: HANYA_PK,
+        aktifkan: HANYA_PK,
+        hapus: HANYA_PK,
+        pulihkan: NOL
+      }
+    },
+    {
+      nama: 'BPW PDLN',
+      role: 'bpw',
+      jenjangAkun: 'pdln',
+      sel: {
+        baca: SEMUA,
+        buat: HANYA_PK,
+        sunting: HANYA_PK,
+        nonaktifkan: HANYA_PK,
+        aktifkan: HANYA_PK,
+        hapus: HANYA_PK,
+        pulihkan: NOL
+      }
+    },
+    {
+      // "BPW PK tidak ada barisnya" — Kewenangan itu tidak pernah diterbitkan di
+      // Jenjang PK, jadi barisnya nol seluruhnya, `baca` termasuk.
+      nama: 'BPW PK (tidak pernah diterbitkan)',
+      role: 'bpw',
+      jenjangAkun: 'pk',
+      sel: {
+        baca: NOL,
+        buat: NOL,
+        sunting: NOL,
+        nonaktifkan: NOL,
+        aktifkan: NOL,
+        hapus: NOL,
+        pulihkan: NOL
+      }
+    },
+    {
+      nama: 'BPW tanpa Struktur terhubung',
+      role: 'bpw',
+      jenjangAkun: null,
+      sel: {
+        baca: NOL,
+        buat: NOL,
+        sunting: NOL,
+        nonaktifkan: NOL,
+        aktifkan: NOL,
+        hapus: NOL,
+        pulihkan: NOL
+      }
+    },
+    {
+      nama: 'BPK',
+      role: 'bpk',
+      jenjangAkun: 'pk',
+      sel: {
+        baca: NOL,
+        buat: NOL,
+        sunting: NOL,
+        nonaktifkan: NOL,
+        aktifkan: NOL,
+        hapus: NOL,
+        pulihkan: NOL
+      }
+    },
+    {
+      // Memberi Humas hak baca rekursif membatalkan ADR 0002 lewat pintu
+      // belakang, jadi barisnya nol juga di kolom `baca`.
+      nama: 'Humas',
+      role: 'humas',
+      jenjangAkun: 'pw',
+      sel: {
+        baca: NOL,
+        buat: NOL,
+        sunting: NOL,
+        nonaktifkan: NOL,
+        aktifkan: NOL,
+        hapus: NOL,
+        pulihkan: NOL
+      }
+    },
+    {
+      nama: 'Akun Kader',
+      role: 'member',
+      jenjangAkun: 'pk',
+      sel: {
+        baca: NOL,
+        buat: NOL,
+        sunting: NOL,
+        nonaktifkan: NOL,
+        aktifkan: NOL,
+        hapus: NOL,
+        pulihkan: NOL
+      }
+    }
+  ]
+
+  for (const { nama, role, jenjangAkun, sel } of baris) {
+    describe(nama, () => {
+      for (const aksi of AKSI) {
+        it(`${aksi}: ${sel[aksi].length ? sel[aksi].join(', ') : 'nol'}`, () => {
+          const hasil = JENJANG.filter((sasaran) =>
+            canManageKestrukturan(role, jenjangAkun, sasaran, aksi)
+          )
+          expect(hasil).toEqual(sel[aksi])
+        })
+      }
+    })
+  }
+
+  // Sel yang wajib dinyatakan, bukan disimpulkan (spec §2.3).
+  it('menolak menonaktifkan PP untuk siapa pun, Root termasuk', () => {
+    expect(canManageKestrukturan('root', 'pp', 'pp', 'nonaktifkan')).toBe(false)
+    expect(canManageKestrukturan('root', 'pp', 'pp', 'aktifkan')).toBe(false)
+    expect(canManageKestrukturan('bpw', 'pp', 'pp', 'nonaktifkan')).toBe(false)
+  })
+
+  it('membiarkan Root menyunting dan menghapus PP', () => {
+    expect(canManageKestrukturan('root', 'pp', 'pp', 'sunting')).toBe(true)
+    expect(canManageKestrukturan('root', 'pp', 'pp', 'hapus')).toBe(true)
+  })
+
+  it('membiarkan BPW PP menghapus sebuah PW utuh', () => {
+    expect(canManageKestrukturan('bpw', 'pp', 'pw', 'hapus')).toBe(true)
+  })
+
+  it('menolak BPW PP menyentuh PP', () => {
+    for (const aksi of AKSI) {
+      expect(canManageKestrukturan('bpw', 'pp', 'pp', aksi)).toBe(
+        aksi === 'baca'
+      )
+    }
+  })
+
+  it('menolak pulihkan untuk BPW PD dan BPW PDLN', () => {
+    expect(canManageKestrukturan('bpw', 'pd', 'pk', 'pulihkan')).toBe(false)
+    expect(canManageKestrukturan('bpw', 'pdln', 'pk', 'pulihkan')).toBe(false)
+  })
+
+  it('menolak Kewenangan yang tidak dikenal sama sekali', () => {
+    for (const aksi of AKSI) {
+      expect(canManageKestrukturan('entah', 'pp', 'pk', aksi)).toBe(false)
+    }
+  })
+})
+
+describe('gate kestrukturan', () => {
   let ppId: string
   let pwJabarId: string
   let pwJatimId: string
   let pdBandungId: string
+  let pkItbId: string
 
   beforeEach(() => {
     mockSession = undefined
   })
 
+  // Pohon Struktur ini hanya dibaca, tidak pernah diubah, jadi cukup disemai
+  // sekali — sama seperti `kekaderan.test.ts`.
   beforeAll(async () => {
     await db.execute(sql`TRUNCATE TABLE "user", "member", organization CASCADE`)
 
@@ -107,48 +380,134 @@ describe('gerbang kestrukturan', () => {
       isNonActive: false
     })
     pdBandungId = pdBandung.id
+
+    const [pkItb] = await createOrganization({
+      name: 'PK ITB',
+      slug: 'pk-itb',
+      code: '01.PK-1',
+      type: 'pk',
+      parentId: pdBandung.id,
+      isNonActive: false
+    })
+    pkItbId = pkItb.id
   })
 
-  describe('requireCreateStrukturAccess', () => {
+  describe('requireKestrukturanReadAccess', () => {
     it('menolak tanpa sesi', async () => {
-      expect(await requireCreateStrukturAccess(pwJabarId, 'pd')).not.toBeNull()
+      expect(await requireKestrukturanReadAccess(pwJabarId)).toBeNull()
     })
 
-    it('menolak Kewenangan selain BPW dan Root', async () => {
+    it('mengizinkan Root membuka Struktur mana pun', async () => {
+      mockSession = sessionWith('root', ppId)
+      expect(await requireKestrukturanReadAccess(pwJatimId)).toEqual({
+        role: 'root',
+        connectedOrganizationId: ppId
+      })
+    })
+
+    it('mengizinkan BPH membuka Struktur di dalam Cakupannya, Strukturnya sendiri termasuk', async () => {
+      mockSession = sessionWith('bph', pwJabarId)
+      expect(await requireKestrukturanReadAccess(pwJabarId)).not.toBeNull()
+      expect(await requireKestrukturanReadAccess(pdBandungId)).not.toBeNull()
+    })
+
+    it('menolak BPH di luar Cakupannya', async () => {
+      mockSession = sessionWith('bph', pwJabarId)
+      expect(await requireKestrukturanReadAccess(pwJatimId)).toBeNull()
+    })
+
+    it('mengizinkan BPW membuka Struktur di dalam Cakupannya', async () => {
+      mockSession = sessionWith('bpw', pwJabarId)
+      expect(await requireKestrukturanReadAccess(pdBandungId)).not.toBeNull()
+    })
+
+    it('menolak BPW di luar Cakupannya', async () => {
+      mockSession = sessionWith('bpw', pwJabarId)
+      expect(await requireKestrukturanReadAccess(pwJatimId)).toBeNull()
+    })
+
+    it('menolak BPK, Humas, dan Akun Kader meski Strukturnya sendiri', async () => {
+      for (const role of ['bpk', 'humas', 'member']) {
+        mockSession = sessionWith(role, pwJabarId)
+        expect(await requireKestrukturanReadAccess(pwJabarId)).toBeNull()
+      }
+    })
+
+    it('menolak Struktur yang tidak ada', async () => {
+      mockSession = sessionWith('root', ppId)
+      expect(
+        await requireKestrukturanReadAccess(
+          '00000000-0000-0000-0000-000000000000'
+        )
+      ).toBeNull()
+    })
+  })
+
+  describe('requireKestrukturanCreateAccess', () => {
+    it('menolak tanpa sesi', async () => {
+      expect(
+        await requireKestrukturanCreateAccess(pwJabarId, 'pd')
+      ).not.toBeNull()
+    })
+
+    it('menolak Kewenangan yang nol di seluruh baris', async () => {
       for (const role of ['bph', 'bpk', 'humas', 'member']) {
         mockSession = sessionWith(role, ppId)
         expect(
-          await requireCreateStrukturAccess(pwJabarId, 'pd')
+          await requireKestrukturanCreateAccess(pwJabarId, 'pd')
         ).not.toBeNull()
       }
     })
 
-    it('mengizinkan BPW membuat di dalam Cakupannya', async () => {
-      mockSession = sessionWith('bpw', pwJabarId)
-      expect(await requireCreateStrukturAccess(pwJabarId, 'pd')).toBeNull()
+    it('mengizinkan BPW PP membuat PD di bawah PW mana pun', async () => {
+      mockSession = sessionWith('bpw', ppId)
+      expect(await requireKestrukturanCreateAccess(pwJatimId, 'pd')).toBeNull()
     })
 
-    // Inti celahnya: sebelum ini BPW PW mana pun bisa membuat Struktur di
-    // seluruh Indonesia, karena nol yang memeriksa Cakupan.
+    it('mengizinkan BPW PP membuat PW langsung di bawah Strukturnya sendiri', async () => {
+      // Aturan "sasaran bukan Strukturnya sendiri" tidak berlaku di jalur buat:
+      // sasarannya anak yang belum ada, sementara induk cuma jangkar Cakupan.
+      mockSession = sessionWith('bpw', ppId)
+      expect(await requireKestrukturanCreateAccess(ppId, 'pw')).toBeNull()
+    })
+
+    it('mengizinkan BPW PD membuat PK di bawah Strukturnya sendiri', async () => {
+      mockSession = sessionWith('bpw', pdBandungId)
+      expect(
+        await requireKestrukturanCreateAccess(pdBandungId, 'pk')
+      ).toBeNull()
+    })
+
+    it('menolak BPW PW membuat apa pun — barisnya nol', async () => {
+      mockSession = sessionWith('bpw', pwJabarId)
+      expect(
+        await requireKestrukturanCreateAccess(pwJabarId, 'pd')
+      ).not.toBeNull()
+    })
+
     it('menolak BPW membuat di luar Cakupannya', async () => {
-      mockSession = sessionWith('bpw', pwJabarId)
-      expect(await requireCreateStrukturAccess(pwJatimId, 'pd')).not.toBeNull()
+      mockSession = sessionWith('bpw', pdBandungId)
+      expect(
+        await requireKestrukturanCreateAccess(pwJatimId, 'pk')
+      ).not.toBeNull()
     })
 
-    it('menolak Jenjang yang tidak sah meski Cakupannya benar', async () => {
-      mockSession = sessionWith('bpw', pwJabarId)
-      expect(await requireCreateStrukturAccess(pwJabarId, 'pk')).not.toBeNull()
+    it('menolak Jenjang anak yang melompat meski Cakupannya benar', async () => {
+      mockSession = sessionWith('root', ppId)
+      expect(
+        await requireKestrukturanCreateAccess(pwJabarId, 'pk')
+      ).not.toBeNull()
     })
 
     it('menolak pembuatan PP oleh siapa pun, Root termasuk', async () => {
       mockSession = sessionWith('root', ppId)
-      expect(await requireCreateStrukturAccess(ppId, 'pp')).not.toBeNull()
+      expect(await requireKestrukturanCreateAccess(ppId, 'pp')).not.toBeNull()
     })
 
     it('menolak induk yang tidak ada', async () => {
       mockSession = sessionWith('root', ppId)
       expect(
-        await requireCreateStrukturAccess(
+        await requireKestrukturanCreateAccess(
           '00000000-0000-0000-0000-000000000000',
           'pw'
         )
@@ -156,40 +515,172 @@ describe('gerbang kestrukturan', () => {
     })
   })
 
-  describe('requireEditStrukturAccess', () => {
-    it('mengizinkan BPW menyunting Struktur di bawahnya', async () => {
-      mockSession = sessionWith('bpw', pwJabarId)
-      expect(await requireEditStrukturAccess(pdBandungId)).toBeNull()
+  describe('requireKestrukturanManageAccess', () => {
+    it('menolak tanpa sesi', async () => {
+      expect(
+        await requireKestrukturanManageAccess(pdBandungId, 'sunting')
+      ).not.toBeNull()
     })
 
-    it('menolak BPW menyunting Struktur di luar Cakupannya', async () => {
-      mockSession = sessionWith('bpw', pwJabarId)
-      expect(await requireEditStrukturAccess(pwJatimId)).not.toBeNull()
-    })
-
-    // BPW mengelola Struktur DI BAWAH Strukturnya, tidak pernah Strukturnya
-    // sendiri (`CONTEXT.md`, Kewenangan).
-    it('menolak BPW menyunting Strukturnya sendiri', async () => {
-      mockSession = sessionWith('bpw', pwJabarId)
-      expect(await requireEditStrukturAccess(pwJabarId)).not.toBeNull()
-    })
-
-    // Konsekuensi paling penting dari aturan di atas: Cakupan seorang BPW PP
-    // adalah seluruh negeri, jadi tanpa pengecualian ini PP tetap tersunting.
-    it('menolak BPW PP menyunting PP', async () => {
-      mockSession = sessionWith('bpw', ppId)
-      expect(await requireEditStrukturAccess(ppId)).not.toBeNull()
-    })
-
-    it('mengizinkan BPW PP menyunting Struktur di bawah PP', async () => {
-      mockSession = sessionWith('bpw', ppId)
-      expect(await requireEditStrukturAccess(pwJatimId)).toBeNull()
-    })
-
-    it('mengizinkan Root menyunting apa pun', async () => {
+    it('mengizinkan Root menyunting apa pun, PP termasuk', async () => {
       mockSession = sessionWith('root', ppId)
-      expect(await requireEditStrukturAccess(ppId)).toBeNull()
-      expect(await requireEditStrukturAccess(pwJatimId)).toBeNull()
+      expect(await requireKestrukturanManageAccess(ppId, 'sunting')).toBeNull()
+      expect(
+        await requireKestrukturanManageAccess(pwJatimId, 'sunting')
+      ).toBeNull()
+    })
+
+    it('menolak siapa pun menonaktifkan PP, Root termasuk', async () => {
+      mockSession = sessionWith('root', ppId)
+      expect(
+        await requireKestrukturanManageAccess(ppId, 'nonaktifkan')
+      ).not.toBeNull()
+      expect(
+        await requireKestrukturanManageAccess(ppId, 'aktifkan')
+      ).not.toBeNull()
+    })
+
+    it('mengizinkan BPW PP mengelola Struktur di bawah PP', async () => {
+      mockSession = sessionWith('bpw', ppId)
+      for (const aksi of [
+        'sunting',
+        'nonaktifkan',
+        'aktifkan',
+        'hapus'
+      ] as const) {
+        expect(
+          await requireKestrukturanManageAccess(pwJatimId, aksi)
+        ).toBeNull()
+      }
+    })
+
+    // Konsekuensi paling penting dari aturan "bukan Strukturnya sendiri":
+    // Cakupan seorang BPW PP adalah seluruh negeri, jadi tanpa itu PP tetap
+    // tersunting oleh Kewenangan yang tidak boleh menjangkaunya.
+    it('menolak BPW PP mengelola PP', async () => {
+      mockSession = sessionWith('bpw', ppId)
+      expect(
+        await requireKestrukturanManageAccess(ppId, 'sunting')
+      ).not.toBeNull()
+    })
+
+    it('menolak BPW mengelola Strukturnya sendiri', async () => {
+      mockSession = sessionWith('bpw', pdBandungId)
+      expect(
+        await requireKestrukturanManageAccess(pdBandungId, 'sunting')
+      ).not.toBeNull()
+    })
+
+    it('mengizinkan BPW PD mengelola PK di bawahnya', async () => {
+      mockSession = sessionWith('bpw', pdBandungId)
+      expect(await requireKestrukturanManageAccess(pkItbId, 'hapus')).toBeNull()
+    })
+
+    it('menolak BPW PD mengelola Jenjang di luar PK', async () => {
+      mockSession = sessionWith('bpw', pdBandungId)
+      expect(
+        await requireKestrukturanManageAccess(pwJabarId, 'sunting')
+      ).not.toBeNull()
+    })
+
+    it('menolak BPW PW mengelola apa pun di bawahnya — barisnya nol', async () => {
+      mockSession = sessionWith('bpw', pwJabarId)
+      expect(
+        await requireKestrukturanManageAccess(pdBandungId, 'sunting')
+      ).not.toBeNull()
+    })
+
+    it('menolak BPW mengelola Struktur di luar Cakupannya', async () => {
+      mockSession = sessionWith('bpw', pdBandungId)
+      expect(
+        await requireKestrukturanManageAccess(pwJatimId, 'sunting')
+      ).not.toBeNull()
+    })
+
+    it('menolak BPH, BPK, Humas, dan Akun Kader', async () => {
+      for (const role of ['bph', 'bpk', 'humas', 'member']) {
+        mockSession = sessionWith(role, pwJabarId)
+        expect(
+          await requireKestrukturanManageAccess(pdBandungId, 'sunting')
+        ).not.toBeNull()
+      }
+    })
+
+    it('menolak Struktur sasaran yang tidak ada', async () => {
+      mockSession = sessionWith('root', ppId)
+      expect(
+        await requireKestrukturanManageAccess(
+          '00000000-0000-0000-0000-000000000000',
+          'sunting'
+        )
+      ).not.toBeNull()
+    })
+  })
+
+  describe('requireOwnStrukturEditAccess', () => {
+    it('menolak tanpa sesi', async () => {
+      expect(await requireOwnStrukturEditAccess()).toBeNull()
+    })
+
+    it('mengembalikan Struktur si Akun untuk BPH — otorisasi dan data sekali jalan', async () => {
+      mockSession = sessionWith('bph', pwJabarId)
+      const struktur = await requireOwnStrukturEditAccess()
+      expect(struktur?.id).toBe(pwJabarId)
+      expect(struktur?.name).toBe('PW Jabar')
+    })
+
+    it('menolak Root — ia sudah menyunting Struktur mana pun lewat branches', async () => {
+      mockSession = sessionWith('root', ppId)
+      expect(await requireOwnStrukturEditAccess()).toBeNull()
+    })
+
+    it('menolak BPW, BPK, Humas, dan Akun Kader', async () => {
+      for (const role of ['bpw', 'bpk', 'humas', 'member']) {
+        mockSession = sessionWith(role, pwJabarId)
+        expect(await requireOwnStrukturEditAccess()).toBeNull()
+      }
+    })
+
+    it('menolak BPH tanpa Struktur terhubung', async () => {
+      mockSession = sessionWith('bph', null)
+      expect(await requireOwnStrukturEditAccess()).toBeNull()
+    })
+  })
+
+  describe('requireStrukturRestoreAccess', () => {
+    it('menolak tanpa sesi', async () => {
+      expect(await requireStrukturRestoreAccess()).not.toBeNull()
+    })
+
+    it('mengizinkan Root', async () => {
+      mockSession = sessionWith('root', ppId)
+      expect(await requireStrukturRestoreAccess()).toBeNull()
+    })
+
+    it('mengizinkan BPW yang Struktur terhubungnya PP', async () => {
+      mockSession = sessionWith('bpw', ppId)
+      expect(await requireStrukturRestoreAccess()).toBeNull()
+    })
+
+    // Menyalin pola `role === 'bpw'` dari tempat lain membuka pemulihan untuk
+    // seluruh BPW se-Indonesia.
+    it('menolak BPW PW, BPW PD, dan BPW PDLN', async () => {
+      for (const orgId of [pwJabarId, pdBandungId]) {
+        mockSession = sessionWith('bpw', orgId)
+        expect(await requireStrukturRestoreAccess()).not.toBeNull()
+      }
+    })
+
+    it('menolak BPW tanpa Struktur terhubung', async () => {
+      mockSession = sessionWith('bpw', null)
+      expect(await requireStrukturRestoreAccess()).not.toBeNull()
+    })
+
+    it('menolak BPH, BPK, Humas, dan Akun Kader', async () => {
+      for (const role of ['bph', 'bpk', 'humas', 'member']) {
+        mockSession = sessionWith(role, ppId)
+        expect(await requireStrukturRestoreAccess()).not.toBeNull()
+      }
     })
   })
 })

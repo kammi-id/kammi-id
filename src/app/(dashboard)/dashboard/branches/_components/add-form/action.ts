@@ -5,8 +5,8 @@ import { z } from 'zod'
 import { revalidatePath, updateTag } from 'next/cache'
 import { createOrganization, updateOrganization } from '~/db/query/organization'
 import {
-  requireCreateStrukturAccess,
-  requireEditStrukturAccess
+  requireKestrukturanCreateAccess,
+  requireKestrukturanManageAccess
 } from '~/lib/auth/kestrukturan'
 import { getLogger, redact } from '~/lib/logger'
 
@@ -78,7 +78,7 @@ export async function createOrganizationAction(
     // Gated after parsing, because the gate's questions are about the posted
     // `parentId` and `type` — it cannot be asked before they are known to be
     // well-formed.
-    const denial = await requireCreateStrukturAccess(
+    const denial = await requireKestrukturanCreateAccess(
       validated.data.parentId,
       validated.data.type
     )
@@ -142,7 +142,10 @@ export async function updateOrganizationAction(
       return { success: false, message: 'ID organisasi tidak ditemukan.' }
     }
 
-    const denial = await requireEditStrukturAccess(id)
+    // `sunting` only. `type` and `parentId` are frozen at creation, and
+    // `orgUpdateSchema` above drops them outright rather than trusting a posted
+    // value — the Jenjang a Struktur occupies is what Hapus exists for.
+    const denial = await requireKestrukturanManageAccess(id, 'sunting')
     if (denial) {
       logger.warn('Penyuntingan Struktur ditolak', {
         actorId: user?.id,

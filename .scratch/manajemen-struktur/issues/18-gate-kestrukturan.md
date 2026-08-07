@@ -1,7 +1,7 @@
 # 18 — `canManageKestrukturan` dan gate-gatenya
 
 **Type:** implementation
-**Status:** open
+**Status:** resolved
 **Blocked by:** —
 
 Spec: [`../spec.md`](../spec.md) §2 (seluruhnya), terutama §2.5 dan §2.6
@@ -103,3 +103,44 @@ yang muncul.
 - Matriks spec §2.2 terwakili penuh, nol sel kosong
 - `bun run check:types` dan `check:lint` hijau
 - Dua gerbang sempit lama tidak ada lagi; `isLegalChildType` masih ada
+
+## Answer
+
+Terbangun di `src/lib/auth/kestrukturan.ts`. Enam ekspor:
+
+| Ekspor | Bentuk |
+| --- | --- |
+| `canManageKestrukturan(role, jenjangAkun, jenjangSasaran, action)` | murni, nol basis data — matriks §2.2 sendiri |
+| `requireKestrukturanReadAccess(targetOrgId)` | → `AccessScope \| null` (pola `requireKekaderanAccess`) |
+| `requireKestrukturanCreateAccess(parentId, childType)` | → pesan penolakan `\| null` |
+| `requireKestrukturanManageAccess(targetOrgId, action)` | → pesan penolakan `\| null` |
+| `requireOwnStrukturEditAccess()` | tanpa argumen, → `Organization \| null`, BPH saja |
+| `requireStrukturRestoreAccess()` | → pesan penolakan `\| null`, diturunkan dari baris matriks yang sama |
+
+**Signature §2.5 dilebarkan dengan argumen aksi.** §2.5 menulis tiga argumen,
+padahal §2.2/§2.3 menuntut jawaban per-aksi yang tiga argumen tidak bisa nyatakan:
+Root boleh `sunting` PP tapi tidak boleh `nonaktifkan` PP, dan BPW PD/PDLN pegang PK
+untuk semua aksi **kecuali** `pulihkan`. Yang dipilih: menambah aksi, bukan
+menjatuhkan sel demi mencocokkan signature. Nol sel dijatuhkan, nol sel dikarang —
+diverifikasi baris demi baris saat `/code-review`.
+
+**Gate ke-3 mekar jadi dua.** `buat` tidak punya sasaran yang sudah ada, jadi ia
+gate sendiri: Cakupan diuji atas **induk**, matriks ditanya soal **anak**. Kalau
+dipaksa lewat gate manage, aturan "bukan Strukturnya sendiri" justru memblokir BPW PD
+membuat PK di bawah dirinya sendiri.
+
+**Sel BPH `sunting` tidak masuk tabel Jenjang** — ia bersumbu identitas, bukan
+Jenjang. Hidupnya di `requireOwnStrukturEditAccess`. Kalau dipaksa jadi `true` di
+baris matriks, UI akan menyalakan tombol Edit untuk seluruh Struktur dalam Cakupan BPH.
+
+Dua gerbang sempit hilang total (nol call site tersisa), `isLegalChildType` hidup,
+prasyarat penghapusan nol di semua gate. `kestrukturan.test.ts` dirombak: 17 → 135 tes.
+
+**Perubahan perilaku yang disengaja spec dan perlu diketahui:** BPW PW (Akun "BPD")
+sekarang nol hak kelola — sebelumnya ia bisa membuat PD dalam Cakupannya. §2.3
+memerintahkan itu ("pembuatan PD tersentralisasi di BPW PP").
+
+**Belum terpakai di produksi:** `canManageKestrukturan`, `requireKestrukturanReadAccess`,
+`requireOwnStrukturEditAccess`, dan `requireStrukturRestoreAccess` nol call site —
+konsumennya tiket 21, 22, 25, 26, 28. Yang sudah terpasang cuma `create` dan
+`manage('sunting')` di `branches/_components/add-form/action.ts`.
