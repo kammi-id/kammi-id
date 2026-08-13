@@ -1,7 +1,7 @@
 # 16 — Migrasi C: unique `code`
 
 **Type:** implementation
-**Status:** open
+**Status:** resolved
 **Blocked by:** 13, 14
 
 Spec: [`../spec.md`](../spec.md) §4.1, §4.2, §4.6, §4.7
@@ -64,6 +64,55 @@ ke Struktur. Itu persis kemampuan yang ADR 0004 kunci `code` untuk menjaganya.
 ## Selesai bila
 
 - Pra-terbang menyatakan nol duplikat `code`
-- Migrasinya jalan bersih di staging
+- ~~Migrasinya jalan bersih di staging~~ — **dipindahkan ke tiket 17**, dengan
+  alasan yang sama persis dengan tiket 15: tiket 17 memegang penjalanan ke
+  staging, dan pra-terbang wajib diulang di sana terhadap sasaran sungguhan.
 - Membuat Struktur ber-`code` kembar ditolak `23505`, termasuk kembar dengan
   Struktur yang sudah Terhapus
+
+## Answer
+
+`unique('organization_code_unique').on(table.code)` di
+`src/db/schema/organization.sql.ts`, dan `drizzle-kit generate` memancarkan
+persis satu baris — sama seperti riset tiket 03 memprediksi:
+
+```sql
+ALTER TABLE "organization" ADD CONSTRAINT "organization_code_unique" UNIQUE("code");
+```
+
+`src/db/__migrations/20260813034832_organization_code_unique/`. Berkasnya
+dikepalai komentar yang memuat prasyarat pra-terbang dan alasan ia tidak boleh
+disatukan dengan tiket 15 — pola yang sama dengan migrasi B, cermin ke arah
+yang berlawanan.
+
+Ini `unique()` biasa (constraint, `ADD CONSTRAINT`), bukan `uniqueIndex()`
+(index): aturannya tanpa syarat lintas semua baris, jadi PostgreSQL punya
+bentuk constraint asli untuknya — beda dari `slug` yang partial dan terpaksa
+lewat index. `code_slug` tetap tidak dipasangi apa pun, sesuai spec §4.2.
+
+### Yang dibuktikan, dan di mana
+
+`tests/organization-code-unique.test.ts` — tiga kasus, fixture bersufiks, nol
+`TRUNCATE`:
+
+| Kasus | Kenapa ada |
+| --- | --- |
+| dua Struktur hidup ber-code sama → `23505` | "selesai bila" |
+| Struktur baru mencoba memungut code milik Struktur Terhapus → `23505` | "selesai bila" — dan ini justru **kebalikan** perilaku `slug`. Keunikan `code` melintasi semua baris, jadi Struktur Terhapus tetap menyandera code-nya; kalau tes ini lolos padahal seharusnya gagal, itu tanda migrasinya diam-diam jadi partial |
+| `pg_constraint.contype = 'u'` untuk `organization_code_unique` | bentuknya (constraint asli, bukan index) tidak bisa dibuktikan dari tipe TS |
+
+Nama constraint-nya dipakai sebagai assertion, bukan cuma SQLSTATE — sama
+seperti pola tiket 15.
+
+### Jangkauan penjalanannya
+
+Dipasang ke **basis data tes lokal** (`localhost:5434/kammi_test`, PG 18.3),
+urutan yang sama dengan tiket 15:
+
+1. `bun run check:duplicates` — nol duplikat `code`, `slug`, `code_slug`.
+2. `bun run db:migrate` — jalan bersih.
+3. `bun test` — hijau seluruhnya (520 tes, 46 berkas; naik dari 517/45 di
+   tiket 15).
+
+**Staging dan produksi belum disentuh** — itu tiket 17, dan pra-terbang wajib
+diulang di sana.

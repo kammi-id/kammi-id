@@ -1,4 +1,9 @@
-import { pgTable, uniqueIndex, type AnyPgColumn } from 'drizzle-orm/pg-core'
+import {
+  pgTable,
+  unique,
+  uniqueIndex,
+  type AnyPgColumn
+} from 'drizzle-orm/pg-core'
 import { isNull, sql, type SQL } from 'drizzle-orm'
 import { user } from './user.sql'
 
@@ -71,6 +76,16 @@ export const organization = pgTable(
       .notNull()
   }),
   (table) => [
+    /**
+     * `code` unik lintas **semua** baris, Terhapus termasuk — ADR 0004
+     * mengunci `code` selamanya karena Struktur "nol Member" masih bisa
+     * menggantung Member terhapus yang Nomor Induknya sudah tercetak dari
+     * `code` itu. `unique()` biasa, bukan partial: aturannya tanpa syarat.
+     *
+     * Namanya dieja tangan untuk alasan yang sama dengan index slug —
+     * penanganan `23505` di jalur tulis membedakannya dari pelanggaran slug.
+     */
+    unique('organization_code_unique').on(table.code),
     /**
      * `slug` unik **hanya di antara baris yang belum Terhapus** — ia cuma URL,
      * dan spec §4.2 membebaskannya begitu Strukturnya dihapus.
