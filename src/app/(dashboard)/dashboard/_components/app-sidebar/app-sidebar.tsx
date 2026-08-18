@@ -213,7 +213,17 @@ export const AppSidebar = ({
         )}
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={userData} />
+        {/* Hanya BPH yang melihat entri `Profil <nama Struktur>`: ia satu-satunya
+            Kewenangan yang `requireOwnStrukturEditAccess` loloskan, dan sebuah
+            Akun tanpa Struktur terhubung tidak pernah melihatnya sama sekali. */}
+        <NavUser
+          user={userData}
+          organizationName={
+            user.role === 'bph'
+              ? (user.connectedOrganization?.name ?? null)
+              : null
+          }
+        />
       </SidebarFooter>
     </Sidebar>
   )

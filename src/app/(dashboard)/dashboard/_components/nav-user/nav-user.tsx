@@ -26,7 +26,8 @@ import {
   MoreVerticalCircle01Icon,
   UserCircle02Icon,
   Notification03Icon,
-  Logout01Icon
+  Logout01Icon,
+  Building03Icon
 } from '@hugeicons/core-free-icons'
 import { openLogoutDialog } from '../logout/store'
 
@@ -39,17 +40,21 @@ import { openLogoutDialog } from '../logout/store'
  * @param props.user.name - The full name of the user.
  * @param props.user.email - The email address or organization name of the user.
  * @param props.user.avatar - URL to the user's avatar image.
+ * @param props.organizationName - The connected Struktur's name, passed only
+ *   when this Akun may open `/dashboard/organization` — BPH and nobody else.
  *
  * @returns A SidebarMenu item with a user profile dropdown.
  */
 export const NavUser = ({
-  user
+  user,
+  organizationName
 }: {
   user: {
     name: string
     email: string
     avatar: string
   }
+  organizationName?: string | null
 }) => {
   const { isMobile } = useSidebar()
 
@@ -88,11 +93,30 @@ export const NavUser = ({
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
+              {/* Satu baris, dibiarkan `truncate`, dengan `title` berisi nama
+                  utuh — bukan item dua baris. Nama utuhnya sudah terbaca dua
+                  baris di atas, di header dropdown ini, jadi pemotongan di sini
+                  tidak menghilangkan informasi apa pun (spec §8.1). */}
+              {organizationName && (
+                <DropdownMenuItem
+                  render={(props) => (
+                    <Link href='/dashboard/organization' {...props}>
+                      <HugeiconsIcon icon={Building03Icon} strokeWidth={2} />
+                      <span
+                        className='truncate'
+                        title={`Profil ${organizationName}`}
+                      >
+                        Profil {organizationName}
+                      </span>
+                    </Link>
+                  )}
+                />
+              )}
               <DropdownMenuItem
                 render={(props) => (
                   <Link href='/dashboard/user/account' {...props}>
                     <HugeiconsIcon icon={UserCircle02Icon} strokeWidth={2} />
-                    Account
+                    Akun
                   </Link>
                 )}
               />
@@ -100,7 +124,7 @@ export const NavUser = ({
                 render={(props) => (
                   <Link href='/dashboard/user/notifications' {...props}>
                     <HugeiconsIcon icon={Notification03Icon} strokeWidth={2} />
-                    Notifications
+                    Notifikasi
                   </Link>
                 )}
               />
@@ -108,7 +132,7 @@ export const NavUser = ({
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => openLogoutDialog()}>
               <HugeiconsIcon icon={Logout01Icon} strokeWidth={2} />
-              Log out
+              Keluar
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

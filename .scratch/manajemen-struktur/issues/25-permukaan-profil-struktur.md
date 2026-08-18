@@ -1,7 +1,7 @@
 # 25 — Permukaan `Profil <nama Struktur>` — `/dashboard/organization`
 
 **Type:** implementation
-**Status:** open
+**Status:** resolved
 **Blocked by:** 18
 
 Spec: [`../spec.md`](../spec.md) §8.1, §2.4, §4.3
@@ -106,3 +106,39 @@ otorisasi sekaligus pembacaan data halaman.
 - Slug bentrok mendarat di field, bukan toast
 - Menu dropdown seragam berbahasa Indonesia
 - `bun run check:structure`, `check:lint`, `check:types` hijau
+
+## Answer
+
+Rutenya `/dashboard/organization`, dan **gate-nya sendiri yang jadi jalan
+masuknya**: `requireOwnStrukturEditAccess()` mengembalikan Struktur terhubungnya,
+jadi satu panggilan melayani otorisasi **dan** data halaman — tidak ada jendela
+di mana keduanya bisa berbeda pendapat, dan tidak ada argumen sasaran yang bisa
+diarahkan ke Struktur orang lain. Kewenangan lain mendarat di `notFound()`.
+
+**Halaman ini membayar satu join**, yaitu nama induk. Sisanya sudah ikut di sesi.
+
+**Blok identitas, bukan input mati.** `code` (mono), Jenjang, dan induk duduk di
+kepala kartu; form di bawahnya berisi tiga field yang ketiganya hidup. Nol
+kontrol mati, sesuai alasan yang tiket ini kunci: input `disabled` terbaca "kamu
+kurang izin", padahal ketiganya beku untuk semua orang.
+
+**Keadaan Struktur nol muncul** — nol badge, nol toggle. Akun kepengurusan
+Struktur Non-Aktif berhenti bisa dipakai (tiket 19), jadi halaman ini hanya
+pernah dirender untuk Struktur Aktif.
+
+### Slug bentrok mendarat di field, dan polanya dibagi
+
+`src/lib/struktur/slug-conflict.ts` (`isSlugConflict`) memeriksa **nama
+constraint-nya**, bukan cuma SQLSTATE `23505` — `code` punya indeks unik sendiri
+lintas semua baris, dan pemanggil yang menganggap tiap `23505` sebagai tabrakan
+slug akan menunjuk field yang salah. Ia sengaja berumah di `lib/struktur/` sebab
+tiket 28 memakai yang sama persis: dua kegagalan bersebab identik tidak
+dijelaskan dengan dua cara berbeda.
+
+### Menu
+
+Entri `Profil <nama Struktur>` muncul di dropdown Akun, **hanya untuk BPH**, satu
+baris dengan `truncate` + `title` berisi nama utuh — nama utuhnya sudah terbaca
+dua baris di atas, di header dropdown yang sama. Akun tanpa Struktur terhubung
+tidak pernah melihatnya. Tetangganya ikut diseragamkan jadi **Akun**,
+**Notifikasi**, dan **Keluar**.
