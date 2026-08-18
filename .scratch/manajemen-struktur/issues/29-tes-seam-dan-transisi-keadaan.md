@@ -85,3 +85,51 @@ Tanpa itu, lapis 3 tidak bisa hijau di CI.
 - Lapis 1 jalan tanpa basis data
 - Kedua salinan NIA terbukti sepakat
 - `bun test` hijau (setelah konfirmasi pengguna), `bun run check:types` hijau
+
+## Answer
+
+**Keempat lapis ada. Statusnya tetap `open` karena satu syarat "Selesai bila"
+belum terpenuhi: `bun test` penuh belum dijalankan** — lihat di bawah.
+
+### Yang sudah berdiri sebelum tiket ini dibuka
+
+Lapis 1 (`canManageKestrukturan`), lapis 2 (tiga gate async), sebagian besar
+lapis 3, dan seluruh lapis 4 sudah ditulis bersama tiket 18, 21, 22, 23, dan 24 —
+tiap tiket membawa tesnya sendiri alih-alih menunda ke sini. Lapis 1 sudah
+berbentuk tabel argumen-ke-hasil, nol fixture, dan ketujuh sel "wajib punya
+kasusnya sendiri" sudah dinyatakan eksplisit.
+
+Lapis 4 selesai dengan bentuk yang lebih baik daripada yang tiket ini minta:
+tiket 24 **membubarkan salinan keduanya**, jadi alih-alih membuktikan dua salinan
+sepakat, `member.test.ts` menjaga bahwa keduanya memang satu — "keeps the
+per-Jenjang branch in exactly one file".
+
+### Yang ditambahkan di sesi ini
+
+- **`src/lib/struktur/kemampuan.test.ts`** — lapis 1 untuk bendera kemampuan
+  tiket 26, tabel argumen-ke-hasil, nol fixture. Termasuk "bukan Strukturnya
+  sendiri", Root yang dikecualikan darinya, dan BPD yang nol `pindah`.
+- **`checkRestore` di `keadaan.test.ts`** — aturan murni pemulihan, termasuk
+  bahwa induk Terhapus menang atas induk Non-Aktif saat dua-duanya terbaca
+  (pesannya mengirim orang ke tempat yang berbeda, jadi urutannya bukan selera).
+- **`branches/terhapus/.../action.test.ts`** — lapis 2 dan 3 untuk pemulihan:
+  gate `pulihkan` menolak BPW PD, BPW PW, BPH, BPK, dan Humas; Terhapus → Aktif
+  mengosongkan empat kolom jejak; pemulihan tidak berantai; tabrakan slug
+  mendarat di `slugError`.
+- **`organization/.../action.test.ts`** — `code`/`type`/`parentId` yang dikirim
+  **diabaikan**, bukan dipercaya. Form yang tidak punya kotaknya tidak
+  membuktikan apa pun tentang Server Action yang bisa dicapai tanpa form.
+- **PDLN masuk pohon fixture `kestrukturan.test.ts`** — tesnya sudah bernama
+  "menolak BPW PW, BPW PD, dan BPW PDLN" padahal nol PDLN ada di pohonnya.
+  Namanya benar, buktinya yang belum ada.
+
+### Yang belum: menjalankannya
+
+Basis data tes (`db-test`, `localhost:5434` dari `docker-compose.yml`) mati di
+sesi ini dan daemon Docker-nya tidak menjawab. Yang **terverifikasi hijau**
+hanyalah berkas yang tidak menyentuh basis data: 100 tes di `src/lib/struktur/`,
+`src/lib/utils/`, `src/lib/logger/`, dan `src/lib/shadcn/`. `check:types`,
+`check:lint`, dan `check:structure` hijau.
+
+**Langkah tersisa:** `docker compose up -d db-test`, lalu `bun test`. Tiga berkas
+tes yang lahir di sesi ini belum pernah dijalankan sama sekali.

@@ -332,6 +332,7 @@ describe('gate kestrukturan', () => {
   let pwJabarId: string
   let pwJatimId: string
   let pdBandungId: string
+  let pdlnKairoId: string
   let pkItbId: string
 
   beforeEach(() => {
@@ -382,6 +383,19 @@ describe('gate kestrukturan', () => {
       isNonActive: false
     })
     pdBandungId = pdBandung.id
+
+    // PDLN ada di pohon ini justru karena barisnya identik dengan BPW PD di
+    // matriks: satu-satunya cara membuktikan gate `pulihkan` menolak keduanya
+    // adalah punya keduanya.
+    const [pdlnKairo] = await createOrganization({
+      name: 'PDLN Kairo',
+      slug: 'pdln-kairo',
+      code: 'PD.LN-1',
+      type: 'pdln',
+      parentId: pp.id,
+      isNonActive: false
+    })
+    pdlnKairoId = pdlnKairo.id
 
     const [pkItb] = await createOrganization({
       name: 'PK ITB',
@@ -683,7 +697,7 @@ describe('gate kestrukturan', () => {
     // Menyalin pola `role === 'bpw'` dari tempat lain membuka pemulihan untuk
     // seluruh BPW se-Indonesia.
     it('menolak BPW PW, BPW PD, dan BPW PDLN', async () => {
-      for (const orgId of [pwJabarId, pdBandungId]) {
+      for (const orgId of [pwJabarId, pdBandungId, pdlnKairoId]) {
         mockSession = sessionWith('bpw', orgId)
         expect(await requireStrukturRestoreAccess()).not.toBeNull()
       }
