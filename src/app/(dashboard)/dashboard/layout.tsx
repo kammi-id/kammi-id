@@ -5,6 +5,10 @@ import { SiteHeader, CredentialPanelServer } from './_components/site-header'
 import { LogoutDialog } from './_components/logout'
 import { SidebarInset, SidebarProvider } from '~/components/shadcn/ui/sidebar'
 import { readActiveSession } from '~/lib/auth/cookies'
+import {
+  canManageKestrukturan,
+  type StrukturJenjang
+} from '~/lib/auth/kestrukturan'
 import { redirect } from 'next/navigation'
 
 const DashboardLayout = async ({
@@ -18,6 +22,18 @@ const DashboardLayout = async ({
     return redirect('/login')
   }
 
+  // Ditanyakan ke matriks, bukan ditulis ulang sebagai `role === 'root' ||
+  // role === 'bpw'` — rumusan itu akan membuka keranjang sampah untuk seluruh
+  // BPW se-Indonesia. Dihitung di sini, di server, sebab `kestrukturan.ts`
+  // menyentuh basis data dan tidak boleh ikut ke bundel klien.
+  const canRestoreStruktur = canManageKestrukturan(
+    session.user.role,
+    (session.user.connectedOrganization?.type ??
+      null) as StrukturJenjang | null,
+    'pw',
+    'pulihkan'
+  )
+
   return (
     <SidebarProvider
       style={
@@ -27,7 +43,11 @@ const DashboardLayout = async ({
         } as CSSProperties
       }
     >
-      <AppSidebar variant='inset' user={session.user} />
+      <AppSidebar
+        variant='inset'
+        user={session.user}
+        canRestoreStruktur={canRestoreStruktur}
+      />
       <SidebarInset>
         <SiteHeader rightSlot={<CredentialPanelServer />} />
         <div className='flex flex-1 flex-col'>

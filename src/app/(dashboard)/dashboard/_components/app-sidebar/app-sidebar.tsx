@@ -25,7 +25,8 @@ import {
   FolderLibraryIcon,
   Home01Icon,
   UserGroupIcon,
-  InformationCircleIcon
+  InformationCircleIcon,
+  Delete02Icon
 } from '@hugeicons/core-free-icons'
 import Image from 'next/image'
 import logo from '~/assets/logo.png'
@@ -52,6 +53,7 @@ import { NavUser } from '../nav-user'
  */
 export const AppSidebar = ({
   user,
+  canRestoreStruktur = false,
   ...props
 }: {
   user: {
@@ -63,6 +65,13 @@ export const AppSidebar = ({
     } | null
     connectedMember: { photo: string | null } | null
   }
+  /**
+   * The `pulihkan` cell, answered by the matrix on the server. It is passed in
+   * rather than derived here because `kestrukturan.ts` reaches the database and
+   * this is a client component — and because re-spelling it as
+   * `role === 'bpw'` is the single easiest mistake to make in this feature.
+   */
+  canRestoreStruktur?: boolean
 } & React.ComponentProps<typeof Sidebar>) => {
   const orgType = user.connectedOrganization?.type ?? 'pd'
   const allowedRolesOrg = ['root', 'bph', 'bpw']
@@ -128,7 +137,16 @@ export const AppSidebar = ({
       title: orgLabel,
       url: '/dashboard/branches',
       icon: <HugeiconsIcon icon={Globe02Icon} strokeWidth={2} />
-    }
+    },
+    ...(canRestoreStruktur
+      ? [
+          {
+            title: 'Struktur Terhapus',
+            url: '/dashboard/branches/terhapus',
+            icon: <HugeiconsIcon icon={Delete02Icon} strokeWidth={2} />
+          }
+        ]
+      : [])
   ]
 
   const menuBerita = [

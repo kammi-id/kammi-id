@@ -1,7 +1,7 @@
 # 28 — Permukaan Struktur Terhapus dan pemulihannya
 
 **Type:** implementation
-**Status:** open
+**Status:** resolved
 **Blocked by:** 13, 15, 18, 20
 
 Spec: [`../spec.md`](../spec.md) §8.4, §1.4, §1.5, §4.3
@@ -108,3 +108,64 @@ kosongnya **harus berbunyi begitu**, bukan "tidak ada data ditemukan".
 - Induk Terhapus → penolakan menyebut nama dan menautkan barisnya
 - Keadaan kosong berbunyi sehat, bukan seperti kegagalan
 - Struktur Terhapus nol muncul di permukaan lain mana pun
+
+## Answer
+
+Rutenya **`/dashboard/branches/terhapus`**, persis seperti spec §8.4 menamainya —
+dan segmen statis di sebelah catch-all opsional itu **diperiksa, bukan
+diasumsikan**. Next.js melempar "same specificity as a optional catch-all" hanya
+ketika simpulnya sendiri jadi rute (`sorted-routes.js:28-36`); `branches/` tidak
+punya `page.tsx`, jadi `terhapus` sah dan menang atas catch-all karena lebih
+spesifik. Keberatan teknis tiket 25 terhadap `branches/saya` menyangkut segmen
+yang bersaing dengan slug Struktur; harganya di sini satu slug yang tidak bisa
+dipakai, dan itu dibayar sadar.
+
+`readDeletedOrganizations` sudah ada sejak tiket 20 — **satu fungsi baca yang
+sengaja terbalik, satu permukaan yang memakainya**. Nol flag ditambahkan ke
+`readOrganization`.
+
+### Gate
+
+`requireStrukturRestoreAccess` dipakai apa adanya di tiga tempat: halaman, aksi
+pemulihan, dan pembacaan info dialog. Entri sidebar-nya **tidak** menebak
+sendiri — `layout.tsx` menanyakan `canManageKestrukturan(..., 'pulihkan')` di
+server dan menurunkannya sebagai bendera, sebab `kestrukturan.ts` menyentuh basis
+data dan tidak boleh ikut ke bundel klien, dan menulis ulang syaratnya sebagai
+`role === 'bpw'` adalah kesalahan paling gampang di seluruh fitur ini. Tesnya
+membuktikan **BPW PD, BPW PW, BPH, BPK, dan Humas ditolak**, bukan cuma bahwa
+BPW PP lolos.
+
+### Pemulihan
+
+`restoreOrganization` mengosongkan **empat kolom jejak sekaligus** —
+`deleted_at`, `deleted_by`, `is_non_active`, `non_active_at`/`non_active_by` —
+sehingga Non-Aktif → Terhapus → pulih mendarat di **Aktif**. Ia kebalikan sengaja
+dari `softDeleteOrganization`, yang justru **tidak** menyapu `is_non_active`:
+menghapus mendominasi, memulihkan memutuskan.
+
+Aturan induknya jadi fungsi murni `checkRestore` di `lib/struktur/keadaan.ts`,
+sebelah `checkReactivation`. Ia dibedakan dari tetangganya justru karena
+**jalan keluarnya berbeda**: induk Non-Aktif diselesaikan di tempat lain, induk
+Terhapus diselesaikan di halaman yang sama — jadi yang kedua menyebut namanya dan
+menyerahkan id barisnya, dan dialognya menyodorkan tombol yang melompat ke baris
+itu.
+
+### Tabrakan slug
+
+Dialognya satu, dan ia **berubah bentuk saat dibuka**: bebas → konfirmasi biasa
+satu klik; sudah dipungut → menyebut siapa pemakainya sekarang lalu menyodorkan
+field slug terisi usulan yang sudah dicek bebas. Sufiks otomatis tetap ditolak —
+usulan itu diketik ke field yang terlihat dan bisa ditimpa, bukan diterapkan
+diam-diam.
+
+Servernya menangani jeda antara cek dan simpan di dua lapis: pemeriksaan pemilik
+sebelum menulis (yang bisa menamai pemiliknya), dan `isSlugConflict` di `catch`
+untuk balapan yang lolos dari situ. Dua-duanya mendarat di **`slugError`**, bukan
+di `message` — permukaan menaruhnya di field, tidak di toast. Berbagi helper
+dengan tiket 25.
+
+### Keadaan kosong
+
+Berbunyi sehat: "Penghapusan hanya untuk catatan yang keliru, dan catatan yang
+keliru memang jarang. Kosong di sini berarti semuanya beres." — bukan "tidak ada
+data ditemukan".

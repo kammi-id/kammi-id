@@ -166,3 +166,59 @@ export const checkDeletion = (
     counts
   }
 }
+
+export type RestoreRefusal =
+  | { reason: 'induk-non-aktif'; message: string }
+  | {
+      reason: 'induk-terhapus'
+      message: string
+      /** Named and linkable: it is a row on the very same surface. */
+      parent: { id: string; name: string }
+    }
+
+/**
+ * Whether a Struktur Terhapus may be restored. Returns a refusal, or null.
+ *
+ * **The mirror rule applies in full** (spec §6.4), because restoring always ends
+ * at Aktif — so a Struktur may not come back beneath an induk that is not alive.
+ *
+ * Unlike `checkReactivation`, this one is handed the Terhapus induk explicitly
+ * and **says so**. The two cases differ in what the person has to do next, and a
+ * refusal that does not distinguish them sends someone hunting:
+ *
+ * - **induk Non-Aktif** — the way out is elsewhere: activate the induk, or move
+ *   this Struktur to one that is alive.
+ * - **induk juga Terhapus** — the way out is *on this very page*, so the induk
+ *   is named and its row linked. That is not a leak of the kind spec §1.4
+ *   forbids: the only callers hold `pulihkan`, and the whole page they are
+ *   looking at is Struktur Terhapus.
+ *
+ * The second case is real rather than theoretical: a Terhapus child does not
+ * count toward its induk's deletion prerequisite (spec §3), so a
+ * Terhapus-beneath-Terhapus chain is reachable by ordinary use.
+ */
+export const checkRestore = (
+  org: { parentId: string | null },
+  liveParent: { state: OrganizationState } | null,
+  deletedParent: { id: string; name: string } | null
+): RestoreRefusal | null => {
+  if (org.parentId === null) return null
+  if (liveParent !== null && liveParent.state === 'aktif') return null
+
+  if (deletedParent) {
+    return {
+      reason: 'induk-terhapus',
+      message:
+        `Induknya, ${deletedParent.name}, juga terhapus. ` +
+        `Pulihkan ${deletedParent.name} lebih dulu — pemulihan berjalan dari atas ke bawah.`,
+      parent: deletedParent
+    }
+  }
+
+  return {
+    reason: 'induk-non-aktif',
+    message:
+      'Induknya sedang tidak aktif, jadi Struktur ini belum bisa dipulihkan. ' +
+      'Aktifkan induknya lebih dulu, atau pindahkan Struktur ini ke induk yang aktif.'
+  }
+}

@@ -2,6 +2,7 @@ import { describe, it, expect } from 'bun:test'
 import {
   checkDeactivation,
   checkReactivation,
+  checkRestore,
   checkDeletion,
   describeChildJenjang
 } from './keadaan'
@@ -169,5 +170,64 @@ describe('describeChildJenjang', () => {
 
   it('jatuh ke kata umum untuk Jenjang yang tidak punya anak', () => {
     expect(describeChildJenjang('pk')).toBe('Struktur')
+  })
+})
+
+describe('checkRestore', () => {
+  it('meloloskan Struktur yang induknya Aktif', () => {
+    expect(
+      checkRestore({ parentId: 'induk' }, { state: 'aktif' }, null)
+    ).toBeNull()
+  })
+
+  it('meloloskan Struktur yang memang tidak punya induk', () => {
+    expect(checkRestore({ parentId: null }, null, null)).toBeNull()
+  })
+
+  it('menolak induk Non-Aktif, dan menyebut dua jalan keluarnya', () => {
+    const refusal = checkRestore(
+      { parentId: 'induk' },
+      { state: 'non_aktif' },
+      null
+    )
+
+    expect(refusal?.reason).toBe('induk-non-aktif')
+    expect(refusal?.message).toMatch(/aktifkan induknya/i)
+    expect(refusal?.message).toMatch(/pindahkan/i)
+  })
+
+  it('menyebut nama induk yang juga Terhapus dan menyerahkan barisnya', () => {
+    const refusal = checkRestore({ parentId: 'induk' }, null, {
+      id: 'induk',
+      name: 'PD Jakarta'
+    })
+
+    expect(refusal?.reason).toBe('induk-terhapus')
+    expect(refusal?.message).toContain('PD Jakarta')
+    expect(
+      refusal?.reason === 'induk-terhapus' ? refusal.parent.id : null
+    ).toBe('induk')
+  })
+
+  it('menyebut urutannya, bukan sekadar menolak — pemulihan dari atas ke bawah', () => {
+    const refusal = checkRestore({ parentId: 'induk' }, null, {
+      id: 'induk',
+      name: 'PD Jakarta'
+    })
+
+    expect(refusal?.message).toMatch(/atas ke bawah/i)
+  })
+
+  it('mendahulukan induk Terhapus atas induk Non-Aktif saat dua-duanya terbaca', () => {
+    // Tidak mungkin terjadi lewat data, tapi urutan cabangnya tetap dinyatakan:
+    // yang Terhapus punya jalan keluar di halaman yang sama, yang Non-Aktif
+    // tidak, dan pesan yang salah mengirim orangnya ke tempat yang salah.
+    const refusal = checkRestore(
+      { parentId: 'induk' },
+      { state: 'non_aktif' },
+      { id: 'induk', name: 'PD Jakarta' }
+    )
+
+    expect(refusal?.reason).toBe('induk-terhapus')
   })
 })

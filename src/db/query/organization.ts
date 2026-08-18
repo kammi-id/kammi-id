@@ -459,6 +459,42 @@ export const softDeleteOrganization = async (
 }
 
 /**
+ * Brings a Struktur Terhapus back — **and it always lands on Aktif**
+ * (spec §8.4).
+ *
+ * It clears **both** columns, and that is the whole of the decision: a Struktur
+ * that was Non-Aktif, then deleted, then restored comes back Aktif rather than
+ * Non-Aktif. Terhapus → Non-Aktif is a transition that never exists (spec §1.5),
+ * so leaving `is_non_active` lit would resurrect a Keadaan nobody chose. That is
+ * the exact opposite of `softDeleteOrganization`, which deliberately does *not*
+ * sweep `is_non_active` — deleting dominates, restoring decides.
+ *
+ * `slug` is written only when the caller passes one, which happens when the old
+ * slug has since been claimed and a person picked a new one in the dialog. It
+ * is never rewritten silently.
+ *
+ * Restoring does **not** cascade to descendants. A Terhapus-beneath-Terhapus
+ * chain is restored from the top down, one row at a time, by a surface that
+ * shows the order (spec §8.4).
+ */
+export const restoreOrganization = async (
+  id: string,
+  slug?: string
+): Promise<void> => {
+  await db
+    .update(organization)
+    .set({
+      deletedAt: null,
+      deletedBy: null,
+      isNonActive: false,
+      nonActiveAt: null,
+      nonActiveBy: null,
+      ...(slug ? { slug } : {})
+    })
+    .where(eq(organization.id, id))
+}
+
+/**
  * Moves one or more Struktur beneath a new induk — **one column, one
  * statement, zero other rows.**
  *
