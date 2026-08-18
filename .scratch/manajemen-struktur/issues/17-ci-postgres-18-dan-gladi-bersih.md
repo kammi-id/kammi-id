@@ -96,7 +96,7 @@ kalau yang mau dibuktikan adalah pra-terbangnya menangkap sesuatu.
 **Yang masih terbuka:** CI masih `postgres:16` (`.github/workflows/ci.yml:13`),
 dan migrasi B (tiket 15) serta C (tiket 16) belum ada.
 
-**18 Agustus 2026 — bagian 1 tuntas, bagian 2 masih terbuka.**
+**18 Agustus 2026 — bagian 1 dikode, belum dibuktikan hijau; bagian 2 masih terbuka.**
 
 `.github/workflows/ci.yml` dinaikkan ke `postgres:18`, dan step "Set up
 database functions" (setup tangan `uuidv7()`) dicabut — PG18 menyediakannya
