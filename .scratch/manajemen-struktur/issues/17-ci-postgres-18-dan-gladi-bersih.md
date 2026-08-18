@@ -95,3 +95,28 @@ kalau yang mau dibuktikan adalah pra-terbangnya menangkap sesuatu.
 
 **Yang masih terbuka:** CI masih `postgres:16` (`.github/workflows/ci.yml:13`),
 dan migrasi B (tiket 15) serta C (tiket 16) belum ada.
+
+**18 Agustus 2026 — bagian 1 tuntas, bagian 2 masih terbuka.**
+
+`.github/workflows/ci.yml` dinaikkan ke `postgres:18`, dan step "Set up
+database functions" (setup tangan `uuidv7()`) dicabut — PG18 menyediakannya
+native, jadi step itu sekarang mati kode. Belum dibuktikan hijau lewat CI
+sungguhan (belum ada push/PR yang memicunya), tapi diagnosisnya kuat: repo
+sudah jalan bersih di staging PG18+ dan seluruh 199 tes hijau terhadapnya
+(lihat komentar 8 Agustus di atas).
+
+Gladi bersih migrasi B (`20260807194827_organization_slug_live_unique`) dan C
+(`20260813034832_organization_code_unique`) **belum bisa dieksekusi** dari
+sesi ini: sandbox-nya tidak bisa menjangkau Docker (daemon tidak terhubung,
+dua percobaan `docker run`/`docker ps` menggantung tanpa keluaran sampai
+timeout) maupun jaringan ke staging (`103.93.160.47:5432` tidak terjangkau
+dari sini). Pengguna memilih commit bagian CI dulu dan menyisakan gladi B/C
+sebagai pekerjaan lanjutan — bukan diselesaikan lewat sandbox bypass atau
+dijalankan manual di sesi ini.
+
+Tiket tetap `open`. Sisa pekerjaan sebelum tutup: jalankan gladi B/C dari
+mesin yang punya akses staging (lihat rencana di komentar 8 Agustus — semai
+duplikat dulu supaya pra-terbang punya sesuatu untuk ditangkap), lalu
+verifikasi tiga hal di-basis-data (index partial `slug` benar-benar partial,
+constraint `code` benar-benar unik lintas semua baris termasuk Terhapus), dan
+buktikan CI hijau lewat PR sungguhan.
