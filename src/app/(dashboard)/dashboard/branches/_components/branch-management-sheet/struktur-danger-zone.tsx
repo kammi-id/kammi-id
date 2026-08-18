@@ -13,7 +13,7 @@ import { deleteStrukturAction } from '../delete-struktur'
 import { moveActiveChildrenToParentAction } from '../move-parent'
 import { StrukturConfirmDialog } from './struktur-confirm-dialog'
 import { type StrukturSheetInfo } from './action'
-import { type StrukturRow } from '../branches-table/columns'
+import { type StrukturRow } from '../struktur-row'
 
 interface StrukturDangerZoneProps {
   org: StrukturRow
@@ -88,7 +88,9 @@ export const StrukturDangerZone = ({
   const reactivationRefusal = info?.aktifkan.refusal ?? null
   const deletionRefusal = info?.hapus.refusal ?? null
   const activeChildren = info?.nonaktifkan.activeChildren ?? []
-  const parentName = info?.parentName ?? null
+  // Bendera dari server, bukan `parentName` yang kebetulan ada: pintasan ini
+  // dijanjikan tidak pernah bisa gagal, dan hanya server yang bisa memeriksanya.
+  const bulkMoveTo = info?.bulkMoveTo ?? null
 
   return (
     <section className='border-destructive/30 space-y-4 rounded-lg border p-4'>
@@ -119,13 +121,13 @@ export const StrukturDangerZone = ({
               <p className='text-foreground text-sm'>{deactivationRefusal}</p>
               {activeChildren.length > 0 && (
                 <div className='flex flex-wrap items-center gap-2'>
-                  {parentName && (
+                  {bulkMoveTo && (
                     <Button
                       variant='secondary'
                       size='sm'
                       onClick={() => setOpen('pindah-massal')}
                     >
-                      Pindahkan semua {childJenjang} Aktif ke {parentName}
+                      Pindahkan semua {childJenjang} Aktif ke {bulkMoveTo}
                     </Button>
                   )}
                   <Link
@@ -270,7 +272,7 @@ export const StrukturDangerZone = ({
       <StrukturConfirmDialog
         open={open === 'pindah-massal'}
         onOpenChange={close}
-        title={`Pindahkan semua ${childJenjang} Aktif ke ${parentName ?? ''}`}
+        title={`Pindahkan semua ${childJenjang} Aktif ke ${bulkMoveTo ?? ''}`}
         code={org.code}
         confirmLabel='Ya, pindahkan semua'
         variant='default'
@@ -283,7 +285,7 @@ export const StrukturDangerZone = ({
         <div className='text-muted-foreground space-y-3 text-sm'>
           <p>
             {activeChildren.length} {childJenjang} Aktif dititipkan langsung di
-            bawah {parentName}, supaya {org.name} bisa dinonaktifkan hari ini.
+            bawah {bulkMoveTo}, supaya {org.name} bisa dinonaktifkan hari ini.
             Penempatan yang benar bisa dikerjakan satu per satu kemudian.
           </p>
           <p>

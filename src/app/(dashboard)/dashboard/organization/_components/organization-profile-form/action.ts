@@ -9,6 +9,17 @@ import { organizationProfileSchema } from './schema'
 
 const logger = getLogger(['app', 'action', 'organization'])
 
+/**
+ * What the form is handed back so it can keep what was typed after a refusal.
+ * Nulls are dropped rather than echoed as the string "null".
+ */
+const keptValues = (
+  raw: Record<string, FormDataEntryValue | string | null>
+): Record<string, string> =>
+  Object.fromEntries(
+    Object.entries(raw).filter(([, value]) => value != null)
+  ) as Record<string, string>
+
 export type OrganizationProfileState = {
   success?: boolean
   message?: string
@@ -50,9 +61,7 @@ export const updateOrganizationProfileAction = async (
         success: false,
         errors: validated.error.flatten().fieldErrors,
         message: 'Validasi gagal. Silakan periksa kembali isian Antum.',
-        values: Object.fromEntries(
-          Object.entries(rawData).filter(([, value]) => value != null)
-        ) as Record<string, string>
+        values: keptValues(rawData)
       }
     }
 
@@ -75,9 +84,7 @@ export const updateOrganizationProfileAction = async (
       return {
         success: false,
         errors: { slug: ['Slug ini sudah dipakai Struktur lain.'] },
-        values: Object.fromEntries(
-          Object.entries(rawData).filter(([, value]) => value != null)
-        ) as Record<string, string>
+        values: keptValues(rawData)
       }
     }
 

@@ -169,3 +169,35 @@ dengan tiket 25.
 Berbunyi sehat: "Penghapusan hanya untuk catatan yang keliru, dan catatan yang
 keliru memang jarang. Kosong di sini berarti semuanya beres." — bukan "tidak ada
 data ditemukan".
+
+## Comments
+
+**18 Agustus 2026 — pemulihan mengosongkan kolom `*_by` juga. Sengaja, dan sekarang
+tertulis.**
+
+`/code-review` mengangkat bahwa `restoreOrganization` mengosongkan `deleted_by`,
+`non_active_at`, dan `non_active_by` di samping dua kolom yang spec §1.5 sebut —
+sehingga siapa yang menghapus baris itu ikut hilang, padahal §1.6 memasang kolom
+`*_by` justru untuk itu.
+
+**Perilakunya dipertahankan, alasannya yang kurang.** Jejak di repo ini adalah
+**keadaan sekarang, bukan riwayat**: `deleted_at` kosong sementara `deleted_by`
+terisi menyatakan "dihapus oleh X" tentang Struktur yang tidak terhapus — fakta
+menggantung, bukan catatan. `reactivateOrganization` sudah mengosongkan
+`non_active_by` dengan alasan yang sama sejak tiket 21, dan pemulihan adalah
+gerakan yang sama di sumbu yang lain. Yang menginginkan siapa-menghapus-apa
+bertahan sesudah pemulihan butuh tabel riwayat, dan §1.6 menolaknya terang-
+terangan ("bukan tabel riwayat penuh"). Argumen itu sekarang ada di docstring-
+nya, bukan cuma di kepala penulisnya.
+
+Satu rapian: **badge Jenjang di halaman ini dulu dirakit ulang** dengan
+`<Badge>` polos, di diff yang sama yang membuat `struktur-badges` "sebab dua
+salinan peta warna adalah dua permukaan yang suatu hari berbeda". Sekarang ia
+memakai `StrukturJenjangBadge`, dan halamannya berhenti memipihkan union Jenjang
+lewat `.toUpperCase()`.
+
+**Entri sidebar "Struktur Terhapus" memang tidak diminta tiket ini** — rute
+tanpa jalan masuk bukan rute yang terkirim, jadi ia tetap. Yang diperbaiki:
+`layout.tsx` dulu menanyakan matriks langsung dengan sasaran karangan `'pw'`;
+sekarang ia memanggil `requireStrukturRestoreAccess()`, gate yang memang memiliki
+hak ini.

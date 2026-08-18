@@ -88,3 +88,19 @@ diasumsikan**: ia sudah dijaga tes `tests/member-scope.test.ts` dan invarian
 lapisan baca tiket 20, dan penelusuran yang berhenti di sini tidak menyentuh
 jalur itu sama sekali — `readDescendantMembers` menelusuri `parent_id` tanpa
 menyaring Keadaan.
+
+## Comments
+
+**18 Agustus 2026 — tabelnya dapat penanda, tapi belum diredupkan. Diperbaiki.**
+
+`/code-review` menemukan setengah dari §8.3 hilang di tabel: `columns.tsx`
+memasang badge Non-Aktif dan mematikan tautannya, tapi barisnya tetap terlihat
+persis seperti baris Aktif. Kartu di grid sudah redup, tabelnya belum — yaitu
+"dua bahasa visual" yang tiket ini justru ada untuk mencegahnya.
+
+Sebabnya struktural: **redup itu sifat baris, dan definisi kolom tidak bisa
+menyatakan apa pun tentang tetangganya.** Jadi `DataTable` dapat prop opsional
+`rowClassName?: (data) => string | undefined` — aditif, nol efek untuk pemanggil
+yang tidak memakainya — dan `BranchesTable` memberinya `bg-muted/50` untuk baris
+Non-Aktif, permukaan yang sama persis dengan kartunya. Kontras teks tetap tidak
+tersentuh.

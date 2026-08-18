@@ -190,3 +190,28 @@ describe('filterMoveCandidates', () => {
     expect(filterMoveCandidates(pkKairo, pdlnMesir, tanpaTurki)).toEqual([])
   })
 })
+
+/**
+ * The premise the bulk shortcut rests on (spec §8.2: *"ia tidak pernah bisa
+ * gagal"*). It is a claim about **a PD**, and it does not generalise — which is
+ * why `readStrukturSheetInfoAction` computes the shortcut's legality per child
+ * instead of offering it wherever an induk happens to exist.
+ */
+describe('premis pintasan "pindahkan semua anak Aktif ke induk"', () => {
+  it('berlaku untuk PD: tiap Komisariatnya sah pindah ke PW induknya', () => {
+    for (const pk of [pkItb, pkUnpad]) {
+      expect(checkMoveCandidate(pk, pdBandung, pwJabar)).toBeNull()
+    }
+  })
+
+  it('TIDAK berlaku untuk PW: Daerahnya tidak bisa dititipkan ke PP', () => {
+    // Kalau permukaan menawarkan pintasan ini saat sebuah PW dinonaktifkan,
+    // tombolnya menyala untuk aksi yang ditolak seluruhnya.
+    expect(checkMoveCandidate(pdBandung, pwJabar, pp)).not.toBeNull()
+    expect(checkMoveCandidate(pdBogor, pwJabar, pp)).not.toBeNull()
+  })
+
+  it('TIDAK berlaku untuk PDLN: Komisariatnya tidak bisa dititipkan ke PP', () => {
+    expect(checkMoveCandidate(pkKairo, pdlnMesir, pp)).not.toBeNull()
+  })
+})

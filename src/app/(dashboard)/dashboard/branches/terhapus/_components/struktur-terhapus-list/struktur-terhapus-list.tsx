@@ -8,7 +8,6 @@ import { Loading03Icon } from '@hugeicons/core-free-icons'
 import { Button } from '~/components/shadcn/ui/button'
 import { Input } from '~/components/shadcn/ui/input'
 import { Label } from '~/components/shadcn/ui/label'
-import { Badge } from '~/components/shadcn/ui/badge'
 import { Skeleton } from '~/components/shadcn/ui/skeleton'
 import {
   Table,
@@ -27,6 +26,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle
 } from '~/components/shadcn/ui/alert-dialog'
+import { StrukturJenjangBadge } from '~/app/(dashboard)/dashboard/branches/_components/struktur-badges'
 import {
   readRestoreInfoAction,
   restoreStrukturAction,
@@ -148,9 +148,7 @@ export const StrukturTerhapusList = ({
                   {row.code}
                 </TableCell>
                 <TableCell>
-                  <Badge variant='outline' className='font-bold uppercase'>
-                    {row.type}
-                  </Badge>
+                  <StrukturJenjangBadge type={row.type} />
                 </TableCell>
                 <TableCell className='text-muted-foreground'>
                   {row.parentName ?? '—'}

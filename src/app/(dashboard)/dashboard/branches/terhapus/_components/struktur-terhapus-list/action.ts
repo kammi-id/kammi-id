@@ -55,16 +55,17 @@ const suggestFreeSlug = async (slug: string): Promise<string> => {
   return `${slug}-pulihan`
 }
 
-export const readRestoreInfoAction = async (
-  id: string
-): Promise<RestoreInfo | null> => {
-  const denial = await requireStrukturRestoreAccess()
-  if (denial) return null
-
+/**
+ * The row and the verdict on its induk — the pair both entry points need, read
+ * once so the dialog and the write cannot disagree about what they saw.
+ *
+ * The induk is looked for **twice**: through the ordinary reader, which filters
+ * Terhapus (spec §7), and then through the one that does the opposite. Which of
+ * the two finds it is exactly what decides which refusal the person gets.
+ */
+const readRestoreContext = async (id: string) => {
   const [org] = await readDeletedOrganizations({ id: [id] })
   if (!org) return null
-
-  const [holder] = org.slug ? await readOrganization({ slug: org.slug }) : []
 
   const [liveParent] = org.parentId
     ? await readOrganization({ id: [org.parentId] })
@@ -73,7 +74,23 @@ export const readRestoreInfoAction = async (
     ? await readDeletedOrganizations({ id: [org.parentId] })
     : []
 
-  const refusal = checkRestore(org, liveParent ?? null, deletedParent ?? null)
+  return {
+    org,
+    refusal: checkRestore(org, liveParent ?? null, deletedParent ?? null)
+  }
+}
+
+export const readRestoreInfoAction = async (
+  id: string
+): Promise<RestoreInfo | null> => {
+  const denial = await requireStrukturRestoreAccess()
+  if (denial) return null
+
+  const context = await readRestoreContext(id)
+  if (!context) return null
+  const { org, refusal } = context
+
+  const [holder] = await readOrganization({ slug: org.slug })
 
   return {
     slug: org.slug,
@@ -122,17 +139,11 @@ export const restoreStrukturAction = async (
       return { success: false, message: denial }
     }
 
-    const [org] = await readDeletedOrganizations({ id: [id] })
-    if (!org) return { success: false, message: 'Struktur tidak ditemukan.' }
-
-    const [liveParent] = org.parentId
-      ? await readOrganization({ id: [org.parentId] })
-      : []
-    const [deletedParent] = org.parentId
-      ? await readDeletedOrganizations({ id: [org.parentId] })
-      : []
-
-    const refusal = checkRestore(org, liveParent ?? null, deletedParent ?? null)
+    const context = await readRestoreContext(id)
+    if (!context) {
+      return { success: false, message: 'Struktur tidak ditemukan.' }
+    }
+    const { org, refusal } = context
     if (refusal) return { success: false, message: refusal.message }
 
     const desiredSlug = slug?.trim() || org.slug

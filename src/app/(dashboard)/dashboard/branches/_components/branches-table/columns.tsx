@@ -14,36 +14,7 @@ import {
 } from '~/components/shadcn/ui/tooltip'
 import { buttonVariants } from '~/components/shadcn/ui/button'
 import { StrukturJenjangBadge, StrukturNonAktifBadge } from '../struktur-badges'
-// `import type`, tidak `import { type ... }`: berkas ini `'use client'`, dan
-// `kemampuan.ts` menarik `kestrukturan.ts` yang menyentuh basis data. Bentuk
-// `import type` dijamin terhapus habis, tanpa bergantung pada bundler
-// mengelidasi impor yang tiap bindingnya kebetulan bertipe.
-import type { StrukturKemampuan } from '~/lib/struktur/kemampuan'
-
-export interface Organization {
-  id: string
-  name: string
-  code: string
-  slug: string
-  type: string
-  level: number
-  parentId: string | null
-  logo?: string | null
-  isNonActive?: boolean
-  state?: 'aktif' | 'non_aktif' | 'terhapus'
-  childrenCount?: number
-}
-
-/**
- * A row as the surfaces receive it: the Struktur plus the flags the server
- * computed for it (spec §8). Grid and table take the same shape so neither can
- * grow a rule the other does not have.
- */
-export type StrukturRow = Organization & { kemampuan: StrukturKemampuan }
-
-/** Non-Aktif is read from the derived column, never reassembled from two. */
-export const isNonAktif = (org: Organization): boolean =>
-  org.state === 'non_aktif'
+import { isNonAktif, type StrukturRow } from '../struktur-row'
 
 export const getColumns = (
   nameHeader: string,

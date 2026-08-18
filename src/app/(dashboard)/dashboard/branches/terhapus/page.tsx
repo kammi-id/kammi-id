@@ -58,7 +58,7 @@ const StrukturTerhapusPage = async () => {
     id: org.id,
     name: org.name,
     code: org.code,
-    type: org.type.toUpperCase(),
+    type: org.type,
     parentName: org.parentId ? (nameById.get(org.parentId) ?? null) : null
   }))
 

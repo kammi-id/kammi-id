@@ -133,3 +133,19 @@ hanyalah berkas yang tidak menyentuh basis data: 100 tes di `src/lib/struktur/`,
 
 **Langkah tersisa:** `docker compose up -d db-test`, lalu `bun test`. Tiga berkas
 tes yang lahir di sesi ini belum pernah dijalankan sama sekali.
+
+## Comments
+
+**18 Agustus 2026 — dua tes murni ditambahkan setelah `/code-review`.**
+
+- `slug-conflict.test.ts` — spec §4.3 mewajibkan penanganan `23505`, dan kedua
+  cabang `catch`-nya hanya bisa dicapai lewat balapan sungguhan. Predikat yang
+  keduanya bergantung padanya sekarang diuji langsung, termasuk kasus yang
+  paling mahal kalau salah: `23505` dari indeks `code` **bukan** tabrakan slug,
+  dan memperlakukannya begitu akan menaruh galat di field yang salah.
+- `pindah-induk.test.ts` — premis pintasan massal dinyatakan sebagai tes:
+  berlaku untuk PD, **tidak** untuk PW maupun PDLN. Itu bug yang review temukan,
+  dan sekarang ia punya penjaga di lapis murni.
+
+Sisanya tidak berubah: berkas tes ber-basis-data di sesi ini masih belum pernah
+dijalankan.

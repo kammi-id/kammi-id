@@ -2,7 +2,12 @@
 
 import * as React from 'react'
 import { DataTable } from '../../../_components/data-table'
-import { getColumns, type Organization, type StrukturRow } from './columns'
+import { getColumns } from './columns'
+import {
+  isNonAktif,
+  type Organization,
+  type StrukturRow
+} from '../struktur-row'
 import { Button } from '~/components/shadcn/ui/button'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Add01Icon } from '@hugeicons/core-free-icons'
@@ -61,6 +66,10 @@ export const BranchesTable = ({
         columns={columns}
         data={data}
         searchKey='name'
+        // Redup lewat permukaan, bukan opasitas teks — kartu di grid memakai
+        // bahasa yang sama, dan kontras teksnya tetap tidak tersentuh
+        // (spec §8.3, PRODUCT.md).
+        rowClassName={(org) => (isNonAktif(org) ? 'bg-muted/50' : undefined)}
         pageCount={pageCount}
         totalCount={totalCount}
         actionElement={

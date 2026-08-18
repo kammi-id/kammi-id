@@ -12,7 +12,7 @@ import { BranchesGrid } from '../_components/branches-grid'
 import {
   type Organization,
   type StrukturRow
-} from '../_components/branches-table'
+} from '../_components/struktur-row'
 import {
   canManageKestrukturan,
   isLegalChildType,
@@ -155,8 +155,12 @@ const BranchesPage = async ({ params, searchParams }: PageProps) => {
   // loloskan.
   const jenjangAkun = (user.connectedOrganization?.type ??
     null) as StrukturJenjang | null
+  // Peran dan Struktur terhubung dibaca dari `scope` yang gate kembalikan, bukan
+  // dirakit ulang dari sesi di sini — AGENTS.md melarang menurunkan pasangan itu
+  // di call site. Jenjang Akun bukan bagian dari `AccessScope`, jadi ia satu-
+  // satunya yang masih datang dari sesi.
   const actor = {
-    role: user.role,
+    role: scope.role,
     jenjangAkun,
     connectedOrganizationId: scope.connectedOrganizationId
   }
@@ -168,7 +172,7 @@ const BranchesPage = async ({ params, searchParams }: PageProps) => {
   const canAdd = (['pw', 'pdln', 'pd', 'pk'] as const).some(
     (childType) =>
       isLegalChildType(currentOrg.type, childType) &&
-      canManageKestrukturan(user.role, jenjangAkun, childType, 'buat')
+      canManageKestrukturan(scope.role, jenjangAkun, childType, 'buat')
   )
 
   const basePath =

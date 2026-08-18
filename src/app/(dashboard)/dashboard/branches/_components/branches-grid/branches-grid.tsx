@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from 'react'
-import { type Organization, type StrukturRow } from '../branches-table/columns'
+import { type Organization, type StrukturRow } from '../struktur-row'
 import { useStore } from '@nanostores/react'
 import { orgSheetStore } from '../add-form/store'
 import { BranchCard } from './branch-card'

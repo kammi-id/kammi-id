@@ -5,10 +5,7 @@ import { SiteHeader, CredentialPanelServer } from './_components/site-header'
 import { LogoutDialog } from './_components/logout'
 import { SidebarInset, SidebarProvider } from '~/components/shadcn/ui/sidebar'
 import { readActiveSession } from '~/lib/auth/cookies'
-import {
-  canManageKestrukturan,
-  type StrukturJenjang
-} from '~/lib/auth/kestrukturan'
+import { requireStrukturRestoreAccess } from '~/lib/auth/kestrukturan'
 import { redirect } from 'next/navigation'
 
 const DashboardLayout = async ({
@@ -22,17 +19,11 @@ const DashboardLayout = async ({
     return redirect('/login')
   }
 
-  // Ditanyakan ke matriks, bukan ditulis ulang sebagai `role === 'root' ||
-  // role === 'bpw'` — rumusan itu akan membuka keranjang sampah untuk seluruh
-  // BPW se-Indonesia. Dihitung di sini, di server, sebab `kestrukturan.ts`
-  // menyentuh basis data dan tidak boleh ikut ke bundel klien.
-  const canRestoreStruktur = canManageKestrukturan(
-    session.user.role,
-    (session.user.connectedOrganization?.type ??
-      null) as StrukturJenjang | null,
-    'pw',
-    'pulihkan'
-  )
+  // Ditanya ke gate yang memang memiliki hak ini, bukan ditulis ulang sebagai
+  // `role === 'root' || role === 'bpw'` — rumusan itu akan membuka keranjang
+  // sampah untuk seluruh BPW se-Indonesia. Layout ini Server Component, jadi
+  // tidak ada alasan menanyakan matriks langsung dengan sasaran karangan.
+  const canRestoreStruktur = (await requireStrukturRestoreAccess()) === null
 
   return (
     <SidebarProvider

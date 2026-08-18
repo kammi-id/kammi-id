@@ -42,6 +42,15 @@ interface DataTableProps<TData, TValue> {
   actionElement?: React.ReactNode
   queryPrefix?: string
   onRowClick?: (data: TData) => void
+  /**
+   * Extra classes for one row, decided from its own data. Optional and additive
+   * — callers that do not pass it render exactly as before.
+   *
+   * It exists because a row's Keadaan is a property of the row, not of any one
+   * column: spec §8.3 asks a Non-Aktif Struktur to read as dimmed across the
+   * whole row, and a column cell cannot say that about its neighbours.
+   */
+  rowClassName?: (data: TData) => string | undefined
   footerRows?: React.ReactNode
   filterKeys?: string[]
 }
@@ -56,6 +65,7 @@ export function DataTable<TData, TValue>({
   actionElement,
   queryPrefix = '',
   onRowClick,
+  rowClassName,
   footerRows,
   filterKeys = []
 }: DataTableProps<TData, TValue>) {
@@ -319,7 +329,8 @@ export function DataTable<TData, TValue>({
                     className={cn(
                       'transition-colors',
                       onRowClick &&
-                        'hover:bg-muted/50 focus-visible:ring-ring cursor-pointer focus-visible:ring-2 focus-visible:outline-none'
+                        'hover:bg-muted/50 focus-visible:ring-ring cursor-pointer focus-visible:ring-2 focus-visible:outline-none',
+                      rowClassName?.(row.original)
                     )}
                   >
                     {row.getVisibleCells().map((cell) => (

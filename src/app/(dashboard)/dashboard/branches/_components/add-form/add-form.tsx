@@ -24,7 +24,7 @@ import {
   updateOrganizationAction,
   type OrgFormState
 } from './action'
-import { type Organization } from '../branches-table/columns'
+import { type Organization } from '../struktur-row'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Loading03Icon } from '@hugeicons/core-free-icons'
 import { ImageUpload } from '~/components/image-upload'

@@ -117,7 +117,12 @@ export const StrukturMoveDialog = ({
               <SelectContent>
                 {candidates.map((candidate) => (
                   <SelectItem key={candidate.id} value={candidate.id}>
-                    {candidate.name}
+                    <span className='flex items-center gap-2'>
+                      {candidate.name}
+                      <span className='font-geist-mono text-muted-foreground text-xs'>
+                        {candidate.code}
+                      </span>
+                    </span>
                   </SelectItem>
                 ))}
               </SelectContent>

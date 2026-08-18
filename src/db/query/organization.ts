@@ -469,6 +469,16 @@ export const softDeleteOrganization = async (
  * the exact opposite of `softDeleteOrganization`, which deliberately does *not*
  * sweep `is_non_active` — deleting dominates, restoring decides.
  *
+ * **The `*_by` half of each pair goes with it, and that is a decision.**
+ * Spec §1.5 names two columns; §1.6 installs `deleted_by`/`non_active_by`
+ * alongside them as a trace. Clearing `deleted_at` while leaving `deleted_by`
+ * set would leave the row asserting "deleted by X" about a Struktur that is not
+ * deleted — a dangling fact, not a record. The trace here is **current state,
+ * not history**: `reactivateOrganization` already clears `non_active_by` for
+ * exactly this reason, and restoring is the same move on the other axis. A
+ * repo that wants who-deleted-what kept after a restore needs a history table,
+ * which spec §1.6 explicitly declines ("bukan tabel riwayat penuh").
+ *
  * `slug` is written only when the caller passes one, which happens when the old
  * slug has since been claimed and a person picked a new one in the dialog. It
  * is never rewritten silently.

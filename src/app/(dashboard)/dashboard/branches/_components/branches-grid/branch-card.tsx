@@ -1,6 +1,6 @@
 'use client'
 
-import { type StrukturRow, isNonAktif } from '../branches-table/columns'
+import { isNonAktif, type StrukturRow } from '../struktur-row'
 import { Button } from '~/components/shadcn/ui/button'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Edit01Icon, ChevronRight } from '@hugeicons/core-free-icons'

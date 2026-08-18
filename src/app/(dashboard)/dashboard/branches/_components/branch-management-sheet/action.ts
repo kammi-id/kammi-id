@@ -18,6 +18,7 @@ import {
   type DeletionCounts
 } from '~/lib/struktur/keadaan'
 import {
+  checkMoveCandidate,
   filterMoveCandidates,
   type StrukturRef
 } from '~/lib/struktur/pindah-induk'
@@ -27,7 +28,6 @@ export type MoveCandidate = {
   id: string
   name: string
   code: string
-  type: string
 }
 
 /**
@@ -51,8 +51,19 @@ export type StrukturSheetInfo = {
   }
   /** The domain word for what sits beneath this Jenjang: "Komisariat". */
   childJenjang: string
-  /** Where the bulk shortcut parks the children, named in its own sentence. */
-  parentName: string | null
+  /**
+   * The induk the bulk shortcut would park every Aktif child under — **null
+   * unless the move is legal for every one of them.**
+   *
+   * Spec §8.2 offers the shortcut precisely because *"ia tidak pernah bisa
+   * gagal"*: each child of a PD sits in that PD's PW, and a PW is a legal induk
+   * for all of them. That claim is about a PD, and the surface cannot assume it
+   * — a PW being deactivated would otherwise be offered "pindahkan semua Daerah
+   * ke PP", which `checkMoveCandidate` refuses for every child because PP
+   * yields no Nomor Induk at all. So the legality is **computed here, per
+   * child**, and the button appears only when the promise actually holds.
+   */
+  bulkMoveTo: string | null
 }
 
 const toRef = (org: Organization): StrukturRef => ({
@@ -104,7 +115,7 @@ const readMoveCandidates = async (
 
   return reachable
     .filter((candidate): candidate is Organization => candidate !== null)
-    .map(({ id, name, code, type }) => ({ id, name, code, type }))
+    .map(({ id, name, code }) => ({ id, name, code }))
 }
 
 /** The PW (or PDLN) a Struktur sits under — dead context, not a choice. */
@@ -151,6 +162,16 @@ export const readStrukturSheetInfoAction = async (
 
   const deactivation = checkDeactivation(org, activeChildren)
 
+  const bulkMoveTo =
+    parent &&
+    activeChildren.length > 0 &&
+    activeChildren.every(
+      (child) =>
+        checkMoveCandidate(toRef(child), toRef(org), toRef(parent)) === null
+    )
+      ? parent.name
+      : null
+
   return {
     nonaktifkan: {
       refusal: deactivation?.message ?? null,
@@ -164,6 +185,6 @@ export const readStrukturSheetInfoAction = async (
       pwLabel: await readPwLabel(org, parent)
     },
     childJenjang: describeChildJenjang(org.type),
-    parentName: parent?.name ?? null
+    bulkMoveTo
   }
 }

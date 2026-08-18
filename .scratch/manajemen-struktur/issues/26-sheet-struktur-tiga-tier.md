@@ -198,3 +198,37 @@ orangnya masih melihat, bukan sebagai toast yang terbang lewat.
 Penolakan membawa pintunya: penonaktifan yang ditolak menyodorkan pintasan
 massal **dan** tautan ke daftar anaknya untuk pemindahan satuan; pengaktifan yang
 ditolak menyodorkan dialog Pindah Induk untuk Struktur itu sendiri.
+
+## Comments
+
+**18 Agustus 2026 — pintasan massal dulu menyala di tempat ia pasti gagal. Diperbaiki.**
+
+`/code-review` menemukan bahwa pintasan "Pindahkan semua X Aktif ke Y" dirender
+untuk **Jenjang apa pun** selama `info.parentName` ada. Menonaktifkan sebuah PW
+yang masih punya PD Aktif menawarkan "…ke PP", dan
+`moveActiveChildrenToParentAction` menolak **tiap** anaknya —
+`checkMoveCandidate(PD, PW, PP)` berbunyi `CHANGES_NIA` sebab PP tidak
+menurunkan Nomor Induk sama sekali. Itu melanggar "tombol yang menyala tidak
+pernah ditolak saat dipencet" dan melanggar dasar pemilihan pintasannya di spec
+§8.2: *"ia tidak pernah bisa gagal"*.
+
+Sebabnya: **janji "tidak pernah bisa gagal" itu klaim tentang PD, bukan aturan
+umum**, dan permukaan memperlakukannya sebagai aturan umum.
+
+Perbaikannya bukan menuliskan "kalau PD" — melainkan **menghitung legalitasnya
+di server, per anak**: `readStrukturSheetInfoAction` kini mengembalikan
+`bulkMoveTo`, yang berisi nama induk hanya kalau `checkMoveCandidate` meloloskan
+**setiap** anak Aktif. `parentName` dicabut dari payload, sebab yang tersisa
+membacanya cuma pintasan itu. Premisnya sekarang dijaga tes murni di
+`pindah-induk.test.ts` — berlaku untuk PD, **tidak** untuk PW maupun PDLN.
+
+Dua rapian lain dari review yang sama:
+
+- **`StrukturRow`, `Organization`, dan `isNonAktif` pindah ke folder sendiri**
+  (`_components/struktur-row/`). Sebelumnya mereka tinggal di
+  `branches-table/columns.tsx` dan diambil lewat `'../branches-table/columns'`
+  dari lima berkas — menembus barrel folder tetangga. Pola eslint-nya kebetulan
+  tidak menangkap ejaan relatif itu, jadi ia lolos `check:lint` sambil tetap
+  melanggar AGENTS.md.
+- **`MoveCandidate.type` dicabut, `code` mulai dirender** di pemilih induk —
+  komentarnya sudah menjanjikan `code` tampil, kodenya belum.
