@@ -1,7 +1,7 @@
 # 29 — Tes seam dan transisi Keadaan
 
 **Type:** implementation
-**Status:** open
+**Status:** resolved
 **Blocked by:** 18, 21, 22, 23, 24
 
 Spec: [`../spec.md`](../spec.md) §9.3, §1.5, §2.2
@@ -149,3 +149,16 @@ tes yang lahir di sesi ini belum pernah dijalankan sama sekali.
 
 Sisanya tidak berubah: berkas tes ber-basis-data di sesi ini masih belum pernah
 dijalankan.
+
+**18 Agustus 2026 (kedua) — dijalankan penuh, tiket ditutup.**
+
+`docker compose up -d db-test` (sudah hidup), migrasi disemai lewat
+`DATABASE_URL=<TEST_DATABASE_URL> bun run db:migrate` (bersih, 10 migrasi),
+lalu `bun test --preload ./tests/setup.ts` dengan `TEST_DATABASE_URL` diset:
+**561 lewat, 0 gagal**, 919 `expect()` di 50 berkas. Tiga berkas tes yang
+lahir sesi lalu (lapis 1 kemampuan, `checkRestore`, pemulihan Terhapus) lolos
+bersama sisanya, tanpa perubahan kode produksi. `check:types` dan
+`check:structure` bersih; `check:lint` 0 error (118 warning, semuanya
+pra-eksisting dan di luar cakupan tiket ini).
+
+Keempat "Selesai bila" sekarang terpenuhi. Tiket ditutup.
