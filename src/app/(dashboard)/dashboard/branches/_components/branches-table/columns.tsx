@@ -14,7 +14,11 @@ import {
 } from '~/components/shadcn/ui/tooltip'
 import { buttonVariants } from '~/components/shadcn/ui/button'
 import { StrukturJenjangBadge, StrukturNonAktifBadge } from '../struktur-badges'
-import { type StrukturKemampuan } from '~/lib/struktur/kemampuan'
+// `import type`, tidak `import { type ... }`: berkas ini `'use client'`, dan
+// `kemampuan.ts` menarik `kestrukturan.ts` yang menyentuh basis data. Bentuk
+// `import type` dijamin terhapus habis, tanpa bergantung pada bundler
+// mengelidasi impor yang tiap bindingnya kebetulan bertipe.
+import type { StrukturKemampuan } from '~/lib/struktur/kemampuan'
 
 export interface Organization {
   id: string
