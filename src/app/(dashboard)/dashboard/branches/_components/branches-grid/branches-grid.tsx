@@ -1,22 +1,27 @@
 'use client'
 
 import * as React from 'react'
-import { Organization } from '../branches-table/columns'
+import { type Organization, type StrukturRow } from '../branches-table/columns'
 import { useStore } from '@nanostores/react'
 import { orgSheetStore } from '../add-form/store'
 import { BranchCard } from './branch-card'
 import { BranchesHeader } from './branches-header'
 import { BranchesPagination } from './branches-pagination'
-import { BranchManagementSheet } from './branch-management-sheet'
+import { BranchManagementSheet } from '../branch-management-sheet'
 import { EmptyState } from '~/components/shadcn/ui/empty-state'
 
 interface BranchesGridProps {
-  data: Organization[]
+  data: StrukturRow[]
   basePath: string
   pageCount: number
   totalCount: number
   addButtonLabel: string
-  userRole: string
+  /**
+   * Computed on the server from the `buat` cell of the matrix — never from
+   * `role`. The old `userRole === 'bpw' || userRole === 'root'` was the leak
+   * spec §8 closes.
+   */
+  canAdd: boolean
   parentOrg: Organization
 }
 
@@ -26,14 +31,13 @@ export const BranchesGrid = ({
   pageCount,
   totalCount,
   addButtonLabel,
-  userRole,
+  canAdd,
   parentOrg
 }: BranchesGridProps) => {
   const isOpen = useStore(orgSheetStore)
-  const [editData, setEditData] = React.useState<Organization | null>(null)
-  const canManage = userRole === 'bpw' || userRole === 'root'
+  const [editData, setEditData] = React.useState<StrukturRow | null>(null)
 
-  const handleEdit = (org: Organization | null) => {
+  const handleEdit = (org: StrukturRow | null) => {
     setEditData(org)
     orgSheetStore.set(true)
   }
@@ -45,7 +49,7 @@ export const BranchesGrid = ({
           totalCount={totalCount}
           dataCount={data.length}
           addButtonLabel={addButtonLabel}
-          canManage={canManage}
+          canManage={canAdd}
           onAdd={() => handleEdit(null)}
         />
 
@@ -81,6 +85,7 @@ export const BranchesGrid = ({
         editData={editData}
         addButtonLabel={addButtonLabel}
         parentOrg={parentOrg}
+        basePath={basePath}
       />
     </>
   )

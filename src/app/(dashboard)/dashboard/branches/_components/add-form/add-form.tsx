@@ -117,24 +117,42 @@ export const AddOrganizationForm = ({
           />
         </Field>
 
-        <Field data-invalid={!!state.errors?.code || undefined}>
-          <FieldLabel htmlFor='code'>Kode Organisasi</FieldLabel>
-          <Input
-            id='code'
-            name='code'
-            placeholder='Contoh: PD-JKT'
-            value={code}
-            onChange={(e) => setCode(e.target.value)}
-            required
-            aria-invalid={!!state.errors?.code || undefined}
-          />
-          <FieldDescription>
-            Singkatan unik organisasi, contoh: PD-JKT, PK-UNY.
-          </FieldDescription>
-          <FieldError
-            errors={state.errors?.code?.map((m) => ({ message: m }))}
-          />
-        </Field>
+        {/* `code` beku sejak pembuatan untuk semua Kewenangan, Root termasuk
+            (spec §2.4) — ia terbawa ke Nomor Induk Anggota yang permanen. Saat
+            menyunting ia jadi keterangan identitas, bukan kontrol mati: input
+            disabled terbaca "kamu kurang izin", padahal tidak seorang pun
+            berhak mengubahnya. */}
+        {editData ? (
+          <Field>
+            <FieldLabel>Kode Organisasi</FieldLabel>
+            <p className='text-foreground font-geist-mono text-sm font-medium'>
+              {editData.code}
+            </p>
+            <FieldDescription>
+              Kode tidak dapat diubah setelah organisasi dibuat — ia menurunkan
+              Nomor Induk setiap Kader di bawahnya.
+            </FieldDescription>
+          </Field>
+        ) : (
+          <Field data-invalid={!!state.errors?.code || undefined}>
+            <FieldLabel htmlFor='code'>Kode Organisasi</FieldLabel>
+            <Input
+              id='code'
+              name='code'
+              placeholder='Contoh: PD-JKT'
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+              required
+              aria-invalid={!!state.errors?.code || undefined}
+            />
+            <FieldDescription>
+              Singkatan unik organisasi, contoh: PD-JKT, PK-UNY.
+            </FieldDescription>
+            <FieldError
+              errors={state.errors?.code?.map((m) => ({ message: m }))}
+            />
+          </Field>
+        )}
 
         {/* Tipe ditetapkan sekali saat pembuatan dan tidak pernah berubah
             sesudahnya — memindahkan sebuah Struktur ke Jenjang lain bukan
@@ -192,6 +210,7 @@ export const AddOrganizationForm = ({
           />
           <FieldDescription>
             Huruf kecil dan tanda-hubung saja, contoh: pengurus-daerah-jakarta.
+            {editData && ' Mengubahnya mematahkan tautan publik yang lama.'}
           </FieldDescription>
           <FieldError
             errors={state.errors?.slug?.map((m) => ({ message: m }))}

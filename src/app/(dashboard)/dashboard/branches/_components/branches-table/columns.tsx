@@ -1,10 +1,9 @@
 'use client'
 
 import { ColumnDef } from '@tanstack/react-table'
-import { ChevronRight, Edit01Icon } from '@hugeicons/core-free-icons'
+import { Edit01Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import Link from 'next/link'
-import { Badge } from '~/components/shadcn/ui/badge'
 import { Button } from '~/components/shadcn/ui/button'
 import { cn } from '~/lib/shadcn/utils'
 import {
@@ -14,6 +13,8 @@ import {
   TooltipTrigger
 } from '~/components/shadcn/ui/tooltip'
 import { buttonVariants } from '~/components/shadcn/ui/button'
+import { StrukturJenjangBadge, StrukturNonAktifBadge } from '../struktur-badges'
+import { type StrukturKemampuan } from '~/lib/struktur/kemampuan'
 
 export interface Organization {
   id: string
@@ -25,26 +26,42 @@ export interface Organization {
   parentId: string | null
   logo?: string | null
   isNonActive?: boolean
+  state?: 'aktif' | 'non_aktif' | 'terhapus'
   childrenCount?: number
 }
+
+/**
+ * A row as the surfaces receive it: the Struktur plus the flags the server
+ * computed for it (spec §8). Grid and table take the same shape so neither can
+ * grow a rule the other does not have.
+ */
+export type StrukturRow = Organization & { kemampuan: StrukturKemampuan }
+
+/** Non-Aktif is read from the derived column, never reassembled from two. */
+export const isNonAktif = (org: Organization): boolean =>
+  org.state === 'non_aktif'
 
 export const getColumns = (
   nameHeader: string,
   basePath: string,
-  onEdit?: (org: Organization) => void
-): ColumnDef<Organization>[] => [
+  onEdit?: (org: StrukturRow) => void
+): ColumnDef<StrukturRow>[] => [
   {
     accessorKey: 'name',
     header: nameHeader,
     cell: ({ row }) => {
       const org = row.original
-      if (org.type === 'pk') {
+
+      // Penelusuran berhenti pada Struktur Non-Aktif (spec §8.3) — dan pada PK,
+      // yang tidak punya apa pun di bawahnya untuk ditelusuri.
+      if (org.type === 'pk' || isNonAktif(org)) {
         return (
           <div className='text-foreground -ml-2 h-8 px-2 font-semibold'>
             {org.name}
           </div>
         )
       }
+
       return (
         <Link
           href={`${basePath}/${org.slug}`}
@@ -70,65 +87,49 @@ export const getColumns = (
         </Tooltip>
       </TooltipProvider>
     ),
-    cell: ({ row }) => {
-      const type = row.original.type
-      const labels: Record<string, string> = {
-        pw: 'Wilayah',
-        pd: 'Daerah',
-        pdln: 'Daerah LN',
-        pk: 'Komisariat',
-        pp: 'Pusat'
-      }
-      const colors: Record<string, string> = {
-        pw: 'border-primary text-primary bg-primary/10',
-        pd: '[border-color:var(--org-pd-border)] [color:var(--org-pd-text)] [background:var(--org-pd-bg)]',
-        pdln: '[border-color:var(--org-pd-border)] [color:var(--org-pd-text)] [background:var(--org-pd-bg)]',
-        pk: '[border-color:var(--org-pk-border)] [color:var(--org-pk-text)] [background:var(--org-pk-bg)]',
-        pp: '[border-color:var(--org-pp-border)] [color:var(--org-pp-text)] [background:var(--org-pp-bg)]'
-      }
-      return (
-        <Badge
-          variant='outline'
-          className={cn(
-            'font-bold',
-            colors[type] ||
-              '[border-color:var(--org-pp-border)] [color:var(--org-pp-text)] [background:var(--org-pp-bg)]'
-          )}
-        >
-          {(labels[type] || type).toUpperCase()}
-        </Badge>
-      )
-    }
+    cell: ({ row }) => (
+      <div className='flex items-center gap-1.5'>
+        <StrukturJenjangBadge type={row.original.type} />
+        {isNonAktif(row.original) && <StrukturNonAktifBadge />}
+      </div>
+    )
   },
   {
     id: 'actions',
     header: () => <div className='text-right'>Aksi</div>,
-    cell: ({ row }) => (
-      <div className='text-right'>
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger
-              render={
-                <Button
-                  variant='ghost'
-                  size='sm'
-                  className='size-8 p-0'
-                  onClick={() => onEdit?.(row.original)}
-                >
-                  <HugeiconsIcon
-                    icon={Edit01Icon}
-                    strokeWidth={2}
-                    className='size-4'
-                  />
-                </Button>
-              }
-            >
-              Edit {row.original.name}
-            </TooltipTrigger>
-            <TooltipContent>Edit {row.original.name}</TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      </div>
-    )
+    cell: ({ row }) => {
+      // The flag, never `role`. An action column that decided for itself is
+      // exactly the leak spec §8 closes.
+      if (!row.original.kemampuan.sunting) return null
+
+      return (
+        <div className='text-right'>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger
+                render={
+                  <Button
+                    variant='ghost'
+                    size='sm'
+                    className='size-8 p-0'
+                    aria-label={`Kelola ${row.original.name}`}
+                    onClick={() => onEdit?.(row.original)}
+                  >
+                    <HugeiconsIcon
+                      icon={Edit01Icon}
+                      strokeWidth={2}
+                      className='size-4'
+                    />
+                  </Button>
+                }
+              >
+                Kelola {row.original.name}
+              </TooltipTrigger>
+              <TooltipContent>Kelola {row.original.name}</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+      )
+    }
   }
 ]

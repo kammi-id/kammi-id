@@ -9,7 +9,17 @@ import {
 import { Globe02Icon, ArrowLeft02Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { BranchesGrid } from '../_components/branches-grid'
-import { type Organization } from '../_components/branches-table'
+import {
+  type Organization,
+  type StrukturRow
+} from '../_components/branches-table'
+import {
+  canManageKestrukturan,
+  isLegalChildType,
+  requireKestrukturanReadAccess,
+  type StrukturJenjang
+} from '~/lib/auth/kestrukturan'
+import { strukturKemampuan } from '~/lib/struktur/kemampuan'
 import Link from 'next/link'
 import { cn } from '~/lib/shadcn/utils'
 import { buttonVariants } from '~/components/shadcn/ui/button'
@@ -56,6 +66,19 @@ const BranchesPage = async ({ params, searchParams }: PageProps) => {
       </div>
     )
   }
+  // Cakupan ditegakkan pada slug yang diterima halaman ini, lewat gate yang
+  // sudah ada — bukan gate baru. Slug di luar Cakupan dijawab persis seperti
+  // slug yang tidak pernah ada (spec §1.4), jadi jawabannya tidak bocor bahwa
+  // Struktur itu ada.
+  const scope = await requireKestrukturanReadAccess(currentOrg.id)
+  if (!scope) {
+    return (
+      <div className='flex h-[calc(100vh-theme(spacing.24))] items-center justify-center'>
+        <p className='text-muted-foreground'>Wilayah tidak ditemukan.</p>
+      </div>
+    )
+  }
+
   if (currentOrg.type === 'pk') {
     return (
       <div className='flex h-[calc(100vh-theme(spacing.24))] items-center justify-center'>
@@ -122,6 +145,32 @@ const BranchesPage = async ({ params, searchParams }: PageProps) => {
   ])
   const pageCount = Math.ceil(totalCount / limit)
 
+  // **Kemampuan dihitung sekali di server, per baris** (spec §8). Kartu, kolom
+  // tabel, dan item sheet merender afordansi dari bendera ini dan tidak pernah
+  // menurunkannya sendiri dari `role` — yang persis kebocoran yang dulu membuat
+  // pensil Edit tidak di-gate sama sekali.
+  //
+  // Nol query tambahan: matriksnya fungsi murni, dan tiap baris di sini sudah
+  // pasti di dalam Cakupan karena ia anak dari Struktur yang gate di atas
+  // loloskan.
+  const jenjangAkun = (user.connectedOrganization?.type ??
+    null) as StrukturJenjang | null
+  const actor = {
+    role: user.role,
+    jenjangAkun,
+    connectedOrganizationId: scope.connectedOrganizationId
+  }
+  const rows: StrukturRow[] = organizations.map((org) => ({
+    ...org,
+    kemampuan: strukturKemampuan(actor, org)
+  }))
+
+  const canAdd = (['pw', 'pdln', 'pd', 'pk'] as const).some(
+    (childType) =>
+      isLegalChildType(currentOrg.type, childType) &&
+      canManageKestrukturan(user.role, jenjangAkun, childType, 'buat')
+  )
+
   const basePath =
     slug && slug.length > 0
       ? `/dashboard/branches/${slug.join('/')}`
@@ -170,12 +219,12 @@ const BranchesPage = async ({ params, searchParams }: PageProps) => {
             <div className='space-y-8'>
               <div className='space-y-6'>
                 <BranchesGrid
-                  data={organizations}
+                  data={rows}
                   basePath={basePath}
                   pageCount={pageCount}
                   totalCount={totalCount}
                   addButtonLabel={addButtonLabel}
-                  userRole={user.role}
+                  canAdd={canAdd}
                   parentOrg={currentOrg}
                 />
               </div>

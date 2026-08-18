@@ -24,12 +24,25 @@ const orgSchema = z.object({
 })
 
 /**
- * `type` and `parentId` are fixed at creation and never edited afterwards — a
- * Struktur's Jenjang and its place in the tree are what the Hapus action exists
- * for, not what Edit is for. Omitting them here means a posted value is
- * ignored outright rather than trusted.
+ * **`code`, `type` and `parentId` are fixed at creation and never edited
+ * afterwards** — for every Kewenangan, Root included (spec §2.4).
+ *
+ * `type` and `parentId` are what the Hapus action exists for: if a wrong
+ * Jenjang could simply be edited, deletion would lose its reason to live.
+ * `code` is frozen for a different reason and a heavier one — it is carried
+ * into the permanent Nomor Induk of every Kader beneath it (ADR 0004), so
+ * renaming it makes those numbers stop identifying the Struktur that issued
+ * them.
+ *
+ * Omitting all three here means a posted value is **ignored outright** rather
+ * than trusted. That is what closes the hole by construction, instead of by a
+ * check somebody could forget to install.
  */
-const orgUpdateSchema = orgSchema.omit({ type: true, parentId: true })
+const orgUpdateSchema = orgSchema.omit({
+  code: true,
+  type: true,
+  parentId: true
+})
 
 export type OrgFormState = {
   success?: boolean
@@ -142,7 +155,7 @@ export async function updateOrganizationAction(
       return { success: false, message: 'ID organisasi tidak ditemukan.' }
     }
 
-    // `sunting` only. `type` and `parentId` are frozen at creation, and
+    // `sunting` only. `code`, `type` and `parentId` are frozen at creation, and
     // `orgUpdateSchema` above drops them outright rather than trusting a posted
     // value — the Jenjang a Struktur occupies is what Hapus exists for.
     const denial = await requireKestrukturanManageAccess(id, 'sunting')
@@ -158,7 +171,6 @@ export async function updateOrganizationAction(
 
     rawData = {
       name: formData.get('name'),
-      code: formData.get('code'),
       slug: formData.get('slug'),
       logo: formData.get('logo') as string | null
     }

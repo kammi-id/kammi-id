@@ -1,7 +1,7 @@
 # 26 — Sheet Struktur: bendera kemampuan, tiga tier, dialog konfirmasi
 
 **Type:** implementation
-**Status:** open
+**Status:** resolved
 **Blocked by:** 18, 21, 22, 23
 
 Spec: [`../spec.md`](../spec.md) §8, §8.2
@@ -128,3 +128,73 @@ yang sama — grid dan tabel tidak boleh punya dua aturan berbeda.
 - Kedua penolakan memuat tautan jalan keluarnya
 - Form Sunting nol kotak `type`/`parentId`
 - a11y dialog: fokus, `aria`, keyboard — diperiksa, bukan diasumsikan
+
+## Answer
+
+Sheet-nya **pindah rumah tapi tidak berganti nama**:
+`branches/_components/branch-management-sheet/`, folder sendiri dengan barrel,
+sebab grid **dan** tabel sekarang merender sheet yang sama. Sebelumnya keduanya
+punya `Sheet` sendiri-sendiri dengan salinan salinan teks yang sama — dua tempat
+yang suatu hari punya dua aturan.
+
+### Bendera kemampuan: satu fungsi murni, dihitung per baris di server
+
+`src/lib/struktur/kemampuan.ts` (`strukturKemampuan`) membungkus
+`canManageKestrukturan` dengan tiga aturan yang tidak boleh diulang di tiap
+permukaan: **bukan Strukturnya sendiri** (Root dikecualikan), **Keadaan memilih
+arah** (nonaktifkan hanya untuk Aktif, aktifkan hanya untuk Non-Aktif), dan
+**`pindah` adalah konjungsi yang `requireStrukturMoveAccess` hitung** —
+`sunting` atas yang dipindah **dan** `buat` atas Jenjang itu. Konjungsi terakhir
+yang membuat BPD tidak dapat tombol pindah yang selalu ditolak.
+
+Ia murni, jadi dua belas baris berbiaya dua belas lookup tabel dan **nol query**.
+`page.tsx` menghitungnya sekali per baris dan menurunkannya sebagai
+`StrukturRow.kemampuan`; kartu, kolom tabel, dan sheet membacanya dan **tidak
+pernah menyentuh `role`**. Tombol Tambah ikut: `canAdd` diturunkan dari sel
+`buat` atas Jenjang anak yang sah, bukan dari `userRole === 'bpw' || 'root'`.
+
+**Cakupan ditutup di jalan masuknya, bukan per baris.** `page.tsx` sekarang
+memanggil `requireKestrukturanReadAccess(currentOrg.id)` — gate tiket 18 yang
+sampai kini nol call-site — jadi slug di luar Cakupan dijawab persis seperti
+slug yang tidak pernah ada. Setelah gate itu lolos, tiap baris di halaman pasti
+anak dari Struktur yang di dalam Cakupan, sehingga fungsi murni di atas tidak
+perlu menelusuri apa pun. `AccessGuard` yang lama dibiarkan di tempatnya:
+mencabutnya akan mengubah siapa yang bisa membuka halaman ini, dan itu bukan
+pekerjaan tiket ini.
+
+### Ongkos data dibayar sekali, saat sheet dibuka
+
+`branch-management-sheet/action.ts` (`readStrukturSheetInfoAction`) membaca
+prasyarat ketiga aksi **dan** daftar calon induk dalam satu perjalanan, untuk
+**satu** Struktur, di balik `requireKestrukturanReadAccess`. Jadi penolakan sudah
+berupa kalimat utuh sebelum ada yang menyentuh tombol, dan tombol yang menyala
+tidak pernah ditolak saat dipencet.
+
+**Kumpulan calon induk = kakek + anak-anak kakek**, satu baris untuk semua
+Jenjang, lalu disaring `filterMoveCandidates` dan Cakupan. Komisariat dapat PD
+sesaudara plus PW-nya sendiri (penitipan); Daerah dapat seluruh PW/PDLN yang
+lalu ditolak `pwCode` — §6.3 menjawab sendiri, tanpa aturan khusus ditulis di
+sini; PW tidak punya kakek, jadi daftarnya kosong dan itu jawaban yang benar.
+
+### Yang ikut terangkat: `code` ternyata masih bisa disunting
+
+Form Sunting sudah nol kotak `type`/`parentId` sejak tiket 18, tapi **`code`
+masih kotak input hidup** dan `orgUpdateSchema` masih menerimanya — padahal spec
+§2.4 membekukannya untuk semua Kewenangan, Root termasuk, dan ia terbawa ke
+Nomor Induk yang permanen (ADR 0004). Diperbaiki di dua sisi: `code` di-`omit`
+dari skema pembaruan (nilai yang dikirim diabaikan, bukan dipercaya), dan di
+form ia jadi keterangan identitas mono — bukan input `disabled`, dengan alasan
+yang sama yang tiket 25 pakai.
+
+### Dialog
+
+Satu komponen gerbang (`struktur-confirm-dialog.tsx`) untuk keempat aksi:
+AlertDialog + ketik `code`, mono, mengikuti `delete-member-button`. Satu
+penyimpangan sadar dari idiom itu: tombol konfirmasinya **bukan**
+`AlertDialogAction`, sebab `AlertDialogAction` adalah `Close` — ia menutup dialog
+sebelum jawabannya datang. Penolakan server mendarat di dalam dialog, tempat
+orangnya masih melihat, bukan sebagai toast yang terbang lewat.
+
+Penolakan membawa pintunya: penonaktifan yang ditolak menyodorkan pintasan
+massal **dan** tautan ke daftar anaknya untuk pemindahan satuan; pengaktifan yang
+ditolak menyodorkan dialog Pindah Induk untuk Struktur itu sendiri.

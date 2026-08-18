@@ -2,48 +2,41 @@
 
 import * as React from 'react'
 import { DataTable } from '../../../_components/data-table'
-import { getColumns, type Organization } from './columns'
+import { getColumns, type Organization, type StrukturRow } from './columns'
 import { Button } from '~/components/shadcn/ui/button'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Add01Icon } from '@hugeicons/core-free-icons'
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle
-} from '~/components/shadcn/ui/sheet'
-import { AddOrganizationForm } from '../add-form'
+import { BranchManagementSheet } from '../branch-management-sheet'
 import { useStore } from '@nanostores/react'
 import { orgSheetStore } from '../add-form/store'
 
 interface BranchesTableProps {
-  data: Organization[]
+  data: StrukturRow[]
   nameHeader: string
   addButtonLabel: string
   pageCount: number
   totalCount: number
   parentOrg: Organization
-  userRole: string
+  /** The `buat` cell, decided on the server. Never derived from `role` here. */
+  canAdd: boolean
   basePath: string
 }
 
 /**
- * BranchesTable component is a specialized data table for managing organization branches.
- *
- * It renders a list of organizations using the generic `DataTable` and provides
- * functionality to add or edit branch details via a Sheet-based form.
+ * The table view of the same rows the grid shows — and deliberately the same
+ * component behind the Kelola button. Grid and table must not grow two
+ * different rules about who may do what (spec §8).
  *
  * @param props - The properties for the BranchesTable component.
- * @param props.data - Array of organization data to display.
+ * @param props.data - Array of organization rows, each carrying its server-computed flags.
  * @param props.nameHeader - The title used for the table header and column definitions.
  * @param props.addButtonLabel - Label for the "Add" button (e.g., 'Wilayah').
  * @param props.pageCount - Total number of pages from the server.
  * @param props.totalCount - Total number of items in the dataset.
  * @param props.parentOrg - The parent organization context for the current view.
- * @param props.userRole - The role of the current user to determine management permissions.
+ * @param props.canAdd - Whether the caller holds `buat` beneath `parentOrg`.
  * @param props.basePath - The base URL path for navigation/linking.
- * @returns A React element rendering the branch management table and add/edit sheet.
+ * @returns A React element rendering the branch management table and its sheet.
  */
 export const BranchesTable = ({
   data,
@@ -52,14 +45,12 @@ export const BranchesTable = ({
   pageCount,
   totalCount,
   parentOrg,
-  userRole,
+  canAdd,
   basePath
 }: BranchesTableProps) => {
   const isOpen = useStore(orgSheetStore)
-  const [editData, setEditData] = React.useState<Organization | null>(null)
-  const canManage = userRole === 'bpw' || userRole === 'root'
+  const [editData, setEditData] = React.useState<StrukturRow | null>(null)
   const columns = getColumns(nameHeader, basePath, (org) => {
-    if (!canManage) return
     setEditData(org)
     orgSheetStore.set(true)
   })
@@ -73,7 +64,7 @@ export const BranchesTable = ({
         pageCount={pageCount}
         totalCount={totalCount}
         actionElement={
-          canManage && (
+          canAdd && (
             <Button
               size='sm'
               className='h-8 gap-2'
@@ -92,34 +83,17 @@ export const BranchesTable = ({
           )
         }
       />
-      <Sheet
-        open={isOpen}
+      <BranchManagementSheet
+        isOpen={isOpen}
         onOpenChange={(open) => {
           orgSheetStore.set(open)
           if (!open) setEditData(null)
         }}
-      >
-        <SheetContent className='sm:max-w-[450px]'>
-          <SheetHeader>
-            <SheetTitle>
-              {editData ? `Edit ${addButtonLabel}` : `Tambah ${addButtonLabel}`}
-            </SheetTitle>
-            <SheetDescription>
-              {editData
-                ? `Perbarui data ${addButtonLabel} untuk menjaga informasi tetap akurat.`
-                : `Isi data organisasi baru untuk menambahkan wilayah ke dalam sistem.`}
-            </SheetDescription>
-          </SheetHeader>
-          <div className='py-6'>
-            <AddOrganizationForm
-              key={editData?.id || 'new-org'}
-              parentOrg={parentOrg}
-              editData={editData}
-              onClose={() => orgSheetStore.set(false)}
-            />
-          </div>
-        </SheetContent>
-      </Sheet>
+        editData={editData}
+        addButtonLabel={addButtonLabel}
+        parentOrg={parentOrg}
+        basePath={basePath}
+      />
     </>
   )
 }
