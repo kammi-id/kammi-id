@@ -14,7 +14,7 @@ const logger = getLogger(['app', 'action', 'organization'])
  * Nulls are dropped rather than echoed as the string "null".
  */
 const keptValues = (
-  raw: Record<string, FormDataEntryValue | string | null>
+  raw: Record<string, FormDataEntryValue | string | null | undefined>
 ): Record<string, string> =>
   Object.fromEntries(
     Object.entries(raw).filter(([, value]) => value != null)
@@ -43,7 +43,14 @@ export const updateOrganizationProfileAction = async (
   const rawData = {
     name: formData.get('name'),
     slug: formData.get('slug'),
-    logo: formData.get('logo') as string | null
+    // `formData.get` mengembalikan `null` untuk field yang tidak dikirim,
+    // sementara skema mengeja `logo` sebagai `.optional()` — yang menerima
+    // `undefined`, bukan `null`. Tanpa penormalan ini seluruh pemanggilan yang
+    // tidak menyertakan `logo` mati di validasi, dan `logo` justru satu-satunya
+    // field yang boleh absen. Form selalu mengirimnya lewat input tersembunyi,
+    // jadi yang kena cuma Server Action yang dicapai tanpa form — persis
+    // permukaan yang tiket 25 bilang tetap harus benar.
+    logo: (formData.get('logo') as string | null) ?? undefined
   }
 
   try {

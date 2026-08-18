@@ -139,7 +139,10 @@ describe('pemulihan Struktur Terhapus', () => {
 
   beforeEach(async () => {
     mockSession = sessionOf('root', ppId)
-    for (const id of orgIds) await setState(id, {})
+    // Slug dibereskan LEBIH DULU, baru Keadaan. Urutan sebaliknya membangkitkan
+    // baris Terhapus yang masih memegang slug rebutan dari tes sebelumnya, dan
+    // partial unique index `organization_slug_live_unique` menolaknya dengan
+    // 23505 — di dalam `beforeEach`, jadi tes yang gugur bukan tes yang salah.
     await db
       .update(organization)
       .set({ slug: `penyaing-${suffix}` })
@@ -148,6 +151,7 @@ describe('pemulihan Struktur Terhapus', () => {
       .update(organization)
       .set({ slug: `pk-pulihkan-${suffix}` })
       .where(eq(organization.id, pkId))
+    for (const id of orgIds) await setState(id, {})
   })
 
   describe('gate — yang paling gampang salah', () => {

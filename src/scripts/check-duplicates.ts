@@ -12,6 +12,13 @@
  * ADR 0004 bergantung pada fakta bahwa Member terhapus masih memegang Nomor
  * Induk Anggota yang tersusun dari `code` itu.
  *
+ * TIAP KOLOM DIHITUNG DENGAN CAKUPAN CONSTRAINT-NYA SENDIRI: `slug` hanya di
+ * antara baris yang belum Terhapus (migrasi B partial), `code` lintas semua
+ * baris (migrasi C tanpa syarat). Gladi 18 Agustus 2026 menemukan versi lama
+ * menghitung keduanya lintas semua baris, sehingga sepasang `slug` yang salah
+ * satunya Terhapus dilaporkan sebagai duplikat padahal migrasi B menerimanya —
+ * pra-terbang menyuruh mengganti nama URL yang hidup tanpa sebab.
+ *
  * --- Pohon keputusan (spec §4.6) ------------------------------------------
  *
  *   | Temuan             | Putusan                                          |
@@ -101,17 +108,54 @@ console.log(`\nmembaca \`${schema}.organization\`.`)
 
 const q = (name: string) => `"${schema}"."${name}"`
 
-const duplicatesOf = async (column: 'code' | 'slug' | 'code_slug') =>
+type Column = 'code' | 'slug' | 'code_slug'
+
+/**
+ * Apakah kolom jejak soft delete sudah ada. Migrasi A (tiket 13) yang
+ * memasangnya, dan pra-terbang ini tidak diblokir olehnya — jadi ia bisa saja
+ * dijalankan terhadap basis data yang belum kena A. Kalau kolomnya belum ada,
+ * belum ada baris Terhapus sama sekali, dan menghitung lintas semua baris
+ * justru yang benar.
+ */
+const [{ ada_soft_delete: hasSoftDelete }] = await sql.unsafe(`
+  SELECT EXISTS (
+           SELECT 1 FROM information_schema.columns
+            WHERE table_schema = '${schema}'
+              AND table_name   = 'organization'
+              AND column_name  = 'deleted_at'
+         ) AS ada_soft_delete
+`)
+
+/**
+ * CAKUPANNYA HARUS SAMA DENGAN CONSTRAINT YANG DIDAHULUINYA, kalau tidak ia
+ * melaporkan pekerjaan yang tidak ada.
+ *
+ * `slug` dipagari partial index `WHERE deleted_at IS NULL` (migrasi B), jadi
+ * dua baris yang berbagi `slug` sementara salah satunya Terhapus BUKAN
+ * duplikat — migrasi B menerimanya apa adanya. Menghitungnya tetap membuat
+ * pra-terbang menyuruh mengganti nama URL yang hidup tanpa sebab.
+ *
+ * `code` unik lintas semua baris, Terhapus termasuk (migrasi C), jadi ia tidak
+ * dipagari apa-apa. `code_slug` tidak dipasangi constraint sama sekali dan
+ * cuma dicetak sebagai informasi.
+ */
+const liveOnly = (column: Column) => hasSoftDelete && column === 'slug'
+
+const scope = (column: Column, alias: string) =>
+  liveOnly(column) ? `WHERE ${alias}.deleted_at IS NULL` : ''
+
+const duplicatesOf = async (column: Column) =>
   sql.unsafe(`
     SELECT o.${column} AS value,
            count(*)    AS rows
       FROM ${q('organization')} o
+     ${scope(column, 'o')}
      GROUP BY o.${column}
     HAVING count(*) > 1
      ORDER BY count(*) DESC, o.${column}
   `)
 
-const rowsSharing = async (column: 'code' | 'slug' | 'code_slug') =>
+const rowsSharing = async (column: Column) =>
   sql.unsafe(`
     SELECT o.id,
            o.name,
@@ -119,6 +163,7 @@ const rowsSharing = async (column: 'code' | 'slug' | 'code_slug') =>
            o.code,
            o.slug,
            o.is_non_active,
+           ${hasSoftDelete ? '(o.deleted_at IS NOT NULL)' : 'false'} AS terhapus,
            (SELECT count(*) FROM ${q('member')} m
              WHERE m.organization_id = o.id
                AND m.deleted_at IS NULL)     AS member_hidup,
@@ -127,13 +172,15 @@ const rowsSharing = async (column: 'code' | 'slug' | 'code_slug') =>
                AND m.deleted_at IS NOT NULL) AS member_terhapus
       FROM ${q('organization')} o
      WHERE o.${column} IN (
-             SELECT ${column} FROM ${q('organization')}
-              GROUP BY ${column} HAVING count(*) > 1
+             SELECT d.${column} FROM ${q('organization')} d
+              ${scope(column, 'd')}
+              GROUP BY d.${column} HAVING count(*) > 1
            )
+       ${liveOnly(column) ? 'AND o.deleted_at IS NULL' : ''}
      ORDER BY o.${column}, o.type, o.name
   `)
 
-const report = async (column: 'code' | 'slug' | 'code_slug') => {
+const report = async (column: Column) => {
   const groups = await duplicatesOf(column)
   console.log(`\n=== ${column} ===`)
   console.log(`kelompok duplikat: ${groups.length}`)
