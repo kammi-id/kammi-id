@@ -45,6 +45,9 @@ jobs:
       - name: Check Structure
         run: bun run check:structure
 
+      - name: Generate Next.js Types
+        run: bunx next typegen
+
       - name: Check Types
         run: bun run check:types
 
