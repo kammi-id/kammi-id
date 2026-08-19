@@ -6,9 +6,8 @@ yang menjalankannya.
 **Blocked by:** None. Berdiri sendiri dari tiket 01 — pagar itu tetap benar
 entah pemisahan ini terjadi atau tidak.
 
-**Status:** ready-for-agent — dua batas yang disepakati sudah hijau (lihat
-_Hasil_ di bawah). Sisa satu checkbox docs, yang memang sengaja ditunda ke
-putaran berikutnya bersama checkbox no.9 tiket 01.
+**Status:** done — dua batas yang disepakati sudah hijau (lihat _Hasil_ di
+bawah), dan putaran docs sudah menyusul.
 
 Tiket 01 memasang pagar supaya kerusakan tidak terjadi diam-diam. Tiket ini
 menghilangkan keadaan yang membuat pagar itu perlu tiap hari.
@@ -62,7 +61,7 @@ sama, memisahkan kejadian ini dari kejadian yang sesungguhnya.
 - [x] Dinilai apa yang sudah mengenainya — basis data non-production, isinya residu tes
 - [x] `DATABASE_URL` tes terpisah dari `DATABASE_URL` aplikasi
 - [x] Basis data tes hidup di mesin yang menjalankan tes — **lokal**, bukan server remote lain
-- [ ] Caranya terdokumentasi, supaya pagar tiket 01 tidak jadi penghalang
+- [x] Caranya terdokumentasi, supaya pagar tiket 01 tidak jadi penghalang
 - [x] `tests/access-control.test.ts` hijau sepuluh kali berturut-turut
 
 ## Comments
@@ -177,3 +176,18 @@ ia lolos senyap tanpa `DB_GUARD_ACK` apa pun, persis seperti CI hari ini.
 
 Checkbox docs di tiket ini sepasang dengan checkbox no.9 tiket 01 yang sengaja
 dibiarkan terbuka. Keduanya tutup bersama, dalam putaran setelah hijau terbukti.
+
+### Putaran docs, 19 Agustus 2026 — kedua checkbox ditutup
+
+Cara menyalakan `db-test`, mengisi `.env.local`, dan menjalankan migrasi
+terhadapnya sekarang ada di README.md (bagian "Basis data lokal").
+
+**Lubang yang disebut di atas (§ Temuan review) sudah diputuskan, bukan
+diselipkan:** dipilih untuk didokumentasikan sebagai risiko yang diterima,
+bukan ditutup dengan pagar kedua. Menutupnya butuh `TEST_DATABASE_URL` selalu
+wajib ada — tapi CI sengaja tidak menyetelnya, jadi pagar kedua itu harus bisa
+membedakan CI dari mesin kontributor. Itu persis kerumitan dua-syarat yang
+ticket 01 sendiri sudah tolak untuk pagar utamanya (_Risiko yang diterima_ di
+sana, soal SSH tunnel). Konsisten dengan itu, README.md sekarang mencatat
+risikonya secara eksplisit dan menyuruh memeriksa `.env.local` sebelum
+`bun test`, alih-alih menambah pagar yang harus tahu konteks yang menjalankannya.

@@ -6,9 +6,8 @@ Berlaku untuk semua pintu, bukan hanya tes.
 
 **Blocked by:** None.
 
-**Status:** done — dfffa85. Pagarnya mendarat utuh. Sisa satu checkbox docs
-(no.9), yang tadinya diblokir tiket 03 — blokirnya sudah hilang sejak 74511e9,
-jadi ia tinggal menunggu putaran docs bersama checkbox docs tiket 03.
+**Status:** done — dfffa85. Pagarnya mendarat utuh. Checkbox docs (no.9) ikut
+tutup bersama checkbox docs tiket 03, 19 Agustus 2026.
 
 ## Kenapa
 
@@ -110,7 +109,7 @@ tinjau ulang keputusan ini.
 - [x] Ada env var izin-di-muka untuk runner non-interaktif
 - [x] `next dev`/`next start` memperingatkan tanpa memblokir
 - [x] CI tetap hijau tanpa opt-out apa pun (`DATABASE_URL`-nya sudah localhost)
-- [ ] Cara menyalakan basis data tes lokal terdokumentasi — **ditunda, diblokir tiket 03**
+- [x] Cara menyalakan basis data tes lokal terdokumentasi — README.md, 19 Agustus 2026
 
 ## Comments
 
