@@ -6,7 +6,7 @@
 **Blocked by:** None. Berdiri sendiri dari tiket 01 — ini meringankan gejala,
 tiket 01 menyentuh sebabnya.
 
-**Status:** ready-for-agent
+**Status:** done
 
 `tests/access-control.test.ts` menyemai hierarki enam Struktur (PP → dua PW → PD
 → dua PK) di `beforeEach`, lalu ketujuh tesnya cuma memanggil
@@ -44,7 +44,34 @@ Sudah pasti menulis, jangan disentuh: `delete-member`, `delete-training`,
 `delete-member-button`, `reset-password`, `bulk-upload`,
 `training-detail-view/action.test.ts` (yang terakhir menghapus baris Peserta).
 
-- [ ] `tests/access-control.test.ts` menyemai di `beforeAll`
-- [ ] Alasan `cache()` tidak jadi masalah tercatat di komentar berkasnya
-- [ ] Berkas ber-`TRUNCATE` lain sudah disapu; yang menulis dibiarkan `beforeEach`
-- [ ] Seluruh tes lolos
+- [x] `tests/access-control.test.ts` menyemai di `beforeAll`
+- [x] Alasan `cache()` tidak jadi masalah tercatat di komentar berkasnya
+- [x] Berkas ber-`TRUNCATE` lain sudah disapu; yang menulis dibiarkan `beforeEach`
+- [x] Seluruh tes lolos
+
+## Comments
+
+**19 Agustus 2026 — hanya satu berkas yang memang perlu dipindah.**
+
+Disapu kesembilan berkas ber-`TRUNCATE`. Delapan sudah pasti menulis di badan
+tesnya sendiri (`delete-member`, `delete-training`, `delete-member-button`,
+`reset-password`, `bulk-upload`, `training-detail-view/action.test.ts`, dan
+dua lagi yang ikut terverifikasi menulis: `organization-state.test.ts` lewat
+`db.update`/`DELETE` langsung, dan `add-training-modal/action.test.ts` lewat
+`createTrainingAction`) — semuanya dibiarkan `beforeEach`, tidak disentuh.
+
+Sisa satu: `tests/access-control.test.ts`, persis yang disebut tiket ini.
+Ketujuh tesnya cuma memanggil `fetchAllowedOrgIds` dan memeriksa hasilnya.
+Dipindah ke `beforeAll`, dengan komentar di berkasnya yang mencatat kenapa
+`cache()` React tidak jadi masalah di sana (konteks per-request yang tidak
+dimiliki tes, dan key-nya primitif bukan objek) — persis alasan yang sudah
+diverifikasi di `kekaderan.test.ts`, yang jadi rujukan bentuknya.
+
+`src/app/(dashboard)/dashboard/branches/_components/move-parent/action.test.ts`
+sempat kelihatan seperti kandidat lain, tapi TRUNCATE-nya sudah di `beforeAll`
+sejak tiket 29 — `beforeEach`-nya cuma mengembalikan satu kolom yang
+benar-benar berubah antar tes, bukan menyemai ulang.
+
+Bukti: `tests/access-control.test.ts` 7/7 lolos, 2.08 detik (dari beforeEach
+yang tadinya rentan `hook timed out` di basis data remote). Dijalankan bersama
+`organization-state.test.ts` dan `kekaderan.test.ts`: 29/29 lolos.

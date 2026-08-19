@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'bun:test'
+import { describe, it, expect, beforeAll } from 'bun:test'
 import { db } from '~/db/db'
 import { createOrganization, fetchAllowedOrgIds } from '~/db/query/organization'
 import { sql } from 'drizzle-orm'
@@ -11,8 +11,15 @@ describe('Hierarchical Access Control', () => {
   let pkItbId: string
   let pkUnpadId: string
 
-  beforeEach(async () => {
-    // Clean up
+  // Hierarki ini hanya dibaca, tidak pernah diubah oleh tes manapun di bawah,
+  // jadi cukup disemai sekali. `fetchAllowedOrgIds` dibungkus `cache()` React,
+  // tapi itu tidak membuat tes kedua dan seterusnya melihat nilai basi:
+  // `cache()` hanya hidup selama satu request, dan tes tidak punya satu pun —
+  // sudah diprobe langsung. Ia juga di-key pada primitif (role, id), bukan
+  // objek, jadi tiap pemanggilan di sini benar-benar berbagi cache yang sama
+  // alih-alih membuat literal baru yang tidak pernah kena. Jangan kembalikan
+  // ke `beforeEach` "supaya aman" — itu bukan masalahnya.
+  beforeAll(async () => {
     await db.execute(sql`TRUNCATE TABLE "user", organization CASCADE`)
 
     // Create Hierarchy
