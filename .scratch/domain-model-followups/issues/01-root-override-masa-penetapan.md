@@ -7,7 +7,7 @@ mengunci seperti sekarang.
 
 **Blocked by:** None — can start immediately.
 
-**Status:** ready-for-agent
+**Status:** done — b7b978c, disempurnakan efa8262
 
 Aturannya sudah disepakati dan sudah tertulis di `CONTEXT.md` sebagai bagian
 dari definisi **Masa Penetapan Kelulusan** — tiket ini hanya membuat kode
@@ -58,3 +58,10 @@ melonggarkan apa pun untuk kewenangan lain.
 **Follow-up:** aturan ini sekarang hidup di dua tempat dan bisa hanyut
 sendiri-sendiri. Layak satu tiket terpisah untuk menyatukannya menjadi satu
 fungsi yang dipakai gate server dan page.
+
+**19 Agustus 2026 — status baris diperbaiki, bukan kerja baru.** `efa8262
+refactor: beri Masa Penetapan Kelulusan sebuah modul` sudah mengeksekusi
+follow-up di atas — logikanya, termasuk pengecualian Root, sekarang hidup satu
+tempat di `src/lib/daurah/masa-penetapan-kelulusan.ts` dan dipakai oleh gate
+server maupun `page.tsx`. Tiket ini sudah selesai sejak itu; baris `Status:`
+saja yang belum menyusul.
