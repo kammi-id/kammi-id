@@ -211,7 +211,7 @@ export const ProfileSidebar = ({ orgHierarchySlot }: ProfileSidebarProps) => {
             <Toggle
               name='isCertifiedMentor'
               label='Pemandu'
-              description='Lulus DM dan bersertifikat pemandu'
+              description='Lulus DPMK dan bersertifikat pemandu'
               defaultChecked={member.isCertifiedMentor}
             />
             <Toggle
@@ -244,7 +244,7 @@ export const ProfileSidebar = ({ orgHierarchySlot }: ProfileSidebarProps) => {
                     Telah mengikuti DPMK
                   </p>
                   {!hasDpmk && (
-                    <WarningTooltip message='Belum ada entry DPMK di riwayat daurah' />
+                    <WarningTooltip message='Sertifikasi Tanpa Riwayat — belum ada entry DPMK, lengkapi riwayat daurah' />
                   )}
                 </div>
               </div>
@@ -259,7 +259,7 @@ export const ProfileSidebar = ({ orgHierarchySlot }: ProfileSidebarProps) => {
                     Telah mengikuti TFI
                   </p>
                   {!hasTfi && (
-                    <WarningTooltip message='Belum ada entry TFI di riwayat daurah' />
+                    <WarningTooltip message='Sertifikasi Tanpa Riwayat — belum ada entry TFI, lengkapi riwayat daurah' />
                   )}
                 </div>
               </div>
@@ -271,7 +271,7 @@ export const ProfileSidebar = ({ orgHierarchySlot }: ProfileSidebarProps) => {
               Belum ada perangkat pengkaderan.
             </p>
             <p className='text-muted-foreground/60 mt-1 text-xs'>
-              Diperoleh setelah lulus DM atau TFI.
+              Diperoleh setelah lulus DPMK atau TFI.
             </p>
           </div>
         )}

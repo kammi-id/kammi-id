@@ -6,7 +6,7 @@ DPMK, bukan dari Daurah Marhalah.
 
 **Blocked by:** None — can start immediately.
 
-**Status:** ready-for-agent
+**Status:** done
 
 Dua tempat di `profile/[registerNumber]/_components/profile-sidebar/` menulis
 "DM" padahal yang dimaksud DPMK:
@@ -35,11 +35,22 @@ dan langsung diabaikan orang.
 **Jangan pindahkan penanda itu ke dalam form edit.** Kalau memang diinginkan di
 sana, itu keputusan tersendiri, bukan bagian tiket ini.
 
-- [ ] Kedua kalimat "DM" di sidebar profil menyebut DPMK
-- [ ] Keterangan toggle Instruktur tidak berubah
-- [ ] Bunyi tooltip peringatan selaras dengan istilah Sertifikasi Tanpa Riwayat
+- [x] Kedua kalimat "DM" di sidebar profil menyebut DPMK
+- [x] Keterangan toggle Instruktur tidak berubah
+- [x] Bunyi tooltip peringatan selaras dengan istilah Sertifikasi Tanpa Riwayat
       dan tetap bernada melengkapi, bukan menyalahkan
-- [ ] Tidak ada perubahan pada logika sertifikasi, nilai tersimpan, atau kapan
+- [x] Tidak ada perubahan pada logika sertifikasi, nilai tersimpan, atau kapan
       penanda muncul
-- [ ] `bun run check:types` lolos
-- [ ] Seluruh tes lolos
+- [x] `bun run check:types` lolos
+- [x] Seluruh tes lolos
+
+## Comments
+
+**19 Agustus 2026 — teks disamakan, dua tooltip ikut disebut namanya.**
+
+Kedua kalimat "DM" di `profile-sidebar.tsx` diganti "DPMK" (toggle Pemandu dan
+kalimat keadaan kosong). Toggle Instruktur ("Lulus TFI") tidak disentuh. Kedua
+tooltip peringatan (Pemandu dan Instruktur) diberi awalan "Sertifikasi Tanpa
+Riwayat —" supaya istilah `CONTEXT.md` kelihatan langsung di UI, nadanya tetap
+"lengkapi riwayat daurah", bukan tuduhan data salah. Tidak ada logika,
+nilai tersimpan, atau kondisi kemunculan penanda yang berubah.
