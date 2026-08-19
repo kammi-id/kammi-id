@@ -220,10 +220,44 @@ Sesudah keduanya: **561 lewat, 0 gagal**, tiga kali berturut-turut. `check:forma
 
 ## Sisa pekerjaan sebelum tiket ini ditutup
 
-1. CI hijau lewat PR sungguhan — satu-satunya yang tidak bisa dibuktikan dari
-   mesin ini.
+1. ~~CI hijau lewat PR sungguhan~~ — **terbukti**, lihat komentar 19 Agustus.
 2. Putusan atas temuan no.2 di atas: apakah cabang "kirim `slug` saja" cukup
    dicatat sebagai prosedur deploy, atau perlu bentuk lain.
 3. Pra-terbang terhadap **produksi** sesaat sebelum deploy — hasil dari basis
    data mana pun selain sasarannya tidak menjamin apa pun (kalimat pertama
    `check-duplicates.ts` sendiri).
+
+## Comments (lanjutan)
+
+**19 Agustus 2026 — CI hijau lewat PR #16, tapi bukan gara-gara migrasinya.**
+
+Push pertama (`1d4bc19`) gagal di step **Check Types**, bukan di migrasi:
+`tsc --noEmit` melempar `Cannot find module '~/assets/logo.png'` di lima
+berkas. Diperiksa lewat `gh run list` — ini gagal **konsisten sejak minimal
+4 Agustus 2026**, di setiap run CI sebelumnya juga, jadi bukan regresi dari
+sesi ini atau dari tiket 17 sama sekali.
+
+Akar masalahnya: `next-env.d.ts` (yang membawa
+`/// <reference types="next/image-types/global" />`, dan itu yang membuat
+TypeScript kenal import `.png`) ada di `.gitignore` sesuai rekomendasi resmi
+Next.js, dan cuma digenerasi ulang oleh `next dev`, `next build`, atau
+`next typegen`. CI di repo ini menjalankan `tsc --noEmit` langsung tanpa satu
+pun dari ketiganya — jadi berkasnya tidak pernah ada di runner, di run mana
+pun, sejak CI ini berdiri.
+
+Diperbaiki dengan satu step baru di `.github/workflows/ci.yml`, sebelum
+`Check Types`: `bunx next typegen` (perintah resmi Next 16 untuk membangkitkan
+tipe rute tanpa build penuh — dirujuk langsung dari
+`node_modules/next/dist/docs/01-app/03-api-reference/05-config/02-typescript.md`).
+Dibuktikan lokal lebih dulu (hapus `next-env.d.ts`, jalankan `next typegen`,
+`tsc --noEmit` keluar bersih) sebelum di-commit.
+
+Push kedua (`7ac3da7`) hijau penuh di PR #16 — 18/18 step, termasuk
+`Run DB Migrations` (migrasi 13/15/16 mendarat lewat `postgres:18` sungguhan
+di CI, bukan cuma di sandbox lokal), `Run Unit Tests`, dan `Run E2E Tests`.
+31 menit, exit 0.
+
+Butir 1 "Selesai bila" sekarang terpenuhi. Tersisa butir 2 (putusan manusia
+soal prosedur deploy) dan butir 3 (pra-terbang produksi, dijalankan orang yang
+deploy — lihat batasan tiket 14), keduanya di luar apa yang bisa diselesaikan
+lewat sesi agent.
