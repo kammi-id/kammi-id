@@ -51,3 +51,6 @@ users.csv
 skills/npm-*
 # uploads volume (UPLOADS_DIR)
 /.uploads
+
+# data lokal yang tidak boleh masuk git (backup DB, dsb.)
+/.data
