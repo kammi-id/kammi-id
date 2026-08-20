@@ -49,3 +49,5 @@ users.csv
 .playwright-mcp
 
 skills/npm-*
+# uploads volume (UPLOADS_DIR)
+/.uploads

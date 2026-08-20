@@ -13,9 +13,8 @@ import {
   type HomeExtraItemsSettings
 } from '~/db/query/site-settings'
 import { readOrganizationIdByType } from '~/db/query/organization'
-import { storage } from '~/lib/api/storage'
 
-// Resolve an S3 key to a signed URL (1-hour expiry).
+// Resolve a storage key to the image proxy path.
 // Direct HTTP(S) URLs and empty strings are returned as-is.
 const resolveUrl = async (path: string): Promise<string> => {
   if (!path) return ''
@@ -25,7 +24,7 @@ const resolveUrl = async (path: string): Promise<string> => {
     path.startsWith('/')
   )
     return path
-  return storage.getSignedUrl(path)
+  return `/api/images/${path}`
 }
 
 // Cached DB lookup — all site-settings functions that call this must themselves

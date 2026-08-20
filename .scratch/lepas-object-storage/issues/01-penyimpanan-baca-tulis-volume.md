@@ -6,7 +6,7 @@ berhenti presign-lalu-fetch dan langsung membaca dari disk.
 
 **Blocked by:** None — can start immediately.
 
-**Status:** ready-for-agent
+**Status:** done
 
 Akar direktori dibaca dari `UPLOADS_DIR`, default `./.uploads` saat
 pengembangan. Di container nilainya `/data/uploads`. Jangan hardcode — mesin
@@ -30,3 +30,21 @@ Pemanggil satu-satunya yang tersisa ditangani tiket 03.
 Header `Cache-Control: public, max-age=86400` yang sudah ada dipertahankan.
 Placeholder **tidak boleh** ikut cache selama itu — kalau berkasnya menyusul
 datang, cache sehari akan menyembunyikannya.
+
+## Comments
+
+Dua hal yang menyentuh tiket lain:
+
+- **`resolveUrl` di `src/app/(main)/_data/site-settings.ts` ikut berubah.** Ia
+  satu-satunya pemanggil `storage.getSignedUrl` yang tersisa, jadi menghapus
+  metode itu memaksa perubahan di sini juga; ia sekarang mengembalikan
+  `/api/images/<key>`. Penyatuannya dengan `resolveSiteImage` — dan pemulihan
+  TTL `_cachedTentangSettings` — tetap milik tiket 03.
+- **`UPLOADS_DIR` tidak masuk `src/env.ts`.** Ia dibaca langsung dari
+  `process.env` di `src/lib/api/storage.ts`, dan dibaca ulang tiap panggilan.
+  `bun test` berbagi satu module registry antar-berkas, jadi konstanta env yang
+  dibekukan saat impor akan bernilai apa pun yang dimuat berkas tes pertama —
+  persis yang membuat `tests/lib/utils/site-image.test.ts` runtuh saat
+  `storage.test.ts` memuat `~/env` lebih dulu. Tiket 04 karena itu tidak akan
+  menemukan `UPLOADS_DIR` di `src/env.ts`; setelah lima `S3_*` dicabut berkas
+  itu kosong.
