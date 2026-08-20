@@ -4,17 +4,14 @@
 // Catches runtime errors from NetworkSectionClient (e.g. Leaflet init failures,
 // dynamic import errors) and renders a graceful fallback with a retry option.
 import type { ReactNode } from 'react'
-import { unstable_catchError as catchError, type ErrorInfo } from 'next/error'
+import { catchError, type ErrorInfo } from 'next/error'
 
 // Props must include children so React can forward them through the boundary
 interface BoundaryProps {
   children?: ReactNode
 }
 
-const NetworkClientFallback = (
-  _props: BoundaryProps,
-  { unstable_retry }: ErrorInfo
-) => (
+const NetworkClientFallback = (_props: BoundaryProps, { retry }: ErrorInfo) => (
   <section
     className='bg-background border-border relative flex h-dvh max-h-dvh flex-col items-center justify-center gap-4 border-t'
     aria-label='Peta Jaringan tidak tersedia'
@@ -37,7 +34,7 @@ const NetworkClientFallback = (
       Peta jaringan tidak dapat dimuat
     </p>
     <button
-      onClick={() => unstable_retry()}
+      onClick={() => retry()}
       className='text-primary hover:text-primary/80 font-sans text-sm font-semibold transition-colors'
     >
       Coba lagi
