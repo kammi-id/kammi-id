@@ -6,7 +6,7 @@ konstanta beku.
 
 **Blocked by:** None — can start immediately.
 
-**Status:** ready-for-agent
+**Status:** done — d01499d
 
 **Ada dua resolver hari ini, dan hanya satu yang lewat proxy.**
 `src/lib/utils/site-image.ts` mengarah ke `/api/images/`, tetapi `resolveUrl`
@@ -34,3 +34,26 @@ Jangan "merapikannya".
 
 `tests/lib/utils/site-image.test.ts` menyetel env S3 di `beforeAll`; sesuaikan
 ke konstanta baru. Perilaku yang diuji tidak berubah.
+
+## Comments
+
+**Premis "masih presign sungguhan" sudah basi saat dikerjakan.** `resolveUrl`
+di HEAD sudah mengembalikan `/api/images/...`; tiket 01 rupanya menyentuhnya
+duluan. Penyatuannya tetap ada isinya — `resolveUrl` tidak pernah mengupas
+prefix warisan — tapi motivasi yang tertulis di atas bukan lagi yang berlaku.
+
+**Resolver ketiga yang tidak masuk hitungan tiket ini.**
+`getSignedUrlAction` di `src/lib/actions/storage.ts` mengembalikan
+`` `/api/images/${path}` `` telanjang, tanpa cabang prefix warisan, dan punya
+empat pemanggil di dasbor (`image-upload`, `profile-avatar`,
+`transparent-image-upload`, `kader/.../columns`). Untuk baris lama berisi URL
+penuh ia menghasilkan `/api/images/https://assets.kammi.id/kammiid/...` — persis
+mode gagal yang tiket ini ada untuk mencegahnya, cuma di sisi dasbor. Tiket ini
+menyebut "dua resolver", jadi tidak disentuh; perlu diserap tiket 04/05 atau
+dapat tiket sendiri.
+
+**`src/env.ts` kini nol pengimpor.** Berkasnya dibiarkan utuh: pencabutannya
+milik tiket 04.
+
+**`resolveSiteImage` masih `async` tanpa satu pun `await`.** Menghapusnya
+menyentuh ~8 pemanggil di luar cakupan tiket; ditinggalkan apa adanya.
