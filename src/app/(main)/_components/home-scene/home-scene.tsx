@@ -11,12 +11,15 @@
  *   - Four section layers as `absolute inset-0` children, stacked via z-index.
  *   - One master GSAP timeline scrubbed over the pin window.
  *
- * Scroll budget (end: '+=800%'):
+ * Scroll budget (end: '+=600%'):
+ *   Timeline is still 8 units long, only the scroll-distance mapping changed —
+ *   the last animation finishes at t≈5.64 of 8.0, so the dead hold at the tail
+ *   is what got trimmed.
  *   Phase 1 — Hero exits                   ~1.3 units  (~130vh)
  *   Phase 2 — About enters + holds + exits ~2.0 units  (~200vh)
  *   Phase 3 — Leadership enters/holds/exits~2.5 units  (~250vh)
  *   Phase 4 — Network enters + holds       ~2.2 units  (~220vh)
- *   Total                                  ~8.0 units  (800%)
+ *   Total                                  ~8.0 units  (600%)
  */
 
 import { useRef, useCallback, useEffect } from 'react'
@@ -258,11 +261,6 @@ export const HomeScene = ({
       gsap.set(aboutLeftRef.current, { opacity: 0, x: -60 })
       gsap.set(aboutRightRef.current, { opacity: 0, x: 60 })
 
-      gsap.set(leadershipLayerRef.current, {
-        opacity: 0,
-        pointerEvents: 'none'
-      })
-
       gsap.set(networkLayerRef.current, { opacity: 0, pointerEvents: 'none' })
       gsap.set(netMapRef.current, { scale: 1.5, opacity: 0 })
       gsap.set(netHeaderRef.current, { opacity: 0, y: -24 })
@@ -316,6 +314,15 @@ export const HomeScene = ({
         gsap.set(mobilePlates, { opacity: 0 })
       }
 
+      // Hide until its phase — lazy-load gate for the portrait images inside.
+      // Must run after the getBoundingClientRect() measurement above: measuring
+      // against a display:none ancestor collapses it and zeroes out deltaY.
+      gsap.set(leadershipLayerRef.current, {
+        opacity: 0,
+        display: 'none',
+        pointerEvents: 'none'
+      })
+
       // ── Counter objects for network stats ──────────────────────────────────
       const statValues = [
         networkStats.wilayah,
@@ -330,9 +337,9 @@ export const HomeScene = ({
           id: 'home-main',
           trigger: sceneRef.current,
           start: 'top top',
-          end: '+=800%',
+          end: '+=600%',
           pin: true,
-          scrub: 1,
+          scrub: true,
           anticipatePin: 1,
           invalidateOnRefresh: true
         }
@@ -417,7 +424,11 @@ export const HomeScene = ({
           { opacity: 1, ease: 'none', duration: 0.08 },
           2.9
         )
-        .set(leadershipLayerRef.current, { pointerEvents: 'auto' }, 2.9)
+        .set(
+          leadershipLayerRef.current,
+          { display: 'flex', pointerEvents: 'auto' },
+          2.9
+        )
 
       if (isDesktop) {
         mainTl
@@ -554,7 +565,11 @@ export const HomeScene = ({
           { opacity: 0, ease: 'none', duration: 0.1 },
           5.02
         )
-        .set(leadershipLayerRef.current, { pointerEvents: 'none' }, 5.12)
+        .set(
+          leadershipLayerRef.current,
+          { display: 'none', pointerEvents: 'none' },
+          5.12
+        )
 
       // ════════════════════════════════════════════════════════════════════════
       // PHASE 4 — Network enters (t: 4.9 → 6.2), holds (t: 6.2 → 8.0)
@@ -704,7 +719,7 @@ export const HomeScene = ({
                   fill
                   sizes='100vw'
                   className='object-cover'
-                  priority
+                  preload
                   unoptimized={hero.resolvedImageUrl.startsWith('http')}
                 />
               ) : (
@@ -780,15 +795,15 @@ export const HomeScene = ({
                 className='bg-primary mt-1 h-1 w-12 rounded-full'
                 aria-hidden='true'
               />
-              <p className='text-muted-foreground mt-6 max-w-2xl font-sans text-base leading-relaxed'>
+              <p className='text-muted-foreground mt-3 max-w-2xl font-sans text-sm leading-snug md:mt-6 md:text-base md:leading-relaxed'>
                 {about.paragraph1}
               </p>
-              <p className='text-muted-foreground mt-4 max-w-2xl font-sans text-base leading-relaxed'>
+              <p className='text-muted-foreground mt-2 max-w-2xl font-sans text-sm leading-snug md:mt-4 md:text-base md:leading-relaxed'>
                 {about.paragraph2}
               </p>
               <Link
                 href={about.readMoreHref}
-                className='group text-primary mt-6 inline-flex items-center gap-2 font-sans text-sm font-semibold hover:underline'
+                className='group text-primary mt-3 inline-flex items-center gap-2 font-sans text-sm font-semibold hover:underline md:mt-6'
               >
                 {about.readMoreLabel}
                 <svg
@@ -808,8 +823,9 @@ export const HomeScene = ({
               </Link>
             </div>
 
-            {/* Right: "Lahir dari Rahim Reformasi" card — exits to the RIGHT */}
-            <div ref={aboutRightRef} className='flex flex-col gap-4'>
+            {/* Right: "Lahir dari Rahim Reformasi" card — exits to the RIGHT. */}
+            {/* Hidden below md: same content lives at /tentang. */}
+            <div ref={aboutRightRef} className='hidden flex-col gap-4 md:flex'>
               <div className='bg-primary text-primary-foreground rounded-2xl p-6'>
                 <div className='bg-primary-foreground/15 mb-4 flex size-10 items-center justify-center rounded-xl'>
                   <svg

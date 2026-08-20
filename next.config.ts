@@ -12,7 +12,8 @@ const nextConfig: NextConfig = {
   },
   images: {
     localPatterns: [{ pathname: '/api/images/**', search: '' }],
-    qualities: [75]
+    qualities: [75],
+    minimumCacheTTL: 2678400
   }
 }
 

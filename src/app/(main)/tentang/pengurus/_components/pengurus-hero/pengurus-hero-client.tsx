@@ -94,7 +94,7 @@ export const PengurusHeroClient = ({
           start: 'top top',
           end: '+=200%',
           pin: true,
-          scrub: 1,
+          scrub: true,
           anticipatePin: 1,
           animation: tl,
           // Prevent scrub from extrapolating below progress 0 on overscroll —

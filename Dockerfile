@@ -34,8 +34,8 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN groupadd --system --gid 1001 nodejs && \
     useradd --system --uid 1001 --gid nodejs nextjs
 
-# Set correct permissions for prerender cache
-RUN mkdir .next && chown nextjs:nodejs .next
+# Set correct permissions for prerender cache and image optimization cache
+RUN mkdir -p .next/cache && chown -R nextjs:nodejs .next
 
 # Copy standalone build and necessary assets
 COPY --from=builder /app/public ./public

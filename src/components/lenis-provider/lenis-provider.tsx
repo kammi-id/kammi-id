@@ -10,10 +10,14 @@ gsap.registerPlugin(ScrollTrigger)
 
 type LenisContextType = {
   scrollTo: (target: HTMLElement | string | number) => void
+  stop: () => void
+  start: () => void
 }
 
 const LenisContext = createContext<LenisContextType>({
-  scrollTo: () => {}
+  scrollTo: () => {},
+  stop: () => {},
+  start: () => {}
 })
 
 export const useLenisScroll = () => useContext(LenisContext)
@@ -24,8 +28,7 @@ export const LenisProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const lenis = new Lenis({
       autoRaf: false,
-      duration: 1.2,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t))
+      lerp: 0.12
     })
     lenisRef.current = lenis
 
@@ -49,8 +52,16 @@ export const LenisProvider = ({ children }: { children: ReactNode }) => {
     lenisRef.current?.scrollTo(target as Parameters<Lenis['scrollTo']>[0])
   }
 
+  const stop = () => {
+    lenisRef.current?.stop()
+  }
+
+  const start = () => {
+    lenisRef.current?.start()
+  }
+
   return (
-    <LenisContext.Provider value={{ scrollTo }}>
+    <LenisContext.Provider value={{ scrollTo, stop, start }}>
       {children}
     </LenisContext.Provider>
   )

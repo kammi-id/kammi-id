@@ -68,7 +68,7 @@ export const KredoSection = () => {
             trigger: containerRef.current,
             start: 'top top',
             end: `+=${totalScroll}`,
-            scrub: 1,
+            scrub: true,
             pin: true,
             anticipatePin: 1,
             invalidateOnRefresh: true

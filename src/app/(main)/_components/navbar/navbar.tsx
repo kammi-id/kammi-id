@@ -5,6 +5,7 @@ import { buttonVariants } from '~/components/shadcn/ui/button/button'
 import { cn } from '~/lib/shadcn/utils'
 import { getNavSettings } from '~/app/(main)/_data/site-settings'
 import { NavLinks } from './nav-links'
+import { MobileNav } from './mobile-nav'
 
 export const Navbar = async () => {
   const nav = await getNavSettings()
@@ -18,7 +19,7 @@ export const Navbar = async () => {
             alt='Pengurus Pusat Kesatuan Aksi Mahasiswa Muslim Indonesia'
             className='h-13 w-auto object-contain'
             sizes='168px'
-            priority
+            preload
             style={{ width: 'auto', height: '52px' }}
           />
         </Link>
@@ -35,25 +36,11 @@ export const Navbar = async () => {
           {nav.ctaBergabungLabel}
         </Link>
 
-        <button
-          className='text-muted-foreground hover:text-foreground flex size-9 items-center justify-center rounded-md md:hidden'
-          aria-label='Buka menu navigasi'
-        >
-          <svg
-            width='20'
-            height='20'
-            viewBox='0 0 20 20'
-            fill='none'
-            aria-hidden='true'
-          >
-            <path
-              d='M3 5h14M3 10h14M3 15h14'
-              stroke='currentColor'
-              strokeWidth='1.5'
-              strokeLinecap='round'
-            />
-          </svg>
-        </button>
+        <MobileNav
+          links={nav.navLinks}
+          ctaBergabungHref={nav.ctaBergabungHref}
+          ctaBergabungLabel={nav.ctaBergabungLabel}
+        />
       </div>
     </header>
   )
