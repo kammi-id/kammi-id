@@ -5,7 +5,7 @@ lokal, duduk sebelahan dengan `db:reset` dan `db:seed`.
 
 **Blocked by:** 04
 
-**Status:** ready-for-agent
+**Status:** done — `src/scripts/assets-pull.ts`, `bun run assets:pull`, README
 
 Inilah tiket yang sebenarnya menjawab keluhan yang melahirkan pekerjaan ini.
 Tanpa ini, gambar tetap tidak pernah ikut berpindah — hanya berganti perkakas.

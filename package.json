@@ -10,6 +10,7 @@
     "check:lint": "eslint",
     "check:structure": "bun src/scripts/check-structure.ts",
     "check:types": "tsc --noEmit",
+    "assets:pull": "bun src/scripts/assets-pull.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "bun src/scripts/db-guard.ts && drizzle-kit migrate",
     "db:push": "bun src/scripts/db-guard.ts && drizzle-kit push",

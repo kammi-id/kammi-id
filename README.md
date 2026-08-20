@@ -82,6 +82,24 @@ pagar ini hindari sejak awal. Yang dipilih: dokumentasikan risikonya di sini,
 bukan tambah pagar. Selalu periksa `.env.local` punya `TEST_DATABASE_URL`
 yang benar sebelum `bun test`.
 
+### Gambar (`assets:pull`)
+
+Gambar unggahan hidup di volume Docker (`UPLOADS_DIR`, lihat
+`docs/adr/0006-gambar-di-volume-bukan-object-storage.md`), bukan di basis
+data — jadi `pg_dump`/restore tidak ikut membawanya. Menariknya opsional:
+tanpa ini, `/api/images/*` tetap jalan dengan placeholder untuk berkas yang
+tidak ada.
+
+```bash
+PRODUCTION_ASSETS_HOST=user@host bun run assets:pull
+```
+
+Menarik langsung dari volume production lewat SSH + tar, bukan dari RustFS —
+RustFS cuma sasaran backup, dan memakainya berarti mengembalikan kredensial
+S3 yang sudah sengaja dicabut. Butuh akses SSH ke host production sendiri;
+`PRODUCTION_ASSETS_VOLUME` opsional kalau nama volumenya bukan
+`kammi-uploads`.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
