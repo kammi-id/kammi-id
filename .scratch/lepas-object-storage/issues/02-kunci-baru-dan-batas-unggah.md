@@ -5,7 +5,7 @@ menimpa, dan batas ukuran yang sudah dijanjikan UI mulai ditegakkan di server.
 
 **Blocked by:** 01
 
-**Status:** ready-for-agent
+**Status:** done
 
 **Kunci baru `<uuid>.<ext>`.** Sekarang `uploadFile` menyusun
 `${randomUUID()}_${file.name}`. `file.name` datang dari pengunggah dan setelah
@@ -30,3 +30,13 @@ mengikat adalah yang di server.
 
 Normalisasi ukuran gambar (resize/encode ulang) **bukan** bagian tiket ini —
 lihat tabel penundaan di `spec.md`.
+
+## Comments
+
+- **`updateFile` menurunkan folder dari `dirname(key)`,** bukan dari parameter
+  terpisah — `uploadImageAction` tidak pernah *membaca* `folder` saat
+  `existingPath` ada (formulirnya tetap mengirim, servernya mengabaikan), jadi
+  ini menjaga file pengganti tetap di folder yang sama dengan yang lama,
+  persis kelakuan lama.
+- **Batas 5 MB diperiksa sebelum cabang `existingPath`/`folder`,** jadi
+  berlaku sama untuk unggahan baru maupun penggantian.

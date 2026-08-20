@@ -34,6 +34,28 @@ const resolveKey = (key: string): string | null => {
   return path
 }
 
+/**
+ * Daftar putih mime type unggahan. `file.name` datang dari pengunggah dan
+ * setelah tiket 01 kunci menjadi path filesystem sungguhan — bukan cuma
+ * string di object storage — jadi ekstensi diturunkan dari mime type yang
+ * diperiksa server, bukan dari nama file. Lebih kuat daripada sanitizer,
+ * karena sanitizer harus benar setiap kali sementara daftar putih ini hanya
+ * perlu benar sekali.
+ */
+const EXTENSION_BY_MIME: Record<string, string> = {
+  'image/jpeg': 'jpg',
+  'image/png': 'png',
+  'image/webp': 'webp'
+}
+
+const extensionFor = (file: File | Blob): string => {
+  const ext = EXTENSION_BY_MIME[file.type]
+  if (!ext) {
+    throw new Error('Tipe file tidak didukung. Gunakan JPG, PNG, atau WebP.')
+  }
+  return ext
+}
+
 const requireKey = (key: string): string => {
   const path = resolveKey(key)
   if (!path) {
@@ -72,8 +94,8 @@ export const storage = {
     file: File | Blob,
     folder: string = 'uploads'
   ): Promise<string> {
-    const fileName = `${randomUUID()}_${(file as File).name || 'file'}`
-    return writeFileAt(`${folder}/${fileName}`, file)
+    const key = `${folder}/${randomUUID()}.${extensionFor(file)}`
+    return writeFileAt(key, file)
   },
 
   /**
@@ -91,13 +113,17 @@ export const storage = {
   },
 
   /**
-   * Updates an existing file in the uploads volume.
-   * @param key Relative key of the file.
+   * Writes `file` under a new key in the same folder as `key`, then deletes
+   * `key`. Overwriting the same key means `next/image` serves the old image
+   * for 24h after replacement — the `Cache-Control` header cached at tiket 01.
+   * @param key Relative key of the file being replaced.
    * @param file New File or Blob object.
-   * @returns The relative key of the updated file.
+   * @returns The relative key of the newly written file.
    */
   async updateFile(key: string, file: File | Blob): Promise<string> {
-    return writeFileAt(key, file)
+    const newKey = await storage.uploadFile(file, dirname(key))
+    await storage.deleteFile(key)
+    return newKey
   },
 
   /**

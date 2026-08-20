@@ -5,6 +5,11 @@ import { getLogger } from '~/lib/logger'
 
 const logger = getLogger(['app', 'storage'])
 
+// `image-upload.tsx` menjanjikan "Maks. 5MB" di UI, tapi janji itu tidak
+// pernah ditegakkan di server — `bodySizeLimit` tetap 50mb. Batas ini yang
+// mengikat; pemeriksaan di klien sekadar kenyamanan.
+const MAX_UPLOAD_BYTES = 5 * 1024 * 1024
+
 /**
  * Uploads an image to storage.
  * If existingPath is provided, it updates the existing file.
@@ -17,6 +22,10 @@ export const uploadImageAction = async (formData: FormData) => {
 
   if (!file) {
     throw new Error('File is required.')
+  }
+
+  if (file.size > MAX_UPLOAD_BYTES) {
+    throw new Error('Ukuran file melebihi batas 5MB.')
   }
 
   if (existingPath) {

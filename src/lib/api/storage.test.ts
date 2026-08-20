@@ -29,13 +29,31 @@ const write = async (key: string, body: string) => {
 }
 
 describe('storage.uploadFile', () => {
-  it('menulis byte ke dalam akar dan mengembalikan kunci relatif', async () => {
+  it('menulis byte ke dalam akar dengan kunci <uuid>.<ext>, membuang nama asli', async () => {
     const key = await storage.uploadFile(
-      new File(['halo'], 'foto.jpg', { type: 'image/jpeg' })
+      new File(['halo'], 'nama-asli-berbahaya.jpg', { type: 'image/jpeg' })
     )
 
-    expect(key.startsWith('uploads/')).toBe(true)
+    expect(key).toMatch(
+      /^uploads\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.jpg$/
+    )
     expect(await Bun.file(join(root, key)).text()).toBe('halo')
+  })
+
+  it('menurunkan ekstensi dari mime type, bukan dari nama file', async () => {
+    const key = await storage.uploadFile(
+      new File(['halo'], 'foto.exe', { type: 'image/png' })
+    )
+
+    expect(key.endsWith('.png')).toBe(true)
+  })
+
+  it('menolak mime type di luar daftar putih', async () => {
+    const file = new File(['<script>'], 'foto.svg', {
+      type: 'image/svg+xml'
+    })
+
+    await expect(storage.uploadFile(file)).rejects.toThrow()
   })
 
   it('menolak folder yang keluar dari akar', async () => {
@@ -84,16 +102,31 @@ describe('storage.readFile', () => {
 })
 
 describe('storage.updateFile', () => {
-  it('menulis ke kunci yang diberikan dan mengembalikannya', async () => {
-    await write('uploads/lama.txt', 'lama')
+  it('menulis kunci baru, menghapus kunci lama, dan mengembalikan kunci baru', async () => {
+    await write('uploads/lama.jpg', 'lama')
 
     const key = await storage.updateFile(
-      'uploads/lama.txt',
-      new File(['baru'], 'baru.txt', { type: 'text/plain' })
+      'uploads/lama.jpg',
+      new File(['baru'], 'baru.jpg', { type: 'image/jpeg' })
     )
 
-    expect(key).toBe('uploads/lama.txt')
-    expect(await Bun.file(join(root, 'uploads/lama.txt')).text()).toBe('baru')
+    expect(key).not.toBe('uploads/lama.jpg')
+    expect(key.startsWith('uploads/')).toBe(true)
+    expect(await Bun.file(join(root, key)).text()).toBe('baru')
+    expect(await Bun.file(join(root, 'uploads/lama.jpg')).exists()).toBe(
+      false
+    )
+  })
+
+  it('menulis kunci baru di folder yang sama dengan kunci lama', async () => {
+    await write('avatars/lama.png', 'lama')
+
+    const key = await storage.updateFile(
+      'avatars/lama.png',
+      new File(['baru'], 'baru.png', { type: 'image/png' })
+    )
+
+    expect(key.startsWith('avatars/')).toBe(true)
   })
 })
 
