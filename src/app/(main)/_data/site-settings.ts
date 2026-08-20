@@ -13,19 +13,7 @@ import {
   type HomeExtraItemsSettings
 } from '~/db/query/site-settings'
 import { readOrganizationIdByType } from '~/db/query/organization'
-
-// Resolve a storage key to the image proxy path.
-// Direct HTTP(S) URLs and empty strings are returned as-is.
-const resolveUrl = async (path: string): Promise<string> => {
-  if (!path) return ''
-  if (
-    path.startsWith('http://') ||
-    path.startsWith('https://') ||
-    path.startsWith('/')
-  )
-    return path
-  return `/api/images/${path}`
-}
+import { resolveSiteImage } from '~/lib/utils/site-image'
 
 // Cached DB lookup — all site-settings functions that call this must themselves
 // be wrapped in 'use cache' at the call site (e.g. Footer, PengurusHero, etc.)
@@ -52,13 +40,12 @@ const _cachedReadSettings = async <T>(
   return readSiteSettings<T>(key, defaults, orgId)
 }
 
-// Inner cached reader for tentang (shorter TTL due to signed URL expiry).
+// Inner cached reader for tentang.
 const _cachedTentangSettings = async (
   orgId: string
 ): Promise<TentangSettings> => {
   'use cache'
-  // Signed URLs expire in 1 hour — cache for 45 min so we always serve fresh URLs.
-  cacheLife({ stale: 0, revalidate: 2700, expire: 3600 })
+  cacheLife('days')
   cacheTag('site-settings', `site-settings-tentang-${orgId}`)
 
   const [heroData, prinsipData, paradigmaData] = await Promise.all([
@@ -79,13 +66,13 @@ const _cachedTentangSettings = async (
     )
   ])
 
-  // Resolve S3 keys → signed URLs so TentangScene can use them directly as CSS urls.
+  // Resolve storage keys → proxy paths so TentangScene can use them directly as CSS urls.
   const [heroImageUrl, prinsipImages, paradigmaImages] = await Promise.all([
-    resolveUrl(heroData.heroImageUrl),
-    Promise.all(prinsipData.prinsipImages.map(resolveUrl)) as Promise<
+    resolveSiteImage(heroData.heroImageUrl),
+    Promise.all(prinsipData.prinsipImages.map(resolveSiteImage)) as Promise<
       TentangSettings['prinsipImages']
     >,
-    Promise.all(paradigmaData.paradigmaImages.map(resolveUrl)) as Promise<
+    Promise.all(paradigmaData.paradigmaImages.map(resolveSiteImage)) as Promise<
       TentangSettings['paradigmaImages']
     >
   ])
