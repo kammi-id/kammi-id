@@ -26,7 +26,11 @@ sudah ada, dan itu yang disasar backup Dokploy.
 
 **Yang dicabut:**
 
-- `src/env.ts` dan `.env.local` — lima `S3_*` keluar, `UPLOADS_DIR` masuk
+- `src/env.ts` dan `.env.local` — lima `S3_*` keluar. `UPLOADS_DIR` **tidak**
+  masuk `src/env.ts`: tiket 01 membacanya langsung dari `process.env` di
+  `src/lib/api/storage.ts` (alasannya di Comments tiket 01), jadi setelah lima
+  `S3_*` dicabut `src/env.ts` kosong dan berkasnya ikut hilang. Yang tetap perlu
+  disetel adalah `UPLOADS_DIR` di `.env.local` dan di container.
 - `docker-compose.yml` — service `storage` (MinIO AIStor berlisensi), volume
   `storage_data`, dan `minio.license` yang memang tidak pernah ada
 - `next.config.ts` — `remotePatterns: assets.kammi.id`. Host-nya berhenti jadi

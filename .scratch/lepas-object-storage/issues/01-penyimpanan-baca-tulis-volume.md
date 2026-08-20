@@ -41,10 +41,22 @@ Dua hal yang menyentuh tiket lain:
   `/api/images/<key>`. Penyatuannya dengan `resolveSiteImage` — dan pemulihan
   TTL `_cachedTentangSettings` — tetap milik tiket 03.
 - **`UPLOADS_DIR` tidak masuk `src/env.ts`.** Ia dibaca langsung dari
-  `process.env` di `src/lib/api/storage.ts`, dan dibaca ulang tiap panggilan.
-  `bun test` berbagi satu module registry antar-berkas, jadi konstanta env yang
-  dibekukan saat impor akan bernilai apa pun yang dimuat berkas tes pertama —
-  persis yang membuat `tests/lib/utils/site-image.test.ts` runtuh saat
-  `storage.test.ts` memuat `~/env` lebih dulu. Tiket 04 karena itu tidak akan
-  menemukan `UPLOADS_DIR` di `src/env.ts`; setelah lima `S3_*` dicabut berkas
-  itu kosong.
+  `process.env` di `src/lib/api/storage.ts`, dan dibaca ulang tiap panggilan,
+  supaya nilainya tidak bergantung pada urutan impor. `bun test` berbagi satu
+  module registry antar-berkas: konstanta env yang dibekukan saat impor akan
+  bernilai apa pun yang dimuat berkas tes **pertama**, dan itu sempat
+  meruntuhkan `tests/lib/utils/site-image.test.ts` ketika `storage.ts` masih
+  mengimpor `~/env`. Sekarang ia tidak lagi mengimpornya, jadi tabrakan persis
+  itu mustahil berulang — yang tersisa adalah alasan umumnya, dan itu yang
+  mengikat. Tiket 04 karena itu tidak akan menemukan `UPLOADS_DIR` di
+  `src/env.ts`; setelah lima `S3_*` dicabut berkas itu kosong. Baris di tiket 04
+  sudah diluruskan.
+- **Penahanan tinggal di `resolveKey`, bukan di route.** Tiket menulis "route
+  handler wajib menolak"; yang dibangun menolak di lapisan penyimpanan, dan
+  route mengubah penolakan itu jadi placeholder yang sama dengan berkas hilang.
+  Disengaja: route tidak lagi punya cara membedakan "di luar akar" dari "tidak
+  ada", sehingga tidak ada oracle yang bisa dipakai memetakan filesystem.
+- **Symlink di dalam volume masih bisa menembus keluar.** `resolveKey` memakai
+  `resolve()` lalu memeriksa prefix, tanpa `realpath`. Sesuai yang diminta
+  tiket, dan penyerangnya harus sudah bisa menulis ke volume lebih dulu — tapi
+  catat ini kalau kelak volume-nya dibagi dengan proses lain.

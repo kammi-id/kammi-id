@@ -2,9 +2,8 @@ import { describe, it, expect, beforeAll, afterAll } from 'bun:test'
 import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import type { GET as ImagesGet } from '~/app/api/images/[...key]/route'
+import { GET } from '~/app/api/images/[...key]/route'
 
-let GET: typeof ImagesGet
 let base: string
 let root: string
 
@@ -19,8 +18,9 @@ beforeAll(async () => {
   await mkdir(join(root, 'uploads'), { recursive: true })
   await writeFile(join(root, 'uploads', 'ada.jpg'), 'byte gambar')
   await writeFile(join(base, 'rahasia.txt'), 'jangan terbaca')
+  // `storage` membaca `UPLOADS_DIR` tiap panggilan, jadi menyetelnya di sini
+  // sudah cukup — urutan impor tidak ikut menentukan.
   process.env.UPLOADS_DIR = root
-  ;({ GET } = await import('~/app/api/images/[...key]/route'))
 })
 
 afterAll(async () => {

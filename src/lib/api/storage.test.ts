@@ -2,14 +2,13 @@ import { describe, it, expect, beforeAll, afterAll } from 'bun:test'
 import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
-import type { storage as Storage } from '~/lib/api/storage'
+import { storage } from '~/lib/api/storage'
 
-let storage: typeof Storage
 let root: string
 let outside: string
 
-// `UPLOADS_DIR` dibaca sekali saat modul dimuat, jadi ia harus sudah menunjuk
-// direktori sementara sebelum impor pertama.
+// `storage` membaca `UPLOADS_DIR` tiap panggilan, jadi menyetelnya di sini
+// sudah cukup — urutan impor tidak ikut menentukan.
 beforeAll(async () => {
   const base = await mkdtemp(join(tmpdir(), 'kammi-storage-'))
   root = join(base, 'uploads')
@@ -17,7 +16,6 @@ beforeAll(async () => {
   await mkdir(root, { recursive: true })
   await writeFile(outside, 'jangan terbaca')
   process.env.UPLOADS_DIR = root
-  ;({ storage } = await import('~/lib/api/storage'))
 })
 
 afterAll(async () => {
