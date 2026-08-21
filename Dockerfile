@@ -1,5 +1,5 @@
 # Stage 1: Install dependencies
-FROM oven/bun:1.3.11 AS deps
+FROM oven/bun:1.4.0 AS deps
 WORKDIR /app
 
 # Copy configuration files
@@ -9,7 +9,7 @@ COPY package.json bun.lock* bunfig.toml* ./
 RUN bun install --frozen-lockfile
 
 # Stage 2: Build the application
-FROM oven/bun:1.3.11 AS builder
+FROM oven/bun:1.4.0 AS builder
 WORKDIR /app
 
 # Copy node_modules from deps stage
@@ -24,7 +24,7 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN bun run build
 
 # Stage 3: Runner
-FROM oven/bun:1.3.11-slim AS runner
+FROM oven/bun:1.4.0-slim AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production

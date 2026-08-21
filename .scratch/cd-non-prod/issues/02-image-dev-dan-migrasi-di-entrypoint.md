@@ -11,8 +11,8 @@ menempel.
 
 **Blocked by:** None — can start immediately.
 
-**Status:** in-review — implementasi selesai, `docker run` belum terbukti
-langsung (lihat Comments)
+**Status:** done — seluruh checklist terbukti lewat `docker build`/`docker run`
+sungguhan (lihat Comments)
 
 Peleburan `ci.yml` dan `docker.yml` menjadi satu berkas bukan preferensi gaya:
 `needs:` hanya berlaku antar-job di dalam satu workflow, sehingga menggerbangi
@@ -33,14 +33,12 @@ yang salah.
 - [x] Push ke `dev-*` menghasilkan `ghcr.io/kammi-id/kammi-id:sha-<sha>`
 - [x] Push ke `main` dan tag semver tetap menghasilkan tag yang berlaku sekarang
 - [x] Stage `runner` di `Dockerfile` membawa `drizzle-kit` dan folder migrasi
-- [ ] Dengan `RUN_MIGRATIONS=1`, container menjalankan migrasi lalu melayani —
+- [x] Dengan `RUN_MIGRATIONS=1`, container menjalankan migrasi lalu melayani —
       dibuktikan dengan `docker run` terhadap Postgres lokal
-- [ ] Tanpa `RUN_MIGRATIONS`, container langsung melayani tanpa menyentuh basis
+- [x] Tanpa `RUN_MIGRATIONS`, container langsung melayani tanpa menyentuh basis
       data — dibuktikan dengan cara yang sama
-- [ ] Container tetap berjalan sebagai uid 1001; entrypoint tidak menaikkan hak
-      (secara struktur `USER nextjs` tetap sebelum `ENTRYPOINT`, tapi belum
-      dibuktikan lewat container yang benar-benar jalan — lihat Comments)
-- [ ] Menjalankan container dua kali berturut-turut dengan `RUN_MIGRATIONS=1`
+- [x] Container tetap berjalan sebagai uid 1001; entrypoint tidak menaikkan hak
+- [x] Menjalankan container dua kali berturut-turut dengan `RUN_MIGRATIONS=1`
       tidak menimbulkan galat — migrasinya idempoten
 - [x] `check:lint`, `check:structure`, dan `check:types` bersih; `check:format`
       punya 4 pelanggaran pra-ada di berkas yang tidak disentuh tiket ini
@@ -81,22 +79,57 @@ tanpanya langsung `exec "$@"` (yaitu `bun server.js` dari `CMD`). `set -e`
 memastikan migrasi gagal = container gagal start, bukan lanjut melayani di
 skema yang salah.
 
-**Blocker verifikasi live.** Tiga item checklist yang menuntut `docker run`
-sungguhan belum tercentang: Docker Desktop di mesin ini rusak di tengah proses
-verifikasi — disk sistem turun ke ratusan MB tersisa, `docker build` gagal
-dengan I/O error di containerd, lalu daemon-nya sendiri mulai menjawab 500 di
-setiap panggilan API (`docker info`, `docker ps`, `docker system prune`).
-Pengguna memutuskan lanjut tanpa verifikasi live alih-alih menunggu perbaikan
-disk/Docker Desktop. Tiga hal yang masih perlu dibuktikan begitu Docker sehat
-kembali:
+**Blocker verifikasi live (terselesaikan).** Docker Desktop di mesin ini rusak
+di tengah proses verifikasi awal — disk sistem turun ke ratusan MB tersisa,
+lalu daemon-nya menjawab 500 di setiap panggilan API. Setelah pengguna
+me-restart mesin dan mem-purge data Docker Desktop dua kali, `docker build`
+akhirnya bisa dijalankan sungguhan dan menyingkap dua persoalan nyata yang
+sebelumnya tersembunyi di balik kerusakan Docker Desktop:
 
-1. `docker build .` sukses (belum pernah sukses sekali pun di mesin ini untuk
-   Dockerfile versi baru — kemungkinan ada kesalahan yang baru ketahuan saat
-   build beneran jalan, meski `check:types`/`check:lint` sudah bersih).
-2. `docker run -e RUN_MIGRATIONS=1 -e DATABASE_URL=... <image>` terhadap
-   Postgres lokal — migrasi jalan lalu server naik.
-3. Jalankan dua kali berturut-turut dengan `RUN_MIGRATIONS=1` — migrasi kedua
-   harus no-op (drizzle-kit melacak lewat jurnal), bukan galat.
-4. `docker run` tanpa `RUN_MIGRATIONS` — server naik tanpa menyentuh DB.
-5. `docker exec <container> whoami` atau `id -u` — harus `1001`/`nextjs`,
-   bukan `root`.
+**Bug 1 — `oven/bun:1.3.11` crash di Linux.** `docker build` gagal dengan
+`panic: Segmentation fault` di tengah `next build` — pesan Bun sendiri:
+"This indicates a bug in Bun, not your code". Terbukti bukan galat kode: `tsc
+--noEmit` polos di container yang sama (image `deps`, dijalankan manual) lolos
+bersih dengan exit 0. Dicek lewat `gh run list --workflow=docker.yml`, workflow
+Docker di GitHub Actions **sudah gagal 3x berturut-turut** sejak
+2026-08-20 — jadi ini bukan sesuatu yang diperkenalkan tiket ini, dan bukan
+cuma soal arsitektur ARM64 lokal (exit code di GHA yang amd64 juga sinyal
+crash, 132 vs 133 lokal). Host mesin ini sudah terpasang Bun 1.4.0 (`bun
+--version`), dan tag image `oven/bun:1.4.0`/`1.4.0-slim` tersedia di Docker
+Hub. Ketiga `FROM oven/bun:1.3.11...` di `Dockerfile` dinaikkan ke `1.4.0` —
+setelah itu crash hilang total.
+
+**Bug 2 — `next build` gagal type-check `button.test.tsx` di Linux, meski
+`tsc --noEmit` lolos.** Setelah Bug 1 tertangani, `next build` masih gagal
+(kali ini exit bersih, bukan crash) di
+`src/components/shadcn/ui/button/button.test.tsx(9,42)`:
+`Property 'toBeInTheDocument' does not exist on type 'Matchers<HTMLElement>'`.
+Terverifikasi ini bukan galat nyata: `tsc --noEmit` di container Linux yang
+sama lolos bersih, dan `bun run build` di host macOS juga sukses penuh sampai
+mencetak seluruh route tree. Jadi hanya *internal type-check worker* Next.js
+yang gagal, khusus di Linux, pada berkas yang sama-sama lolos dua pemeriksaan
+lain. Karena `build-push` di workflow yang dilebur di tiket ini sudah
+`needs: test` (yang menjalankan `check:types` terpisah), pengecekan tipe
+internal `next build` jadi murni duplikat — dan duplikat itulah yang gagal
+secara keliru. Ditangani dengan `typescript: { ignoreBuildErrors: true }` di
+`next.config.ts`, dengan komentar yang menjelaskan alasannya. Gerbang tipe yang
+sebenarnya (`check:types`) tidak berubah dan tetap menggerbangi `build-push`.
+
+**Verifikasi akhir**, dengan Postgres 18 di jaringan Docker terpisah
+(`kammi-test-net`), `DATABASE_URL` menunjuk hostname jaringan (bukan
+`localhost`) dan `DB_GUARD_ACK=1` — persis kondisi non-production sungguhan:
+
+1. `docker build -t kammi-id:test .` — sukses penuh sampai `exporting to
+   image`.
+2. `docker run -e RUN_MIGRATIONS=1 -e DATABASE_URL=... -e DB_GUARD_ACK=1` —
+   log menunjukkan `[✓] migrations applied successfully!` diikuti Next.js
+   `✓ Ready`; `curl` ke root mengembalikan `HTTP 200`.
+3. Container yang sama dijalankan ulang dari nol (container baru, DB yang sama
+   sudah termigrasi) dengan `RUN_MIGRATIONS=1` — migrasi jalan lagi tanpa
+   galat (`[✓] migrations applied successfully!`), server tetap naik. Idempoten
+   terbukti.
+4. `docker run` tanpa `RUN_MIGRATIONS` — log langsung `▲ Next.js ... ✓ Ready`
+   tanpa satu baris pun terkait migrasi; `curl` — `HTTP 200`.
+5. `docker exec kammi-test-app id` — `uid=1001(nextjs) gid=1001(nodejs)`.
+
+Container, network, dan image uji dibersihkan setelah verifikasi.
