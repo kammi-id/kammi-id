@@ -42,6 +42,21 @@ COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
+# ADR 0008: the runner also carries drizzle-kit and the migration folder, so
+# the entrypoint can migrate the database it is about to serve. The deps
+# stage already installed devDependencies (drizzle-kit among them) against
+# the same lockfile, so reuse that install rather than resolving it again.
+COPY --from=deps --chown=nextjs:nodejs /app/node_modules ./node_modules
+COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
+COPY --from=builder --chown=nextjs:nodejs /app/tsconfig.json ./tsconfig.json
+COPY --from=builder --chown=nextjs:nodejs /app/drizzle.config.ts ./drizzle.config.ts
+COPY --from=builder --chown=nextjs:nodejs /app/src/db/schema ./src/db/schema
+COPY --from=builder --chown=nextjs:nodejs /app/src/db/__migrations ./src/db/__migrations
+COPY --from=builder --chown=nextjs:nodejs /app/src/scripts/db-guard.ts ./src/scripts/db-guard.ts
+COPY --from=builder --chown=nextjs:nodejs /app/src/lib/db-guard ./src/lib/db-guard
+COPY --chown=nextjs:nodejs docker-entrypoint.sh ./docker-entrypoint.sh
+RUN chmod +x ./docker-entrypoint.sh
+
 USER nextjs
 
 EXPOSE 3000
@@ -51,4 +66,5 @@ ENV HOSTNAME="0.0.0.0"
 
 # server.js is created by next build from the standalone output
 # https://nextjs.org/docs/pages/api-reference/next-config-js/output#automatically-copying-traced-files
+ENTRYPOINT ["./docker-entrypoint.sh"]
 CMD ["bun", "server.js"]
