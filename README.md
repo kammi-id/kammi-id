@@ -71,7 +71,7 @@ untuk kasus tanpa TTY.
 
 **Risiko yang diterima, disengaja:** kalau `TEST_DATABASE_URL` kosong atau
 salah ketik, `DATABASE_URL` jatuh kembali ke milik `next dev` tanpa galat.
-Pagar di atas tetap menolaknya *kalau* itu non-localhost — tapi di mesin yang
+Pagar di atas tetap menolaknya _kalau_ itu non-localhost — tapi di mesin yang
 `next dev`-nya juga menunjuk basis data localhost (mis. service `db` di
 compose ini), pagar ikut lolos senyap dan `TRUNCATE` bisa mengenai basis data
 dev. Menutupnya butuh pagar kedua yang mensyaratkan `TEST_DATABASE_URL` selalu

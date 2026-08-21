@@ -113,9 +113,7 @@ describe('storage.updateFile', () => {
     expect(key).not.toBe('uploads/lama.jpg')
     expect(key.startsWith('uploads/')).toBe(true)
     expect(await Bun.file(join(root, key)).text()).toBe('baru')
-    expect(await Bun.file(join(root, 'uploads/lama.jpg')).exists()).toBe(
-      false
-    )
+    expect(await Bun.file(join(root, 'uploads/lama.jpg')).exists()).toBe(false)
   })
 
   it('menulis kunci baru di folder yang sama dengan kunci lama', async () => {

@@ -139,7 +139,7 @@ Each of these families exists to let a reader identify a category at a glance �
 **Display / Headline / Title Font:** Lora (`var(--font-heading)`) — a serif, loaded via `next/font/google`.
 **Body Font:** Public Sans (`var(--font-sans)`) — a humanist sans-serif, loaded via `next/font/google`.
 **Accent Font:** Caveat (`var(--font-handwriting)`) — a handwritten script, loaded via `next/font/google`, used exactly once (the public "tentang" page scene). Do not extend it to a second surface without a specific reason; its rarity is the point.
-**Label/Mono Font (intent, currently unwired):** Geist Mono, referenced as `var(--font-geist-mono)` and applied via the `font-geist-mono` / `font-mono` utility across ~80+ dashboard locations (IDs, dates, table cells, stat numbers, badges). **Implementation gap:** `--font-geist-mono` is never bound to an actual typeface — `layout.tsx` loads only Lora, Public Sans, and Caveat via `next/font`; there is no `Geist_Mono` import and no `@font-face` fallback anywhere in the codebase. As an inherited CSS custom property, this most likely means every `.font-geist-mono` element silently renders in the surrounding Public Sans/Lora rather than a monospace face. Treat "Label" below as the system's *intended* voice, not a confirmed rendering — wiring `Geist_Mono` (or an equivalent mono face) into `layout.tsx` closes the gap; this file does not decide whether to fix it.
+**Label/Mono Font (intent, currently unwired):** Geist Mono, referenced as `var(--font-geist-mono)` and applied via the `font-geist-mono` / `font-mono` utility across ~80+ dashboard locations (IDs, dates, table cells, stat numbers, badges). **Implementation gap:** `--font-geist-mono` is never bound to an actual typeface — `layout.tsx` loads only Lora, Public Sans, and Caveat via `next/font`; there is no `Geist_Mono` import and no `@font-face` fallback anywhere in the codebase. As an inherited CSS custom property, this most likely means every `.font-geist-mono` element silently renders in the surrounding Public Sans/Lora rather than a monospace face. Treat "Label" below as the system's _intended_ voice, not a confirmed rendering — wiring `Geist_Mono` (or an equivalent mono face) into `layout.tsx` closes the gap; this file does not decide whether to fix it.
 
 **Character:** A serif/sans pairing — Lora's editorial authority for anything that reads as a heading, Public Sans's plain legibility for everything the user actually has to read at length. Geist Mono is meant to add a third, data-specific register (IDs, counts, timestamps) that visually separates "record" from "prose," but currently cannot, per the gap above.
 
@@ -180,21 +180,22 @@ Inputs and buttons take the opposite approach: **no border at rest** (`border-tr
 
 **The Capsule Rule.** The radius scale (`--radius: 0.625rem` / 10px base, scaled 0.6×–2.6×) is deliberately used at its top end for anything the user touches directly: buttons and badges use `rounded-4xl` (26px) against a 36px/20px height, which clamps them into true capsules; inputs use `rounded-3xl` (22px). Cards use `rounded-4xl` too, but at a much larger box, so the effect reads as "generously softened corners," not literal roundness. Nothing in the interactive layer uses a sharp or barely-rounded corner — that visual language is reserved for the "Government App" anti-reference this system is defined against.
 
-| Token | Value | Used by |
-|---|---|---|
-| `--radius-sm` | 6px | small chips, inline elements |
-| `--radius-md` | 8px | — |
-| `--radius-lg` | 10px | — |
-| `--radius-xl` | 14px | — |
-| `--radius-2xl` | 18px | — |
-| `--radius-3xl` | 22px | inputs, badges |
-| `--radius-4xl` | 26px | buttons, cards |
+| Token          | Value | Used by                      |
+| -------------- | ----- | ---------------------------- |
+| `--radius-sm`  | 6px   | small chips, inline elements |
+| `--radius-md`  | 8px   | —                            |
+| `--radius-lg`  | 10px  | —                            |
+| `--radius-xl`  | 14px  | —                            |
+| `--radius-2xl` | 18px  | —                            |
+| `--radius-3xl` | 22px  | inputs, badges               |
+| `--radius-4xl` | 26px  | buttons, cards               |
 
 ## Components
 
 **Soft-edged and unguarded.** Every primitive below shares the same posture: rounded to the top of the scale, no border until focus, shadow (if any) applied quietly rather than as feedback.
 
 ### Buttons
+
 - **Shape:** `rounded-4xl` (26px on a 36px-tall default button) — a true capsule.
 - **Default:** Ledger Crimson background, near-white text (`oklch(0.98 0.008 17)`), `hover:bg-primary/80`.
 - **Outline:** transparent background, `border-border` (Mist Border) stroke — the one button variant that keeps a border at rest, because "outline" is its whole job.
@@ -204,32 +205,39 @@ Inputs and buttons take the opposite approach: **no border at rest** (`border-tr
 - **Sizes:** `xs` (24px) through `lg` (40px), plus icon-only squares at matching heights.
 
 ### Badges
+
 - **Shape:** `rounded-3xl` (22px on a 20px-tall badge) — capsule.
 - **Style:** same variant set as buttons (default/secondary/destructive/outline/ghost), always `text-xs font-medium`.
 
 ### Cards / Containers
+
 - **Corner Style:** `rounded-4xl` (26px).
 - **Background:** Paper White (light) / Deep Slate-tinted surface (dark).
 - **Shadow Strategy:** `shadow-md` + `ring-1 ring-foreground/5` at rest — see Elevation & Depth. No border.
 - **Internal Padding:** 24px default (`py-6 px-6`), 16px compact variant (`data-size="sm"`).
 
 ### Inputs / Fields
+
 - **Style:** no border at rest; background is Soft Grey/Mist Border at 50% opacity (`bg-input/50`); `rounded-3xl`.
 - **Focus:** border shifts to Ledger Crimson-tinted ring color, plus `ring-3 ring-ring/30`.
 - **Error:** border shifts to Siren Red, `ring-3 ring-destructive/20`.
 
 ### Stat Displays (signature component)
+
 The large counters in dashboard bento/stat cards (`text-3xl`–`text-4xl`, `font-bold`, `tracking-tight`, `tabular-nums`, intended mono per the Typography gap above) are the system's most distinctive numeric treatment — the closest thing to a "brand moment" inside the dashboard. Keep them tabular and bold; don't reuse this exact scale for anything that isn't a headline count.
 
 ### Dialog vs. Sheet
+
 Both are legitimate and both are used heavily (Dialog: 16 dashboard call sites, Sheet: 11) — this system does **not** avoid modals. The real split by observed usage: **Dialog** for confirmations and short, bounded actions (delete confirmation, logout, reset password, bulk upload, category management). **Sheet** for the primary create/edit flow of a larger entity (branch management). Choose by task shape, not by a blanket preference for one over the other.
 
 ### Navigation
+
 Sidebar-driven dashboard nav (`--sidebar-*` token family, same crimson-tinted primary and neutral roles as the main palette, just with its own background step). Public-site nav sits in the marketing layout grammar, not the dashboard one.
 
 ## Do's and Don'ts
 
 ### Do:
+
 - **Do** reserve Ledger Crimson for actions and identity — semantic color (Jenjang, gender, Struktur type, Keadaan) carries everything else.
 - **Do** keep interactive elements borderless at rest; let focus/error states be the only time a border or heavy ring appears.
 - **Do** use the top of the radius scale (`3xl`/`4xl`) for anything the user directly touches (buttons, badges, inputs, cards).
@@ -237,6 +245,7 @@ Sidebar-driven dashboard nav (`--sidebar-*` token family, same crimson-tinted pr
 - **Do** pick Dialog for confirmations/short actions and Sheet for a primary create/edit flow, per the observed split above.
 
 ### Don't:
+
 - **Don't** use the "Government App" aesthetic: sharp rectangular corners, defensive borders on every field, monotonous blue-grey neutrals, or interfaces that force the user to justify an action before they can take it.
 - **Don't** introduce a second high-chroma accent color into primary UI — route it through the semantic system instead.
 - **Don't** assume `font-geist-mono` is rendering as monospace until the implementation gap above is closed; don't design new UI that depends on it looking different from body text.

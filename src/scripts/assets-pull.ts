@@ -12,7 +12,9 @@ const uploadsDir = resolve(process.env.UPLOADS_DIR || './.uploads')
 const main = async () => {
   if (!host) {
     console.error('❌ PRODUCTION_ASSETS_HOST belum diset.')
-    console.error('   Contoh: PRODUCTION_ASSETS_HOST=user@host bun run assets:pull')
+    console.error(
+      '   Contoh: PRODUCTION_ASSETS_HOST=user@host bun run assets:pull'
+    )
     process.exit(1)
   }
 
@@ -24,14 +26,14 @@ const main = async () => {
   const ssh = spawn({
     cmd: ['ssh', host, `docker run --rm -v ${volume}:/d -w /d alpine tar cz .`],
     stdout: 'pipe',
-    stderr: 'inherit',
+    stderr: 'inherit'
   })
 
   const tar = spawn({
     cmd: ['tar', 'xz', '-C', uploadsDir],
     stdin: ssh.stdout,
     stdout: 'inherit',
-    stderr: 'inherit',
+    stderr: 'inherit'
   })
 
   const [sshExit, tarExit] = await Promise.all([ssh.exited, tar.exited])
