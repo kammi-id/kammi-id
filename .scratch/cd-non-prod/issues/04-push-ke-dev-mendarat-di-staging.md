@@ -10,7 +10,10 @@ seluruh pekerjaan ini sudah terpecahkan.
 
 **Blocked by:** 02 (image untuk `dev-*`), 03 (lingkungan non-production)
 
-**Status:** ready-for-agent
+**Status:** done — kode lengkap dan terverifikasi lewat panggilan asli ke
+Dokploy dari mesin lokal (lihat Comments). Dua item checklist paling bawah
+menunggu push sungguhan ke `dev-20260104` untuk konfirmasi jalur CI-nya —
+itu langkah manusia berikutnya, bukan pekerjaan yang tersisa untuk agen.
 
 Deploy disetel dengan **sha-pinning**: job menyetel tag image ke sha commit-nya
 sebelum memicu deploy. Tag mengambang ditolak — dengan sha-pinning, kode yang
@@ -34,27 +37,57 @@ Prior art bentuk tesnya: berkas tes di `src/lib/db-guard/` — fungsi murni, tab
 kasus, tanpa mock jaringan. Bentuk modulnya juga mengikuti `src/lib/db-guard/`:
 logika yang layak diuji di `lib`, pemanggil tipis di `scripts`.
 
-- [ ] Fungsi murni penafsir status ada, dengan tes yang menutup keempat keluaran
-- [ ] Status yang tidak dikenali diperlakukan sebagai kegagalan, bukan
+- [x] Fungsi murni penafsir status ada, dengan tes yang menutup keempat keluaran
+- [x] Status yang tidak dikenali diperlakukan sebagai kegagalan, bukan
       diabaikan diam-diam
-- [ ] Satu perintah menyetel tag image, memicu deploy, menunggu sampai selesai,
+- [x] Satu perintah menyetel tag image, memicu deploy, menunggu sampai selesai,
       dan keluar dengan kode 0 hanya bila deploy berhasil
-- [ ] Perintah itu punya batas waktu, dan melewatinya berarti keluar bukan-0
+- [x] Perintah itu punya batas waktu, dan melewatinya berarti keluar bukan-0
       dengan pesan yang menyebut sebabnya
-- [ ] Perintah itu terbukti bekerja saat dijalankan dari mesin lokal, sebelum
+- [x] Perintah itu terbukti bekerja saat dijalankan dari mesin lokal, sebelum
       dipercayakan ke CI
-- [ ] Job deploy menempel ke workflow dari tiket 02 dan bergantung pada job
+- [x] Job deploy menempel ke workflow dari tiket 02 dan bergantung pada job
       build lewat `needs:`
-- [ ] Job deploy hanya berjalan untuk push ke `dev-*`
-- [ ] Push ke `main` tidak memicu deploy non-production
-- [ ] Pull request tidak memicu deploy
-- [ ] Tes yang merah berarti deploy tidak berjalan sama sekali
+- [x] Job deploy hanya berjalan untuk push ke `dev-*`
+- [x] Push ke `main` tidak memicu deploy non-production
+- [x] Pull request tidak memicu deploy
+- [x] Tes yang merah berarti deploy tidak berjalan sama sekali
 - [ ] Push satu commit ke `dev-*` berakhir dengan subdomain staging menyajikan
-      commit itu
-- [ ] Build yang gagal di Dokploy membuat job GitHub merah
+      commit itu — belum dibuktikan lewat push CI sungguhan, lihat Comments
+- [ ] Build yang gagal di Dokploy membuat job GitHub merah — logikanya ada
+      (`throw` di kegagalan → exit bukan-0) tapi belum dipicu dengan build
+      yang sungguhan gagal
 
 ## Comments
 
 Bila dua branch `dev-*` hidup bersamaan, keduanya menuju satu lingkungan staging
 dan push terakhir menang. Diterima sadar — menguncinya ke satu nama branch
 adalah perubahan satu baris bila kelak ada kontributor kedua.
+
+**Verifikasi lokal (2026-08-21).** `bun run deploy:nonprod` dijalankan langsung
+dari mesin ini dengan `GITHUB_REPOSITORY=kammi-id/kammi-id` dan
+`GITHUB_SHA=$(git rev-parse HEAD)` (commit `c489bf9`, yang sudah tervalidasi
+di tiket 03) meniru env yang disuntikkan job GitHub Actions. Alurnya nyata:
+`saveDockerProvider` → `deploy` → polling `application.one` sampai
+`applicationStatus: done` → exit 0. `curl` ke `https://staging.kammi.id`
+sesudahnya tetap `HTTP 200`. Ini membuktikan klien HTTP dan orkestrasinya
+bekerja terhadap instance Dokploy sungguhan — dua item checklist terakhir
+tetap menunggu push sungguhan lewat CI karena keduanya secara harfiah
+tentang jalur GitHub Actions, bukan tentang skripnya.
+
+**Rahasia GitHub baru ditambahkan.** `application.saveDockerProvider`
+mewajibkan `username`+`password` di body (dicek langsung dari OpenAPI spec
+instance — keduanya `required`, bukan opsional meski `registryId` sudah
+tersimpan dari provisioning tiket 03). Dua rahasia baru ditambahkan lewat
+`gh secret set`, nilainya disalin dari `.env.local`:
+`DOKPLOY_NONPROD_GHCR_USERNAME` dan `DOKPLOY_NONPROD_GHCR_PAT`. Total kini
+lima rahasia untuk fitur ini.
+
+**Modul baru:** `src/lib/dokploy/status.ts` (fungsi murni
+`interpretApplicationStatus`, plus `status.test.ts`) dan `src/lib/dokploy/client.ts`
+(klien HTTP tipis, tak diuji — pola `assets-pull.ts`). Skrip pemanggil:
+`src/scripts/deploy-nonprod.ts`, dijalankan lewat `bun run deploy:nonprod`.
+Job `deploy` baru di `ci.yml` `needs: build-push` dan digerbangi
+`if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/dev-')`.
+Timeout polling 5 menit, interval 5 detik — sama dengan yang dipakai wizard
+tiket 03.

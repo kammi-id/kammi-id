@@ -109,3 +109,24 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+  deploy:
+    needs: build-push
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/dev-')
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Deploy to non-production
+        run: bun run deploy:nonprod
+        env:
+          DOKPLOY_NONPROD_URL: ${{ secrets.DOKPLOY_NONPROD_URL }}
+          DOKPLOY_NONPROD_API_KEY: ${{ secrets.DOKPLOY_NONPROD_API_KEY }}
+          DOKPLOY_NONPROD_APPLICATION_ID: ${{ secrets.DOKPLOY_NONPROD_APPLICATION_ID }}
+          DOKPLOY_NONPROD_GHCR_USERNAME: ${{ secrets.DOKPLOY_NONPROD_GHCR_USERNAME }}
+          DOKPLOY_NONPROD_GHCR_PAT: ${{ secrets.DOKPLOY_NONPROD_GHCR_PAT }}

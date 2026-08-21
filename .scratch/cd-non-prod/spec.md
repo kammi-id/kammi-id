@@ -150,6 +150,16 @@ mengambang seperti `latest` atau `staging` ditolak: dengan sha-pinning, kode
 yang hidup di staging selalu diketahui persis, dan rollback menjadi pemanggilan
 endpoint yang sama dengan sha lama.
 
+`application.saveDockerProvider` mewajibkan `username`+`password` mentah di
+body pada setiap panggilan (dikonfirmasi dari OpenAPI spec instance — keduanya
+`required`, bukan opsional); tidak ada varian yang menerima `registryId` dari
+kredensial yang sudah tersimpan lewat `registry.create` saat provisioning.
+Konsekuensinya PAT GHCR hidup di dua tempat — sekali sebagai registry object
+di Dokploy, sekali lagi sebagai GitHub Secret yang dikirim ulang tiap deploy.
+Ini kendala API riil, bukan pilihan desain: story #16 ("kredensial registry
+disimpan sekali") tetap benar untuk objek `registry` itu sendiri, tapi tidak
+menghindarkan `saveDockerProvider` dari mengirim kredensial lagi.
+
 ### Kontrak API Dokploy
 
 Base URL berbentuk `<host>/api/<router>.<procedure>`; autentikasi lewat header
@@ -205,9 +215,12 @@ yang layak diuji di `lib`, pemanggil tipis di `scripts`.
 
 ### Rahasia
 
-Tiga rahasia GitHub Actions: URL instance, API key, dan id aplikasi. Kredensial
-production tidak pernah masuk ke repositori maupun ke GitHub Secrets sebagai
-bagian pekerjaan ini.
+Lima rahasia GitHub Actions: URL instance, API key, id aplikasi, plus username
+dan PAT GHCR — dua yang terakhir ditambahkan di tiket 04 karena
+`application.saveDockerProvider` mewajibkan kredensial mentah di tiap
+panggilan (lihat "Penandaan image"), bukan tiga seperti perkiraan awal saat
+spec ini ditulis. Kredensial production tidak pernah masuk ke repositori
+maupun ke GitHub Secrets sebagai bagian pekerjaan ini.
 
 ## Testing Decisions
 
