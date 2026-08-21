@@ -30,6 +30,14 @@ if (process.env.NODE_ENV === 'development') {
     global.db = drizzle({ client: new SQL(DATABASE_URL) })
   }
   db = global.db as DB
+} else if (process.env.NODE_ENV === 'test') {
+  // Every test file shares this one module-level client (bun test runs all
+  // files in a single process). Bun.SQL pools up to 10 connections by
+  // default, so a query that isn't awaited exactly where the test author
+  // expects can land on a second physical connection and run concurrently
+  // with the next file's TRUNCATE — real deadlocks, not a scheduling bug.
+  // Pinning the pool to 1 makes tests serialize at the connection itself.
+  db = drizzle({ client: new SQL({ url: DATABASE_URL, max: 1 }) })
 } else {
   db = drizzle({ client: new SQL(DATABASE_URL) })
 }
