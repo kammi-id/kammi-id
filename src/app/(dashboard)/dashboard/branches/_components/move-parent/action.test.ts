@@ -76,6 +76,9 @@ describe('aksi pindah induk', () => {
   // Seeded once: `createOrganization` hashes a password per Akun it mints, and
   // paying that for eleven Struktur on every test buys nothing. What the tests
   // actually mutate is one column, so `beforeEach` puts that column back.
+  //
+  // Twelve sequential password hashes plus a CASCADE truncate routinely clear
+  // 5s on a throttled CI runner — bumped past bun test's default hook timeout.
   beforeAll(async () => {
     await db.execute(sql`TRUNCATE TABLE "user", "member", organization CASCADE`)
 
@@ -151,7 +154,7 @@ describe('aksi pindah induk', () => {
       [pkPasundanId]: pdBandungId,
       [pkKairoId]: pdlnMesirId
     }
-  })
+  }, 15000)
 
   beforeEach(async () => {
     mockSession = sessionWith('root', ppId)
