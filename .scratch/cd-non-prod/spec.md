@@ -1,6 +1,6 @@
 # CD ke non-production lewat Dokploy API
 
-**Status:** ready-for-agent (tiket infrastruktur `ready-for-human` — lihat per tiket)
+**Status:** done — semua tiket (01-05) selesai per 2026-08-22
 
 Dua keputusan yang susah dibalik sudah tercatat terpisah:
 [ADR 0008](../../docs/adr/0008-migrasi-dijalankan-entrypoint-container.md) untuk

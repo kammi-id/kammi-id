@@ -100,6 +100,76 @@ S3 yang sudah sengaja dicabut. Butuh akses SSH ke host production sendiri;
 `PRODUCTION_ASSETS_VOLUME` opsional kalau nama volumenya bukan
 `kammi-uploads`.
 
+> **Terverifikasi 2026-08-22 (tiket 05): asumsi di atas belum benar.**
+> Production belum menjalankan migrasi ADR 0006 — gambar masih sepenuhnya di
+> RustFS, bukan volume Docker. Skrip ini kemungkinan gagal apa adanya
+> terhadap production sekarang. Lihat cara yang terbukti bekerja (lewat `mc`
+> di dalam docker network production) di bagian "Menyegarkan data staging"
+> di bawah — pola yang sama berlaku sampai production benar-benar migrasi.
+
+## Data staging & rollback
+
+Staging (`https://staging.kammi.id`) diisi salinan data production, bukan
+seed — lihat
+[ADR 0009](docs/adr/0009-staging-membawa-data-production.md). Penyegarannya
+manual dan sesuai kebutuhan, **bukan** bagian pipeline deploy (deploy tetap
+berdurasi detik dan tidak pernah menjalankan operasi destruktif otomatis).
+
+### Menyegarkan data staging
+
+```bash
+bash .scratch/cd-non-prod/wizard-05-data-staging-dan-runbook.sh
+```
+
+Me-restore `pg_dump` production ke Postgres staging (`--clean --if-exists`)
+dan menimpa volume `kammi-uploads` staging dengan gambar production, keduanya
+lewat mesin lokal sebagai perantara — tidak ada kunci SSH permanen
+non-production → production. Gambar masih di RustFS (production belum
+migrasi ke volume, ADR 0006), dan RustFS tidak reachable langsung dari luar —
+`mc` dijalankan DI HOST production lewat SSH (`docker run --network
+dokploy-network minio/mc`), hasilnya ditarik ke lokal lewat tar-over-SSH,
+persis pola `assets-pull.ts`. Begitu production migrasi ke volume, seluruh
+langkah `mc` ini bisa diganti tar-over-SSH langsung seperti sisi staging.
+Verifikasi objek/byte dan verifikasi mata (foto Kader, logo Struktur, Artikel
+bergambar) berjalan di dalam wizard yang sama.
+
+**Dua gotcha nyata, wizard sudah menanganinya tapi baca dulu kalau menulis
+ulang skripnya:**
+
+1. **Ledger migrasi drizzle ikut ketimpa restore.** `pg_restore --clean`
+   menimpa `drizzle.__drizzle_migrations` staging dengan punya production —
+   kalau production belum rilis migrasi tertentu (atau ledgernya sendiri
+   bolong dari awal), redeploy berikutnya (`RUN_MIGRATIONS=1`) bisa
+   crash-loop tanpa pesan error yang jelas (bug di `drizzle-kit`'s CLI:
+   status "rejected" pada task migrate tidak pernah menampilkan error-nya).
+   Wizard memverifikasi TIAP migrasi yang "hilang" satu per satu sebelum
+   mencatatnya sebagai sudah diterapkan — jangan pernah generalisasi dari
+   sampel. Insiden nyata: 3 dari 7 migrasi yang terlihat serupa ternyata
+   BENAR belum pernah diterapkan di production (fitur yang sudah ada di
+   dev/staging tapi belum dirilis), dan baru ketahuan lewat error runtime
+   saat login (`column member.birth_place does not exist`), bukan lewat
+   proses verifikasi.
+2. **Container yang menulis volume (alpine tar/mc) jalan sebagai root**,
+   sementara aplikasi jalan sebagai uid 1001 (spec.md, "Izin volume"). Tiap
+   kali volume ditulis ulang, ownership harus dikembalikan
+   (`chown -R 1001:1001`) atau `/api/images/*` jatuh ke placeholder walau
+   datanya benar.
+
+### Rollback staging ke sha sebelumnya
+
+Sama seperti CI, tapi dijalankan dari mesin lokal dengan sha lama:
+
+```bash
+GITHUB_SHA=<sha> GITHUB_REPOSITORY=kammi-id/kammi-id bun run deploy:nonprod
+```
+
+Image `ghcr.io/kammi-id/kammi-id:sha-<7char>` harus sudah pernah dibangun CI
+(commit-nya sudah di-push sebelumnya) — sha yang belum pernah di-push tidak
+punya image untuk ditarik. `DOKPLOY_NONPROD_GHCR_USERNAME` harus ada di
+`.env.local` (sama nilainya dengan `GHCR_USERNAME`) — nama variabelnya beda
+dari yang dipakai `assets:pull`, ketahuan pas sesi ini. Terverifikasi
+bekerja: 2026-08-22, `ffdfbc2` → `c489bf9` → `ffdfbc2`.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

@@ -52,8 +52,10 @@ logika yang layak diuji di `lib`, pemanggil tipis di `scripts`.
 - [x] Push ke `main` tidak memicu deploy non-production
 - [x] Pull request tidak memicu deploy
 - [x] Tes yang merah berarti deploy tidak berjalan sama sekali
-- [ ] Push satu commit ke `dev-*` berakhir dengan subdomain staging menyajikan
-      commit itu — belum dibuktikan lewat push CI sungguhan, lihat Comments
+- [x] Push satu commit ke `dev-*` berakhir dengan subdomain staging menyajikan
+      commit itu — terbukti 2026-08-22 (tiket 05): push `ffdfbc2` sungguhan
+      ke origin, `test` → `build-push` → `deploy` sukses semua, staging
+      menyajikan `sha-ffdfbc2` (`docker service ls` + `curl` HTTP 200)
 - [ ] Build yang gagal di Dokploy membuat job GitHub merah — logikanya ada
       (`throw` di kegagalan → exit bukan-0) tapi belum dipicu dengan build
       yang sungguhan gagal
