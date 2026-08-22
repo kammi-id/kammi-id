@@ -2,7 +2,13 @@ import { describe, it, expect, beforeEach, mock } from 'bun:test'
 
 let revalidatedTags: string[] = []
 
+// `bun test` runs every file in one process, so `mock.module` replaces
+// 'next/cache' for the rest of the run — spreading the real module keeps
+// `cacheLife`/`cacheTag`/`updateTag`/etc. intact for files that run after
+// this one and import them for real.
+const actualNextCache = await import('next/cache')
 mock.module('next/cache', () => ({
+  ...actualNextCache,
   revalidateTag: (tag: string) => {
     revalidatedTags.push(tag)
   }
