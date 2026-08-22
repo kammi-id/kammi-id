@@ -221,7 +221,7 @@ dokploy_post() { # BASE KEY PROC BODY
 }
 jq_err() { printf '%s' "$1" | jq -r '.message // empty' 2>/dev/null; }
 
-TOTAL_STAGES=11
+TOTAL_STAGES=12
 
 banner "Tiket 05 — Data staging & runbook"
 
@@ -380,6 +380,31 @@ else
   done
 fi
 
+# ── 5c. Revalidate cache aplikasi ───────────────────────────────────────────
+stage "Revalidate cache aplikasi"
+say "pg_restore menulis langsung ke Postgres, di luar aplikasi — 'use cache'"
+say "untuk site-settings (cacheLife('days'), lihat src/app/(main)/_data/"
+say "site-settings.ts) tidak pernah tahu datanya berubah, dan bisa nyangkut di"
+say "keadaan lama (termasuk default kosong) sampai revalidasi latar belakang"
+say "kebetulan terpicu. Ditemukan langsung: /tentang sempat menyajikan gambar"
+say "kosong tepat setelah restore, lalu pulih sendiri beberapa detik kemudian."
+say "Endpoint /api/revalidate-cache (src/app/api/revalidate-cache/route.ts)"
+say "memaksa revalidasi tag 'site-settings' segera — pastikan CACHE_REVALIDATE_SECRET"
+say "sudah diset sebagai environment variable aplikasi staging di panel Dokploy"
+say "(bukan di $ENV_FILE — itu env aplikasi yang jalan, terpisah dari mesin lokal ini)."
+ask_secret CACHE_REVALIDATE_SECRET "CACHE_REVALIDATE_SECRET (sama seperti yang diset di panel Dokploy staging):"
+write_env CACHE_REVALIDATE_SECRET "$CACHE_REVALIDATE_SECRET"
+REVALIDATE_STATUS=$(curl -sS -o /dev/null -w '%{http_code}' -X POST \
+  "https://${DOKPLOY_NONPROD_STAGING_HOST}/api/revalidate-cache" \
+  -H "x-revalidate-secret: $CACHE_REVALIDATE_SECRET")
+if [[ "$REVALIDATE_STATUS" == "200" ]]; then
+  note "✓ cache site-settings staging di-revalidate"
+else
+  warn "revalidate-cache mengembalikan HTTP $REVALIDATE_STATUS — periksa"
+  warn "CACHE_REVALIDATE_SECRET di panel Dokploy staging cocok dengan yang"
+  warn "baru saja diketik di atas."
+fi
+
 # ── 6. Salin gambar dari RustFS production → volume staging ────────────────
 stage "Salin gambar (RustFS production → volume staging)"
 say "Production BELUM migrasi ke volume (ADR 0006 belum dijalankan di sana) —"
@@ -449,7 +474,11 @@ rm -rf "$TMP_UPLOADS"
 
 # ── 8. Verifikasi dengan mata ───────────────────────────────────────────────
 stage "Verifikasi dengan mata"
-say "Tiga halaman, buka satu-satu dan periksa gambarnya benar-benar muncul."
+say "Empat halaman, buka satu-satu dan periksa gambarnya benar-benar muncul."
+step "Hero, foto Prinsip, foto Paradigma di /tentang:"
+open_url "https://${DOKPLOY_NONPROD_STAGING_HOST}/tentang"
+confirm "Gambar Hero + Prinsip + Paradigma muncul (bukan kosong/gradient fallback)?" \
+  || warn "dicatat sebagai belum terverifikasi"
 step "Foto Kader di halaman publik:"
 open_url "https://${DOKPLOY_NONPROD_STAGING_HOST}/tentang/pengurus"
 confirm "Foto Kader muncul (bukan placeholder)?" || warn "dicatat sebagai belum terverifikasi"
