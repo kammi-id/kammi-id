@@ -71,10 +71,11 @@ type MemberAggregatesRow = {
   total: number | null
 }
 
-export const readMemberAggregates = async (
+const readMemberAggregatesForRoles = async (
   filters: MemberAggregatesFilters & {
     user: AccessScope
-  }
+  },
+  allowedRoles: readonly string[]
 ): Promise<Array<MemberAggregatesResult>> => {
   const {
     organizationId,
@@ -84,7 +85,6 @@ export const readMemberAggregates = async (
     user
   } = filters
 
-  const allowedRoles = ['root', 'bph', 'bpk']
   if (!allowedRoles.includes(user.role)) {
     return []
   }
@@ -167,6 +167,7 @@ export const readMemberAggregates = async (
       count(m.id)::int AS "total"
     FROM org_tree ot
     LEFT JOIN member m ON m.organization_id = ot.id
+      AND m.deleted_at IS NULL
       ${isAlumn !== undefined ? sql`AND m.is_alumn = ${isAlumn}` : sql``}
       ${isCertifiedMentor !== undefined ? sql`AND m.is_certified_mentor = ${isCertifiedMentor}` : sql``}
       ${isCertifiedInstructor !== undefined ? sql`AND m.is_certified_instructor = ${isCertifiedInstructor}` : sql``}
@@ -228,6 +229,21 @@ export const readMemberAggregates = async (
 
   return Object.values(accumulated)
 }
+
+/** Agregat Kader untuk permukaan Kekaderan umum. */
+export const readMemberAggregates = async (
+  filters: MemberAggregatesFilters & { user: AccessScope }
+): Promise<Array<MemberAggregatesResult>> =>
+  readMemberAggregatesForRoles(filters, ['root', 'bph', 'bpk'])
+
+/**
+ * Agregat Kader yang hanya boleh muncul pada detail Struktur. BPW menerima
+ * angka tanpa memperoleh pembaca daftar atau identitas Kader umum.
+ */
+export const readBranchDetailMemberAggregates = async (
+  filters: MemberAggregatesFilters & { user: AccessScope }
+): Promise<Array<MemberAggregatesResult>> =>
+  readMemberAggregatesForRoles(filters, ['root', 'bph', 'bpw'])
 
 /**
  * How many **living** Kader sit directly in one Struktur — the `nol Member`

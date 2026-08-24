@@ -1,10 +1,37 @@
 import { cacheLife, cacheTag } from 'next/cache'
 import { readOrganization, type Organization } from '~/db/query/organization'
+import {
+  readBranchDetailMemberAggregates,
+  type MemberAggregatesFilters,
+  type MemberAggregatesResult
+} from '~/db/query/member'
+import { type AccessScope } from '~/db/query/organization'
+
+export type BranchMemberMetrics = Omit<
+  MemberAggregatesResult,
+  'organizationId' | 'parentId' | 'level'
+> & {
+  pemandu: number
+  instruktur: number
+}
 
 export type BranchDetail = {
   organization: Organization
   breadcrumbs: Organization[]
   parent: Organization | null
+  memberMetrics: BranchMemberMetrics
+}
+
+type BranchDetailPath = Omit<BranchDetail, 'memberMetrics'>
+
+export const getCachedBranchDetailMemberAggregates = async (
+  filters: MemberAggregatesFilters & { user: AccessScope }
+) => {
+  'use cache'
+  cacheLife('minutes')
+  cacheTag('kader')
+
+  return readBranchDetailMemberAggregates(filters)
 }
 
 /**
@@ -19,7 +46,7 @@ export type BranchDetail = {
 export const readBranchDetailPath = async (
   anchorId: string,
   slugs: string[]
-): Promise<BranchDetail | null> => {
+): Promise<BranchDetailPath | null> => {
   'use cache'
   cacheLife('hours')
   cacheTag('organizations')

@@ -13,6 +13,13 @@ import {
   BreadcrumbSeparator
 } from '~/components/shadcn/ui/breadcrumb'
 import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
+} from '~/components/shadcn/ui/card'
+import {
   StrukturAktifBadge,
   StrukturJenjangBadge,
   StrukturNonAktifBadge
@@ -20,7 +27,17 @@ import {
 import type { BranchDetail } from './data'
 
 export const BranchDetailView = ({ detail }: { detail: BranchDetail }) => {
-  const { organization, breadcrumbs, parent } = detail
+  const { organization, breadcrumbs, parent, memberMetrics } = detail
+  const metrics = [
+    ['Kader Aktif', memberMetrics.total],
+    ['AB1', memberMetrics.ab1],
+    ['AB2', memberMetrics.ab2],
+    ['AB3', memberMetrics.ab3],
+    ['Ikhwan', memberMetrics.ikhwan],
+    ['Akhwat', memberMetrics.akhwat],
+    ['Pemandu', memberMetrics.pemandu],
+    ['Instruktur', memberMetrics.instruktur]
+  ]
 
   return (
     <div className='flex flex-col gap-8 px-4 py-4 md:py-6 lg:px-6'>
@@ -111,6 +128,25 @@ export const BranchDetailView = ({ detail }: { detail: BranchDetail }) => {
           </div>
         </div>
       </section>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Ringkasan Kader</CardTitle>
+          <CardDescription>
+            Kader Aktif dalam Cakupan Struktur ini.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <dl className='grid grid-cols-2 gap-4 sm:grid-cols-4'>
+            {metrics.map(([label, value]) => (
+              <div key={label} className='bg-muted/50 rounded-2xl p-4'>
+                <dt className='text-muted-foreground text-sm'>{label}</dt>
+                <dd className='mt-1 text-2xl font-semibold'>{value}</dd>
+              </div>
+            ))}
+          </dl>
+        </CardContent>
+      </Card>
     </div>
   )
 }
