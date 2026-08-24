@@ -18,7 +18,6 @@ import {
   SelectValue
 } from '~/components/shadcn/ui/select'
 import { Button } from '~/components/shadcn/ui/button'
-import { orgFormStore, resetOrgForm, orgSheetStore } from './store'
 import {
   createOrganizationAction,
   updateOrganizationAction,
@@ -29,6 +28,7 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { Loading03Icon } from '@hugeicons/core-free-icons'
 import { ImageUpload } from '~/components/image-upload'
 import { deleteImageAction } from '~/lib/actions/storage'
+import { InitialCredentialsDialog } from './initial-credentials-dialog'
 
 export const AddOrganizationForm = ({
   parentOrg,
@@ -46,6 +46,10 @@ export const AddOrganizationForm = ({
   const [code, setCode] = React.useState(editData?.code ?? '')
   const [slug, setSlug] = React.useState(editData?.slug ?? '')
   const [type, setType] = React.useState(editData?.type ?? '')
+  const [initialCredentials, setInitialCredentials] = React.useState<
+    NonNullable<OrgFormState['credentials']>
+  >([])
+  const [isCredentialsOpen, setIsCredentialsOpen] = React.useState(false)
   const [state, action, isPending] = React.useActionState(
     async (prevState: OrgFormState, formData: FormData) => {
       if (editData) {
@@ -59,11 +63,16 @@ export const AddOrganizationForm = ({
   React.useEffect(() => {
     if (state.success) {
       toast.success(state.message)
-      orgSheetStore.set(false)
+      if (!editData && state.credentials && state.organizationSlug) {
+        setInitialCredentials(state.credentials)
+        setIsCredentialsOpen(true)
+      } else {
+        onClose()
+      }
     } else if (state.message && !state.success) {
       toast.error(state.message)
     }
-  }, [state])
+  }, [state, editData, onClose])
 
   React.useEffect(() => {
     if (state.values && !state.success) {
@@ -96,158 +105,169 @@ export const AddOrganizationForm = ({
   const availableTypes = childTypes[parentOrg.type] || []
 
   return (
-    <form action={action} className='space-y-6 p-6'>
-      <input type='hidden' name='parentId' value={parentOrg.id} />
-      {editData && <input type='hidden' name='id' value={editData.id} />}
+    <>
+      <form action={action} className='space-y-6 p-6'>
+        <input type='hidden' name='parentId' value={parentOrg.id} />
+        {editData && <input type='hidden' name='id' value={editData.id} />}
 
-      <FieldGroup>
-        <Field data-invalid={!!state.errors?.name || undefined}>
-          <FieldLabel htmlFor='name'>Nama Organisasi</FieldLabel>
-          <Input
-            id='name'
-            name='name'
-            placeholder='Contoh: Pengurus Daerah Jakarta'
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-            aria-invalid={!!state.errors?.name || undefined}
-          />
-          <FieldError
-            errors={state.errors?.name?.map((m) => ({ message: m }))}
-          />
-        </Field>
+        <FieldGroup>
+          <Field data-invalid={!!state.errors?.name || undefined}>
+            <FieldLabel htmlFor='name'>Nama Organisasi</FieldLabel>
+            <Input
+              id='name'
+              name='name'
+              placeholder='Contoh: Pengurus Daerah Jakarta'
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+              aria-invalid={!!state.errors?.name || undefined}
+            />
+            <FieldError
+              errors={state.errors?.name?.map((m) => ({ message: m }))}
+            />
+          </Field>
 
-        {/* `code` beku sejak pembuatan untuk semua Kewenangan, Root termasuk
+          {/* `code` beku sejak pembuatan untuk semua Kewenangan, Root termasuk
             (spec §2.4) — ia terbawa ke Nomor Induk Anggota yang permanen. Saat
             menyunting ia jadi keterangan identitas, bukan kontrol mati: input
             disabled terbaca "kamu kurang izin", padahal tidak seorang pun
             berhak mengubahnya. */}
-        {editData ? (
-          <Field>
-            <FieldLabel>Kode Organisasi</FieldLabel>
-            <p className='text-foreground font-geist-mono text-sm font-medium'>
-              {editData.code}
-            </p>
-            <FieldDescription>
-              Kode tidak dapat diubah setelah organisasi dibuat — ia menurunkan
-              Nomor Induk setiap Kader di bawahnya.
-            </FieldDescription>
-          </Field>
-        ) : (
-          <Field data-invalid={!!state.errors?.code || undefined}>
-            <FieldLabel htmlFor='code'>Kode Organisasi</FieldLabel>
-            <Input
-              id='code'
-              name='code'
-              placeholder='Contoh: PD-JKT'
-              value={code}
-              onChange={(e) => setCode(e.target.value)}
-              required
-              aria-invalid={!!state.errors?.code || undefined}
-            />
-            <FieldDescription>
-              Singkatan unik organisasi, contoh: PD-JKT, PK-UNY.
-            </FieldDescription>
-            <FieldError
-              errors={state.errors?.code?.map((m) => ({ message: m }))}
-            />
-          </Field>
-        )}
+          {editData ? (
+            <Field>
+              <FieldLabel>Kode Organisasi</FieldLabel>
+              <p className='text-foreground font-geist-mono text-sm font-medium'>
+                {editData.code}
+              </p>
+              <FieldDescription>
+                Kode tidak dapat diubah setelah organisasi dibuat — ia
+                menurunkan Nomor Induk setiap Kader di bawahnya.
+              </FieldDescription>
+            </Field>
+          ) : (
+            <Field data-invalid={!!state.errors?.code || undefined}>
+              <FieldLabel htmlFor='code'>Kode Organisasi</FieldLabel>
+              <Input
+                id='code'
+                name='code'
+                placeholder='Contoh: PD-JKT'
+                value={code}
+                onChange={(e) => setCode(e.target.value)}
+                required
+                aria-invalid={!!state.errors?.code || undefined}
+              />
+              <FieldDescription>
+                Singkatan unik organisasi, contoh: PD-JKT, PK-UNY.
+              </FieldDescription>
+              <FieldError
+                errors={state.errors?.code?.map((m) => ({ message: m }))}
+              />
+            </Field>
+          )}
 
-        {/* Tipe ditetapkan sekali saat pembuatan dan tidak pernah berubah
+          {/* Tipe ditetapkan sekali saat pembuatan dan tidak pernah berubah
             sesudahnya — memindahkan sebuah Struktur ke Jenjang lain bukan
             penyuntingan, dan server mengabaikan `type` yang dikirim saat
             memperbarui. Jadi saat mengedit ia ditampilkan sebagai keterangan,
             bukan sebagai kontrol yang tampak bisa dipakai. */}
-        {editData ? (
-          <Field>
-            <FieldLabel>Tipe Organisasi</FieldLabel>
-            <p className='text-foreground text-sm font-medium'>
-              {availableTypes.find((t) => t.value === editData.type)?.label ??
-                editData.type.toUpperCase()}
-            </p>
+          {editData ? (
+            <Field>
+              <FieldLabel>Tipe Organisasi</FieldLabel>
+              <p className='text-foreground text-sm font-medium'>
+                {availableTypes.find((t) => t.value === editData.type)?.label ??
+                  editData.type.toUpperCase()}
+              </p>
+              <FieldDescription>
+                Tipe tidak dapat diubah setelah organisasi dibuat.
+              </FieldDescription>
+            </Field>
+          ) : (
+            <Field data-invalid={!!state.errors?.type || undefined}>
+              <FieldLabel htmlFor='type'>Tipe Organisasi</FieldLabel>
+              <Select
+                name='type'
+                value={type}
+                onValueChange={(val) => {
+                  if (val) setType(val)
+                }}
+              >
+                <SelectTrigger id='type' className='w-full'>
+                  <SelectValue placeholder='Pilih tipe' />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableTypes.map((typeOption) => (
+                    <SelectItem key={typeOption.value} value={typeOption.value}>
+                      {typeOption.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FieldError
+                errors={state.errors?.type?.map((m) => ({ message: m }))}
+              />
+            </Field>
+          )}
+
+          <Field data-invalid={!!state.errors?.slug || undefined}>
+            <FieldLabel htmlFor='slug'>Slug</FieldLabel>
+            <Input
+              id='slug'
+              name='slug'
+              placeholder='slug-organisasi'
+              value={slug}
+              onChange={(e) => setSlug(e.target.value)}
+              required
+              aria-invalid={!!state.errors?.slug || undefined}
+            />
             <FieldDescription>
-              Tipe tidak dapat diubah setelah organisasi dibuat.
+              Huruf kecil dan tanda-hubung saja, contoh:
+              pengurus-daerah-jakarta.
+              {editData && ' Mengubahnya mematahkan tautan publik yang lama.'}
             </FieldDescription>
-          </Field>
-        ) : (
-          <Field data-invalid={!!state.errors?.type || undefined}>
-            <FieldLabel htmlFor='type'>Tipe Organisasi</FieldLabel>
-            <Select
-              name='type'
-              value={type}
-              onValueChange={(val) => {
-                if (val) setType(val)
-              }}
-            >
-              <SelectTrigger id='type' className='w-full'>
-                <SelectValue placeholder='Pilih tipe' />
-              </SelectTrigger>
-              <SelectContent>
-                {availableTypes.map((typeOption) => (
-                  <SelectItem key={typeOption.value} value={typeOption.value}>
-                    {typeOption.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
             <FieldError
-              errors={state.errors?.type?.map((m) => ({ message: m }))}
+              errors={state.errors?.slug?.map((m) => ({ message: m }))}
             />
           </Field>
-        )}
 
-        <Field data-invalid={!!state.errors?.slug || undefined}>
-          <FieldLabel htmlFor='slug'>Slug</FieldLabel>
-          <Input
-            id='slug'
-            name='slug'
-            placeholder='slug-organisasi'
-            value={slug}
-            onChange={(e) => setSlug(e.target.value)}
-            required
-            aria-invalid={!!state.errors?.slug || undefined}
-          />
-          <FieldDescription>
-            Huruf kecil dan tanda-hubung saja, contoh: pengurus-daerah-jakarta.
-            {editData && ' Mengubahnya mematahkan tautan publik yang lama.'}
-          </FieldDescription>
-          <FieldError
-            errors={state.errors?.slug?.map((m) => ({ message: m }))}
-          />
-        </Field>
+          <Field>
+            <ImageUpload
+              label='Logo Wilayah'
+              folder='logos'
+              value={logoPath}
+              onChange={(path) => setLogoPath(path)}
+            />
+            <input type='hidden' name='logo' value={logoPath || ''} />
+          </Field>
 
-        <Field>
-          <ImageUpload
-            label='Logo Wilayah'
-            folder='logos'
-            value={logoPath}
-            onChange={(path) => setLogoPath(path)}
-          />
-          <input type='hidden' name='logo' value={logoPath || ''} />
-        </Field>
-
-        <div className='flex justify-end gap-3 pt-4'>
-          <Button
-            type='button'
-            variant='outline'
-            onClick={() => orgSheetStore.set(false)}
-          >
-            Batal
-          </Button>
-          <Button type='submit' disabled={isPending}>
-            {isPending && (
-              <HugeiconsIcon
-                icon={Loading03Icon}
-                strokeWidth={2}
-                className='animate-spin'
-                data-icon='inline-start'
-              />
-            )}
-            {isPending ? 'Menyimpan...' : 'Simpan Organisasi'}
-          </Button>
-        </div>
-      </FieldGroup>
-    </form>
+          <div className='flex justify-end gap-3 pt-4'>
+            <Button type='button' variant='outline' onClick={onClose}>
+              Batal
+            </Button>
+            <Button type='submit' disabled={isPending}>
+              {isPending && (
+                <HugeiconsIcon
+                  icon={Loading03Icon}
+                  strokeWidth={2}
+                  className='animate-spin'
+                  data-icon='inline-start'
+                />
+              )}
+              {isPending ? 'Menyimpan...' : 'Simpan Organisasi'}
+            </Button>
+          </div>
+        </FieldGroup>
+      </form>
+      <InitialCredentialsDialog
+        credentials={initialCredentials}
+        organizationSlug={state.organizationSlug ?? ''}
+        open={isCredentialsOpen}
+        onOpenChange={(open) => {
+          setIsCredentialsOpen(open)
+          if (!open) {
+            setInitialCredentials([])
+            onClose()
+          }
+        }}
+      />
+    </>
   )
 }

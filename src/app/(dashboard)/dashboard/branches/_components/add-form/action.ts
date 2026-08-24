@@ -49,12 +49,18 @@ export type OrgFormState = {
   message?: string
   errors?: Record<string, string[]>
   values?: Record<string, string>
+  credentials?: {
+    authority: string
+    username: string
+    password: string
+  }[]
+  organizationSlug?: string
 }
 
-export async function createOrganizationAction(
+export const createOrganizationAction = async (
   prevState: OrgFormState,
   formData: FormData
-) {
+): Promise<OrgFormState> => {
   let user:
     | NonNullable<Awaited<ReturnType<typeof readActiveSession>>>['user']
     | undefined
@@ -106,20 +112,26 @@ export async function createOrganizationAction(
       return { success: false, message: denial }
     }
 
-    const created = await createOrganization(validated.data)
+    const [created] = await createOrganization(validated.data)
     updateTag('organizations')
     revalidatePath('/dashboard/branches')
 
     logger.info('Organisasi dibuat', {
       actorId: user.id,
       actorRole: user.role,
-      organizationId: created?.[0]?.id,
+      organizationId: created?.id,
       input: redact(validated.data)
     })
 
     return {
       success: true,
-      message: 'Organisasi berhasil ditambahkan!'
+      message: 'Struktur berhasil ditambahkan!',
+      organizationSlug: created.slug,
+      credentials: created.credentials.map((credential) => ({
+        authority: credential.displayName,
+        username: credential.name,
+        password: credential.password
+      }))
     }
   } catch (error) {
     logger.error('Gagal membuat organisasi: {error}', {
@@ -134,10 +146,10 @@ export async function createOrganizationAction(
   }
 }
 
-export async function updateOrganizationAction(
+export const updateOrganizationAction = async (
   prevState: OrgFormState,
   formData: FormData
-) {
+): Promise<OrgFormState> => {
   let user:
     | NonNullable<Awaited<ReturnType<typeof readActiveSession>>>['user']
     | undefined
