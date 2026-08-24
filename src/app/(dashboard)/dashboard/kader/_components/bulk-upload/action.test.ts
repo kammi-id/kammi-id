@@ -125,6 +125,20 @@ describe('bulkCreateMembersAction', () => {
       '19012024002',
       '19012024003'
     ])
+
+    for (const credential of result.data ?? []) {
+      const [account] = await db
+        .select({ passwordHash: userTable.passwordHash })
+        .from(userTable)
+        .where(eq(userTable.name, credential.registerNumber))
+
+      expect(
+        await Bun.password.verify(
+          credential.password,
+          account?.passwordHash ?? ''
+        )
+      ).toBe(true)
+    }
   })
 
   it('continues sequential numbering from existing members in the same org/year', async () => {

@@ -2,7 +2,7 @@ import { expect, test, describe } from 'bun:test'
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { getRandomAlphanumeric, generatePassword } from './user'
+import { getRandomAlphanumeric } from './user'
 
 describe('User Utils', () => {
   test('getRandomAlphanumeric returns correct length', () => {
@@ -11,24 +11,27 @@ describe('User Utils', () => {
     expect(res).toMatch(/^[a-z0-9]+$/)
   })
 
-  test('generatePassword follows pattern [word]-[random]', () => {
-    const password = generatePassword()
-    expect(password).toMatch(/^[a-z]+-[a-z0-9]{5}$/)
-  })
-
-  test('falls back to twelve random characters without a usable dictionary', () => {
+  test('preserves dictionary and fallback formats without shared files', () => {
     const cwd = mkdtempSync(join(tmpdir(), 'kammi-id-password-'))
     const generateIn = () =>
       Bun.spawnSync(
         [
           process.execPath,
           '-e',
-          `import { generatePassword } from ${JSON.stringify(join(process.cwd(), 'src/lib/utils/user.ts'))}; process.stdout.write(generatePassword())`
+          `Math.random = () => { throw new Error('Math.random must not generate passwords') }; import { generatePassword } from ${JSON.stringify(join(process.cwd(), 'src/lib/utils/user.ts'))}; process.stdout.write(generatePassword())`
         ],
         { cwd }
       )
 
     try {
+      writeFileSync(join(cwd, 'dictionary.txt'), 'apple,banana,cherry')
+      const dictionary = generateIn()
+      expect(dictionary.exitCode).toBe(0)
+      expect(new TextDecoder().decode(dictionary.stdout)).toMatch(
+        /^(apple|banana|cherry)-[a-z0-9]{5}$/
+      )
+
+      rmSync(join(cwd, 'dictionary.txt'))
       const missingDictionary = generateIn()
       expect(missingDictionary.exitCode).toBe(0)
       expect(new TextDecoder().decode(missingDictionary.stdout)).toMatch(
@@ -54,7 +57,6 @@ describe('User Utils', () => {
 
     try {
       expect(getRandomAlphanumeric()).toMatch(/^[a-z0-9]{5}$/)
-      expect(generatePassword()).toMatch(/^[a-z]+-[a-z0-9]{5}$/)
     } finally {
       Math.random = originalRandom
     }

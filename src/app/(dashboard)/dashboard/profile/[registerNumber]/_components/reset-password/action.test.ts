@@ -127,7 +127,11 @@ describe('regenerateCredentialAction', () => {
 
     expect(result.success).toBe(true)
     expect(result.data?.password).toBeTruthy()
-    expect(await passwordHashFor(member.id)).not.toBe(before)
+    const passwordHash = await passwordHashFor(member.id)
+    expect(passwordHash).not.toBe(before)
+    expect(
+      await Bun.password.verify(result.data?.password ?? '', passwordHash!)
+    ).toBe(true)
   })
 
   it('allows root to reset credentials for a member in any org', async () => {
