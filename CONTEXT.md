@@ -27,6 +27,12 @@ Akun bukan Kader — seorang Kader bisa ada tanpa Akun, dan sebuah Akun
 operasional bisa ada tanpa Member.
 _Avoid_: User (sebagai istilah domain)
 
+**Akun Kepengurusan**:
+Akun yang terikat langsung pada sebuah Struktur dan memegang kewenangan
+operasional Root, BPH, BPK, BPW, atau Humas. Berbeda dari Akun Kader yang
+terikat pada seorang Member.
+_Avoid_: Akun Struktur, Akun organisasi, Akun pengurus
+
 **Perangkat**:
 Payung untuk Kader yang tersertifikasi menjalankan Daurah — yaitu Pemandu dan
 Instruktur. Bukan entitas tersendiri, melainkan cara memandang sekumpulan
@@ -89,9 +95,10 @@ _Avoid_: Organisasi (tanpa kualifikasi)
 Kewenangan penuh atas seluruh Struktur, tanpa batas Cakupan.
 
 **BPH**:
-Kewenangan memantau seluruh data dalam Cakupannya, ditambah satu hak ubah:
-menyunting **Strukturnya sendiri**. Yang boleh disunting adalah identitas
-Struktur itu, bukan kedudukannya di pohon maupun Keadaannya.
+Kewenangan memantau seluruh data dalam Cakupannya. BPH dapat menyunting
+identitas **Strukturnya sendiri**, tetapi bukan kedudukannya di pohon maupun
+Keadaannya; BPH juga dapat mereset Akun Kepengurusan setiap Struktur
+turunannya. Selain keduanya, BPH tidak memiliki hak ubah.
 
 **BPK**:
 Kewenangan mengelola kekaderan: Member, Daurah, dan Perangkat.
@@ -100,8 +107,10 @@ Kewenangan mengelola kekaderan: Member, Daurah, dan Perangkat.
 Kewenangan mengelola kestrukturan — Struktur **di bawah** Strukturnya sendiri,
 tidak pernah Strukturnya sendiri. Jenjang Strukturnya menentukan dua hal
 sekaligus: seberapa jauh ke bawah jangkauannya, **dan seberapa jauh haknya di
-situ**. Yang paling bawah cuma memantau dan membetulkan identitas — membuat dan
-menghapus Struktur tersentralisasi, bukan tersebar mengikuti jangkauan.
+situ**. Dalam pengelolaan Struktur, yang paling bawah cuma memantau dan
+membetulkan identitas — membuat dan menghapus Struktur tersentralisasi, bukan
+tersebar mengikuti jangkauan. Di luar itu, BPW dapat mereset Akun Kepengurusan
+setiap Struktur turunannya.
 
 **Humas**:
 Kewenangan mengelola publikasi: Artikel dan Pengaturan Situs. Satu-satunya
