@@ -63,6 +63,7 @@ export const getCachedBranchDetailMemberAggregates = async (
   'use cache'
   cacheLife('minutes')
   cacheTag('kader')
+  cacheTag('organizations')
 
   return readBranchDetailMemberAggregates(filters)
 }
