@@ -4,9 +4,17 @@
 
 **Blocked by:** None — can start immediately.
 
-**Status:** claimed
+**Status:** done
 
-- [ ] Jalur bertingkat yang sah hanya mengikuti rantai Induk → Struktur Anak; jalur yang tidak sah, Terhapus, atau di luar Cakupan tidak membocorkan keberadaan Struktur.
-- [ ] Struktur PK dapat dibuka sebagai detail, sedangkan top-level tetap grid tanpa detail Struktur sendiri.
-- [ ] Root, BPH, dan BPW dalam Cakupan menerima detail; peran atau target lain tetap ditolak oleh batas kestrukturan yang berlaku.
-- [ ] Pembaca detail terotorisasi menjadi seam tunggal untuk resolusi jalur dan data identitas; test mengunci perilaku eksternalnya.
+- [x] Jalur bertingkat yang sah hanya mengikuti rantai Induk → Struktur Anak; jalur yang tidak sah, Terhapus, atau di luar Cakupan tidak membocorkan keberadaan Struktur.
+- [x] Struktur PK dapat dibuka sebagai detail, sedangkan top-level tetap grid tanpa detail Struktur sendiri.
+- [x] Root, BPH, dan BPW dalam Cakupan menerima detail; peran atau target lain tetap ditolak oleh batas kestrukturan yang berlaku.
+- [x] Pembaca detail terotorisasi menjadi seam tunggal untuk resolusi jalur dan data identitas; test mengunci perilaku eksternalnya.
+
+## Comments
+
+**24 Agustus 2026 — detail dan integritas jalur selesai.**
+
+`readAuthorizedBranchDetail` menjadi seam tunggal bagi detail Struktur.
+Pengujian perilakunya mengunci jalur sah, jalur palsu, Cakupan, PK,
+Struktur Non-Aktif, dan penyembunyian Struktur Terhapus.

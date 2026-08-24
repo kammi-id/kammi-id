@@ -4,9 +4,18 @@
 
 **Blocked by:** 01 — Detail Struktur dan integritas jalur.
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] Aksi yang tersedia mengikuti matriks kestrukturan yang ada dan tidak menambah hak baru.
-- [ ] BPH tetap menyunting Struktur sendiri melalui permukaan Organisasi, bukan lewat detail branches.
-- [ ] Struktur Non-Aktif dapat dibuka dan dinavigasi, dengan badge Keadaan dan tampilan redup yang tetap memenuhi kontras aksesibel.
-- [ ] Struktur Terhapus tetap tidak dapat diakses pada branches normal, dan test mengunci perbedaan ini dari Non-Aktif.
+- [x] Aksi yang tersedia mengikuti matriks kestrukturan yang ada dan tidak menambah hak baru.
+- [x] BPH tetap menyunting Struktur sendiri melalui permukaan Organisasi, bukan lewat detail branches.
+- [x] Struktur Non-Aktif dapat dibuka dan dinavigasi, dengan badge Keadaan dan tampilan redup yang tetap memenuhi kontras aksesibel.
+- [x] Struktur Terhapus tetap tidak dapat diakses pada branches normal, dan test mengunci perbedaan ini dari Non-Aktif.
+
+## Comments
+
+**24 Agustus 2026 — aksi dan Keadaan detail selesai.**
+
+Aksi detail memakai matriks kemampuan yang telah ada; BPH tidak menerima aksi
+baru atas Strukturnya sendiri. Struktur Non-Aktif tetap dapat dibuka dan
+dinavigasi dengan badge yang terbaca, sedangkan Struktur Terhapus tetap
+menjawab sebagai tidak ditemukan di branches normal.
