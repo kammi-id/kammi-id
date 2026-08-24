@@ -148,7 +148,13 @@ export const ResetOrganizationAccount = ({
                     id='reset-organization-account'
                     className='w-full'
                   >
-                    <SelectValue placeholder='Pilih akun yang akan direset' />
+                    <SelectValue placeholder='Pilih akun yang akan direset'>
+                      {() =>
+                        selectedAccount
+                          ? `${selectedAccount.authority} — ${selectedAccount.username}`
+                          : 'Pilih akun yang akan direset'
+                      }
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>
