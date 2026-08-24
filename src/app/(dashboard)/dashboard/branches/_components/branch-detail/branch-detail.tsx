@@ -26,8 +26,17 @@ import type { BranchDetail } from './data'
 import { ChildSidebar } from './child-sidebar'
 import { BranchDetailActions } from './branch-detail-actions'
 import { MemberSummary } from './member-summary'
+import {
+  ResetOrganizationAccount,
+  readResettableOrganizationAccounts
+} from '../reset-organization-account'
+import { requireOrganizationAccountResetAccess } from '~/lib/auth/kestrukturan'
 
-export const BranchDetailView = ({ detail }: { detail: BranchDetail }) => {
+export const BranchDetailView = async ({
+  detail
+}: {
+  detail: BranchDetail
+}) => {
   const {
     organization,
     breadcrumbs,
@@ -50,6 +59,12 @@ export const BranchDetailView = ({ detail }: { detail: BranchDetail }) => {
       : organization.type === 'pd' || organization.type === 'pdln'
         ? 'Jumlah Komisariat'
         : null
+  const resetAccess = await requireOrganizationAccountResetAccess(
+    organization.id
+  )
+  const resettableAccounts = resetAccess
+    ? await readResettableOrganizationAccounts(organization, resetAccess)
+    : null
 
   return (
     <div className='flex flex-col gap-8 px-4 py-4 md:py-6 lg:px-6'>
@@ -134,6 +149,13 @@ export const BranchDetailView = ({ detail }: { detail: BranchDetail }) => {
                   org={{ ...organization, kemampuan }}
                   parent={parent}
                   basePath={basePath}
+                />
+              )}
+              {resettableAccounts && (
+                <ResetOrganizationAccount
+                  accounts={resettableAccounts}
+                  organizationId={organization.id}
+                  organizationName={organization.name}
                 />
               )}
             </div>

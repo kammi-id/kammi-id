@@ -1,9 +1,10 @@
-import { and, eq, inArray, isNull } from 'drizzle-orm'
+import { and, eq, inArray, isNull, sql } from 'drizzle-orm'
 import { db } from '../db'
 import { organizationAccountPasswordReset } from '../schema/organization-account-password-reset.sql'
 import { organization } from '../schema/organization.sql'
 import { session } from '../schema/session.sql'
 import { user } from '../schema/user.sql'
+import type { AccessScope } from './organization'
 
 const RESETTABLE_ORGANIZATION_ACCOUNT_ROLES = [
   'bph',
@@ -22,6 +23,7 @@ type OrganizationAccountResetValues = {
   targetAccountId: string
   targetOrganizationId: string
   passwordHash: string
+  accessScope?: AccessScope
 }
 
 const injectFailure = (
@@ -40,22 +42,71 @@ export const resetOrganizationAccount = async (
     actorId,
     targetAccountId,
     targetOrganizationId,
-    passwordHash
+    passwordHash,
+    accessScope
   }: OrganizationAccountResetValues,
   failure?: OrganizationAccountResetFailure
-): Promise<void> => {
+): Promise<{ username: string }> => {
   if (actorId === targetAccountId) {
     throw new Error('Reset actor cannot be the target account')
   }
 
-  await db.transaction(async (tx) => {
+  return await db.transaction(async (tx) => {
     const [actor] = await tx
-      .select({ id: user.id, username: user.name })
+      .select({
+        id: user.id,
+        username: user.name,
+        role: user.role,
+        connectedOrganizationId: user.connectedOrganizationId
+      })
       .from(user)
       .where(eq(user.id, actorId))
       .limit(1)
 
-    if (!actor) throw new Error('Reset actor was not found')
+    if (
+      !actor ||
+      (accessScope && actor.role !== accessScope.role) ||
+      (accessScope &&
+        actor.connectedOrganizationId !== accessScope.connectedOrganizationId)
+    ) {
+      throw new Error('Reset actor was not authorized')
+    }
+
+    const targetOrganization = await tx.execute(sql`
+      SELECT id, name
+      FROM ${organization}
+      WHERE id = ${targetOrganizationId} AND deleted_at IS NULL
+      FOR UPDATE
+    `)
+
+    const targetOrg = targetOrganization[0]
+    if (!targetOrg) throw new Error('Target organization was not found')
+
+    if (accessScope?.connectedOrganizationId === targetOrganizationId) {
+      throw new Error('Reset actor cannot reset own organization account')
+    }
+
+    if (accessScope && accessScope.role !== 'root') {
+      if (!accessScope.connectedOrganizationId) {
+        throw new Error('Reset actor was not authorized')
+      }
+
+      const inScope = await tx.execute(sql`
+        WITH RECURSIVE org_hierarchy AS (
+          SELECT id FROM ${organization}
+          WHERE id = ${accessScope.connectedOrganizationId}
+            AND deleted_at IS NULL
+          UNION ALL
+          SELECT child.id FROM ${organization} child
+          JOIN org_hierarchy parent ON child.parent_id = parent.id
+          WHERE child.deleted_at IS NULL
+        )
+        SELECT id FROM org_hierarchy WHERE id = ${targetOrganizationId}
+      `)
+      if (inScope.length === 0) {
+        throw new Error('Target organization was not in reset scope')
+      }
+    }
 
     const [target] = await tx
       .update(user)
@@ -80,15 +131,6 @@ export const resetOrganizationAccount = async (
     await tx.delete(session).where(eq(session.userId, target.id))
     injectFailure(failure === 'after-session-revocation' ? failure : undefined)
 
-    const [targetOrganization] = await tx
-      .select({ id: organization.id, name: organization.name })
-      .from(organization)
-      .where(eq(organization.id, targetOrganizationId))
-      .limit(1)
-
-    if (!targetOrganization)
-      throw new Error('Target organization was not found')
-
     await tx.insert(organizationAccountPasswordReset).values({
       eventType: 'organization_account_password_reset',
       actorId: actor.id,
@@ -96,9 +138,11 @@ export const resetOrganizationAccount = async (
       targetAccountId: target.id,
       targetUsername: target.username,
       targetRole: target.role,
-      organizationId: targetOrganization.id,
-      organizationName: targetOrganization.name
+      organizationId: targetOrg.id,
+      organizationName: targetOrg.name
     })
     injectFailure(failure === 'after-audit-append' ? failure : undefined)
+
+    return { username: target.username }
   })
 }

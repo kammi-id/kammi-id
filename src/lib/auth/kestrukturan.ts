@@ -278,6 +278,23 @@ export const requireKestrukturanReadAccess = async (
 }
 
 /**
+ * Grants the separate privilege of resetting an Akun Kepengurusan below the
+ * caller. It composes the detail read gate rather than adding a new
+ * Kestrukturan matrix cell, and adds the reset-specific own-Struktur refusal.
+ */
+export const requireOrganizationAccountResetAccess = async (
+  targetOrgId: string
+): Promise<AccessScope | null> => {
+  const scope = await requireKestrukturanReadAccess(targetOrgId)
+  if (!scope) return null
+
+  if (!['root', 'bph', 'bpw'].includes(scope.role)) return null
+  if (scope.connectedOrganizationId === targetOrgId) return null
+
+  return scope
+}
+
+/**
  * Grants the privilege of creating a Struktur of `childType` directly beneath
  * `parentId`. Returns a denial message, or null when the caller holds it.
  *
