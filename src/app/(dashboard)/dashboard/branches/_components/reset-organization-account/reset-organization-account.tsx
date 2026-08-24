@@ -1,6 +1,11 @@
 'use client'
 
-import { Key01Icon, Loading03Icon } from '@hugeicons/core-free-icons'
+import {
+  Key01Icon,
+  Loading03Icon,
+  ViewIcon,
+  ViewOffIcon
+} from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useState, useTransition } from 'react'
 import { toast } from 'sonner'
@@ -29,7 +34,12 @@ import {
   FieldGroup,
   FieldLabel
 } from '~/components/shadcn/ui/field'
-import { Input } from '~/components/shadcn/ui/input'
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput
+} from '~/components/shadcn/ui/input-group'
 import {
   Select,
   SelectContent,
@@ -67,6 +77,7 @@ export const ResetOrganizationAccount = ({
   const [open, setOpen] = useState(false)
   const [selectedAccountId, setSelectedAccountId] = useState('')
   const [actorPassword, setActorPassword] = useState('')
+  const [isActorPasswordVisible, setIsActorPasswordVisible] = useState(false)
   const [credential, setCredential] = useState<Credential | null>(null)
   const [isConfirmOpen, setIsConfirmOpen] = useState(false)
   const [isPasswordVisible, setIsPasswordVisible] = useState(false)
@@ -80,6 +91,7 @@ export const ResetOrganizationAccount = ({
     if (!nextOpen) {
       setSelectedAccountId('')
       setActorPassword('')
+      setIsActorPasswordVisible(false)
     }
   }
 
@@ -172,13 +184,34 @@ export const ResetOrganizationAccount = ({
                 <FieldLabel htmlFor='actor-password'>
                   Password saat ini
                 </FieldLabel>
-                <Input
-                  id='actor-password'
-                  type='password'
-                  autoComplete='current-password'
-                  value={actorPassword}
-                  onChange={(event) => setActorPassword(event.target.value)}
-                />
+                <InputGroup>
+                  <InputGroupInput
+                    id='actor-password'
+                    type={isActorPasswordVisible ? 'text' : 'password'}
+                    autoComplete='current-password'
+                    value={actorPassword}
+                    onChange={(event) => setActorPassword(event.target.value)}
+                  />
+                  <InputGroupAddon align='inline-end'>
+                    <InputGroupButton
+                      type='button'
+                      size='icon-xs'
+                      onClick={() =>
+                        setIsActorPasswordVisible((visible) => !visible)
+                      }
+                      aria-label={
+                        isActorPasswordVisible
+                          ? 'Sembunyikan password'
+                          : 'Tampilkan password'
+                      }
+                    >
+                      <HugeiconsIcon
+                        icon={isActorPasswordVisible ? ViewOffIcon : ViewIcon}
+                        strokeWidth={2}
+                      />
+                    </InputGroupButton>
+                  </InputGroupAddon>
+                </InputGroup>
                 <FieldDescription>
                   Reset akan mencabut seluruh sesi{' '}
                   {selectedAccount?.username ?? 'akun sasaran'}.
