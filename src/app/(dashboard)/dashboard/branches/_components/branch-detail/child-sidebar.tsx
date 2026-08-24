@@ -19,6 +19,9 @@ import {
 import { SearchIcon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import type { Organization } from '~/db/query/organization'
+import { cn } from '~/lib/shadcn/utils'
+import { isNonAktif } from '../struktur-row'
+import { StrukturNonAktifBadge } from '../struktur-badges'
 
 type ChildSidebarProps = {
   items: Organization[]
@@ -97,9 +100,13 @@ export const ChildSidebar = ({
                   <li key={child.id}>
                     <Link
                       href={`${pathname}/${child.slug}`}
-                      className='hover:bg-muted focus-visible:ring-ring flex rounded-md px-3 py-2 text-sm font-medium outline-none focus-visible:ring-2'
+                      className={cn(
+                        'hover:bg-muted focus-visible:ring-ring flex items-center justify-between gap-2 rounded-md px-3 py-2 text-sm font-medium outline-none focus-visible:ring-2',
+                        isNonAktif(child) && 'bg-muted/50 border border-dashed'
+                      )}
                     >
                       {child.name}
+                      {isNonAktif(child) && <StrukturNonAktifBadge />}
                     </Link>
                   </li>
                 ))}

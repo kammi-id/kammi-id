@@ -10,6 +10,7 @@ import {
   type MemberAggregatesResult
 } from '~/db/query/member'
 import { type AccessScope } from '~/db/query/organization'
+import { type StrukturKemampuan } from '~/lib/struktur/kemampuan'
 
 export type BranchMemberMetrics = Omit<
   MemberAggregatesResult,
@@ -28,6 +29,7 @@ export type BranchDetail = {
   childTotal: number
   directChildrenTotal: number
   childPage: number
+  kemampuan: StrukturKemampuan
 }
 
 export type BranchDetailPath = Omit<
@@ -37,7 +39,10 @@ export type BranchDetailPath = Omit<
   | 'childTotal'
   | 'directChildrenTotal'
   | 'childPage'
->
+  | 'kemampuan'
+> & {
+  actorJenjang: Organization['type']
+}
 
 export type BranchChildrenQuery = {
   query?: string
@@ -136,6 +141,7 @@ export const readBranchDetailPath = async (
   return {
     organization,
     breadcrumbs,
-    parent: breadcrumbs.at(-2) ?? anchor
+    parent: breadcrumbs.at(-2) ?? anchor,
+    actorJenjang: anchor.type
   }
 }

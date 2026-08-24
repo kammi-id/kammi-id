@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { Fragment } from 'react'
+import { cn } from '~/lib/shadcn/utils'
 import {
   Avatar,
   AvatarFallback,
@@ -20,6 +21,7 @@ import {
 } from '../struktur-badges'
 import type { BranchDetail } from './data'
 import { ChildSidebar } from './child-sidebar'
+import { BranchDetailActions } from './branch-detail-actions'
 import { MemberSummary } from './member-summary'
 
 export const BranchDetailView = ({ detail }: { detail: BranchDetail }) => {
@@ -31,8 +33,14 @@ export const BranchDetailView = ({ detail }: { detail: BranchDetail }) => {
     children,
     childTotal,
     directChildrenTotal,
-    childPage
+    childPage,
+    kemampuan
   } = detail
+  const nonAktif = organization.state === 'non_aktif'
+  const parentSlugs = breadcrumbs.slice(0, -1).map(({ slug }) => slug)
+  const basePath = parentSlugs.length
+    ? `/dashboard/branches/${parentSlugs.join('/')}`
+    : '/dashboard/branches'
   const childLabel =
     organization.type === 'pw'
       ? 'Jumlah PD'
@@ -74,7 +82,12 @@ export const BranchDetailView = ({ detail }: { detail: BranchDetail }) => {
         </BreadcrumbList>
       </Breadcrumb>
 
-      <section className='bg-card rounded-3xl border p-6 shadow-xs md:p-8'>
+      <section
+        className={cn(
+          'bg-card rounded-3xl border p-6 shadow-xs md:p-8',
+          nonAktif && 'bg-muted/50 border-dashed'
+        )}
+      >
         <div className='flex flex-col gap-6 sm:flex-row sm:items-start'>
           <Avatar className='size-16 rounded-2xl'>
             <AvatarImage
@@ -98,6 +111,13 @@ export const BranchDetailView = ({ detail }: { detail: BranchDetail }) => {
                 <StrukturNonAktifBadge />
               ) : (
                 <StrukturAktifBadge />
+              )}
+              {parent && (
+                <BranchDetailActions
+                  org={{ ...organization, kemampuan }}
+                  parent={parent}
+                  basePath={basePath}
+                />
               )}
             </div>
             <div>

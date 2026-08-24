@@ -27,16 +27,6 @@ export const getColumns = (
     cell: ({ row }) => {
       const org = row.original
 
-      // Penelusuran berhenti pada Struktur Non-Aktif (spec §8.3) — dan pada PK,
-      // yang tidak punya apa pun di bawahnya untuk ditelusuri.
-      if (org.type === 'pk' || isNonAktif(org)) {
-        return (
-          <div className='text-foreground -ml-2 h-8 px-2 font-semibold'>
-            {org.name}
-          </div>
-        )
-      }
-
       return (
         <Link
           href={`${basePath}/${org.slug}`}

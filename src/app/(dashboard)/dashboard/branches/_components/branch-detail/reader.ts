@@ -1,5 +1,6 @@
 import { readAccessScope } from '~/lib/auth/access-scope'
 import { requireKestrukturanReadAccess } from '~/lib/auth/kestrukturan'
+import { strukturKemampuan } from '~/lib/struktur/kemampuan'
 import {
   getCachedBranchDetailMemberAggregates,
   readBranchDetailChildren,
@@ -80,6 +81,14 @@ export const readAuthorizedBranchDetail = async (
   )
   if (!authorizedScope) return null
 
+  const kemampuan = strukturKemampuan(
+    {
+      role: authorizedScope.role,
+      jenjangAkun: detail.actorJenjang,
+      connectedOrganizationId: authorizedScope.connectedOrganizationId
+    },
+    detail.organization
+  )
   const children =
     detail.organization.type === 'pk'
       ? { children: [], childTotal: 0, directChildrenTotal: 0, childPage: 1 }
@@ -88,6 +97,7 @@ export const readAuthorizedBranchDetail = async (
   return {
     ...detail,
     ...children,
+    kemampuan,
     memberMetrics: await readMemberMetrics(
       detail.organization.id,
       authorizedScope

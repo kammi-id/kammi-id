@@ -35,6 +35,7 @@ describe('readAuthorizedBranchDetail', () => {
   let ppId: string
   let pwJabarId: string
   let pdBandungId: string
+  let pdNonAktifId: string
   let pkItbId: string
 
   beforeAll(async () => {
@@ -82,6 +83,15 @@ describe('readAuthorizedBranchDetail', () => {
       isNonActive: false
     })
     pdBandungId = pdBandung.id
+    const [pdNonAktif] = await createOrganization({
+      name: 'PD Non-Aktif',
+      slug: 'pd-non-aktif',
+      code: '01.PD-NA',
+      type: 'pd',
+      parentId: pwJabarId,
+      isNonActive: true
+    })
+    pdNonAktifId = pdNonAktif.id
     const [pkItb] = await createOrganization({
       name: 'PK ITB',
       slug: 'pk-itb',
@@ -118,7 +128,14 @@ describe('readAuthorizedBranchDetail', () => {
         { name: 'PW Jawa Barat', slug: 'pw-jabar' },
         { name: 'PD Bandung', slug: 'pd-bandung' },
         { name: 'PK ITB', slug: 'pk-itb' }
-      ]
+      ],
+      kemampuan: {
+        sunting: true,
+        nonaktifkan: true,
+        aktifkan: false,
+        hapus: true,
+        pindah: true
+      }
     })
   })
 
@@ -126,7 +143,15 @@ describe('readAuthorizedBranchDetail', () => {
     mockSession = sessionWith('bph', pwJabarId)
     await expect(
       readAuthorizedBranchDetail(['pd-bandung'])
-    ).resolves.not.toBeNull()
+    ).resolves.toMatchObject({
+      kemampuan: {
+        sunting: false,
+        nonaktifkan: false,
+        aktifkan: false,
+        hapus: false,
+        pindah: false
+      }
+    })
 
     mockSession = sessionWith('bpw', pdBandungId)
     await expect(readAuthorizedBranchDetail(['pk-itb'])).resolves.not.toBeNull()
@@ -285,6 +310,20 @@ describe('readAuthorizedBranchDetail', () => {
     ).resolves.toBeNull()
     await expect(
       readAuthorizedBranchDetail(['pd-terhapus'])
+    ).resolves.toBeNull()
+  })
+
+  test('membuka Struktur Non-Aktif namun tetap menyembunyikan Struktur Terhapus', async () => {
+    mockSession = sessionWith('root', ppId)
+
+    await expect(
+      readAuthorizedBranchDetail(['pw-jabar', 'pd-non-aktif'])
+    ).resolves.toMatchObject({
+      organization: { id: pdNonAktifId, state: 'non_aktif' }
+    })
+
+    await expect(
+      readAuthorizedBranchDetail(['pw-jabar', 'pd-terhapus'])
     ).resolves.toBeNull()
   })
 
