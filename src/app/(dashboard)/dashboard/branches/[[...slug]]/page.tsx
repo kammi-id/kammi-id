@@ -175,7 +175,7 @@ const BranchesPage = async ({ params, searchParams }: PageProps) => {
       : '/dashboard/branches'
 
   return (
-    <AccessGuard allowedRoles={['root', 'bph', 'bpw']}>
+    <AccessGuard allowedRoles={['root', 'bph', 'bpw']} levelRequirement={2}>
       <div className='space-y-8 px-4 py-4 md:py-6 lg:px-6'>
         <div className='flex items-center gap-4'>
           {slug && slug.length > 0 && (
