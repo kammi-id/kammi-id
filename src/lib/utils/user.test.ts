@@ -1,33 +1,10 @@
-import { expect, test, describe, mock, beforeAll, afterAll } from 'bun:test'
-import { getRandomAlphanumeric, generatePassword } from './user'
-import { writeFileSync, unlinkSync, existsSync, renameSync } from 'node:fs'
+import { expect, test, describe } from 'bun:test'
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { getRandomAlphanumeric, generatePassword } from './user'
 
 describe('User Utils', () => {
-  const dictionaryPath = join(process.cwd(), 'dictionary.txt')
-  const backupPath = join(process.cwd(), 'dictionary.txt.bak')
-  const testWords = 'apple,banana,cherry'
-
-  beforeAll(() => {
-    // Backup existing dictionary if it exists
-    if (existsSync(dictionaryPath)) {
-      renameSync(dictionaryPath, backupPath)
-    }
-    // Create a controlled dictionary for testing
-    writeFileSync(dictionaryPath, testWords)
-  })
-
-  afterAll(() => {
-    // Clean up test dictionary
-    if (existsSync(dictionaryPath)) {
-      unlinkSync(dictionaryPath)
-    }
-    // Restore backup
-    if (existsSync(backupPath)) {
-      renameSync(backupPath, dictionaryPath)
-    }
-  })
-
   test('getRandomAlphanumeric returns correct length', () => {
     const res = getRandomAlphanumeric(10)
     expect(res).toHaveLength(10)
@@ -36,12 +13,50 @@ describe('User Utils', () => {
 
   test('generatePassword follows pattern [word]-[random]', () => {
     const password = generatePassword()
-    // Pattern: [word]-[5 random alphanumeric]
-    // Word from testWords (e.g., apple, banana, cherry)
-    expect(password).toMatch(/^[a-zA-Z]+-[a-z0-9]{5}$/)
+    expect(password).toMatch(/^[a-z]+-[a-z0-9]{5}$/)
+  })
 
-    const [word, random] = password.split('-')
-    expect(testWords.split(',')).toContain(word)
-    expect(random).toHaveLength(5)
+  test('falls back to twelve random characters without a usable dictionary', () => {
+    const cwd = mkdtempSync(join(tmpdir(), 'kammi-id-password-'))
+    const generateIn = () =>
+      Bun.spawnSync(
+        [
+          process.execPath,
+          '-e',
+          `import { generatePassword } from ${JSON.stringify(join(process.cwd(), 'src/lib/utils/user.ts'))}; process.stdout.write(generatePassword())`
+        ],
+        { cwd }
+      )
+
+    try {
+      const missingDictionary = generateIn()
+      expect(missingDictionary.exitCode).toBe(0)
+      expect(new TextDecoder().decode(missingDictionary.stdout)).toMatch(
+        /^[a-z0-9]{12}$/
+      )
+
+      writeFileSync(join(cwd, 'dictionary.txt'), '')
+      const emptyDictionary = generateIn()
+      expect(emptyDictionary.exitCode).toBe(0)
+      expect(new TextDecoder().decode(emptyDictionary.stdout)).toMatch(
+        /^[a-z0-9]{12}$/
+      )
+    } finally {
+      rmSync(cwd, { recursive: true })
+    }
+  })
+
+  test('does not rely on Math.random', () => {
+    const originalRandom = Math.random
+    Math.random = () => {
+      throw new Error('Math.random must not generate passwords')
+    }
+
+    try {
+      expect(getRandomAlphanumeric()).toMatch(/^[a-z0-9]{5}$/)
+      expect(generatePassword()).toMatch(/^[a-z]+-[a-z0-9]{5}$/)
+    } finally {
+      Math.random = originalRandom
+    }
   })
 })

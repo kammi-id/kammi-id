@@ -1,3 +1,4 @@
+import { randomInt } from 'node:crypto'
 import { readFileSync, existsSync } from 'node:fs'
 import { join } from 'node:path'
 
@@ -10,9 +11,7 @@ const getRandomWordFromDictionary = (): string | null => {
     .map((word) => word.trim())
     .filter(Boolean)
 
-  return words.length > 0
-    ? words[Math.floor(Math.random() * words.length)]
-    : null
+  return words.length > 0 ? words[randomInt(words.length)] : null
 }
 
 /**
@@ -22,7 +21,7 @@ export const getRandomAlphanumeric = (length: number = 5): string => {
   const chars = 'abcdefghijklmnopqrstuvwxyz0123456789'
   let result = ''
   for (let i = 0; i < length; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length))
+    result += chars.charAt(randomInt(chars.length))
   }
   return result
 }
