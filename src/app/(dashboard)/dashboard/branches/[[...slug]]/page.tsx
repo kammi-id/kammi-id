@@ -1,5 +1,6 @@
 import { AccessGuard } from '~/components/access-guard'
 import { notFound, redirect } from 'next/navigation'
+import { connection } from 'next/server'
 import { readActiveSession } from '~/lib/auth/cookies'
 import {
   getCachedOrganizations,
@@ -43,6 +44,8 @@ const readPositiveInteger = (value: string | string[] | undefined) => {
 }
 
 const BranchesPage = async ({ params, searchParams }: PageProps) => {
+  await connection()
+
   const { slug } = await params
   const sParams = await searchParams
 

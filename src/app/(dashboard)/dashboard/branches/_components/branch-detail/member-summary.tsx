@@ -60,9 +60,10 @@ const DonutPanel = ({
         <ChartContainer
           config={config}
           className='size-28 shrink-0'
+          role='img'
           aria-label={`${title}: ${fmt(total)} Kader`}
         >
-          <PieChart>
+          <PieChart accessibilityLayer={false}>
             <Pie
               data={slices}
               dataKey='value'
@@ -70,6 +71,7 @@ const DonutPanel = ({
               outerRadius={52}
               paddingAngle={2}
               strokeWidth={0}
+              rootTabIndex={-1}
             >
               {slices.map((slice) => (
                 <Cell key={slice.label} fill={slice.color} />
@@ -78,6 +80,7 @@ const DonutPanel = ({
             <text
               x='50%'
               y='50%'
+              fill='var(--foreground)'
               textAnchor='middle'
               dominantBaseline='middle'
               className='fill-foreground text-sm font-bold tabular-nums'
@@ -135,7 +138,7 @@ export const MemberSummary = ({ data }: { data: MemberSummaryData }) => (
       <Card className='bg-primary text-primary-foreground h-full @2xl:row-span-2'>
         <CardHeader>
           <CardTitle className='text-primary-foreground'>Kader Aktif</CardTitle>
-          <CardDescription className='text-primary-foreground/75'>
+          <CardDescription className='text-primary-foreground'>
             Total dalam Cakupan
           </CardDescription>
         </CardHeader>

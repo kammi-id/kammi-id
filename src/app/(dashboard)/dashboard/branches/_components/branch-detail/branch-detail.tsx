@@ -131,7 +131,7 @@ export const BranchDetailView = async ({
               alt={`Logo ${organization.name}`}
               className='rounded-2xl'
             />
-            <AvatarFallback className='rounded-2xl text-lg font-semibold'>
+            <AvatarFallback className='text-foreground rounded-2xl text-lg font-semibold'>
               {organization.name.slice(0, 2).toUpperCase()}
             </AvatarFallback>
           </Avatar>
