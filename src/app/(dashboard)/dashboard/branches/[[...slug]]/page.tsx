@@ -32,6 +32,12 @@ interface PageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }
 
+const readPositiveInteger = (value: string | string[] | undefined) => {
+  if (typeof value !== 'string') return undefined
+  const parsed = Number.parseInt(value, 10)
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : undefined
+}
+
 const BranchesPage = async ({ params, searchParams }: PageProps) => {
   const { slug } = await params
   const sParams = await searchParams
@@ -51,7 +57,11 @@ const BranchesPage = async ({ params, searchParams }: PageProps) => {
   }
 
   if (slug?.length) {
-    const detail = await readAuthorizedBranchDetail(slug)
+    const detail = await readAuthorizedBranchDetail(slug, {
+      query:
+        typeof sParams.childrenQ === 'string' ? sParams.childrenQ : undefined,
+      page: readPositiveInteger(sParams.childrenPage)
+    })
     if (!detail) notFound()
 
     return (

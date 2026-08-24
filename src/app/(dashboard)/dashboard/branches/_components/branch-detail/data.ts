@@ -1,5 +1,9 @@
 import { cacheLife, cacheTag } from 'next/cache'
-import { readOrganization, type Organization } from '~/db/query/organization'
+import {
+  countOrganization,
+  readOrganization,
+  type Organization
+} from '~/db/query/organization'
 import {
   readBranchDetailMemberAggregates,
   type MemberAggregatesFilters,
@@ -20,9 +24,33 @@ export type BranchDetail = {
   breadcrumbs: Organization[]
   parent: Organization | null
   memberMetrics: BranchMemberMetrics
+  children: Organization[]
+  childTotal: number
+  directChildrenTotal: number
+  childPage: number
 }
 
-type BranchDetailPath = Omit<BranchDetail, 'memberMetrics'>
+export type BranchDetailPath = Omit<
+  BranchDetail,
+  | 'memberMetrics'
+  | 'children'
+  | 'childTotal'
+  | 'directChildrenTotal'
+  | 'childPage'
+>
+
+export type BranchChildrenQuery = {
+  query?: string
+  page?: number
+  limit?: number
+}
+
+export type BranchDetailChildren = {
+  children: Organization[]
+  childTotal: number
+  directChildrenTotal: number
+  childPage: number
+}
 
 export const getCachedBranchDetailMemberAggregates = async (
   filters: MemberAggregatesFilters & { user: AccessScope }
@@ -32,6 +60,38 @@ export const getCachedBranchDetailMemberAggregates = async (
   cacheTag('kader')
 
   return readBranchDetailMemberAggregates(filters)
+}
+
+export const readBranchDetailChildren = async (
+  parentId: string,
+  { query, page = 1, limit = 8 }: BranchChildrenQuery = {}
+): Promise<BranchDetailChildren> => {
+  'use cache'
+  cacheLife('minutes')
+  cacheTag('organizations')
+
+  const pageSize = Number.isFinite(limit) ? Math.max(1, limit) : 8
+  const filters = {
+    parentId: [parentId],
+    name: query || undefined
+  }
+  const [childTotal, directChildrenTotal] = await Promise.all([
+    countOrganization(filters),
+    countOrganization({ parentId: [parentId] })
+  ])
+  const requestedPage = Number.isFinite(page) ? Math.max(1, page) : 1
+  const currentPage = Math.min(
+    requestedPage,
+    Math.max(1, Math.ceil(childTotal / pageSize))
+  )
+  const children = await readOrganization({
+    ...filters,
+    limit: pageSize,
+    offset: (currentPage - 1) * pageSize,
+    orderBy: [{ column: 'name', direction: 'asc' }]
+  })
+
+  return { children, childTotal, directChildrenTotal, childPage: currentPage }
 }
 
 /**

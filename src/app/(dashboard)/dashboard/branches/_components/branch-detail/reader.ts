@@ -2,8 +2,10 @@ import { readAccessScope } from '~/lib/auth/access-scope'
 import { requireKestrukturanReadAccess } from '~/lib/auth/kestrukturan'
 import {
   getCachedBranchDetailMemberAggregates,
+  readBranchDetailChildren,
   readBranchDetailPath,
   type BranchDetail,
+  type BranchChildrenQuery,
   type BranchMemberMetrics
 } from './data'
 
@@ -61,7 +63,8 @@ const readMemberMetrics = async (
  * Kestrukturan gate without exposing why a path was rejected.
  */
 export const readAuthorizedBranchDetail = async (
-  slugs: string[]
+  slugs: string[],
+  childrenQuery?: BranchChildrenQuery
 ): Promise<BranchDetail | null> => {
   const scope = await readAccessScope()
   if (!scope?.connectedOrganizationId) return null
@@ -77,8 +80,14 @@ export const readAuthorizedBranchDetail = async (
   )
   if (!authorizedScope) return null
 
+  const children =
+    detail.organization.type === 'pk'
+      ? { children: [], childTotal: 0, directChildrenTotal: 0, childPage: 1 }
+      : await readBranchDetailChildren(detail.organization.id, childrenQuery)
+
   return {
     ...detail,
+    ...children,
     memberMetrics: await readMemberMetrics(
       detail.organization.id,
       authorizedScope

@@ -132,6 +132,38 @@ describe('readAuthorizedBranchDetail', () => {
     await expect(readAuthorizedBranchDetail(['pk-itb'])).resolves.not.toBeNull()
   })
 
+  test('membaca hanya Struktur Anak langsung yang terlihat dengan pencarian dan pagination', async () => {
+    const [pkTelkom] = await createOrganization({
+      name: 'PK Telkom',
+      slug: 'pk-telkom',
+      code: '01.PK-2',
+      type: 'pk',
+      parentId: pdBandungId,
+      isNonActive: false
+    })
+    const [pkTerhapus] = await createOrganization({
+      name: 'PK Terhapus',
+      slug: 'pk-terhapus',
+      code: '01.PK-3',
+      type: 'pk',
+      parentId: pdBandungId,
+      isNonActive: false
+    })
+    await softDeleteOrganization(pkTerhapus.id, userId)
+    mockSession = sessionWith('root', ppId)
+
+    await expect(
+      readAuthorizedBranchDetail(['pw-jabar', 'pd-bandung'], {
+        query: 'PK',
+        page: 2,
+        limit: 1
+      })
+    ).resolves.toMatchObject({
+      childTotal: 2,
+      children: [{ id: pkTelkom.id, name: 'PK Telkom', slug: 'pk-telkom' }]
+    })
+  })
+
   test('memberikan ringkasan Kader Aktif kumulatif kepada pembaca detail yang berwenang tanpa membuka pembaca Kader umum bagi BPW', async () => {
     await db.insert(member).values([
       {

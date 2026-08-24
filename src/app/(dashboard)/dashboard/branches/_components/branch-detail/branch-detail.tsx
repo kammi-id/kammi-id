@@ -25,9 +25,25 @@ import {
   StrukturNonAktifBadge
 } from '../struktur-badges'
 import type { BranchDetail } from './data'
+import { ChildSidebar } from './child-sidebar'
 
 export const BranchDetailView = ({ detail }: { detail: BranchDetail }) => {
-  const { organization, breadcrumbs, parent, memberMetrics } = detail
+  const {
+    organization,
+    breadcrumbs,
+    parent,
+    memberMetrics,
+    children,
+    childTotal,
+    directChildrenTotal,
+    childPage
+  } = detail
+  const childLabel =
+    organization.type === 'pw'
+      ? 'Jumlah PD'
+      : organization.type === 'pd' || organization.type === 'pdln'
+        ? 'Jumlah Komisariat'
+        : null
   const metrics = [
     ['Kader Aktif', memberMetrics.total],
     ['AB1', memberMetrics.ab1],
@@ -129,24 +145,47 @@ export const BranchDetailView = ({ detail }: { detail: BranchDetail }) => {
         </div>
       </section>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Ringkasan Kader</CardTitle>
-          <CardDescription>
-            Kader Aktif dalam Cakupan Struktur ini.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <dl className='grid grid-cols-2 gap-4 sm:grid-cols-4'>
-            {metrics.map(([label, value]) => (
-              <div key={label} className='bg-muted/50 rounded-2xl p-4'>
-                <dt className='text-muted-foreground text-sm'>{label}</dt>
-                <dd className='mt-1 text-2xl font-semibold'>{value}</dd>
-              </div>
-            ))}
-          </dl>
-        </CardContent>
-      </Card>
+      <div className='grid gap-8 xl:grid-cols-[minmax(0,1fr)_20rem]'>
+        <div className='flex flex-col gap-8'>
+          {childLabel && (
+            <section
+              aria-label={childLabel}
+              className='bg-muted/50 rounded-2xl p-4'
+            >
+              <p className='text-muted-foreground text-sm'>{childLabel}</p>
+              <p className='font-heading mt-1 text-3xl font-bold tabular-nums'>
+                {directChildrenTotal}
+              </p>
+            </section>
+          )}
+          <Card>
+            <CardHeader>
+              <CardTitle>Ringkasan Kader</CardTitle>
+              <CardDescription>
+                Kader Aktif dalam Cakupan Struktur ini.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <dl className='grid grid-cols-2 gap-4 sm:grid-cols-4'>
+                {metrics.map(([label, value]) => (
+                  <div key={label} className='bg-muted/50 rounded-2xl p-4'>
+                    <dt className='text-muted-foreground text-sm'>{label}</dt>
+                    <dd className='mt-1 text-2xl font-semibold'>{value}</dd>
+                  </div>
+                ))}
+              </dl>
+            </CardContent>
+          </Card>
+        </div>
+
+        {directChildrenTotal > 0 && (
+          <ChildSidebar
+            items={children}
+            childTotal={childTotal}
+            page={childPage}
+          />
+        )}
+      </div>
     </div>
   )
 }
