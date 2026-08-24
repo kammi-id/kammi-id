@@ -98,7 +98,7 @@ export const BranchDetailView = async ({
 
             return (
               <Fragment key={breadcrumb.id}>
-                {index > 0 && <BreadcrumbSeparator />}
+                <BreadcrumbSeparator />
                 <BreadcrumbItem>
                   {isCurrent ? (
                     <BreadcrumbPage>{breadcrumb.name}</BreadcrumbPage>
