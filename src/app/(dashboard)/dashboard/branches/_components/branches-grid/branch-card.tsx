@@ -51,28 +51,19 @@ export const BranchCard = ({ org, basePath, onEdit }: BranchCardProps) => {
           )}
         </div>
         <div>
-          {/* Penelusuran berhenti pada Struktur Non-Aktif (spec §8.3): tautan
-              dan chevron mati, bukan sekadar diredupkan. Di bawahnya tidak
-              pernah ada Struktur Aktif, dan menghidupkan anak menuntut induknya
-              hidup lebih dulu — jadi tidak ada alur perbaikan yang menuntut
-              masuk ke dalamnya. */}
-          {nonAktif ? (
-            <span className='text-foreground font-semibold'>{org.name}</span>
-          ) : (
-            <Link
-              href={`${basePath}/${org.slug}`}
-              className='group/link flex items-center justify-between gap-1'
-            >
-              <span className='text-foreground group-hover/link:text-primary font-semibold transition-colors'>
-                {org.name}
-              </span>
-              <HugeiconsIcon
-                icon={ChevronRight}
-                strokeWidth={2}
-                className='text-muted-foreground size-4 transition-transform group-hover/link:translate-x-1'
-              />
-            </Link>
-          )}
+          <Link
+            href={`${basePath}/${org.slug}`}
+            className='group/link flex items-center justify-between gap-1'
+          >
+            <span className='text-foreground group-hover/link:text-primary font-semibold transition-colors'>
+              {org.name}
+            </span>
+            <HugeiconsIcon
+              icon={ChevronRight}
+              strokeWidth={2}
+              className='text-muted-foreground size-4 transition-transform group-hover/link:translate-x-1'
+            />
+          </Link>
         </div>
       </div>
       <div className='border-border/50 mt-6 flex items-center justify-between border-t pt-4'>

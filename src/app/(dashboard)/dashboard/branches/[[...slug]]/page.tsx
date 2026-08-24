@@ -1,8 +1,7 @@
 import { AccessGuard } from '~/components/access-guard'
-import { redirect } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import { readActiveSession } from '~/lib/auth/cookies'
 import {
-  getCachedOrganization,
   getCachedOrganizations,
   getCachedOrganizationCount
 } from '../../_data/organizations'
@@ -23,6 +22,10 @@ import { strukturKemampuan } from '~/lib/struktur/kemampuan'
 import Link from 'next/link'
 import { cn } from '~/lib/shadcn/utils'
 import { buttonVariants } from '~/components/shadcn/ui/button'
+import {
+  BranchDetailView,
+  readAuthorizedBranchDetail
+} from '../_components/branch-detail'
 
 interface PageProps {
   params: Promise<{ slug?: string[] }>
@@ -47,17 +50,18 @@ const BranchesPage = async ({ params, searchParams }: PageProps) => {
     )
   }
 
-  let currentOrg: Organization | undefined
+  if (slug?.length) {
+    const detail = await readAuthorizedBranchDetail(slug)
+    if (!detail) notFound()
 
-  if (!slug || slug.length === 0) {
-    if (user.connectedOrganization) {
-      currentOrg = user.connectedOrganization
-    }
-  } else {
-    const lastSlug = slug[slug.length - 1]
-    const org = await getCachedOrganization(lastSlug)
-    currentOrg = org
+    return (
+      <AccessGuard allowedRoles={['root', 'bph', 'bpw']}>
+        <BranchDetailView detail={detail} />
+      </AccessGuard>
+    )
   }
+
+  const currentOrg: Organization | undefined = user.connectedOrganization
 
   if (!currentOrg) {
     return (
@@ -79,38 +83,28 @@ const BranchesPage = async ({ params, searchParams }: PageProps) => {
     )
   }
 
-  if (currentOrg.type === 'pk') {
-    return (
-      <div className='flex h-[calc(100vh-theme(spacing.24))] items-center justify-center'>
-        <p className='text-muted-foreground'>
-          Halaman ini tidak tersedia untuk Pengurus Komisariat.
-        </p>
-      </div>
-    )
-  }
-
   // UI Customization based on Org Type
   let pageTitle = 'Daftar Wilayah'
   let subTitle = `Menampilkan wilayah di bawah ${currentOrg.name}.`
-  let nameHeader = 'Nama Organisasi'
   let addButtonLabel = 'Wilayah'
 
   if (currentOrg.type === 'pp') {
     pageTitle = 'Daftar Pengurus Wilayah dan Daerah LN'
     subTitle =
       'Menampilkan daftar wilayah dan pengurus daerah luar negeri yang berada langsung di bawah naungan pusat.'
-    nameHeader = 'PW/PDLN'
     addButtonLabel = 'PW/PDLN'
   } else if (currentOrg.type === 'pw') {
     pageTitle = 'Daftar Pengurus Daerah dan Komisariat'
     subTitle = `Daftar pengurus daerah dan komisariat yang berada di wilayah ${currentOrg.name}.`
-    nameHeader = 'PD/PK'
     addButtonLabel = 'PD/PK'
   } else if (currentOrg.type === 'pd') {
     pageTitle = 'Daftar Pengurus Komisariat'
     subTitle = `Seluruh komisariat yang aktif berada di bawah naungan daerah ${currentOrg.name}.`
-    nameHeader = 'PK'
     addButtonLabel = 'PK'
+  } else if (currentOrg.type === 'pk') {
+    pageTitle = 'Struktur Anak'
+    subTitle = `${currentOrg.name} tidak memiliki Struktur Anak.`
+    addButtonLabel = 'Struktur Anak'
   }
 
   // Parse searchParams for server-side fetching

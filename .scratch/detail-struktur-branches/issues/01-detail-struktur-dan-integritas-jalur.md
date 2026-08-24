@@ -4,7 +4,7 @@
 
 **Blocked by:** None — can start immediately.
 
-**Status:** ready-for-agent
+**Status:** claimed
 
 - [ ] Jalur bertingkat yang sah hanya mengikuti rantai Induk → Struktur Anak; jalur yang tidak sah, Terhapus, atau di luar Cakupan tidak membocorkan keberadaan Struktur.
 - [ ] Struktur PK dapat dibuka sebagai detail, sedangkan top-level tetap grid tanpa detail Struktur sendiri.

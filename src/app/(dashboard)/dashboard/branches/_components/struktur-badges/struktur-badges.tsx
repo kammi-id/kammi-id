@@ -72,3 +72,15 @@ export const StrukturNonAktifBadge = ({
     Non-Aktif
   </Badge>
 )
+
+export const StrukturAktifBadge = ({ className }: { className?: string }) => (
+  <Badge
+    variant='outline'
+    className={cn(
+      'border-[color:var(--status-success-border)] bg-[color:var(--status-success-bg)] text-[10px] font-bold tracking-wider text-[color:var(--status-success-text)] uppercase',
+      className
+    )}
+  >
+    Aktif
+  </Badge>
+)
