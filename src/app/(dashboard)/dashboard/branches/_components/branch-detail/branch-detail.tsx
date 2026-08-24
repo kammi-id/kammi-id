@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { Fragment } from 'react'
 import {
   Avatar,
   AvatarFallback,
@@ -13,19 +14,13 @@ import {
   BreadcrumbSeparator
 } from '~/components/shadcn/ui/breadcrumb'
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle
-} from '~/components/shadcn/ui/card'
-import {
   StrukturAktifBadge,
   StrukturJenjangBadge,
   StrukturNonAktifBadge
 } from '../struktur-badges'
 import type { BranchDetail } from './data'
 import { ChildSidebar } from './child-sidebar'
+import { MemberSummary } from './member-summary'
 
 export const BranchDetailView = ({ detail }: { detail: BranchDetail }) => {
   const {
@@ -44,16 +39,6 @@ export const BranchDetailView = ({ detail }: { detail: BranchDetail }) => {
       : organization.type === 'pd' || organization.type === 'pdln'
         ? 'Jumlah Komisariat'
         : null
-  const metrics = [
-    ['Kader Aktif', memberMetrics.total],
-    ['AB1', memberMetrics.ab1],
-    ['AB2', memberMetrics.ab2],
-    ['AB3', memberMetrics.ab3],
-    ['Ikhwan', memberMetrics.ikhwan],
-    ['Akhwat', memberMetrics.akhwat],
-    ['Pemandu', memberMetrics.pemandu],
-    ['Instruktur', memberMetrics.instruktur]
-  ]
 
   return (
     <div className='flex flex-col gap-8 px-4 py-4 md:py-6 lg:px-6'>
@@ -72,16 +57,18 @@ export const BranchDetailView = ({ detail }: { detail: BranchDetail }) => {
             const isCurrent = breadcrumb.id === organization.id
 
             return (
-              <BreadcrumbItem key={breadcrumb.id}>
-                <BreadcrumbSeparator />
-                {isCurrent ? (
-                  <BreadcrumbPage>{breadcrumb.name}</BreadcrumbPage>
-                ) : (
-                  <BreadcrumbLink render={<Link href={href} />}>
-                    {breadcrumb.name}
-                  </BreadcrumbLink>
-                )}
-              </BreadcrumbItem>
+              <Fragment key={breadcrumb.id}>
+                {index > 0 && <BreadcrumbSeparator />}
+                <BreadcrumbItem>
+                  {isCurrent ? (
+                    <BreadcrumbPage>{breadcrumb.name}</BreadcrumbPage>
+                  ) : (
+                    <BreadcrumbLink render={<Link href={href} />}>
+                      {breadcrumb.name}
+                    </BreadcrumbLink>
+                  )}
+                </BreadcrumbItem>
+              </Fragment>
             )
           })}
         </BreadcrumbList>
@@ -158,24 +145,7 @@ export const BranchDetailView = ({ detail }: { detail: BranchDetail }) => {
               </p>
             </section>
           )}
-          <Card>
-            <CardHeader>
-              <CardTitle>Ringkasan Kader</CardTitle>
-              <CardDescription>
-                Kader Aktif dalam Cakupan Struktur ini.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <dl className='grid grid-cols-2 gap-4 sm:grid-cols-4'>
-                {metrics.map(([label, value]) => (
-                  <div key={label} className='bg-muted/50 rounded-2xl p-4'>
-                    <dt className='text-muted-foreground text-sm'>{label}</dt>
-                    <dd className='mt-1 text-2xl font-semibold'>{value}</dd>
-                  </div>
-                ))}
-              </dl>
-            </CardContent>
-          </Card>
+          <MemberSummary data={memberMetrics} />
         </div>
 
         {directChildrenTotal > 0 && (

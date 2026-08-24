@@ -27,6 +27,10 @@ import {
   readAuthorizedBranchDetail
 } from '../_components/branch-detail'
 
+// Halaman ini menegakkan sesi dan Cakupan sebelum dapat merender data Struktur.
+// Validasi shell statis tidak berlaku untuk navigasi masuk ke permukaan ini.
+export const instant = false
+
 interface PageProps {
   params: Promise<{ slug?: string[] }>
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
