@@ -1,10 +1,6 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
-import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
-
-gsap.registerPlugin(ScrollTrigger)
 
 export const ScrollProgress = () => {
   const barRef = useRef<HTMLDivElement>(null)
@@ -14,15 +10,27 @@ export const ScrollProgress = () => {
     if (!bar) return
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
 
-    const st = ScrollTrigger.create({
-      start: 0,
-      end: 'max',
-      onUpdate: ({ progress }) => {
-        gsap.set(bar, { scaleY: progress })
-      }
-    })
+    let ticking = false
+    const update = () => {
+      ticking = false
+      const max = document.documentElement.scrollHeight - window.innerHeight
+      const progress = max > 0 ? window.scrollY / max : 0
+      bar.style.transform = `scaleY(${Math.min(1, Math.max(0, progress))})`
+    }
 
-    return () => st.kill()
+    const onScroll = () => {
+      if (ticking) return
+      ticking = true
+      requestAnimationFrame(update)
+    }
+
+    update()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', onScroll)
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onScroll)
+    }
   }, [])
 
   return (

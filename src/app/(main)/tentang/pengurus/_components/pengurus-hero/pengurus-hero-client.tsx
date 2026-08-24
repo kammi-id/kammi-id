@@ -1,13 +1,12 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useRef } from 'react'
 import Image from 'next/image'
 import { ViewTransition } from 'react'
+import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { cn } from '~/lib/shadcn/utils'
-
-gsap.registerPlugin(ScrollTrigger)
+import { useSectionReveal } from '~/hooks/use-section-reveal'
 
 interface PengurusHeroClientProps {
   periodLabel: string
@@ -25,112 +24,75 @@ export const PengurusHeroClient = ({
   triumvirate
 }: PengurusHeroClientProps) => {
   const sectionRef = useRef<HTMLElement>(null)
+  const textRef = useRef<HTMLDivElement>(null)
+  const ketuaRef = useRef<HTMLDivElement>(null)
+  const sekjRef = useRef<HTMLDivElement>(null)
+  const bendRef = useRef<HTMLDivElement>(null)
+  const isDesktopRef = useRef(true)
 
-  useEffect(() => {
-    const section = sectionRef.current
-    if (!section) return
+  const { contextSafe } = useGSAP(
+    () => {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+        return
+      isDesktopRef.current = window.innerWidth >= 768
 
-    const ctx = gsap.context(() => {
-      const prefersReduced = window.matchMedia(
-        '(prefers-reduced-motion: reduce)'
-      ).matches
-      if (prefersReduced) return
-
-      const q = gsap.utils.selector(section)
-      const textWrapper = q('[data-ph-text]')[0] as HTMLElement
-      const ketuaEl = q('[data-ph-photo="ketua"]')[0] as HTMLElement
-      const sekjEl = q('[data-ph-photo="sekj"]')[0] as HTMLElement
-      const bendEl = q('[data-ph-photo="bend"]')[0] as HTMLElement
-
-      if (window.innerWidth >= 768) {
-        // Desktop: text starts raksasa at center, photos fly in as you scroll.
-        // Use viewport-based measurement so the text appears at viewport center
-        // on initial load (scroll=0). After pin fires the text is ~nav-height
-        // above center — the animation then carries it to header position.
-        const textRect = textWrapper.getBoundingClientRect()
-        const deltaY =
-          window.innerHeight / 2 - (textRect.top + textRect.height / 2)
-
-        gsap.set(textWrapper, {
-          scale: 3.5,
-          y: deltaY,
-          transformOrigin: 'center center'
-        })
-        // Position-only hide: overflow:hidden on section clips them, no opacity fade
-        // so there is no warm-tinted "ghost" effect during the entrance
-        gsap.set(ketuaEl, { y: '85vh', scale: 1.15 })
-        gsap.set(sekjEl, { x: '-55vw' })
-        gsap.set(bendEl, { x: '55vw' })
-
-        const tl = gsap.timeline()
-
-        // Text collapses from center to header position
-        tl.to(textWrapper, { scale: 1, y: 0, ease: 'none', duration: 0.38 }, 0)
-        // Ketua rises from below — no opacity, section overflow:hidden clips it
-        tl.fromTo(
-          ketuaEl,
-          { y: '85vh', scale: 1.15 },
-          { y: 0, scale: 1, ease: 'none', duration: 0.42 },
-          0.18
-        )
-        // Sekjen converges from left
-        tl.fromTo(
-          sekjEl,
-          { x: '-55vw' },
-          { x: 0, ease: 'none', duration: 0.45 },
-          0.27
-        )
-        // Bendum converges from right
-        tl.fromTo(
-          bendEl,
-          { x: '55vw' },
-          { x: 0, ease: 'none', duration: 0.45 },
-          0.32
-        )
-
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        ScrollTrigger.create({
-          trigger: section,
-          start: 'top top',
-          end: '+=200%',
-          pin: true,
-          scrub: true,
-          anticipatePin: 1,
-          animation: tl,
-          // Prevent scrub from extrapolating below progress 0 on overscroll —
-          // keeps title centered and at scale 3.5 when scrolling past the top
-          clamp: true
-        } as any)
+      if (isDesktopRef.current) {
+        gsap.set(textRef.current, { opacity: 0, y: 24, scale: 0.96 })
+        gsap.set(ketuaRef.current, { y: '30vh', opacity: 0 })
+        gsap.set(sekjRef.current, { x: '-30vw', opacity: 0 })
+        gsap.set(bendRef.current, { x: '30vw', opacity: 0 })
       } else {
-        // Mobile M1: vertical stage reveal — text then photos stagger from below
-        gsap.set(textWrapper, { opacity: 0, scale: 1.5, y: '10vh' })
-        gsap.set([ketuaEl, sekjEl, bendEl], { opacity: 0, y: 65 })
-
-        gsap
-          .timeline({ delay: 0.2 })
-          .to(textWrapper, {
-            opacity: 1,
-            scale: 1,
-            y: 0,
-            duration: 0.85,
-            ease: 'power3.out'
-          })
-          .to(
-            [ketuaEl, sekjEl, bendEl],
-            {
-              opacity: 1,
-              y: 0,
-              duration: 0.65,
-              ease: 'power3.out',
-              stagger: 0.15
-            },
-            '-=0.35'
-          )
+        gsap.set(textRef.current, { opacity: 0, scale: 1.5, y: '10vh' })
+        gsap.set([ketuaRef.current, sekjRef.current, bendRef.current], {
+          opacity: 0,
+          y: 65
+        })
       }
-    }, section)
+    },
+    { scope: sectionRef }
+  )
 
-    return () => ctx.revert()
-  }, [])
+  const reveal = contextSafe(() => {
+    if (isDesktopRef.current) {
+      gsap
+        .timeline()
+        .to(textRef.current, {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          duration: 0.6,
+          ease: 'power3.out'
+        })
+        .to(
+          [sekjRef.current, bendRef.current],
+          { x: 0, opacity: 1, duration: 0.7, ease: 'power3.out' },
+          '-=0.3'
+        )
+        .to(
+          ketuaRef.current,
+          { y: 0, opacity: 1, duration: 0.7, ease: 'power3.out' },
+          '-=0.5'
+        )
+      return
+    }
+
+    gsap
+      .timeline()
+      .to(textRef.current, {
+        opacity: 1,
+        scale: 1,
+        y: 0,
+        duration: 0.85,
+        ease: 'power3.out'
+      })
+      .to(
+        [ketuaRef.current, sekjRef.current, bendRef.current],
+        { opacity: 1, y: 0, duration: 0.65, ease: 'power3.out', stagger: 0.15 },
+        '-=0.35'
+      )
+  })
+
+  useSectionReveal(sectionRef, reveal)
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect()
@@ -149,19 +111,22 @@ export const PengurusHeroClient = ({
       key: 'sekj' as const,
       label: 'Sekretaris Jenderal',
       member: triumvirate.sekretaris,
-      position: 'left' as const
+      position: 'left' as const,
+      ref: sekjRef
     },
     {
       key: 'ketua' as const,
       label: 'Ketua Umum',
       member: triumvirate.ketua,
-      position: 'center' as const
+      position: 'center' as const,
+      ref: ketuaRef
     },
     {
       key: 'bend' as const,
       label: 'Bendahara Umum',
       member: triumvirate.bendahara,
-      position: 'right' as const
+      position: 'right' as const,
+      ref: bendRef
     }
   ]
 
@@ -171,9 +136,9 @@ export const PengurusHeroClient = ({
       className='bg-background border-border relative flex min-h-dvh flex-col overflow-hidden border-b'
       aria-labelledby='pengurus-heading'
     >
-      {/* Header — starts centered+huge on desktop, collapses to here as scroll progresses */}
+      {/* Header */}
       <div
-        data-ph-text
+        ref={textRef}
         className='px-6 pt-14 pb-4 text-center sm:pt-16 lg:px-8 lg:pt-20'
       >
         <p className='text-primary font-sans text-xs font-semibold tracking-widest uppercase'>
@@ -187,16 +152,16 @@ export const PengurusHeroClient = ({
         </h2>
       </div>
 
-      {/* Photo trio — photos start spread/hidden, converge as scroll progresses */}
+      {/* Photo trio */}
       <div className='mt-auto flex flex-col items-start gap-10 px-6 sm:px-8 md:flex-row md:items-end md:justify-center md:gap-0 lg:px-12'>
-        {trio.map(({ key, label, member, position }) => {
+        {trio.map(({ key, label, member, position, ref: photoRef }) => {
           const isCenter = position === 'center'
           const isLeft = position === 'left'
 
           return (
             <div
               key={key}
-              data-ph-photo={key}
+              ref={photoRef}
               onMouseMove={handleMouseMove}
               className={cn(
                 'group bg-muted/60 relative shrink-0 cursor-pointer overflow-visible rounded-[2.5rem] px-4 pt-4 pb-0',

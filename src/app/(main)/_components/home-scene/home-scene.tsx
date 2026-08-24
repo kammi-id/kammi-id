@@ -1,35 +1,20 @@
 'use client'
 
 /**
- * HomeScene — a single pinned container that drives all homepage section
- * transitions through one GSAP master timeline, eliminating the "scrolling
- * down" feel produced by chaining separate ScrollTrigger pins.
- *
- * Architecture mirrors /tentang's TentangScene:
- *   - One `h-svh overflow-hidden` wrapper that is pinned for the entire
- *     homepage animation sequence.
- *   - Four section layers as `absolute inset-0` children, stacked via z-index.
- *   - One master GSAP timeline scrubbed over the pin window.
- *
- * Scroll budget (end: '+=600%'):
- *   Timeline is still 8 units long, only the scroll-distance mapping changed —
- *   the last animation finishes at t≈5.64 of 8.0, so the dead hold at the tail
- *   is what got trimmed.
- *   Phase 1 — Hero exits                   ~1.3 units  (~130vh)
- *   Phase 2 — About enters + holds + exits ~2.0 units  (~200vh)
- *   Phase 3 — Leadership enters/holds/exits~2.5 units  (~250vh)
- *   Phase 4 — Network enters + holds       ~2.2 units  (~220vh)
- *   Total                                  ~8.0 units  (600%)
+ * HomeScene — four normal-flow sections (Hero, About, Leadership, Network).
+ * Each section plays its own one-shot GSAP entrance the first time it enters
+ * the viewport, via a plain IntersectionObserver. No pin, no scroll-scrub, no
+ * cross-section transition — sections sit where the document puts them.
  */
 
 import { useRef, useCallback, useEffect } from 'react'
 import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import Image from 'next/image'
 import Link from 'next/link'
 import dynamic from 'next/dynamic'
 import { cn } from '~/lib/shadcn/utils'
+import { useSectionReveal } from '~/hooks/use-section-reveal'
 import {
   matchSlugsForPW,
   type ProvinceTooltip
@@ -47,6 +32,8 @@ const LeafletMap = dynamic(() => import('../network-section/leaflet-map'), {
     />
   )
 })
+
+const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)'
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 interface HeroItem {
@@ -101,7 +88,7 @@ const StatCard = ({
     className='border-border/50 bg-background/90 flex flex-col items-center justify-center gap-1.5 rounded-2xl border p-4 text-center shadow-sm backdrop-blur-sm lg:p-5'
   >
     <p className='font-heading text-foreground text-[clamp(2rem,4vw,3.25rem)] leading-none font-bold tabular-nums'>
-      <span data-target={value}>0</span>
+      <span data-target={value}>{value}</span>
     </p>
     <p className='text-muted-foreground font-sans text-[10px] font-semibold tracking-widest uppercase'>
       {label}
@@ -117,14 +104,13 @@ export const HomeScene = ({
   networkStats,
   pwOrgs
 }: HomeSceneProps) => {
-  // Scene root — pinned by ScrollTrigger
-  const sceneRef = useRef<HTMLDivElement>(null)
+  const rootRef = useRef<HTMLDivElement>(null)
 
-  // Layer refs (z-stacked: hero < about < leadership < network)
-  const heroLayerRef = useRef<HTMLDivElement>(null)
-  const aboutLayerRef = useRef<HTMLDivElement>(null)
-  const leadershipLayerRef = useRef<HTMLDivElement>(null)
-  const networkLayerRef = useRef<HTMLDivElement>(null)
+  // Section refs — reveal trigger targets
+  const heroSectionRef = useRef<HTMLDivElement>(null)
+  const aboutSectionRef = useRef<HTMLDivElement>(null)
+  const leadershipSectionRef = useRef<HTMLDivElement>(null)
+  const networkSectionRef = useRef<HTMLDivElement>(null)
 
   // Hero element refs
   const heroImgRef = useRef<HTMLDivElement>(null)
@@ -205,16 +191,7 @@ export const HomeScene = ({
     const el = tooltipRef.current
     if (!el) return
 
-    // Only show tooltip when network layer is the active section
-    const networkOpacity = parseFloat(
-      networkLayerRef.current?.style.opacity ?? '0'
-    )
-    if (networkOpacity < 0.5 || !t.visible) {
-      el.style.visibility = 'hidden'
-      return
-    }
-
-    if (!t.pwName) {
+    if (!t.visible || !t.pwName) {
       el.style.visibility = 'hidden'
       return
     }
@@ -229,7 +206,7 @@ export const HomeScene = ({
   const handleMapHover = useCallback((hovering: boolean) => {
     if (hovering === mapHoveredRef.current) return
     mapHoveredRef.current = hovering
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    if (window.matchMedia(REDUCED_MOTION_QUERY).matches) return
     gsap.to(netCardsRef.current, {
       y: hovering ? 72 : 0,
       duration: 0.45,
@@ -247,53 +224,36 @@ export const HomeScene = ({
     }
   }, [])
 
-  // ── Master GSAP animation ────────────────────────────────────────────────────
-  useGSAP(
+  // ── Per-section entrance timelines ──────────────────────────────────────────
+  const isDesktopRef = useRef(true)
+
+  const { contextSafe } = useGSAP(
     () => {
-      gsap.registerPlugin(ScrollTrigger)
+      if (window.matchMedia(REDUCED_MOTION_QUERY).matches) return
+      isDesktopRef.current = window.innerWidth >= 768
 
-      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+      // ── Initial hidden/offset states — set before first paint so nothing
+      // flashes visible before its section is revealed. ─────────────────────
+      gsap.set(
+        [heroBadgeRef.current, heroH1Ref.current, heroDescRef.current].filter(
+          Boolean
+        ),
+        { opacity: 0, y: 24 }
+      )
+      gsap.set(heroImgRef.current, { scale: 1.06, opacity: 0 })
 
-      const isDesktop = window.innerWidth >= 768
+      gsap.set([aboutLeftRef.current], { opacity: 0, x: -60 })
+      gsap.set([aboutRightRef.current], { opacity: 0, x: 60 })
 
-      // ── Initial layer states (all invisible except hero) ───────────────────
-      gsap.set(aboutLayerRef.current, { opacity: 0, pointerEvents: 'none' })
-      gsap.set(aboutLeftRef.current, { opacity: 0, x: -60 })
-      gsap.set(aboutRightRef.current, { opacity: 0, x: 60 })
-
-      gsap.set(networkLayerRef.current, { opacity: 0, pointerEvents: 'none' })
-      gsap.set(netMapRef.current, { scale: 1.5, opacity: 0 })
-      gsap.set(netHeaderRef.current, { opacity: 0, y: -24 })
-      gsap.set(netCtaRef.current, { opacity: 0, y: -12, pointerEvents: 'none' })
-
-      // Network stat cards initial state
-      if (netCardsRef.current) {
-        const cards = Array.from(
-          netCardsRef.current.querySelectorAll<HTMLElement>('[data-stat]')
-        )
-        gsap.set(cards, { opacity: 0, y: 56 })
-      }
-
-      // ── Leadership initial state (desktop: photos off-screen, text huge) ───
-      if (isDesktop && lsTextRef.current) {
-        const textRect = lsTextRef.current.getBoundingClientRect()
-        const deltaY =
-          window.innerHeight / 2 - (textRect.top + textRect.height / 2)
-        gsap.set(lsTextRef.current, {
-          scale: 3.5,
-          y: deltaY,
-          transformOrigin: 'center center'
-        })
-        gsap.set(lsKetuaRef.current, { y: '85vh', scale: 1.15 })
-        gsap.set(lsSekjRef.current, { x: '-55vw' })
-        gsap.set(lsBendRef.current, { x: '55vw' })
+      if (isDesktopRef.current) {
+        gsap.set(lsTextRef.current, { opacity: 0, y: 24, scale: 0.96 })
+        gsap.set(lsKetuaRef.current, { y: '30vh', opacity: 0 })
+        gsap.set(lsSekjRef.current, { x: '-30vw', opacity: 0 })
+        gsap.set(lsBendRef.current, { x: '30vw', opacity: 0 })
       } else {
-        // Mobile: text wrapper visible, sub-elements start hidden
-        gsap.set(lsTextRef.current, { opacity: 1 })
         gsap.set(lsPeriodRef.current, { opacity: 0, y: 22 })
         gsap.set(lsHeadingRef.current, { opacity: 0, y: 22 })
         gsap.set(lsCtaRef.current, { opacity: 0, y: 14 })
-        // Mobile portrait wrappers start off-screen to the right
         gsap.set(
           [
             lsMobileKetuaRef.current,
@@ -302,7 +262,6 @@ export const HomeScene = ({
           ],
           { x: '110vw' }
         )
-        // Name plates inside each portrait start invisible
         const mobilePlates = [
           lsMobileKetuaRef.current,
           lsMobileSekjRef.current,
@@ -314,334 +273,220 @@ export const HomeScene = ({
         gsap.set(mobilePlates, { opacity: 0 })
       }
 
-      // Hide until its phase — lazy-load gate for the portrait images inside.
-      // Must run after the getBoundingClientRect() measurement above: measuring
-      // against a display:none ancestor collapses it and zeroes out deltaY.
-      gsap.set(leadershipLayerRef.current, {
-        opacity: 0,
-        display: 'none',
-        pointerEvents: 'none'
-      })
+      gsap.set(netMapRef.current, { scale: 1.15, opacity: 0 })
+      gsap.set(netHeaderRef.current, { opacity: 0, y: -24 })
+      gsap.set(netCtaRef.current, { opacity: 0, y: -12 })
+      if (netCardsRef.current) {
+        const cards = Array.from(
+          netCardsRef.current.querySelectorAll<HTMLElement>('[data-stat]')
+        )
+        gsap.set(cards, { opacity: 0, y: 56 })
+      }
+    },
+    { scope: rootRef }
+  )
 
-      // ── Counter objects for network stats ──────────────────────────────────
+  // ── Hero — enters immediately, it's already in view on load ────────────────
+  const revealHero = useCallback(() => {
+    gsap
+      .timeline()
+      .to(heroImgRef.current, {
+        scale: 1,
+        opacity: 1,
+        duration: 0.9,
+        ease: 'power2.out'
+      })
+      .to(
+        heroBadgeRef.current,
+        { opacity: 1, y: 0, duration: 0.5, ease: 'power3.out' },
+        '-=0.55'
+      )
+      .to(
+        heroH1Ref.current,
+        { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' },
+        '-=0.4'
+      )
+      .to(
+        heroDescRef.current,
+        { opacity: 1, y: 0, duration: 0.5, ease: 'power3.out' },
+        '-=0.4'
+      )
+  }, [])
+
+  // ── About — left slides from left, right slides from right ─────────────────
+  const revealAbout = useCallback(() => {
+    gsap
+      .timeline()
+      .to(aboutLeftRef.current, {
+        opacity: 1,
+        x: 0,
+        duration: 0.6,
+        ease: 'power3.out'
+      })
+      .to(
+        aboutRightRef.current,
+        { opacity: 1, x: 0, duration: 0.6, ease: 'power3.out' },
+        '-=0.4'
+      )
+  }, [])
+
+  // ── Leadership — desktop trio converges, mobile sequential reveal ──────────
+  const revealLeadership = useCallback(() => {
+    if (isDesktopRef.current) {
+      gsap
+        .timeline()
+        .to(lsTextRef.current, {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          duration: 0.6,
+          ease: 'power3.out'
+        })
+        .to(
+          [lsSekjRef.current, lsBendRef.current],
+          { x: 0, opacity: 1, duration: 0.7, ease: 'power3.out' },
+          '-=0.3'
+        )
+        .to(
+          lsKetuaRef.current,
+          { y: 0, opacity: 1, duration: 0.7, ease: 'power3.out' },
+          '-=0.5'
+        )
+      return
+    }
+
+    const plate = (ref: React.RefObject<HTMLDivElement | null>) =>
+      ref.current?.querySelector<HTMLElement>('[data-mobile-plate]') ?? null
+
+    gsap
+      .timeline()
+      // Title stagger in
+      .to(lsPeriodRef.current, {
+        opacity: 1,
+        y: 0,
+        duration: 0.35,
+        ease: 'power3.out'
+      })
+      .to(
+        lsHeadingRef.current,
+        { opacity: 1, y: 0, duration: 0.4, ease: 'power3.out' },
+        '-=0.2'
+      )
+      .to(
+        lsCtaRef.current,
+        { opacity: 1, y: 0, duration: 0.3, ease: 'power3.out' },
+        '-=0.2'
+      )
+      // Ketua enters, holds, exits left
+      .to(
+        lsMobileKetuaRef.current,
+        { x: 0, duration: 0.5, ease: 'power3.out' },
+        '+=0.1'
+      )
+      .to(
+        plate(lsMobileKetuaRef),
+        { opacity: 1, duration: 0.35, ease: 'power3.out' },
+        '-=0.2'
+      )
+      .to(lsMobileKetuaRef.current, {
+        x: '-110vw',
+        duration: 0.45,
+        ease: 'power2.in',
+        delay: 0.8
+      })
+      // Sekjen enters only after Ketua fully exits
+      .to(lsMobileSekjRef.current, {
+        x: 0,
+        duration: 0.5,
+        ease: 'power3.out'
+      })
+      .to(
+        plate(lsMobileSekjRef),
+        { opacity: 1, duration: 0.35, ease: 'power3.out' },
+        '-=0.2'
+      )
+      .to(lsMobileSekjRef.current, {
+        x: '-110vw',
+        duration: 0.45,
+        ease: 'power2.in',
+        delay: 0.8
+      })
+      // Bendahara enters only after Sekjen fully exits
+      .to(lsMobileBendRef.current, {
+        x: 0,
+        duration: 0.5,
+        ease: 'power3.out'
+      })
+      .to(
+        plate(lsMobileBendRef),
+        { opacity: 1, duration: 0.35, ease: 'power3.out' },
+        '-=0.2'
+      )
+  }, [])
+
+  // ── Network — map zooms in, header/CTA/cards follow, stats count up ────────
+  const revealNetwork = useCallback(() => {
+    const tl = gsap.timeline().to(netMapRef.current, {
+      scale: 1,
+      opacity: 1,
+      duration: 0.8,
+      ease: 'power2.out'
+    })
+    tl.to(
+      netHeaderRef.current,
+      { opacity: 1, y: 0, duration: 0.5, ease: 'power3.out' },
+      '-=0.5'
+    ).to(
+      netCtaRef.current,
+      { opacity: 1, y: 0, duration: 0.4, ease: 'power3.out' },
+      '-=0.3'
+    )
+
+    if (netCardsRef.current) {
+      const cards = Array.from(
+        netCardsRef.current.querySelectorAll<HTMLElement>('[data-stat]')
+      )
+      const numEls = Array.from(
+        netCardsRef.current.querySelectorAll<HTMLElement>('[data-target]')
+      )
       const statValues = [
         networkStats.wilayah,
         networkStats.daerah,
         networkStats.komisariat
       ]
-      const counterObjs = statValues.map((v) => ({ val: 0, target: v }))
 
-      // ── Master timeline — one pin, one scrub ───────────────────────────────
-      const mainTl = gsap.timeline({
-        scrollTrigger: {
-          id: 'home-main',
-          trigger: sceneRef.current,
-          start: 'top top',
-          end: '+=600%',
-          pin: true,
-          scrub: true,
-          anticipatePin: 1,
-          invalidateOnRefresh: true
-        }
-      })
-
-      // ════════════════════════════════════════════════════════════════════════
-      // PHASE 1 — Hero exits  (t: 0 → 1.3)
-      // ════════════════════════════════════════════════════════════════════════
-      mainTl
-        // Stagger: badge first → h1 → description → image zooms + fades last
-        .to(
-          heroBadgeRef.current,
-          { opacity: 0, y: -28, ease: 'power2.in', duration: 0.18 },
-          0
-        )
-        .to(
-          heroH1Ref.current,
-          { opacity: 0, y: -52, ease: 'power2.in', duration: 0.26 },
-          0.12
-        )
-        .to(
-          heroDescRef.current,
-          { opacity: 0, y: -36, ease: 'power2.in', duration: 0.22 },
-          0.22
-        )
-        .to(
-          heroImgRef.current,
-          { scale: 1.1, opacity: 0, ease: 'none', duration: 0.52 },
-          0.28
-        )
-
-      // ════════════════════════════════════════════════════════════════════════
-      // PHASE 2 — About enters (t: 1.1 → 1.6), holds, exits (t: 2.7 → 3.4)
-      // ════════════════════════════════════════════════════════════════════════
-      mainTl
-        // Enter: about layer fades in while hero is finishing
-        .to(
-          aboutLayerRef.current,
-          { opacity: 1, ease: 'none', duration: 0.08 },
-          1.1
-        )
-        .set(aboutLayerRef.current, { pointerEvents: 'auto' }, 1.1)
-        // Left col ("Tentang KAMMI") slides from left
-        .to(
-          aboutLeftRef.current,
-          { opacity: 1, x: 0, ease: 'power3.out', duration: 0.25 },
-          1.18
-        )
-        // Right card ("Lahir dari Rahim Reformasi") slides from right — stagger
-        .to(
-          aboutRightRef.current,
-          { opacity: 1, x: 0, ease: 'power3.out', duration: 0.25 },
-          1.28
-        )
-
-        // ── Hold: implicit gap (t: 1.53 → 2.7) ───────────────────────────────
-
-        // Exit: left exits to the left, right exits to the right
-        .to(
-          aboutLeftRef.current,
-          { opacity: 0, x: '-68vw', ease: 'power2.in', duration: 0.32 },
-          2.7
-        )
-        .to(
-          aboutRightRef.current,
-          { opacity: 0, x: '68vw', ease: 'power2.in', duration: 0.32 },
-          2.76
-        )
-        .to(
-          aboutLayerRef.current,
-          { opacity: 0, ease: 'none', duration: 0.1 },
-          3.02
-        )
-        .set(aboutLayerRef.current, { pointerEvents: 'none' }, 3.12)
-
-      // ════════════════════════════════════════════════════════════════════════
-      // PHASE 3 — Leadership enters (t: 2.9 → 4.5), holds, exits (t: 4.6 → 5.3)
-      // ════════════════════════════════════════════════════════════════════════
-      mainTl
-        .to(
-          leadershipLayerRef.current,
-          { opacity: 1, ease: 'none', duration: 0.08 },
-          2.9
-        )
-        .set(
-          leadershipLayerRef.current,
-          { display: 'flex', pointerEvents: 'auto' },
-          2.9
-        )
-
-      if (isDesktop) {
-        mainTl
-          // Text zooms from huge at center to normal top position
-          .to(
-            lsTextRef.current,
-            { scale: 1, y: 0, ease: 'none', duration: 0.38 },
-            2.9
-          )
-          // Photos converge from edges
-          .fromTo(
-            lsKetuaRef.current,
-            { y: '85vh', scale: 1.15 },
-            { y: 0, scale: 1, ease: 'none', duration: 0.42 },
-            3.08
-          )
-          .fromTo(
-            lsSekjRef.current,
-            { x: '-55vw' },
-            { x: 0, ease: 'none', duration: 0.45 },
-            3.17
-          )
-          .fromTo(
-            lsBendRef.current,
-            { x: '55vw' },
-            { x: 0, ease: 'none', duration: 0.45 },
-            3.22
-          )
-      } else {
-        // Mobile: sequential single-person reveal, title persists, strict order
-        const plate = (ref: React.RefObject<HTMLDivElement | null>) =>
-          ref.current?.querySelector<HTMLElement>('[data-mobile-plate]') ?? null
-
-        mainTl
-          // ── Title stagger in (stays visible throughout) ───────────────────
-          .to(
-            lsPeriodRef.current,
-            { opacity: 1, y: 0, ease: 'power3.out', duration: 0.13 },
-            2.9
-          )
-          .to(
-            lsHeadingRef.current,
-            { opacity: 1, y: 0, ease: 'power3.out', duration: 0.16 },
-            3.05
-          )
-          .to(
-            lsCtaRef.current,
-            { opacity: 1, y: 0, ease: 'power3.out', duration: 0.12 },
-            3.23
-          )
-
-          // ── Ketua Umum enters from right ──────────────────────────────────
-          // enters: 3.32 → 3.56  |  plate: 3.48 → 3.68  |  holds: 3.56 → 3.75
-          .to(
-            lsMobileKetuaRef.current,
-            { x: 0, ease: 'power3.out', duration: 0.24 },
-            3.32
-          )
-          .to(
-            plate(lsMobileKetuaRef),
-            { opacity: 1, ease: 'power3.out', duration: 0.2 },
-            3.48
-          )
-          // Ketua exits fully (done at 3.97) before Sekjen enters
-          .to(
-            lsMobileKetuaRef.current,
-            { x: '-110vw', ease: 'power2.in', duration: 0.22 },
-            3.75
-          )
-
-          // ── Sekjen enters only after Ketua fully exits (t:3.97) ───────────
-          // enters: 3.97 → 4.21  |  plate: 4.13 → 4.33  |  holds: 4.21 → 4.35
-          .to(
-            lsMobileSekjRef.current,
-            { x: 0, ease: 'power3.out', duration: 0.24 },
-            3.97
-          )
-          .to(
-            plate(lsMobileSekjRef),
-            { opacity: 1, ease: 'power3.out', duration: 0.2 },
-            4.13
-          )
-          // Sekjen exits fully (done at 4.57) before Bendahara enters
-          .to(
-            lsMobileSekjRef.current,
-            { x: '-110vw', ease: 'power2.in', duration: 0.22 },
-            4.35
-          )
-
-          // ── Bendahara enters only after Sekjen fully exits (t:4.57) ───────
-          // enters: 4.57 → 4.81  |  plate: 4.73 → 4.93  |  holds: 4.81 → 4.88
-          .to(
-            lsMobileBendRef.current,
-            { x: 0, ease: 'power3.out', duration: 0.24 },
-            4.57
-          )
-          .to(
-            plate(lsMobileBendRef),
-            { opacity: 1, ease: 'power3.out', duration: 0.2 },
-            4.73
-          )
-          // Bendahara and title exit together
-          .to(
-            lsMobileBendRef.current,
-            { x: '-110vw', ease: 'power2.in', duration: 0.22 },
-            4.88
-          )
-          .to(
-            lsTextRef.current,
-            { opacity: 0, y: -60, ease: 'power2.in', duration: 0.22 },
-            4.88
-          )
-      }
-
-      // ── Leadership exits ──────────────────────────────────────────────────
-      // Desktop: text fades up, photos fall down. Mobile: handled above.
-      if (isDesktop) {
-        mainTl
-          .to(
-            lsTextRef.current,
-            { opacity: 0, y: -80, ease: 'power2.in', duration: 0.22 },
-            4.6
-          )
-          .to(
-            [lsKetuaRef.current, lsSekjRef.current, lsBendRef.current],
-            { y: '110vh', opacity: 0, ease: 'power2.in', duration: 0.32 },
-            4.7
-          )
-      }
-      // Both: layer fades out
-      mainTl
-        .to(
-          leadershipLayerRef.current,
-          { opacity: 0, ease: 'none', duration: 0.1 },
-          5.02
-        )
-        .set(
-          leadershipLayerRef.current,
-          { display: 'none', pointerEvents: 'none' },
-          5.12
-        )
-
-      // ════════════════════════════════════════════════════════════════════════
-      // PHASE 4 — Network enters (t: 4.9 → 6.2), holds (t: 6.2 → 8.0)
-      // ════════════════════════════════════════════════════════════════════════
-      mainTl
-        .to(
-          networkLayerRef.current,
-          { opacity: 1, ease: 'none', duration: 0.1 },
-          4.9
-        )
-        .set(networkLayerRef.current, { pointerEvents: 'auto' }, 4.9)
-        // Map dramatically zooms in from scale(1.5)
-        .to(
-          netMapRef.current,
-          { opacity: 1, scale: 1, ease: 'none', duration: 0.32 },
-          4.9
-        )
-        // Header slides down + fades in
-        .to(
-          netHeaderRef.current,
-          { opacity: 1, y: 0, ease: 'power3.out', duration: 0.2 },
-          5.0
-        )
-        // CTA fades in and becomes interactive
-        .to(
-          netCtaRef.current,
+      cards.forEach((card, i) => {
+        const counter = { val: 0 }
+        tl.to(
+          card,
+          { opacity: 1, y: 0, duration: 0.4, ease: 'power3.out' },
+          i === 0 ? '-=0.2' : '-=0.25'
+        ).to(
+          counter,
           {
-            opacity: 1,
-            y: 0,
-            ease: 'power3.out',
-            duration: 0.14,
-            pointerEvents: 'auto'
+            val: statValues[i],
+            duration: 0.6,
+            ease: 'power2.out',
+            onUpdate() {
+              const el = numEls[i]
+              if (el) el.textContent = String(Math.round(counter.val))
+            }
           },
-          5.14
+          '<'
         )
+      })
+    }
+  }, [networkStats])
 
-      // Stat cards stagger up from below with live counters
-      if (netCardsRef.current) {
-        const cards = Array.from(
-          netCardsRef.current.querySelectorAll<HTMLElement>('[data-stat]')
-        )
-        const numEls = Array.from(
-          netCardsRef.current.querySelectorAll<HTMLElement>('[data-target]')
-        )
+  const heroReveal = contextSafe(revealHero)
+  const aboutReveal = contextSafe(revealAbout)
+  const leadershipReveal = contextSafe(revealLeadership)
+  const networkReveal = contextSafe(revealNetwork)
 
-        cards.forEach((card, i) => {
-          const s = 5.22 + i * 0.14
-          mainTl.to(
-            card,
-            { opacity: 1, y: 0, ease: 'power3.out', duration: 0.18 },
-            s
-          )
-          mainTl.to(
-            counterObjs[i],
-            {
-              val: counterObjs[i].target,
-              ease: 'none',
-              duration: 0.18,
-              onUpdate() {
-                const el = numEls[i]
-                if (el) el.textContent = String(Math.round(counterObjs[i].val))
-              }
-            },
-            s
-          )
-        })
-      }
-
-      // Network holds until t=8.0 (implicit — last animation ends at ~5.64)
-    },
-    { scope: sceneRef }
-  )
+  useSectionReveal(heroSectionRef, heroReveal)
+  useSectionReveal(aboutSectionRef, aboutReveal)
+  useSectionReveal(leadershipSectionRef, leadershipReveal)
+  useSectionReveal(networkSectionRef, networkReveal)
 
   // ── Derived data ─────────────────────────────────────────────────────────────
   const hero = heroItems[0] ?? null
@@ -693,24 +538,19 @@ export const HomeScene = ({
 
   // ── Render ────────────────────────────────────────────────────────────────────
   return (
-    <div
-      ref={sceneRef}
-      className='relative -mt-20 h-svh w-full overflow-hidden'
-      aria-label='Beranda KAMMI'
-    >
+    <div ref={rootRef} className='relative w-full'>
       {/*
        * ══════════════════════════════════════════════════════════════════════
-       * LAYER 1 — Hero  (z-index: 10)
+       * Hero
        * ══════════════════════════════════════════════════════════════════════
        */}
       <div
-        ref={heroLayerRef}
-        className='absolute inset-0 z-10'
+        ref={heroSectionRef}
+        className='relative -mt-20 h-svh w-full overflow-hidden'
         aria-labelledby='hero-heading'
       >
         {hero && (
           <>
-            {/* Background image — GSAP zooms + fades this out */}
             <div ref={heroImgRef} className='absolute inset-0'>
               {hero.resolvedImageUrl ? (
                 <Image
@@ -727,13 +567,11 @@ export const HomeScene = ({
               )}
             </div>
 
-            {/* Gradient overlay */}
             <div
               className='pointer-events-none absolute inset-0 bg-gradient-to-r from-black/60 via-black/20 to-transparent'
               aria-hidden='true'
             />
 
-            {/* Text content */}
             <div className='absolute inset-0 flex items-center'>
               <div className='mx-auto w-full max-w-7xl px-6 lg:px-8'>
                 {hero.badgeText && (
@@ -771,19 +609,18 @@ export const HomeScene = ({
 
       {/*
        * ══════════════════════════════════════════════════════════════════════
-       * LAYER 2 — About  (z-index: 20)
+       * About
        * ══════════════════════════════════════════════════════════════════════
        */}
       <div
-        ref={aboutLayerRef}
-        className='bg-background absolute inset-0 z-20 flex items-center overflow-hidden'
-        style={{ pointerEvents: 'none' }}
+        ref={aboutSectionRef}
+        className='bg-background relative w-full py-20 md:py-28'
         id='tentang'
         aria-labelledby='about-heading'
       >
         <div className='mx-auto w-full max-w-7xl px-6 lg:px-8'>
           <div className='grid grid-cols-1 gap-10 lg:grid-cols-[1fr_340px] xl:gap-20'>
-            {/* Left: "Tentang KAMMI" — exits to the LEFT */}
+            {/* Left: "Tentang KAMMI" */}
             <div ref={aboutLeftRef}>
               <h2
                 id='about-heading'
@@ -823,7 +660,7 @@ export const HomeScene = ({
               </Link>
             </div>
 
-            {/* Right: "Lahir dari Rahim Reformasi" card — exits to the RIGHT. */}
+            {/* Right: "Lahir dari Rahim Reformasi" card. */}
             {/* Hidden below md: same content lives at /tentang. */}
             <div ref={aboutRightRef} className='hidden flex-col gap-4 md:flex'>
               <div className='bg-primary text-primary-foreground rounded-2xl p-6'>
@@ -894,19 +731,18 @@ export const HomeScene = ({
 
       {/*
        * ══════════════════════════════════════════════════════════════════════
-       * LAYER 3 — Leadership  (z-index: 30)
+       * Leadership
        * ══════════════════════════════════════════════════════════════════════
        */}
       <div
-        ref={leadershipLayerRef}
-        className='bg-background border-border absolute inset-0 z-30 flex flex-col overflow-hidden border-b'
-        style={{ pointerEvents: 'none' }}
+        ref={leadershipSectionRef}
+        className='bg-background border-border relative flex w-full flex-col overflow-hidden border-b pt-16 md:pt-20'
         aria-labelledby='leadership-heading'
       >
-        {/* Header — zooms from huge at center to small at top on desktop */}
+        {/* Header */}
         <div
           ref={lsTextRef}
-          className='px-6 pt-20 pb-2 text-center md:pt-24 md:pb-4 lg:px-8 lg:pt-28'
+          className='px-6 pb-2 text-center md:pb-4 lg:px-8'
         >
           <p
             ref={lsPeriodRef}
@@ -949,7 +785,7 @@ export const HomeScene = ({
         </div>
 
         {/* ── Mobile: sequential portrait stage (hidden on md+) ──────────── */}
-        <div className='relative flex-1 overflow-hidden md:hidden'>
+        <div className='relative h-[70vh] min-h-[420px] overflow-hidden md:hidden'>
           {(
             [
               {
@@ -1081,13 +917,12 @@ export const HomeScene = ({
 
       {/*
        * ══════════════════════════════════════════════════════════════════════
-       * LAYER 4 — Network  (z-index: 40)
+       * Network
        * ══════════════════════════════════════════════════════════════════════
        */}
       <div
-        ref={networkLayerRef}
-        className='bg-background absolute inset-0 z-40'
-        style={{ pointerEvents: 'none' }}
+        ref={networkSectionRef}
+        className='bg-background relative h-[85vh] min-h-[560px] w-full overflow-hidden'
         aria-labelledby='network-heading'
       >
         {/* Map: full-cover background — pans on hover */}
@@ -1116,7 +951,7 @@ export const HomeScene = ({
           {/* Header: eyebrow + title + CTA button */}
           <div
             ref={netHeaderRef}
-            className='pointer-events-auto shrink-0 pt-20 pb-2 text-center md:pt-24 lg:pt-28'
+            className='pointer-events-auto shrink-0 pt-10 pb-2 text-center md:pt-14'
           >
             <p className='text-primary font-sans text-xs font-semibold tracking-widest uppercase'>
               Jaringan Nasional
@@ -1169,7 +1004,7 @@ export const HomeScene = ({
           {/* Stat cards at bottom */}
           <div
             ref={netCardsRef}
-            className='pointer-events-auto shrink-0 px-4 pb-8 sm:px-6 md:pb-24 lg:px-12'
+            className='pointer-events-auto shrink-0 px-4 pb-8 sm:px-6 md:pb-12 lg:px-12'
           >
             <div className='grid grid-cols-3 gap-3 lg:gap-4'>
               {statCards.map((card) => (

@@ -2,19 +2,23 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { useStore } from '@nanostores/react'
 import { cn } from '~/lib/shadcn/utils'
 import { useLenisScroll } from '~/components/lenis-provider'
-import { $tentangPhase, $tentangPhaseScrollY } from '../tentang-scene/store'
 
-const PHASE_LABELS = ['Visi', 'Misi', 'Prinsip', 'Paradigma', 'Kredo'] as const
+const PHASES = [
+  { id: 'tentang-hero', label: 'Hero' },
+  { id: 'visi', label: 'Visi' },
+  { id: 'misi', label: 'Misi' },
+  { id: 'prinsip', label: 'Prinsip' },
+  { id: 'paradigma', label: 'Paradigma' },
+  { id: 'kredo', label: 'Kredo' }
+] as const
 
 export const SectionNav = () => {
   const portalRef = useRef<HTMLElement | null>(null)
   const [mounted, setMounted] = useState(false)
+  const [activeId, setActiveId] = useState<string | null>(null)
   const { scrollTo } = useLenisScroll()
-  const activePhase = useStore($tentangPhase)
-  const phaseScrollY = useStore($tentangPhaseScrollY)
 
   useEffect(() => {
     const root = document.getElementById('portal-root')
@@ -26,12 +30,34 @@ export const SectionNav = () => {
     }
   }, [])
 
-  const handleScrollToPhase = (i: number) => {
-    const scrollY = phaseScrollY[i]
-    if (scrollY !== undefined && scrollY >= 0) scrollTo(scrollY)
+  useEffect(() => {
+    const sections = PHASES.map(({ id }) => document.getElementById(id)).filter(
+      (el): el is HTMLElement => el !== null
+    )
+    if (!sections.length) return
+
+    const ratios = new Map<string, number>()
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          ratios.set(entry.target.id, entry.intersectionRatio)
+        })
+        const [topId] = [...ratios.entries()].sort((a, b) => b[1] - a[1])[0] ?? []
+        if (topId && (ratios.get(topId) ?? 0) > 0) setActiveId(topId)
+      },
+      { threshold: [0, 0.25, 0.5, 0.75, 1] }
+    )
+    sections.forEach((el) => observer.observe(el))
+    return () => observer.disconnect()
+  }, [])
+
+  const handleScrollToPhase = (id: string) => {
+    scrollTo(`#${id}`)
   }
 
-  const visible = activePhase >= 0
+  const contentPhases = PHASES.slice(1)
+  const activeIndex = contentPhases.findIndex(({ id }) => id === activeId)
+  const visible = activeIndex >= 0
 
   if (!mounted || !portalRef.current) return null
 
@@ -43,20 +69,19 @@ export const SectionNav = () => {
       )}
       aria-label='Navigasi fase'
     >
-      {/* Phase counter — shows current position in the journey */}
       <div className='mb-2 flex justify-center'>
         <span className='text-foreground/35 font-mono text-[0.6rem] tabular-nums'>
-          {activePhase + 1}
-          <span className='text-foreground/20'>/5</span>
+          {activeIndex + 1}
+          <span className='text-foreground/20'>/{contentPhases.length}</span>
         </span>
       </div>
       <ol className='flex flex-col items-center gap-1'>
-        {PHASE_LABELS.map((label, i) => {
-          const isActive = activePhase === i
+        {contentPhases.map(({ id, label }) => {
+          const isActive = activeId === id
           return (
-            <li key={label}>
+            <li key={id}>
               <button
-                onClick={() => handleScrollToPhase(i)}
+                onClick={() => handleScrollToPhase(id)}
                 aria-label={`Ke fase ${label}`}
                 className='group relative flex min-h-[44px] min-w-[44px] items-center justify-center'
               >

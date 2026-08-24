@@ -35,30 +35,28 @@ const TentangPage = async () => {
       <SectionNav />
 
       {/* Breadcrumb */}
-      <nav aria-label='Breadcrumb' className='px-6 py-3 lg:px-8'>
-        <ol className='text-muted-foreground flex items-center gap-2 text-sm'>
+      <nav
+        aria-label='Breadcrumb'
+        className='relative z-10 -mb-11 bg-linear-to-b from-black/45 to-transparent px-6 py-3 lg:px-8'
+      >
+        <ol className='flex items-center gap-2 text-sm text-white/70'>
           <li>
-            <Link href='/' className='hover:text-foreground transition-colors'>
+            <Link href='/' className='transition-colors hover:text-white'>
               Beranda
             </Link>
           </li>
-          <li aria-hidden='true' className='select-none'>
+          <li aria-hidden='true' className='select-none text-white/40'>
             /
           </li>
           <li>
-            <span aria-current='page' className='text-foreground font-medium'>
+            <span aria-current='page' className='font-medium text-white'>
               Tentang KAMMI
             </span>
           </li>
         </ol>
       </nav>
 
-      {/* Outer wrapper provides the scroll distance (1900vh = 1800vh animation + 100vh scene).
-          TentangScene uses position:sticky so GSAP never needs pin:true, avoiding the
-          React <Activity> insertBefore conflict caused by ScrollTrigger's pinSpacerDiv. */}
-      <div style={{ height: '1900vh' }}>
-        <TentangScene settings={settings} />
-      </div>
+      <TentangScene settings={settings} />
     </>
   )
 }

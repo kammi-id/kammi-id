@@ -1,13 +1,25 @@
 'use client'
 
-import { useRef, type ReactNode } from 'react'
+/**
+ * TentangScene — six normal-flow sections (Hero, Visi, Misi, Prinsip,
+ * Paradigma, Kredo). Each section (or, for the two long lists, each item)
+ * plays its own one-shot GSAP entrance the first time it enters the
+ * viewport, via a plain IntersectionObserver. No pin, no scroll-scrub, no
+ * cross-section transition — sections sit where the document puts them.
+ */
+
+import { useEffect, useRef } from 'react'
+import type { RefObject } from 'react'
 import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import Image from 'next/image'
+import type { ReactNode } from 'react'
 import { TentangHero } from '../tentang-hero'
 import { VisiSection } from '../visi-section'
-import { $tentangPhase, $tentangPhaseScrollY } from './store'
+import { useSectionReveal } from '~/hooks/use-section-reveal'
 import type { TentangSettings } from '~/db/query/site-settings'
+
+const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)'
 
 const MISI_ITEMS = [
   'Membina keislaman, keimanan, dan ketaqwaan mahasiswa muslim Indonesia.',
@@ -106,553 +118,249 @@ const Underline = ({ children }: { children: ReactNode }) => (
   </span>
 )
 
-// Counter-clockwise rotations per card (negative = CCW), range 0–10°
-const CARD_ROTATIONS = [-7, -3, -9, -1, -5] as const
+// Counter-clockwise rotations per card (negative = CCW) — the misi cards'
+// "pile on the table" tilt, now a resting state instead of a stack order.
+const CARD_ROTATIONS = [-3, 1.5, -1, 2.5, -2] as const
 
-// Each card flies off toward a distinct corner so the stack "buyar" outward.
-const CARD_SCATTER = [
-  { x: '-125vw', y: '-55vh', rotation: -160 },
-  { x: '125vw', y: '-65vh', rotation: 150 },
-  { x: '-115vw', y: '75vh', rotation: -200 },
-  { x: '130vw', y: '85vh', rotation: 190 },
-  { x: '5vw', y: '-135vh', rotation: 100 }
-] as const
-
-// sRGB values (not oklch) keep GSAP's color tween in sRGB space, so each cut
-// passes only through clean intermediate hues, never the muddy yellow/blue that
-// oklch interpolation produces. Each maps to an oklch design token:
-const MAROON = 'rgb(193, 19, 61)' //   oklch(0.52 0.20 17)  — Vanguard Crimson
-const WHITE = '#ffffff'
+// sRGB values (not oklch) for the two colors this page uses that have no
+// DESIGN.md token — each maps to an oklch design intent noted alongside it:
 const DARK = 'rgb(31, 24, 26)' //       oklch(0.18 0.012 17) — warm near-black
 const PARCHMENT = 'rgb(244, 240, 231)' // oklch(0.96 0.012 85) — manuscript paper
 
+// Fires `reveal(index)` once for each element matching `selector` inside
+// `containerRef`, independently, as that element enters the viewport. Used
+// for the two sections long enough that a single section-wide trigger would
+// fire before later items are anywhere near the screen.
+const useItemReveal = (
+  containerRef: RefObject<HTMLElement | null>,
+  selector: string,
+  reveal: (el: HTMLElement, index: number) => void
+) => {
+  useEffect(() => {
+    const container = containerRef.current
+    if (!container) return
+    if (window.matchMedia(REDUCED_MOTION_QUERY).matches) return
+
+    const items = Array.from(
+      container.querySelectorAll<HTMLElement>(selector)
+    )
+    if (!items.length) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return
+          reveal(entry.target as HTMLElement, items.indexOf(entry.target as HTMLElement))
+          observer.unobserve(entry.target)
+        })
+      },
+      { threshold: 0.3 }
+    )
+    items.forEach((item) => observer.observe(item))
+    return () => observer.disconnect()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [containerRef])
+}
+
+// Like useItemReveal, but elements that cross the viewport threshold in the
+// same tick are handed to `reveal` together as one batch — so a grid where a
+// whole row enters at once (wide viewports) can stagger that row, while a
+// single-column layout (mobile, one card in view at a time) naturally gets
+// batches of one and behaves exactly like an individual per-item reveal.
+const useBatchedItemReveal = (
+  containerRef: RefObject<HTMLElement | null>,
+  selector: string,
+  reveal: (elements: HTMLElement[]) => void
+) => {
+  useEffect(() => {
+    const container = containerRef.current
+    if (!container) return
+    if (window.matchMedia(REDUCED_MOTION_QUERY).matches) return
+
+    const items = Array.from(
+      container.querySelectorAll<HTMLElement>(selector)
+    )
+    if (!items.length) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const batch = entries
+          .filter((entry) => entry.isIntersecting)
+          .map((entry) => entry.target as HTMLElement)
+        if (!batch.length) return
+        batch.forEach((el) => observer.unobserve(el))
+        reveal(batch)
+      },
+      { threshold: 0.3 }
+    )
+    items.forEach((item) => observer.observe(item))
+    return () => observer.disconnect()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [containerRef])
+}
+
 export const TentangScene = ({ settings }: { settings: TentangSettings }) => {
-  const sceneRef = useRef<HTMLDivElement>(null)
-  const heroRef = useRef<HTMLDivElement>(null)
-  const visiRef = useRef<HTMLDivElement>(null)
-  const misiRef = useRef<HTMLDivElement>(null)
-  const prinsipRef = useRef<HTMLDivElement>(null)
-  const paradigmaRef = useRef<HTMLDivElement>(null)
-  const kredoRef = useRef<HTMLDivElement>(null)
+  const rootRef = useRef<HTMLDivElement>(null)
+
+  const misiSectionRef = useRef<HTMLDivElement>(null)
+  const prinsipSectionRef = useRef<HTMLDivElement>(null)
+  const paradigmaSectionRef = useRef<HTMLDivElement>(null)
+  const kredoSectionRef = useRef<HTMLDivElement>(null)
+
+  const misiLabelRef = useRef<HTMLParagraphElement>(null)
+  const prinsipEyebrowRef = useRef<HTMLParagraphElement>(null)
+  const paradigmaEyebrowRef = useRef<HTMLParagraphElement>(null)
+  const kredoEyebrowRef = useRef<HTMLParagraphElement>(null)
   const kredoDocRef = useRef<HTMLDivElement>(null)
 
-  useGSAP(
+  const { contextSafe } = useGSAP(
     () => {
-      gsap.registerPlugin(ScrollTrigger)
+      if (window.matchMedia(REDUCED_MOTION_QUERY).matches) return
 
-      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        // Convert from scroll-pinned experience to linear flow so sighted users
-        // who disable motion can still read all content sections.
-        gsap.set(sceneRef.current, { height: 'auto', overflow: 'visible' })
-        ;[
-          heroRef,
-          visiRef,
-          misiRef,
-          prinsipRef,
-          paradigmaRef,
-          kredoRef
-        ].forEach((ref) => {
-          if (!ref.current) return
-          gsap.set(ref.current, {
-            position: 'relative',
-            inset: 'unset',
-            width: '100%',
-            height: 'auto',
-            minHeight: '100svh',
-            opacity: 1,
-            pointerEvents: 'auto',
-            zIndex: 'auto'
-          })
-        })
-
-        gsap.set(visiRef.current, { backgroundColor: MAROON })
-        gsap.set(prinsipRef.current, { backgroundColor: WHITE })
-        gsap.set(paradigmaRef.current, { backgroundColor: DARK })
-        gsap.set(kredoRef.current, { backgroundColor: PARCHMENT })
-
-        // Visi
-        gsap.set(['.visi-title', '.visi-text'], { opacity: 1 })
-
-        // Misi — all cards visible; top card (highest z-index) is readable
-        gsap.set('.misi-scene-label', { opacity: 1 })
-        gsap.set('.misi-scene-card', { opacity: 1, x: 0 })
-
-        // Prinsip — convert stacked absolute items to flow layout
-        gsap.set('.prinsip-eyebrow', { opacity: 1 })
-        const prinsipStack = sceneRef.current?.querySelector(
-          '[data-id="prinsip-stack"]'
-        ) as HTMLElement | null
-        if (prinsipStack) gsap.set(prinsipStack, { height: 'auto' })
-        PRINSIP_ITEMS.forEach((_, i) => {
-          gsap.set(`.prinsip-point-${i}`, {
-            position: 'relative',
-            inset: 'unset',
-            opacity: 1,
-            y: 0,
-            paddingTop: '3rem',
-            paddingBottom: '3rem'
-          })
-        })
-
-        // Paradigma — convert stacked items to flow layout, inject images
-        gsap.set('.paradigma-eyebrow', { opacity: 1 })
-        const paradigmaStack = sceneRef.current?.querySelector(
-          '[data-id="paradigma-stack"]'
-        ) as HTMLElement | null
-        if (paradigmaStack) gsap.set(paradigmaStack, { height: 'auto' })
-        PARADIGMA_ITEMS.forEach((_, i) => {
-          gsap.set(`.paradigma-text-${i}`, {
-            position: 'relative',
-            inset: 'unset',
-            opacity: 1,
-            y: 0,
-            paddingTop: i === 0 ? '3rem' : '1.5rem',
-            paddingBottom: '1.5rem'
-          })
-          gsap.set(`.paradigma-photo-${i}`, {
-            position: 'relative',
-            inset: 'unset',
-            opacity: 1,
-            y: 0
-          })
-          // Inject image now (deferred for normal path via GSAP call)
-          const photoInner = sceneRef.current?.querySelector(
-            `[data-photo="paradigma-${i}"]`
-          ) as HTMLElement | null
-          if (photoInner) {
-            photoInner.style.backgroundImage = settings.paradigmaImages[i]
-              ? `url(${settings.paradigmaImages[i]})`
-              : `linear-gradient(150deg, oklch(0.5 0.08 ${17 + i * 22}), oklch(0.24 0.04 ${17 + i * 22}))`
-          }
-        })
-
-        // Kredo — remove scroll mask so full text is visible without scrolling
-        gsap.set('.kredo-eyebrow', { opacity: 1 })
-        const kredoMask = sceneRef.current?.querySelector(
-          '[data-id="kredo-mask"]'
-        ) as HTMLElement | null
-        if (kredoMask) {
-          gsap.set(kredoMask, {
-            maskImage: 'none',
-            WebkitMaskImage: 'none',
-            overflow: 'visible',
-            height: 'auto',
-            position: 'relative'
-          })
-        }
-        gsap.set(kredoDocRef.current, {
-          opacity: 1,
-          y: 0,
-          paddingTop: '3rem',
-          paddingBottom: '4rem',
-          position: 'relative'
-        })
-
-        return
-      }
-
-      // Set per-card rotations before the timeline so GSAP owns the transform.
-      // Not included in fromTo so they persist unchanged through the entrance.
-      CARD_ROTATIONS.forEach((deg, i) => {
-        const card = sceneRef.current?.querySelectorAll('.misi-scene-card')[i]
-        if (card) gsap.set(card, { rotation: deg })
+      gsap.set(misiLabelRef.current, { opacity: 0 })
+      gsap.set('.misi-card', { opacity: 0, y: 40 })
+      gsap.set(prinsipEyebrowRef.current, { opacity: 0, y: 20 })
+      gsap.set('.prinsip-item-frame', {
+        clipPath: 'inset(0% 50% 0% 50%)',
+        scale: 1.12
       })
-
-      // Use the outer 1900vh wrapper as trigger (provides scroll distance) and
-      // rely on CSS sticky positioning instead of pin:true — this avoids GSAP
-      // inserting a pinSpacerDiv into the DOM, which breaks React Activity's
-      // insertBefore during view transitions.
-      const scrollWrapper = sceneRef.current?.parentElement ?? sceneRef.current
-      const mainTl = gsap.timeline({
-        scrollTrigger: {
-          id: 'tentang-main',
-          trigger: scrollWrapper,
-          start: 'top top',
-          end: 'bottom bottom',
-          scrub: true,
-          invalidateOnRefresh: true
-        }
+      gsap.set('.prinsip-item-text', { opacity: 0, scale: 0.92 })
+      gsap.set(paradigmaEyebrowRef.current, { opacity: 0, y: 20 })
+      gsap.set('.paradigma-copy', { autoAlpha: 0, x: -48 })
+      gsap.set('.paradigma-photo', {
+        autoAlpha: 0,
+        x: 72,
+        rotation: 8,
+        transformOrigin: '50% 50%'
       })
-
-      // ── Phase 1: Hero → Visi ───────────────────────────────────────────────
-      // fromTo with explicit start color prevents the black flash caused by
-      // GSAP failing to parse oklch values from computed CSS class styles.
-      mainTl
-        .addLabel('visiIn')
-        .to(heroRef.current, {
-          scale: 0.8,
-          opacity: 0,
-          duration: 1,
-          ease: 'power2.inOut'
-        })
-        .fromTo(
-          sceneRef.current,
-          { backgroundColor: WHITE },
-          { backgroundColor: MAROON, duration: 1, ease: 'none' },
-          '<'
-        )
-        .set(visiRef.current, { pointerEvents: 'auto' }, '<')
-        .fromTo(
-          '.visi-text',
-          { opacity: 0, scale: 0.8, y: 20 },
-          { opacity: 1, scale: 1, y: 0, duration: 1, ease: 'power2.inOut' },
-          '-=0.7'
-        )
-        .to(
-          '.visi-title',
-          { opacity: 1, y: 0, duration: 0.6, ease: 'power2.inOut' },
-          '-=0.4'
-        )
-
-        // Brief hold at Visi
-        .to({}, { duration: 0.3 })
-
-        // ── Phase 2: Visi exits → Misi enters ────────────────────────────────
-        .to('.visi-title', { opacity: 0, duration: 0.3, ease: 'power2.in' })
-        .to(
-          '.visi-text',
-          { y: '-40vh', opacity: 0, duration: 0.6, ease: 'power2.in' },
-          '-=0.15'
-        )
-        .addLabel('misiIn')
-        .set(misiRef.current, { pointerEvents: 'auto' })
-        .to('.misi-scene-label', {
-          opacity: 1,
-          duration: 0.4,
-          ease: 'power2.out'
-        })
-        // Cards slide in one by one; stagger > duration so each lands fully
-        // before the next leaves the right edge.
-        .fromTo(
-          '.misi-scene-card',
-          { x: '110vw', opacity: 0 },
-          {
-            x: 0,
-            opacity: 1,
-            duration: 0.55,
-            stagger: 0.7,
-            ease: 'power3.out'
-          },
-          '-=0.2'
-        )
-
-        // Hold on the full stack
-        .to({}, { duration: 0.6 })
-
-        // ── Phase 3: Misi exits (cards scatter) → background back to white ───
-        .addLabel('misiOut')
-        .to(
-          '.misi-scene-label',
-          { opacity: 0, duration: 0.4, ease: 'power2.in' },
-          'misiOut'
-        )
-        .to(
-          '.misi-scene-card',
-          {
-            x: (i) => CARD_SCATTER[i].x,
-            y: (i) => CARD_SCATTER[i].y,
-            rotation: (i) => CARD_SCATTER[i].rotation,
-            opacity: 0,
-            duration: 0.9,
-            stagger: 0.04,
-            ease: 'power2.in'
-          },
-          'misiOut'
-        )
-        // Hard, hue-clean cut back to white (linear, sRGB interpolation).
-        .to(
-          sceneRef.current,
-          { backgroundColor: WHITE, duration: 0.6, ease: 'none' },
-          'misiOut+=0.3'
-        )
-        .set(misiRef.current, { pointerEvents: 'none' })
-
-        // ── Phase 4: Prinsip enters ──────────────────────────────────────────
-        .addLabel('prinsipIn')
-        .set(prinsipRef.current, { pointerEvents: 'auto' }, 'prinsipIn')
-        .fromTo(
-          '.prinsip-eyebrow',
-          { opacity: 0, y: 20 },
-          { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' },
-          'prinsipIn'
-        )
-
-      // Inject prinsip background images lazily — fires once when section enters.
-      // All 6 URLs would otherwise load eagerly on mount before the user sees them.
-      mainTl.call(
-        () => {
-          PRINSIP_ITEMS.forEach((_, i) => {
-            const el = sceneRef.current?.querySelector(
-              `.prinsip-photo-${i}`
-            ) as HTMLElement | null
-            if (!el) return
-            el.style.backgroundImage = settings.prinsipImages[i]
-              ? `url(${settings.prinsipImages[i]})`
-              : `linear-gradient(155deg, oklch(0.45 0.06 ${17 + i * 28}), oklch(0.2 0.03 ${17 + i * 28}))`
-          })
-        },
-        undefined,
-        'prinsipIn'
-      )
-
-      // Cycle through each principle.
-      // Photos: pure opacity crossfade, decoupled from text movement — no yPercent.
-      // Text:   slides in from below and exits upward, independent track.
-      PRINSIP_ITEMS.forEach((_, i) => {
-        const isFirst = i === 0
-        const isLast = i === PRINSIP_ITEMS.length - 1
-
-        // ── Photo track (opacity only) ────────────────────────────────────────
-        if (isFirst) {
-          // First photo fades in at section start.
-          mainTl.fromTo(
-            `.prinsip-photo-0`,
-            { opacity: 0 },
-            { opacity: 0.55, duration: 0.5, ease: 'none' },
-            'prinsipIn+=0.1'
-          )
-        }
-
-        // ── Text track ────────────────────────────────────────────────────────
-        mainTl
-          .fromTo(
-            `.prinsip-point-${i}`,
-            { opacity: 0, y: 60 },
-            { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' },
-            isFirst ? 'prinsipIn+=0.25' : '>'
-          )
-          .to({}, { duration: 0.7 })
-
-        if (!isLast) {
-          mainTl
-            // Text exits upward
-            .to(`.prinsip-point-${i}`, {
-              opacity: 0,
-              y: -60,
-              duration: 0.5,
-              ease: 'power2.in'
-            })
-            // Photos crossfade simultaneously with text exit — no y movement
-            .to(
-              `.prinsip-photo-${i}`,
-              { opacity: 0, duration: 0.4, ease: 'none' },
-              '<'
-            )
-            .fromTo(
-              `.prinsip-photo-${i + 1}`,
-              { opacity: 0 },
-              { opacity: 0.55, duration: 0.4, ease: 'none' },
-              '<'
-            )
-        }
-      })
-
-      // ── Phase 5: Prinsip exits → Paradigma enters (background to dark) ──────
-      const lastPrinsip = PRINSIP_ITEMS.length - 1
-      mainTl
-        .addLabel('paradigmaIn')
-        .to(
-          `.prinsip-point-${lastPrinsip}`,
-          { opacity: 0, y: -60, duration: 0.5, ease: 'power2.in' },
-          'paradigmaIn'
-        )
-        .to(
-          `.prinsip-photo-${lastPrinsip}`,
-          { y: -60, opacity: 0, duration: 0.5, ease: 'power2.in' },
-          '<'
-        )
-        .to(
-          '.prinsip-eyebrow',
-          { opacity: 0, duration: 0.4, ease: 'power2.in' },
-          '<'
-        )
-        .to(
-          sceneRef.current,
-          { backgroundColor: DARK, duration: 0.6, ease: 'none' },
-          'paradigmaIn+=0.2'
-        )
-        .set(prinsipRef.current, { pointerEvents: 'none' })
-        .set(paradigmaRef.current, { pointerEvents: 'auto' })
-        .fromTo(
-          '.paradigma-eyebrow',
-          { opacity: 0, y: 20 },
-          { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' }
-        )
-
-      // Inject paradigma background images lazily — fires once when section enters.
-      mainTl.call(
-        () => {
-          PARADIGMA_ITEMS.forEach((_, i) => {
-            const el = sceneRef.current?.querySelector(
-              `[data-photo="paradigma-${i}"]`
-            ) as HTMLElement | null
-            if (!el) return
-            el.style.backgroundImage = settings.paradigmaImages[i]
-              ? `url(${settings.paradigmaImages[i]})`
-              : `linear-gradient(150deg, oklch(0.5 0.08 ${17 + i * 22}), oklch(0.24 0.04 ${17 + i * 22}))`
-          })
-        },
-        undefined,
-        'paradigmaIn'
-      )
-
-      // Cycle through each paradigm: framed photo (right) + statement (left)
-      // slide up in, hold, then slide up out as the next enters.
-      PARADIGMA_ITEMS.forEach((_, i) => {
-        const isFirst = i === 0
-        const isLast = i === PARADIGMA_ITEMS.length - 1
-
-        mainTl
-          .fromTo(
-            `.paradigma-photo-${i}`,
-            { opacity: 0, y: 80, rotation: 1 },
-            {
-              opacity: 1,
-              y: 0,
-              rotation: -3,
-              duration: 0.7,
-              ease: 'power3.out'
-            },
-            isFirst ? 'paradigmaIn+=0.35' : '>'
-          )
-          .fromTo(
-            `.paradigma-text-${i}`,
-            { opacity: 0, y: 60 },
-            { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' },
-            '<0.1'
-          )
-          .to({}, { duration: 0.7 })
-
-        if (!isLast) {
-          mainTl
-            .to(`.paradigma-text-${i}`, {
-              opacity: 0,
-              y: -60,
-              duration: 0.5,
-              ease: 'power2.in'
-            })
-            .to(
-              `.paradigma-photo-${i}`,
-              { opacity: 0, y: -60, duration: 0.5, ease: 'power2.in' },
-              '<'
-            )
-        }
-      })
-
-      // ── Phase 6: Paradigma exits → Kredo (the "constitution" is written) ───
-      const lastParadigma = PARADIGMA_ITEMS.length - 1
-      // Distance the document travels up: from first line resting at the
-      // writing line (~58vh, set via padding) until the last line clears it.
-      const kredoEndY = () => {
-        const doc = kredoDocRef.current
-        if (!doc) return -2000
-        // Stop when the last line settles just above the writing line (~50vh).
-        return window.innerHeight * 0.5 - doc.scrollHeight
-      }
-
-      mainTl
-        .addLabel('kredoIn')
-        .to(
-          `.paradigma-text-${lastParadigma}`,
-          { opacity: 0, y: -60, duration: 0.5, ease: 'power2.in' },
-          'kredoIn'
-        )
-        .to(
-          `.paradigma-photo-${lastParadigma}`,
-          { opacity: 0, y: -60, duration: 0.5, ease: 'power2.in' },
-          '<'
-        )
-        .to(
-          '.paradigma-eyebrow',
-          { opacity: 0, duration: 0.4, ease: 'power2.in' },
-          '<'
-        )
-        .to(
-          sceneRef.current,
-          { backgroundColor: PARCHMENT, duration: 0.6, ease: 'none' },
-          'kredoIn+=0.2'
-        )
-        .set(paradigmaRef.current, { pointerEvents: 'none' })
-        .set(kredoRef.current, { pointerEvents: 'auto' })
-        .fromTo(
-          '.kredo-eyebrow',
-          { opacity: 0, y: 20 },
-          { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' }
-        )
-        .fromTo(
-          kredoDocRef.current,
-          { opacity: 0 },
-          { opacity: 1, duration: 0.3, ease: 'none' }
-        )
-        // The whole document scrolls up at constant speed. Combined with the
-        // fixed reveal mask on the layer, each line "inks in" as it rises past
-        // the writing line — written, top-to-bottom, paced by scroll.
-        .fromTo(
-          kredoDocRef.current,
-          { y: 0 },
-          { y: kredoEndY, duration: 11, ease: 'none' }
-        )
-
-      // ── Phase tracking: populate scroll-Y positions for SectionNav ─────────
-      // Deferred two frames: first frame lets GSAP commit the timeline; second
-      // lets ScrollTrigger resolve start/end pixel positions after pin setup.
-      const populatePhasePositions = () => {
-        const st = ScrollTrigger.getById('tentang-main')
-        if (!st) return
-
-        const totalDuration = mainTl.duration()
-        const labelToScrollY = (label: string): number => {
-          const t = mainTl.labels[label]
-          if (t === undefined) return -1
-          return st.start + (t / totalDuration) * (st.end - st.start)
-        }
-
-        const positions = [
-          labelToScrollY('visiIn'),
-          labelToScrollY('misiIn'),
-          labelToScrollY('prinsipIn'),
-          labelToScrollY('paradigmaIn'),
-          labelToScrollY('kredoIn')
-        ]
-        $tentangPhaseScrollY.set(positions)
-
-        // Per-phase sub-triggers to keep the active dot in sync.
-        positions.forEach((scrollY, i) => {
-          if (scrollY < 0) return
-          const nextScrollY = positions[i + 1] ?? st.end
-          ScrollTrigger.create({
-            start: scrollY,
-            end: nextScrollY,
-            onEnter: () => $tentangPhase.set(i),
-            onEnterBack: () => $tentangPhase.set(i)
-          })
-        })
-
-        // Hero zone (before visiIn)
-        ScrollTrigger.create({
-          start: 0,
-          end: positions[0] ?? 0,
-          onEnter: () => $tentangPhase.set(-1),
-          onEnterBack: () => $tentangPhase.set(-1)
-        })
-      }
-      requestAnimationFrame(() => requestAnimationFrame(populatePhasePositions))
-
-      // Recompute after all fonts load so kredoEndY reflects the real scrollHeight.
-      document.fonts.ready.then(() => ScrollTrigger.refresh())
+      gsap.set(kredoEyebrowRef.current, { opacity: 0, y: 20 })
+      gsap.set(kredoDocRef.current, { opacity: 0, y: 24 })
     },
-    { scope: sceneRef }
+    { scope: rootRef }
   )
 
+  // ── Misi — label once, each card as it individually scrolls in ────────────
+  const revealMisiLabel = contextSafe(() => {
+    gsap.to(misiLabelRef.current, { opacity: 1, duration: 0.4 })
+  })
+  useSectionReveal(misiSectionRef, revealMisiLabel)
+
+  const revealMisiCards = contextSafe((elements: HTMLElement[]) => {
+    gsap.to(elements, {
+      opacity: 1,
+      y: 0,
+      duration: 0.6,
+      stagger: 0.1,
+      ease: 'power3.out'
+    })
+  })
+  useBatchedItemReveal(misiSectionRef, '.misi-card', revealMisiCards)
+
+  // ── Prinsip — eyebrow once, each principle as it individually scrolls in ──
+  const revealPrinsipEyebrow = contextSafe(() => {
+    gsap.to(prinsipEyebrowRef.current, {
+      opacity: 1,
+      y: 0,
+      duration: 0.5,
+      ease: 'power2.out'
+    })
+  })
+  useSectionReveal(prinsipSectionRef, revealPrinsipEyebrow)
+
+  // Cinema-curtain reveal: the frame's clip-path opens from a closed sliver
+  // at center, then settles into a slow one-way Ken Burns drift; the title
+  // card fades in once the screen is mostly exposed.
+  const revealPrinsipItem = contextSafe((el: HTMLElement) => {
+    const frame = el.querySelector<HTMLElement>('.prinsip-item-frame')
+    const text = el.querySelector<HTMLElement>('.prinsip-item-text')
+
+    const tl = gsap.timeline()
+    if (frame) {
+      // fromTo (not to) so GSAP interpolates between two explicit 4-value
+      // inset() strings — reading the "from" value back off computed style
+      // returns a browser-normalized 2-value shorthand that doesn't pair up
+      // with the 4-value target and opens asymmetrically instead of centered.
+      tl.fromTo(
+        frame,
+        { clipPath: 'inset(0% 50% 0% 50%)' },
+        { clipPath: 'inset(0% 0% 0% 0%)', duration: 1, ease: 'power4.inOut' },
+        0
+      ).to(frame, { scale: 1, duration: 6, ease: 'power1.out' }, 0)
+    }
+    if (text) {
+      tl.to(
+        text,
+        { opacity: 1, scale: 1, duration: 0.7, ease: 'power3.out' },
+        0.45
+      )
+    }
+  })
+  useItemReveal(prinsipSectionRef, '.prinsip-item', revealPrinsipItem)
+
+  // ── Paradigma — eyebrow once, each paradigm as it individually scrolls in ─
+  const revealParadigmaEyebrow = contextSafe(() => {
+    gsap.to(paradigmaEyebrowRef.current, {
+      opacity: 1,
+      y: 0,
+      duration: 0.5,
+      ease: 'power2.out'
+    })
+  })
+  useSectionReveal(paradigmaSectionRef, revealParadigmaEyebrow)
+
+  const revealParadigmaItems = contextSafe((elements: HTMLElement[]) => {
+    const copies = elements.flatMap((el) =>
+      Array.from(el.querySelectorAll<HTMLElement>('.paradigma-copy'))
+    )
+    const photos = elements.flatMap((el) =>
+      Array.from(el.querySelectorAll<HTMLElement>('.paradigma-photo'))
+    )
+
+    gsap
+      .timeline({ defaults: { ease: 'power3.out' } })
+      .to(copies, { autoAlpha: 1, x: 0, duration: 0.55, stagger: 0.14 })
+      .to(
+        photos,
+        {
+          autoAlpha: 1,
+          x: 0,
+          rotation: 0,
+          duration: 0.75,
+          stagger: 0.14,
+          ease: 'power4.out'
+        },
+        '<0.12'
+      )
+  })
+  useBatchedItemReveal(
+    paradigmaSectionRef,
+    '.paradigma-item',
+    revealParadigmaItems
+  )
+
+  // ── Kredo — eyebrow + full document fade up together, once ────────────────
+  const revealKredo = contextSafe(() => {
+    gsap
+      .timeline()
+      .to(kredoEyebrowRef.current, {
+        opacity: 1,
+        y: 0,
+        duration: 0.5,
+        ease: 'power2.out'
+      })
+      .to(
+        kredoDocRef.current,
+        { opacity: 1, y: 0, duration: 0.7, ease: 'power2.out' },
+        '-=0.25'
+      )
+  })
+  useSectionReveal(kredoSectionRef, revealKredo)
+
   return (
-    <div
-      ref={sceneRef}
-      className='sticky top-0 h-svh w-full overflow-hidden'
-      style={{ backgroundColor: WHITE }}
-    >
+    <div ref={rootRef} className='relative w-full'>
+      {/* Hero */}
       <div
-        ref={heroRef}
-        className='absolute inset-0 z-10'
+        className='relative h-svh w-full overflow-hidden'
         style={{
           backgroundColor: DARK,
           ...(settings.heroImageUrl && {
@@ -662,36 +370,40 @@ export const TentangScene = ({ settings }: { settings: TentangSettings }) => {
           })
         }}
       >
-        {/* Dark overlay to dim the hero image so text stays legible */}
         <div className='absolute inset-0 bg-black/60' aria-hidden='true' />
         <TentangHero />
       </div>
 
-      <div ref={visiRef} className='pointer-events-none absolute inset-0 z-20'>
-        <VisiSection />
-      </div>
+      {/* Visi */}
+      <VisiSection />
 
-      {/* Misi layer — cards stack centered in viewport */}
-      <div ref={misiRef} className='pointer-events-none absolute inset-0 z-30'>
-        {/* Eyebrow — sticky at top, matches other section labels */}
-        <div className='absolute inset-x-0 top-[13vh] flex justify-center px-6'>
-          <p className='misi-scene-label font-sans text-sm font-semibold tracking-widest text-white/70 uppercase opacity-0'>
+      {/* Misi */}
+      <div
+        ref={misiSectionRef}
+        id='misi'
+        className='bg-primary relative pt-24'
+      >
+        {/* Sticky title — sticks below the navbar while Misi is in view,
+            blended via a primary-tinted scrim instead of a hard-edged
+            opaque bar. In normal flow (not overlaid): cards scroll past
+            underneath it later, and an overlaid semi-transparent bar would
+            ghost against their white tops. */}
+        <div className='sticky top-20 z-40 bg-linear-to-b from-primary via-primary to-primary/0 pb-6'>
+          <p
+            ref={misiLabelRef}
+            className='px-6 pt-4 text-center font-sans text-sm font-semibold tracking-widest text-white/70 uppercase lg:px-8'
+          >
             Misi KAMMI
           </p>
         </div>
 
-        {/* Cards centered in viewport, shifted down to sit below the eyebrow */}
-        <div className='absolute inset-0 flex items-center justify-center pt-[14vh]'>
-          {/* Stack container — portrait card, fills most of the remaining viewport */}
-          <div
-            className='relative'
-            style={{ height: 'min(74vh, 760px)', aspectRatio: '54 / 86' }}
-          >
+        <div className='mx-auto max-w-6xl px-6 pt-4 pb-10 lg:px-8'>
+          <div className='flex flex-wrap justify-center gap-6'>
             {MISI_ITEMS.map((item, i) => (
               <div
                 key={i}
-                className='misi-scene-card absolute inset-0 flex flex-col rounded-3xl bg-white p-7 opacity-0 shadow-2xl'
-                style={{ zIndex: i + 1 }}
+                className='misi-card flex aspect-3/4 w-full flex-col rounded-4xl bg-white p-7 shadow-md ring-1 ring-black/5 sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)]'
+                style={{ transform: `rotate(${CARD_ROTATIONS[i]}deg)` }}
               >
                 <div className='flex items-center justify-between'>
                   <span className='text-primary/40 font-sans text-[0.6rem] font-bold tracking-[0.2em] uppercase'>
@@ -701,11 +413,8 @@ export const TentangScene = ({ settings }: { settings: TentangSettings }) => {
                     {String(i + 1).padStart(2, '0')}&thinsp;/&thinsp;05
                   </span>
                 </div>
-                <div className='flex flex-1 items-center justify-center'>
-                  <p
-                    className='font-heading text-foreground text-center leading-snug font-bold'
-                    style={{ fontSize: 'clamp(1.05rem, 2.6vh, 1.6rem)' }}
-                  >
+                <div className='flex flex-1 items-center'>
+                  <p className='font-heading text-foreground text-[clamp(1.25rem,2.6vw,1.75rem)] leading-snug font-bold'>
                     {item}
                   </p>
                 </div>
@@ -715,102 +424,136 @@ export const TentangScene = ({ settings }: { settings: TentangSettings }) => {
         </div>
       </div>
 
-      {/* Prinsip layer — one principle at a time over white, photo bottom-right */}
+      {/* Prinsip */}
       <div
-        ref={prinsipRef}
-        className='pointer-events-none absolute inset-0 z-40'
+        ref={prinsipSectionRef}
+        id='prinsip'
+        className='bg-background relative'
       >
-        {/* Background photos (placeholder; swap for real <Image> later) */}
-        <div className='absolute inset-0 overflow-hidden'>
-          {PRINSIP_ITEMS.map((_, i) => (
-            <div
-              key={i}
-              className={`prinsip-photo-${i} absolute inset-0 h-full w-full opacity-0`}
-              style={{
-                // backgroundImage injected lazily via GSAP call at 'prinsipIn'
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                // Opacity gradient: 0 behind the text (top-left), peaking at the
-                // bottom-right viewport edge. Combined with element opacity 0.55.
-                maskImage:
-                  'linear-gradient(315deg, rgba(0,0,0,1) 0%, rgba(0,0,0,0.25) 100%)',
-                WebkitMaskImage:
-                  'linear-gradient(315deg, rgba(0,0,0,1) 0%, rgba(0,0,0,0.25) 100%)'
-              }}
-              aria-hidden='true'
-            />
-          ))}
-        </div>
-
-        {/* Eyebrow — top label */}
-        <div className='absolute inset-x-0 top-[13vh] flex justify-center px-6'>
-          <p className='prinsip-eyebrow text-primary font-sans text-sm font-semibold tracking-widest uppercase opacity-0'>
+        {/* Sticky title — sticks below the navbar while Prinsip is in view.
+            No solid backing: the frames are photos, not a flat section
+            color, so the label blends into whatever frame sits underneath
+            via a dark scrim instead of sitting on its own opaque bar.
+            -mb-20 collapses its own flow height back to 0 so it overlays
+            the first frame from the very top instead of pushing it down
+            (which would expose the section's plain background beneath the
+            scrim's transparent tail before any frame gets there). */}
+        <div className='pointer-events-none sticky top-20 z-40 -mb-20 flex h-20 items-center justify-center bg-linear-to-b from-black/70 via-black/25 to-transparent'>
+          <p
+            ref={prinsipEyebrowRef}
+            className='px-6 text-center font-sans text-sm font-semibold tracking-widest text-white/85 uppercase lg:px-8'
+          >
             Prinsip Gerakan KAMMI
           </p>
         </div>
 
-        {/* Statements — centered in viewport, one at a time */}
-        <div className='absolute inset-0 flex items-center justify-center px-6 lg:px-8'>
-          <div
-            data-id='prinsip-stack'
-            className='relative h-[52vh] w-full max-w-5xl'
-          >
-            {PRINSIP_ITEMS.map((item, i) => (
+        <div>
+          {PRINSIP_ITEMS.map((item, i) => (
+            <div
+              key={item.num}
+              className='prinsip-item bg-muted grid w-full overflow-hidden'
+              style={{ gridTemplateColumns: 'minmax(0, 1fr)' }}
+            >
+              {/* Frame — clip-path-wiped open on reveal, then a slow one-way
+                  Ken Burns drift back down to scale 1 while it's in view.
+                  The 2.35:1 ratio lives here (not on the grid container) so
+                  it's only a size *contribution*: grid auto-row-sizing takes
+                  the max of this and the title card's natural height, then
+                  stretches both — a title card that needs more room grows
+                  the row (and the image with it) instead of getting clipped. */}
               <div
-                key={item.num}
-                className={`prinsip-point-${i} absolute inset-0 flex flex-col items-center justify-center text-center opacity-0`}
+                className='prinsip-item-frame relative z-0'
+                style={{ gridArea: '1 / 1', aspectRatio: '2.35 / 1' }}
               >
-                <span className='text-primary/50 mb-7 font-mono text-sm tracking-widest tabular-nums'>
-                  {item.num}
-                  <span className='text-foreground/30'> / 06</span>
-                </span>
-                <h2 className='font-heading text-foreground text-[clamp(2.25rem,6vw,4.75rem)] leading-[1.2] font-bold'>
-                  <Marker>{item.x}</Marker>
-                  <span className='text-foreground/55 font-normal'>
-                    {' '}
-                    adalah{' '}
-                  </span>
-                  <Underline>{item.y}</Underline>
-                  <span className='text-foreground/55 font-normal'> KAMMI</span>
-                </h2>
+                {settings.prinsipImages[i] ? (
+                  <Image
+                    src={settings.prinsipImages[i]}
+                    alt=''
+                    fill
+                    sizes='100vw'
+                    className='object-cover'
+                    unoptimized={settings.prinsipImages[i].startsWith('http')}
+                  />
+                ) : (
+                  <div
+                    className='absolute inset-0'
+                    style={{
+                      background: `linear-gradient(155deg, oklch(0.45 0.06 ${17 + i * 28}), oklch(0.2 0.03 ${17 + i * 28}))`
+                    }}
+                  />
+                )}
               </div>
-            ))}
-          </div>
+
+              {/* Explicitly sits above the frame and below the copy, so image
+                  brightness can never compete with the title. */}
+              <div
+                className='relative z-10 bg-black/65'
+                style={{ gridArea: '1 / 1' }}
+                aria-hidden='true'
+              />
+
+              {/* Title card — centered over the frame */}
+              <div
+                className='relative z-20 flex flex-col items-center justify-center px-6 py-6 text-center lg:px-8'
+                style={{ gridArea: '1 / 1' }}
+              >
+                <div className='prinsip-item-text w-full max-w-4xl'>
+                  <span className='mb-3 block font-mono text-sm tracking-widest text-white/45 tabular-nums'>
+                    {item.num}
+                    <span className='text-white/25'> / 06</span>
+                  </span>
+                  <h2 className='font-heading text-[clamp(1.35rem,3.4vw,2.5rem)] leading-tight font-bold text-white'>
+                    <Marker opacity={0.55}>{item.x}</Marker>
+                    <span className='font-normal text-white/70'> adalah </span>
+                    <Underline>{item.y}</Underline>
+                    <span className='font-normal text-white/70'> KAMMI</span>
+                  </h2>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* Paradigma layer — split layout over dark: statement left, framed photo right */}
+      {/* Paradigma */}
       <div
-        ref={paradigmaRef}
-        className='pointer-events-none absolute inset-0 z-50'
+        ref={paradigmaSectionRef}
+        id='paradigma'
+        className='relative pb-24 lg:pb-32'
+        style={{ backgroundColor: DARK }}
       >
-        {/* Eyebrow — top label */}
-        <div className='absolute inset-x-0 top-[13vh] flex justify-center px-6'>
-          <p className='paradigma-eyebrow text-primary font-sans text-sm font-semibold tracking-widest uppercase opacity-0'>
+        {/* Sticky title — blended via a dark-tinted scrim instead of a
+            hard-edged opaque bar. In normal flow (not overlaid): item text
+            scrolls past underneath it later, and an overlaid
+            semi-transparent bar would ghost against it. */}
+        <div
+          className='sticky top-20 z-40 pb-6'
+          style={{
+            backgroundImage: `linear-gradient(to bottom, ${DARK}, ${DARK}, transparent)`
+          }}
+        >
+          <p
+            ref={paradigmaEyebrowRef}
+            className='text-primary px-6 pt-4 text-center font-sans text-sm font-semibold tracking-widest uppercase lg:px-8'
+          >
             Paradigma Gerakan KAMMI
           </p>
         </div>
 
-        <div className='absolute inset-0 flex items-center justify-center px-6 lg:px-12'>
-          <div
-            data-id='paradigma-stack'
-            className='relative h-[64vh] w-full max-w-6xl'
-          >
+        <div className='mx-auto max-w-6xl px-6 pt-8 lg:px-8'>
+          <div className='space-y-20'>
             {PARADIGMA_ITEMS.map((item, i) => (
               <div
                 key={item.num}
-                className='absolute inset-0 grid grid-cols-1 items-center gap-6 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16 [@media(max-height:600px)]:grid-cols-[1.1fr_0.9fr] [@media(max-height:600px)]:gap-8'
+                className='paradigma-item grid grid-cols-1 items-center gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16'
               >
-                {/* Statement (left on desktop, first on mobile) */}
-                <div
-                  className={`paradigma-text-${i} order-1 text-center opacity-0 lg:text-left`}
-                >
+                <div className='paradigma-copy text-center lg:text-left'>
                   <span className='font-mono text-sm tracking-widest text-white/35 tabular-nums'>
                     {item.num}
                     <span className='text-white/20'> / 04</span>
                   </span>
                   <h2
-                    className='font-heading mt-6 text-[clamp(2rem,4.2vw,3.75rem)] leading-[1.1] font-bold hyphens-auto text-white'
+                    className='font-heading mt-4 text-[clamp(1.75rem,3.6vw,3rem)] leading-[1.15] font-bold hyphens-auto text-white'
                     lang='id'
                   >
                     KAMMI adalah gerakan{' '}
@@ -818,21 +561,29 @@ export const TentangScene = ({ settings }: { settings: TentangSettings }) => {
                   </h2>
                 </div>
 
-                {/* Framed photo (right on desktop, second on mobile) */}
-                <div
-                  className={`paradigma-photo-${i} order-2 flex justify-center opacity-0 lg:justify-end`}
-                >
-                  <figure className='w-[min(84vw,30rem)] bg-[oklch(0.93_0.01_85)] p-3 shadow-2xl lg:w-[34rem]'>
-                    <div
-                      data-photo={`paradigma-${i}`}
-                      className='aspect-video w-full'
-                      style={{
-                        // backgroundImage injected lazily via GSAP call at 'paradigmaIn'
-                        backgroundSize: 'cover',
-                        backgroundPosition: 'center'
-                      }}
-                      aria-hidden='true'
-                    />
+                <div className='paradigma-photo flex justify-center lg:justify-end'>
+                  <figure className='w-[min(84vw,30rem)] bg-[oklch(0.93_0.01_85)] p-3 shadow-2xl lg:w-full'>
+                    <div className='relative aspect-video w-full'>
+                      {settings.paradigmaImages[i] ? (
+                        <Image
+                          src={settings.paradigmaImages[i]}
+                          alt=''
+                          fill
+                          sizes='(max-width: 1024px) 84vw, 34rem'
+                          className='object-cover'
+                          unoptimized={settings.paradigmaImages[i].startsWith(
+                            'http'
+                          )}
+                        />
+                      ) : (
+                        <div
+                          className='absolute inset-0'
+                          style={{
+                            background: `linear-gradient(150deg, oklch(0.5 0.08 ${17 + i * 22}), oklch(0.24 0.04 ${17 + i * 22}))`
+                          }}
+                        />
+                      )}
+                    </div>
                   </figure>
                 </div>
               </div>
@@ -841,54 +592,50 @@ export const TentangScene = ({ settings }: { settings: TentangSettings }) => {
         </div>
       </div>
 
-      {/* Kredo layer — the full text written out like a constitution over parchment */}
+      {/* Kredo */}
       <div
-        ref={kredoRef}
-        className='pointer-events-none absolute inset-0 z-[60]'
+        ref={kredoSectionRef}
+        id='kredo'
+        className='relative py-24 lg:py-32'
+        style={{ backgroundColor: PARCHMENT }}
       >
-        {/* Eyebrow — outside the mask so it stays sticky at top */}
-        <div className='absolute inset-x-0 top-[13vh] flex justify-center px-6'>
-          <p className='kredo-eyebrow text-primary font-sans text-sm font-semibold tracking-widest uppercase opacity-0'>
+        {/* Sticky title — blended via a parchment-tinted scrim instead of
+            a hard-edged opaque bar. In normal flow (not overlaid): the
+            kredo text scrolls past underneath it later, and an overlaid
+            semi-transparent bar would ghost against it. */}
+        <div
+          className='sticky top-20 z-40 pb-6'
+          style={{
+            backgroundImage: `linear-gradient(to bottom, ${PARCHMENT}, ${PARCHMENT}, transparent)`
+          }}
+        >
+          <p
+            ref={kredoEyebrowRef}
+            className='text-primary px-6 pt-4 text-center font-sans text-sm font-semibold tracking-widest uppercase lg:px-8'
+          >
             Kredo Gerakan KAMMI
           </p>
         </div>
 
-        {/* Reveal mask: text above the "nib line" (~53vh) is fully visible
-            (already written). The nib zone is deliberately tight — ~4–5vh,
-            roughly one line — so each new line inks in sharply rather than
-            fading in from far below. A gentle fade at the top lets old text
-            dissolve as it scrolls off-screen. */}
         <div
-          data-id='kredo-mask'
-          className='absolute inset-0 overflow-hidden'
-          style={{
-            maskImage:
-              'linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 6%, rgba(0,0,0,1) 88%, rgba(0,0,0,0) 94%)',
-            WebkitMaskImage:
-              'linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 6%, rgba(0,0,0,1) 88%, rgba(0,0,0,0) 94%)'
-          }}
+          ref={kredoDocRef}
+          className='mx-auto w-full max-w-3xl px-6 pt-8 lg:px-8'
         >
-          <div
-            ref={kredoDocRef}
-            className='absolute inset-x-0 top-0 mx-auto w-full max-w-3xl px-6 opacity-0 lg:px-8'
-            style={{ paddingTop: '42vh', paddingBottom: '8vh' }}
-          >
-            {KREDO_ITEMS.map((para, i) => (
-              <div key={i}>
-                {i > 0 && (
-                  <div className='my-12 flex justify-center' aria-hidden='true'>
-                    <span className='bg-primary/40 h-px w-20' />
-                  </div>
-                )}
-                <p
-                  className='text-[clamp(1.1rem,2.6vw,2.6rem)] leading-[1.5] text-[oklch(0.26_0.02_30)]'
-                  style={{ fontFamily: 'var(--font-handwriting)' }}
-                >
-                  {para}
-                </p>
-              </div>
-            ))}
-          </div>
+          {KREDO_ITEMS.map((para, i) => (
+            <div key={i}>
+              {i > 0 && (
+                <div className='my-12 flex justify-center' aria-hidden='true'>
+                  <span className='bg-primary/40 h-px w-20' />
+                </div>
+              )}
+              <p
+                className='text-[clamp(1.1rem,2.2vw,1.5rem)] leading-[1.6] text-[oklch(0.26_0.02_30)]'
+                style={{ fontFamily: 'var(--font-handwriting)' }}
+              >
+                {para}
+              </p>
+            </div>
+          ))}
         </div>
       </div>
     </div>
