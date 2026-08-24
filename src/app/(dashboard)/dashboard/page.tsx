@@ -53,6 +53,7 @@ const Page = async () => {
 
   const showKader = ['root', 'bph', 'bpk'].includes(role)
   const showWilayah = ['root', 'bph', 'bpw'].includes(role)
+  const showUpcomingTrainings = ['bph', 'bpk'].includes(role)
 
   const [
     kaderAgg,
@@ -98,9 +99,11 @@ const Page = async () => {
           id: allowedOrgIds.length ? allowedOrgIds : undefined
         })
       : Promise.resolve(0),
-    getCachedUpcomingTrainings(
-      allowedOrgIds.length ? allowedOrgIds : undefined
-    ),
+    showUpcomingTrainings
+      ? getCachedUpcomingTrainings(
+          allowedOrgIds.length ? allowedOrgIds : undefined
+        )
+      : Promise.resolve([]),
     showKader
       ? getCachedMemberDistributionByOrgType('pw', allowedOrgIds)
       : Promise.resolve([]),
@@ -149,7 +152,7 @@ const Page = async () => {
       )}
 
       {/* Zona 3: Daurah Terdekat */}
-      <UpcomingTrainings data={upcomingTrainings} />
+      {showUpcomingTrainings && <UpcomingTrainings data={upcomingTrainings} />}
     </div>
   )
 }

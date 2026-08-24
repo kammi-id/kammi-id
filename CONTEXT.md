@@ -62,6 +62,11 @@ Satu unit kepengurusan KAMMI. Setiap Struktur punya induk, sehingga seluruhnya
 membentuk satu pohon nasional.
 _Avoid_: Organisasi, Wilayah, Branch, Cabang
 
+**Struktur Anak**:
+Struktur yang induknya adalah sebuah Struktur tertentu. Dipakai untuk
+navigasi satu langkah ke bawah dalam pohon, bukan untuk seluruh keturunan.
+_Avoid_: Sub-struktur
+
 **Jenjang**:
 Posisi sebuah Struktur di dalam pohon, dari yang tertinggi ke terendah: Pusat
 (PP), Wilayah (PW), Daerah (PD) dan Daerah Luar Negeri (PDLN) yang sejajar,
