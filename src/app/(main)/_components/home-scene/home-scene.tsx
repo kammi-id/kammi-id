@@ -740,10 +740,7 @@ export const HomeScene = ({
         aria-labelledby='leadership-heading'
       >
         {/* Header */}
-        <div
-          ref={lsTextRef}
-          className='px-6 pb-2 text-center md:pb-4 lg:px-8'
-        >
+        <div ref={lsTextRef} className='px-6 pb-2 text-center md:pb-4 lg:px-8'>
           <p
             ref={lsPeriodRef}
             className='text-primary font-sans text-xs font-semibold tracking-widest uppercase'

@@ -141,16 +141,17 @@ const useItemReveal = (
     if (!container) return
     if (window.matchMedia(REDUCED_MOTION_QUERY).matches) return
 
-    const items = Array.from(
-      container.querySelectorAll<HTMLElement>(selector)
-    )
+    const items = Array.from(container.querySelectorAll<HTMLElement>(selector))
     if (!items.length) return
 
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (!entry.isIntersecting) return
-          reveal(entry.target as HTMLElement, items.indexOf(entry.target as HTMLElement))
+          reveal(
+            entry.target as HTMLElement,
+            items.indexOf(entry.target as HTMLElement)
+          )
           observer.unobserve(entry.target)
         })
       },
@@ -177,9 +178,7 @@ const useBatchedItemReveal = (
     if (!container) return
     if (window.matchMedia(REDUCED_MOTION_QUERY).matches) return
 
-    const items = Array.from(
-      container.querySelectorAll<HTMLElement>(selector)
-    )
+    const items = Array.from(container.querySelectorAll<HTMLElement>(selector))
     if (!items.length) return
 
     const observer = new IntersectionObserver(
@@ -378,17 +377,13 @@ export const TentangScene = ({ settings }: { settings: TentangSettings }) => {
       <VisiSection />
 
       {/* Misi */}
-      <div
-        ref={misiSectionRef}
-        id='misi'
-        className='bg-primary relative pt-24'
-      >
+      <div ref={misiSectionRef} id='misi' className='bg-primary relative pt-24'>
         {/* Sticky title — sticks below the navbar while Misi is in view,
             blended via a primary-tinted scrim instead of a hard-edged
             opaque bar. In normal flow (not overlaid): cards scroll past
             underneath it later, and an overlaid semi-transparent bar would
             ghost against their white tops. */}
-        <div className='sticky top-20 z-40 bg-linear-to-b from-primary via-primary to-primary/0 pb-6'>
+        <div className='from-primary via-primary to-primary/0 sticky top-20 z-40 bg-linear-to-b pb-6'>
           <p
             ref={misiLabelRef}
             className='px-6 pt-4 text-center font-sans text-sm font-semibold tracking-widest text-white/70 uppercase lg:px-8'

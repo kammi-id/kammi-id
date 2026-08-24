@@ -42,7 +42,8 @@ export const SectionNav = () => {
         entries.forEach((entry) => {
           ratios.set(entry.target.id, entry.intersectionRatio)
         })
-        const [topId] = [...ratios.entries()].sort((a, b) => b[1] - a[1])[0] ?? []
+        const [topId] =
+          [...ratios.entries()].sort((a, b) => b[1] - a[1])[0] ?? []
         if (topId && (ratios.get(topId) ?? 0) > 0) setActiveId(topId)
       },
       { threshold: [0, 0.25, 0.5, 0.75, 1] }

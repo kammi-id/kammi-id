@@ -32,8 +32,7 @@ export const PengurusHeroClient = ({
 
   const { contextSafe } = useGSAP(
     () => {
-      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches)
-        return
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
       isDesktopRef.current = window.innerWidth >= 768
 
       if (isDesktopRef.current) {

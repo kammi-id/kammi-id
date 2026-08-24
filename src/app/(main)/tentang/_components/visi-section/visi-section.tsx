@@ -12,8 +12,7 @@ export const VisiSection = () => {
 
   const { contextSafe } = useGSAP(
     () => {
-      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches)
-        return
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
       gsap.set(titleRef.current, { opacity: 0, y: 20 })
       gsap.set(textRef.current, { opacity: 0, scale: 0.8, y: 20 })
     },
@@ -51,7 +50,7 @@ export const VisiSection = () => {
           hard-edged opaque bar. In normal flow (not overlaid): the
           heading scrolls past underneath it later, and an overlaid
           semi-transparent bar would ghost against it. */}
-      <div className='sticky top-20 z-40 bg-linear-to-b from-primary via-primary to-primary/0 pb-6'>
+      <div className='from-primary via-primary to-primary/0 sticky top-20 z-40 bg-linear-to-b pb-6'>
         <p
           ref={titleRef}
           className='text-primary-foreground/70 px-6 pt-4 text-center font-sans text-sm font-semibold tracking-widest uppercase lg:px-8'
@@ -67,9 +66,8 @@ export const VisiSection = () => {
             id='visi-heading'
             className='font-heading text-primary-foreground text-[clamp(1.75rem,4vw,3.25rem)] leading-snug font-bold'
           >
-            Wadah perjuangan permanen yang akan melahirkan kader-kader
-            Pemimpin dalam upaya mewujudkan Bangsa dan Negara Indonesia yang
-            Islami.
+            Wadah perjuangan permanen yang akan melahirkan kader-kader Pemimpin
+            dalam upaya mewujudkan Bangsa dan Negara Indonesia yang Islami.
           </h2>
         </div>
       </div>

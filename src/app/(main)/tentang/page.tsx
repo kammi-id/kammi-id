@@ -45,7 +45,7 @@ const TentangPage = async () => {
               Beranda
             </Link>
           </li>
-          <li aria-hidden='true' className='select-none text-white/40'>
+          <li aria-hidden='true' className='text-white/40 select-none'>
             /
           </li>
           <li>
