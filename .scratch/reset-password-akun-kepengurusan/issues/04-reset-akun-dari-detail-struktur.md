@@ -6,7 +6,7 @@ verifikasi ulang password pelaku dan hasil kredensial sekali tampil.
 
 **Blocked by:** 02 — Fondasi audit dan reset atomik.
 
-**Status:** ready-for-agent
+**Status:** resolved
 
 - [ ] Gate baru memakai akses baca kestrukturan lalu menolak Struktur sendiri,
   saudara, luar Cakupan, Terhapus, palsu, dan aktor selain Root/BPH/BPW.
