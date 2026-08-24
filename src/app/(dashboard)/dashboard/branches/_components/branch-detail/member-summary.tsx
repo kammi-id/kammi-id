@@ -120,7 +120,7 @@ const genderConfig = {
 export const MemberSummary = ({ data }: { data: MemberSummaryData }) => (
   <section
     aria-labelledby='member-summary-title'
-    className='flex flex-col gap-4'
+    className='@container flex flex-col gap-4'
   >
     <div>
       <h2 id='member-summary-title' className='font-heading text-xl font-bold'>
@@ -131,18 +131,18 @@ export const MemberSummary = ({ data }: { data: MemberSummaryData }) => (
       </p>
     </div>
 
-    <div className='grid gap-4 sm:grid-cols-2 xl:grid-cols-[1.2fr_1fr_1fr_1fr]'>
-      <Card className='bg-primary text-primary-foreground h-full'>
+    <div className='grid grid-cols-1 gap-4 @md:grid-cols-2 @2xl:grid-cols-3'>
+      <Card className='bg-primary text-primary-foreground h-full @2xl:row-span-2'>
         <CardHeader>
           <CardTitle className='text-primary-foreground'>Kader Aktif</CardTitle>
           <CardDescription className='text-primary-foreground/75'>
             Total dalam Cakupan
           </CardDescription>
         </CardHeader>
-        <CardContent className='flex min-h-32 items-end'>
+        <CardContent className='flex min-h-32 flex-1 items-center justify-center text-center'>
           <data
             value={data.total}
-            className='font-heading text-5xl font-bold tracking-tight tabular-nums'
+            className='font-heading text-6xl font-bold tracking-tight tabular-nums @2xl:text-8xl'
           >
             {fmt(data.total)}
           </data>

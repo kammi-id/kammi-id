@@ -1,6 +1,9 @@
 import Link from 'next/link'
 import { Fragment } from 'react'
 import { cn } from '~/lib/shadcn/utils'
+import { ArrowLeft02Icon } from '@hugeicons/core-free-icons'
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Button } from '~/components/shadcn/ui/button'
 import {
   Avatar,
   AvatarFallback,
@@ -50,6 +53,20 @@ export const BranchDetailView = ({ detail }: { detail: BranchDetail }) => {
 
   return (
     <div className='flex flex-col gap-8 px-4 py-4 md:py-6 lg:px-6'>
+      <Button
+        variant='outline'
+        className='w-fit'
+        nativeButton={false}
+        render={<Link href={basePath} />}
+      >
+        <HugeiconsIcon
+          icon={ArrowLeft02Icon}
+          strokeWidth={2}
+          data-icon='inline-start'
+        />
+        Kembali ke {parent?.name ?? 'Struktur Anak'}
+      </Button>
+
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
@@ -124,9 +141,6 @@ export const BranchDetailView = ({ detail }: { detail: BranchDetail }) => {
               <h1 className='font-heading text-3xl font-bold tracking-tight sm:text-4xl'>
                 {organization.name}
               </h1>
-              <p className='text-muted-foreground mt-2'>
-                Detail identitas Struktur dalam Cakupan Antum.
-              </p>
             </div>
             <dl className='grid gap-4 text-sm sm:grid-cols-3'>
               <div>
@@ -149,15 +163,11 @@ export const BranchDetailView = ({ detail }: { detail: BranchDetail }) => {
               )}
             </dl>
           </div>
-        </div>
-      </section>
 
-      <div className='grid gap-8 xl:grid-cols-[minmax(0,1fr)_20rem]'>
-        <div className='flex flex-col gap-8'>
           {childLabel && (
             <section
               aria-label={childLabel}
-              className='bg-muted/50 rounded-2xl p-4'
+              className='bg-muted/50 w-full rounded-2xl p-4 sm:w-40 sm:shrink-0'
             >
               <p className='text-muted-foreground text-sm'>{childLabel}</p>
               <p className='font-heading mt-1 text-3xl font-bold tabular-nums'>
@@ -165,6 +175,11 @@ export const BranchDetailView = ({ detail }: { detail: BranchDetail }) => {
               </p>
             </section>
           )}
+        </div>
+      </section>
+
+      <div className='grid gap-8 xl:grid-cols-[minmax(0,1fr)_20rem]'>
+        <div className='flex flex-col gap-8'>
           <MemberSummary data={memberMetrics} />
         </div>
 
