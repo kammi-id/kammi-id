@@ -4,6 +4,7 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { Settings02Icon } from '@hugeicons/core-free-icons'
 import { Separator } from '~/components/shadcn/ui/separator'
 import { HomeItemsList } from './_components/home-items-list'
+import { SiteActiveToggle } from './_components/site-active-toggle'
 import {
   saveHomeHeroItemsAction,
   saveHomeExtraItemsAction
@@ -87,6 +88,10 @@ const HomeSettingsPage = async () => {
           </p>
         </div>
       </div>
+
+      {/* Sakelar Aktivasi Situs (ticket 03) — blok terpisah, ditaruh menonjol
+          di atas daftar `sections`, bukan diselipkan ke dalamnya. */}
+      <SiteActiveToggle organizationId={orgId} />
 
       <div className='space-y-6'>
         {sections.map((section) => (

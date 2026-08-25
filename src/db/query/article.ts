@@ -1,7 +1,7 @@
 import { db } from '~/db/db'
 import { article } from '~/db/schema/article.sql'
 import { organizationNotDeleted } from '~/db/query/organization'
-import { eq, and, ilike, desc, sql } from 'drizzle-orm'
+import { eq, and, ilike, desc, lte, sql } from 'drizzle-orm'
 
 export const isArticleOrgInScope = (
   user: { role: string; connectedOrganizationId?: string | null },
@@ -91,4 +91,29 @@ export const articleQuery = {
     const rows = ((result as any).rows ?? result) as { tag: string }[]
     return rows.map((r) => r.tag)
   }
+}
+
+// Terbit gate for Aktivasi Situs (ticket 03, CONTEXT.md "Terbit"): the
+// Struktur must hold at least one **Berita** — `type: 'blog'`, not a Halaman
+// — whose status is 'published' and whose `publishedAt` has already passed.
+// A future-dated Artikel is dinyatakan but not yet Terbit, and a Halaman
+// doesn't count: CONTEXT.md calls it "tak bertanggal" and outside Berita's
+// archive, so it can't be what "Berita Terbit" means.
+export const hasPublishedArticle = async (
+  organizationId: string
+): Promise<boolean> => {
+  const [row] = await db
+    .select({ id: article.id })
+    .from(article)
+    .where(
+      and(
+        eq(article.organizationId, organizationId),
+        eq(article.type, 'blog'),
+        eq(article.status, 'published'),
+        lte(article.publishedAt, new Date()),
+        organizationNotDeleted(article.organizationId)
+      )
+    )
+    .limit(1)
+  return Boolean(row)
 }
