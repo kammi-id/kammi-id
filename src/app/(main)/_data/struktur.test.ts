@@ -36,7 +36,7 @@ mock.module('next/cache', () => ({
     useFakeNextCache ? undefined : actualNextCache.cacheTag(...args)
 }))
 
-const { resolveStrukturId, resolveStrukturIdFromParams } =
+const { resolveStrukturId, resolveStrukturIdFromParams, getStrukturIdentity } =
   await import('./struktur')
 
 afterAll(() => {
@@ -92,5 +92,54 @@ describe('resolveStrukturIdFromParams', () => {
     )
 
     expect(result).toBe('org-2')
+  })
+})
+
+describe('getStrukturIdentity', () => {
+  it('returns null without touching the database when organizationId is null', async () => {
+    readOrganizationImpl = async () => {
+      throw new Error('should not be called')
+    }
+
+    expect(await getStrukturIdentity(null)).toBeNull()
+  })
+
+  it('reads the organization by id for the lean template identity block', async () => {
+    readOrganizationImpl = async (filters) => {
+      expect(filters).toEqual({ id: ['org-3'] })
+      return [
+        {
+          id: 'org-3',
+          name: 'PW Jawa Barat',
+          slug: 'pw-jabar',
+          type: 'pw',
+          level: 2,
+          logo: null
+        }
+      ] as Awaited<ReturnType<typeof realReadOrganization>>
+    }
+
+    expect(await getStrukturIdentity('org-3')).toEqual({
+      id: 'org-3',
+      name: 'PW Jawa Barat',
+      slug: 'pw-jabar',
+      type: 'pw',
+      level: 2,
+      logo: null
+    })
+  })
+
+  it('returns null for an id that resolves to no row', async () => {
+    readOrganizationImpl = async () => []
+
+    expect(await getStrukturIdentity('org-tidak-ada')).toBeNull()
+  })
+
+  it('returns null instead of throwing when the database is unavailable', async () => {
+    readOrganizationImpl = async () => {
+      throw new Error('connection refused')
+    }
+
+    expect(await getStrukturIdentity('org-3')).toBeNull()
   })
 })

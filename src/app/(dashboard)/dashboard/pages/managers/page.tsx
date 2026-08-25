@@ -31,12 +31,17 @@ const ManagersSettingsPage = async () => {
           />
         </div>
         <div>
+          {/*
+           * This page serves every Jenjang (pengurus applies to the lean
+           * template too, ticket 04) — the heading names the Struktur
+           * itself rather than hardcoding "Pengurus Pusat", which used to
+           * show even on a PW/PD/PK's own settings page.
+           */}
           <h1 className='font-heading text-3xl font-bold tracking-tight'>
-            Pengurus Pusat
+            Pengurus {connectedOrganization.name}
           </h1>
           <p className='text-muted-foreground text-sm leading-relaxed'>
-            Kelola data pengurus yang ditampilkan di{' '}
-            <span className='text-foreground font-medium'>kammi.id</span>.
+            Kelola data pengurus yang ditampilkan di situs Anda.
           </p>
         </div>
       </div>
