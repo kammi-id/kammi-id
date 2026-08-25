@@ -6,34 +6,25 @@ import {
 } from '~/db/query/organization'
 
 /**
- * The shape of the tree, stated on the server.
+ * The shape of the tree and the Jenjang it is built from live in
+ * `~/lib/struktur/jenjang` and are re-exported here, unchanged.
  *
- * The Tambah form offers the same list, but a form is a suggestion: `type` and
- * `parentId` arrive as posted fields, so the shape has to be enforced where
- * they land rather than where they are chosen.
+ * They moved out because `add-form` and the Struktur Anak sidebar are both
+ * `'use client'` and both need the table. This module imports
+ * `~/db/query/organization` for its gates, so a client component reaching
+ * through it for the shape would drag `db.ts` into the browser bundle — the
+ * hazard commit `6073b89` closed. `jenjang.ts` has no runtime import at all.
  *
- * Nothing lists `pp` as a legal child, so PP can never be created through this
- * path at all.
- *
- * This stays alongside the Kewenangan matrix below and is **not** part of it:
- * it guards the shape of the tree, not authority, and that is a different
- * question with a different answer.
+ * The re-export is not a convenience: the shape of the tree and the Kewenangan
+ * matrix below are read together often enough that splitting the import site
+ * would be the more surprising half of the change.
  */
-const CHILD_TYPES: Record<string, readonly string[]> = {
-  pp: ['pw', 'pdln'],
-  pw: ['pd'],
-  pd: ['pk'],
-  pdln: ['pk'],
-  pk: []
-}
-
-export const isLegalChildType = (
-  parentType: string,
-  childType: string
-): boolean => CHILD_TYPES[parentType]?.includes(childType) ?? false
-
-/** Jenjang — the rung a Struktur occupies in the tree. */
-export type StrukturJenjang = Organization['type']
+export {
+  childTypesOf,
+  isLegalChildType,
+  type StrukturJenjang
+} from '~/lib/struktur/jenjang'
+import { isLegalChildType, type StrukturJenjang } from '~/lib/struktur/jenjang'
 
 /** The columns of the matrix in spec §2.2. */
 export type KestrukturanAction =

@@ -1,5 +1,9 @@
 import { readAccessScope } from '~/lib/auth/access-scope'
-import { requireKestrukturanReadAccess } from '~/lib/auth/kestrukturan'
+import {
+  canManageKestrukturan,
+  childTypesOf,
+  requireKestrukturanReadAccess
+} from '~/lib/auth/kestrukturan'
 import { strukturKemampuan } from '~/lib/struktur/kemampuan'
 import {
   getCachedBranchDetailMemberAggregates,
@@ -94,10 +98,28 @@ export const readAuthorizedBranchDetail = async (
       ? { children: [], childTotal: 0, directChildrenTotal: 0, childPage: 1 }
       : await readBranchDetailChildren(detail.organization.id, childrenQuery)
 
+  // The same pair the grid asks: which Jenjang may sit beneath this one, and
+  // does the caller hold `buat` over any of them. Cakupan needs no separate
+  // check — the read gate above already admitted this Struktur, and Cakupan is
+  // walked from the parent, which is exactly the Struktur in hand.
+  //
+  // There is no "never your own Struktur" rule here on purpose: creating a child
+  // beneath yourself is precisely what `requireKestrukturanCreateAccess` allows,
+  // and the same seam enforces it when the form posts.
+  const buatAnak = childTypesOf(detail.organization.type).some((childType) =>
+    canManageKestrukturan(
+      authorizedScope.role,
+      detail.actorJenjang,
+      childType,
+      'buat'
+    )
+  )
+
   return {
     ...detail,
     ...children,
     kemampuan,
+    buatAnak,
     memberMetrics: await readMemberMetrics(
       detail.organization.id,
       authorizedScope

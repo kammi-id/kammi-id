@@ -16,31 +16,52 @@ import {
   InputGroupAddon,
   InputGroupInput
 } from '~/components/shadcn/ui/input-group'
-import { SearchIcon } from '@hugeicons/core-free-icons'
+import { Add01Icon, SearchIcon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
-import type { Organization } from '~/db/query/organization'
 import { cn } from '~/lib/shadcn/utils'
-import { isNonAktif } from '../struktur-row'
+import { isNonAktif, type Organization } from '../struktur-row'
 import { StrukturNonAktifBadge } from '../struktur-badges'
+import { BranchManagementSheet } from '../branch-management-sheet'
+import { labelJenjangAnak } from '../_jenjang-anak'
 
 type ChildSidebarProps = {
   items: Organization[]
   childTotal: number
+  /** Struktur Anak langsung tanpa memperhitungkan pencarian. */
+  directChildrenTotal: number
   page: number
+  /** Struktur yang sedang dibuka — induk dari apa pun yang dibuat di sini. */
+  parentOrg: Organization
+  /**
+   * Dihitung server-side dari sel `buat` matriks (spec §8), tidak pernah
+   * diturunkan di sini dari `role`.
+   */
+  buatAnak: boolean
+  basePath: string
 }
 
 export const ChildSidebar = ({
   items,
   childTotal,
-  page
+  directChildrenTotal,
+  page,
+  parentOrg,
+  buatAnak,
+  basePath
 }: ChildSidebarProps) => {
   const pathname = usePathname()
   const router = useRouter()
   const searchParams = useSearchParams()
   const query = searchParams.get('childrenQ') ?? ''
   const [search, setSearch] = useState(query)
+  const [isAddOpen, setIsAddOpen] = useState(false)
   const debounceRef = useRef<ReturnType<typeof setTimeout>>(null)
   const pageCount = Math.ceil(childTotal / 8)
+
+  // Dua keadaan kosong yang berbeda dan dulu memakai satu kalimat. "Tidak ada
+  // yang cocok" sebelum pengguna mengetik apa pun itu kalimat yang keliru: yang
+  // dibutuhkan di sana bukan kata kunci lain, melainkan Struktur Anak pertama.
+  const belumAdaAnak = directChildrenTotal === 0
 
   useEffect(() => {
     setSearch(query)
@@ -81,17 +102,35 @@ export const ChildSidebar = ({
           </CardDescription>
         </CardHeader>
         <CardContent className='flex flex-col gap-4'>
-          <InputGroup>
-            <InputGroupAddon align='inline-start'>
-              <HugeiconsIcon icon={SearchIcon} strokeWidth={2} />
-            </InputGroupAddon>
-            <InputGroupInput
-              aria-label='Cari Struktur Anak'
-              placeholder='Cari Struktur Anak...'
-              value={search}
-              onChange={(event) => handleSearchChange(event.target.value)}
-            />
-          </InputGroup>
+          <div className='flex items-center gap-2'>
+            <InputGroup className='min-w-0 flex-1'>
+              <InputGroupAddon align='inline-start'>
+                <HugeiconsIcon icon={SearchIcon} strokeWidth={2} />
+              </InputGroupAddon>
+              <InputGroupInput
+                aria-label='Cari Struktur Anak'
+                placeholder='Cari...'
+                value={search}
+                disabled={belumAdaAnak}
+                onChange={(event) => handleSearchChange(event.target.value)}
+              />
+            </InputGroup>
+
+            {buatAnak && (
+              <Button
+                size='sm'
+                className='shrink-0'
+                onClick={() => setIsAddOpen(true)}
+              >
+                <HugeiconsIcon
+                  icon={Add01Icon}
+                  strokeWidth={2}
+                  data-icon='inline-start'
+                />
+                Tambah {labelJenjangAnak(parentOrg.type)}
+              </Button>
+            )}
+          </div>
 
           {items.length > 0 ? (
             <nav aria-label='Struktur Anak'>
@@ -114,7 +153,9 @@ export const ChildSidebar = ({
             </nav>
           ) : (
             <p className='text-muted-foreground text-sm'>
-              Tidak ada Struktur Anak yang cocok.
+              {belumAdaAnak
+                ? 'Belum ada Struktur Anak.'
+                : 'Tidak ada Struktur Anak yang cocok.'}
             </p>
           )}
 
@@ -143,6 +184,26 @@ export const ChildSidebar = ({
           )}
         </CardContent>
       </Card>
+
+      {/*
+        Tidak ada `router.refresh()` di sini, dan itu disengaja: aksi
+        `createOrganizationAction` memanggil `revalidatePath('/dashboard/branches',
+        'layout')`, yang sudah mendorong payload RSC baru ke halaman ini —
+        Struktur Anak yang baru dibuat muncul bahkan sebelum sheet ditutup.
+        Diverifikasi di browser, bukan disimpulkan. Cakupan `'layout'` itu yang
+        wajib: tanpanya `revalidatePath` bersifat page-scoped dan tidak pernah
+        menyentuh route Struktur bersarang.
+      */}
+      {buatAnak && (
+        <BranchManagementSheet
+          isOpen={isAddOpen}
+          onOpenChange={setIsAddOpen}
+          editData={null}
+          addButtonLabel={labelJenjangAnak(parentOrg.type)}
+          parentOrg={parentOrg}
+          basePath={basePath}
+        />
+      )}
     </aside>
   )
 }

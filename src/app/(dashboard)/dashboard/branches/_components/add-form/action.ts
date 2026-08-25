@@ -114,7 +114,7 @@ export const createOrganizationAction = async (
 
     const [created] = await createOrganization(validated.data)
     updateTag('organizations')
-    revalidatePath('/dashboard/branches')
+    revalidatePath('/dashboard/branches', 'layout')
 
     logger.info('Organisasi dibuat', {
       actorId: user.id,
@@ -202,7 +202,7 @@ export const updateOrganizationAction = async (
 
     await updateOrganization({ ...validated.data }, id)
     updateTag('organizations')
-    revalidatePath('/dashboard/branches')
+    revalidatePath('/dashboard/branches', 'layout')
 
     logger.info('Organisasi diperbarui', {
       actorId: user.id,

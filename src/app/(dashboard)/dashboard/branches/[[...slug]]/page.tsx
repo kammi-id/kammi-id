@@ -15,10 +15,11 @@ import {
 } from '../_components/struktur-row'
 import {
   canManageKestrukturan,
-  isLegalChildType,
+  childTypesOf,
   requireKestrukturanReadAccess,
   type StrukturJenjang
 } from '~/lib/auth/kestrukturan'
+import { labelJenjangAnak } from '../_components/_jenjang-anak'
 import { strukturKemampuan } from '~/lib/struktur/kemampuan'
 import Link from 'next/link'
 import { cn } from '~/lib/shadcn/utils'
@@ -100,29 +101,31 @@ const BranchesPage = async ({ params, searchParams }: PageProps) => {
     )
   }
 
-  // UI Customization based on Org Type
+  // Grid ini hanya memuat Struktur Anak **langsung**, jadi judulnya menyebut
+  // satu Jenjang saja. Yang lama menulis "dan Komisariat" untuk PW, dan itu
+  // tidak pernah benar: `childTypesOf('pw')` adalah `['pd']`, dan form Tambah
+  // pun tidak pernah menawarkan PK di sana.
   let pageTitle = 'Daftar Wilayah'
   let subTitle = `Menampilkan wilayah di bawah ${currentOrg.name}.`
-  let addButtonLabel = 'Wilayah'
 
   if (currentOrg.type === 'pp') {
     pageTitle = 'Daftar Pengurus Wilayah dan Daerah LN'
     subTitle =
       'Menampilkan daftar wilayah dan pengurus daerah luar negeri yang berada langsung di bawah naungan pusat.'
-    addButtonLabel = 'PW/PDLN'
   } else if (currentOrg.type === 'pw') {
-    pageTitle = 'Daftar Pengurus Daerah dan Komisariat'
-    subTitle = `Daftar pengurus daerah dan komisariat yang berada di wilayah ${currentOrg.name}.`
-    addButtonLabel = 'PD/PK'
-  } else if (currentOrg.type === 'pd') {
+    pageTitle = 'Daftar Pengurus Daerah'
+    subTitle = `Seluruh pengurus daerah yang berada di wilayah ${currentOrg.name}.`
+  } else if (currentOrg.type === 'pd' || currentOrg.type === 'pdln') {
     pageTitle = 'Daftar Pengurus Komisariat'
     subTitle = `Seluruh komisariat yang aktif berada di bawah naungan daerah ${currentOrg.name}.`
-    addButtonLabel = 'PK'
   } else if (currentOrg.type === 'pk') {
     pageTitle = 'Struktur Anak'
     subTitle = `${currentOrg.name} tidak memiliki Struktur Anak.`
-    addButtonLabel = 'Struktur Anak'
   }
+
+  // Label tombol diturunkan dari bentuk pohon, bukan ditulis ulang per cabang —
+  // satu sumber dengan `Select` di dalam form dan dengan gate yang menolaknya.
+  const addButtonLabel = labelJenjangAnak(currentOrg.type)
 
   // Parse searchParams for server-side fetching
   const query = typeof sParams.q === 'string' ? sParams.q : undefined
@@ -180,10 +183,8 @@ const BranchesPage = async ({ params, searchParams }: PageProps) => {
     kemampuan: strukturKemampuan(actor, org)
   }))
 
-  const canAdd = (['pw', 'pdln', 'pd', 'pk'] as const).some(
-    (childType) =>
-      isLegalChildType(currentOrg.type, childType) &&
-      canManageKestrukturan(scope.role, jenjangAkun, childType, 'buat')
+  const canAdd = childTypesOf(currentOrg.type).some((childType) =>
+    canManageKestrukturan(scope.role, jenjangAkun, childType, 'buat')
   )
 
   const basePath =

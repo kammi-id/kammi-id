@@ -29,6 +29,7 @@ import { Loading03Icon } from '@hugeicons/core-free-icons'
 import { ImageUpload } from '~/components/image-upload'
 import { deleteImageAction } from '~/lib/actions/storage'
 import { InitialCredentialsDialog } from './initial-credentials-dialog'
+import { opsiJenjangAnak } from '../_jenjang-anak'
 
 export const AddOrganizationForm = ({
   parentOrg,
@@ -91,18 +92,7 @@ export const AddOrganizationForm = ({
     }
   }, [logoPath, editData?.logo])
 
-  const childTypes: Record<string, { value: string; label: string }[]> = {
-    pp: [
-      { value: 'pw', label: 'Pengurus Wilayah (PW)' },
-      { value: 'pdln', label: 'Pengurus Daerah Luar Negeri (PDLN)' }
-    ],
-    pw: [{ value: 'pd', label: 'Pengurus Daerah (PD)' }],
-    pd: [{ value: 'pk', label: 'Pengurus Komisariat (PK)' }],
-    pdln: [{ value: 'pk', label: 'Pengurus Komisariat (PK)' }],
-    pk: []
-  }
-
-  const availableTypes = childTypes[parentOrg.type] || []
+  const availableTypes = opsiJenjangAnak(parentOrg.type)
 
   return (
     <>

@@ -157,6 +157,50 @@ describe('readAuthorizedBranchDetail', () => {
     await expect(readAuthorizedBranchDetail(['pk-itb'])).resolves.not.toBeNull()
   })
 
+  // `buatAnak` menjawab sel `buat` matriks yang diarahkan ke **anak**, bukan ke
+  // Struktur yang sedang dibuka. Ia yang menyalakan tombol Tambah di sidebar
+  // Struktur Anak, jadi ia diuji di seam yang menghitungnya — bukan lewat
+  // komponen yang sekadar menerimanya.
+  test('menyatakan kemampuan membuat Struktur Anak sesuai matriks dan Jenjang sasaran', async () => {
+    mockSession = sessionWith('root', ppId)
+    await expect(
+      readAuthorizedBranchDetail(['pw-jabar'])
+    ).resolves.toMatchObject({ buatAnak: true })
+
+    // PK tidak punya Jenjang anak yang sah, jadi Kewenangan setinggi apa pun
+    // tidak memunculkan tombolnya.
+    await expect(
+      readAuthorizedBranchDetail(['pw-jabar', 'pd-bandung', 'pk-itb'])
+    ).resolves.toMatchObject({ buatAnak: false })
+
+    // BPH menjangkau tanpa kewenangan: `buat` kosong di seluruh barisnya.
+    mockSession = sessionWith('bph', pwJabarId)
+    await expect(
+      readAuthorizedBranchDetail(['pd-bandung'])
+    ).resolves.toMatchObject({ buatAnak: false })
+
+    mockSession = sessionWith('bpw', ppId)
+    await expect(
+      readAuthorizedBranchDetail(['pw-jabar'])
+    ).resolves.toMatchObject({ buatAnak: true })
+
+    // BPW PW — Akun "BPD" — menyunting tanpa pernah melahirkan.
+    mockSession = sessionWith('bpw', pwJabarId)
+    await expect(
+      readAuthorizedBranchDetail(['pd-bandung'])
+    ).resolves.toMatchObject({ buatAnak: false })
+
+    // BPW PD memang memegang `buat` atas PK, tetapi detail selalu berada di
+    // bawah Struktur terhubungnya — dan di bawah PD hanya ada PK, yang tidak
+    // punya anak. Tombolnya hidup di grid top-level, bukan di sini.
+    mockSession = sessionWith('bpw', pdBandungId)
+    await expect(readAuthorizedBranchDetail(['pk-itb'])).resolves.toMatchObject(
+      {
+        buatAnak: false
+      }
+    )
+  })
+
   test('membaca hanya Struktur Anak langsung yang terlihat dengan pencarian dan pagination', async () => {
     const [pkTelkom] = await createOrganization({
       name: 'PK Telkom',

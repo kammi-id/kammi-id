@@ -30,6 +30,16 @@ export type BranchDetail = {
   directChildrenTotal: number
   childPage: number
   kemampuan: StrukturKemampuan
+  /**
+   * Whether the caller may create a Struktur Anak directly beneath the Struktur
+   * being viewed — the `buat` cell of the matrix, aimed at the child rather
+   * than at this Struktur.
+   *
+   * It is deliberately **not** a field of `StrukturKemampuan`: that type answers
+   * "what may be done to this row" and is computed per row for twelve cards on
+   * the grid, where "may I create beneath it" is a question nobody asks.
+   */
+  buatAnak: boolean
 }
 
 export type BranchDetailPath = Omit<
@@ -40,6 +50,7 @@ export type BranchDetailPath = Omit<
   | 'directChildrenTotal'
   | 'childPage'
   | 'kemampuan'
+  | 'buatAnak'
 > & {
   actorJenjang: Organization['type']
 }

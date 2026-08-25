@@ -46,13 +46,19 @@ export const BranchDetailView = async ({
     childTotal,
     directChildrenTotal,
     childPage,
-    kemampuan
+    kemampuan,
+    buatAnak
   } = detail
   const nonAktif = organization.state === 'non_aktif'
   const parentSlugs = breadcrumbs.slice(0, -1).map(({ slug }) => slug)
   const basePath = parentSlugs.length
     ? `/dashboard/branches/${parentSlugs.join('/')}`
     : '/dashboard/branches'
+  // Jalur Struktur ini sendiri, bukan induknya. `basePath` di atas menjawab
+  // "kembali ke mana"; yang ini menjawab "di bawah mana yang baru dibuat".
+  const ownPath = `/dashboard/branches/${breadcrumbs
+    .map(({ slug }) => slug)
+    .join('/')}`
   const childLabel =
     organization.type === 'pw'
       ? 'Jumlah PD'
@@ -205,11 +211,15 @@ export const BranchDetailView = async ({
           <MemberSummary data={memberMetrics} />
         </div>
 
-        {directChildrenTotal > 0 && (
+        {(directChildrenTotal > 0 || buatAnak) && (
           <ChildSidebar
             items={children}
             childTotal={childTotal}
+            directChildrenTotal={directChildrenTotal}
             page={childPage}
+            parentOrg={organization}
+            buatAnak={buatAnak}
+            basePath={ownPath}
           />
         )}
       </div>
