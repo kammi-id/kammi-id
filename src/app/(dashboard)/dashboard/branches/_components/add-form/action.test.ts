@@ -2,30 +2,40 @@ import { afterAll, beforeEach, describe, expect, mock, test } from 'bun:test'
 
 let shouldFail = false
 
+// `bun test` runs every file in one process, and `mock.module` replaces a
+// module for the rest of the run — `mock.restore()` does not undo it. Files
+// that execute afterward and need the real `createOrganization`
+// (integration-style DB tests, e.g. reset-password's action.test.ts) would
+// otherwise get this file's fake fixture forever. `useFakeOrganization`
+// keeps the fake only for this file's own describe block, then the mock
+// delegates to the real implementation for every file that runs after.
+let useFakeOrganization = true
+const actualOrganizationQuery = await import('~/db/query/organization')
+// `mock.module` overwrites the module's exports object in place, and the
+// dynamic `import()` above returns a live view of that same object — so
+// referencing `actualOrganizationQuery.createOrganization` from inside the
+// mock below would resolve to the mock itself (infinite recursion). Snapshot
+// the real functions into plain bindings first, before `mock.module` runs.
+const realCreateOrganization = actualOrganizationQuery.createOrganization
+const realUpdateOrganization = actualOrganizationQuery.updateOrganization
+
 mock.module('~/lib/auth/cookies', () => ({
   readActiveSession: async () => ({
     user: { id: 'actor-id', role: 'root', connectedOrganization: null }
   })
 }))
 
-// Sama seperti '~/db/query/organization' di bawah: sebarkan modul asli dulu
-// supaya export lain (mis. `canManageKestrukturan`) tetap ada untuk berkas
-// yang jalan setelah ini dalam proses `bun test` yang sama.
-const actualKestrukturan = await import('~/lib/auth/kestrukturan')
 mock.module('~/lib/auth/kestrukturan', () => ({
-  ...actualKestrukturan,
   requireKestrukturanCreateAccess: async () => null,
   requireKestrukturanManageAccess: async () => null
 }))
 
-// `bun test` runs every file in one process, so `mock.module` replaces
-// '~/db/query/organization' for the rest of the run — spreading the real
-// module keeps exports like `fetchAllowedOrgIds` intact for files that run
-// after this one and import them for real.
-const actualOrganizationQuery = await import('~/db/query/organization')
 mock.module('~/db/query/organization', () => ({
   ...actualOrganizationQuery,
-  createOrganization: async () => {
+  createOrganization: async (
+    ...args: Parameters<typeof actualOrganizationQuery.createOrganization>
+  ) => {
+    if (!useFakeOrganization) return realCreateOrganization(...args)
     if (shouldFail) throw new Error('database failure')
     return [
       {
@@ -41,7 +51,12 @@ mock.module('~/db/query/organization', () => ({
       }
     ]
   },
-  updateOrganization: async () => undefined
+  updateOrganization: async (
+    ...args: Parameters<typeof actualOrganizationQuery.updateOrganization>
+  ) => {
+    if (!useFakeOrganization) return realUpdateOrganization(...args)
+    return undefined
+  }
 }))
 
 mock.module('next/cache', () => ({
@@ -67,12 +82,8 @@ describe('aksi pembuatan Struktur', () => {
     shouldFail = false
   })
 
-  // `shouldFail` hidup di closure mock module yang menimpa
-  // '~/db/query/organization' untuk sisa proses `bun test`. Tanpa reset ini,
-  // berkas lain yang jalan setelah tes "transaksi gagal" mewarisi
-  // `createOrganization` yang selalu melempar 'database failure'.
   afterAll(() => {
-    shouldFail = false
+    useFakeOrganization = false
   })
 
   test('mengembalikan seluruh kredensial awal hanya setelah Struktur berhasil dibuat', async () => {
