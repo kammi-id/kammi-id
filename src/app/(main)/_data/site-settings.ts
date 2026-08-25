@@ -153,11 +153,7 @@ const _cachedGetFooterSettings = async (
 ): Promise<FooterSettings> => {
   'use cache'
   if (!organizationId) return SETTINGS_DEFAULTS.footer
-  return _cachedReadSettings(
-    'footer',
-    SETTINGS_DEFAULTS.footer,
-    organizationId
-  )
+  return _cachedReadSettings('footer', SETTINGS_DEFAULTS.footer, organizationId)
 }
 
 const _cachedGetMetadataSettings = async (

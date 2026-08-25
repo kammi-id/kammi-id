@@ -41,7 +41,9 @@ describe('proxy — tenant routing', () => {
       )
     }
 
-    const res = await proxy(new NextRequest('https://pw-jabar.kammi.id/tentang'))
+    const res = await proxy(
+      new NextRequest('https://pw-jabar.kammi.id/tentang')
+    )
 
     expect(res?.headers.get('x-middleware-rewrite')).toBe(
       'https://pw-jabar.kammi.id/pw-jabar/tentang'
@@ -74,9 +76,8 @@ describe('proxy — tenant routing', () => {
   })
 
   it('resolves PP on the staging deployment host too, not the slug "staging"', async () => {
-    readOrganizationImpl = async () => [
-      { slug: 'kammi' }
-    ] as Awaited<ReturnType<typeof realReadOrganization>>
+    readOrganizationImpl = async () =>
+      [{ slug: 'kammi' }] as Awaited<ReturnType<typeof realReadOrganization>>
 
     const res = await proxy(new NextRequest('https://staging.kammi.id/'))
 
@@ -115,7 +116,9 @@ describe('proxy — tenant routing', () => {
   })
 
   it('blocks the bare internal slug path with no trailing segment too', async () => {
-    const res = await proxy(new NextRequest('https://pw-jabar.kammi.id/pw-jabar'))
+    const res = await proxy(
+      new NextRequest('https://pw-jabar.kammi.id/pw-jabar')
+    )
 
     expect(res?.headers.get('x-middleware-rewrite')).toBe(
       'https://pw-jabar.kammi.id/__internal-path-blocked'
@@ -139,9 +142,7 @@ describe('proxy — tenant routing', () => {
     )
 
     expect(res?.status).toBe(307)
-    expect(res?.headers.get('location')).toBe(
-      'https://pw-jabar.kammi.id/login'
-    )
+    expect(res?.headers.get('location')).toBe('https://pw-jabar.kammi.id/login')
   })
 
   it('leaves /opengraph-image untouched', async () => {

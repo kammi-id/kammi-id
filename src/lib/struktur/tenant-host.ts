@@ -15,7 +15,11 @@ export const ROOT_DOMAIN = 'kammi.id'
  * out for `kammi.id` itself). `localhost` keeps local dev on PP, unchanged
  * from before this ticket.
  */
-const APEX_HOSTS = new Set<string>([ROOT_DOMAIN, 'staging.kammi.id', 'localhost'])
+const APEX_HOSTS = new Set<string>([
+  ROOT_DOMAIN,
+  'staging.kammi.id',
+  'localhost'
+])
 
 export type TenantHostResolution =
   | { kind: 'apex' }

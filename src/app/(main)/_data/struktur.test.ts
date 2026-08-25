@@ -36,9 +36,8 @@ mock.module('next/cache', () => ({
     useFakeNextCache ? undefined : actualNextCache.cacheTag(...args)
 }))
 
-const { resolveStrukturId, resolveStrukturIdFromParams } = await import(
-  './struktur'
-)
+const { resolveStrukturId, resolveStrukturIdFromParams } =
+  await import('./struktur')
 
 afterAll(() => {
   useFakeReadOrganization = false
@@ -49,7 +48,9 @@ describe('resolveStrukturId', () => {
   it('resolves the organization id for a known slug with an active Situs', async () => {
     readOrganizationImpl = async (filters) => {
       expect(filters).toEqual({ slug: 'pp', isSiteActive: true })
-      return [{ id: 'org-1' }] as Awaited<ReturnType<typeof realReadOrganization>>
+      return [{ id: 'org-1' }] as Awaited<
+        ReturnType<typeof realReadOrganization>
+      >
     }
 
     expect(await resolveStrukturId('pp')).toBe('org-1')
@@ -83,9 +84,8 @@ describe('resolveStrukturId', () => {
 
 describe('resolveStrukturIdFromParams', () => {
   it('resolves from a params promise carrying the slug', async () => {
-    readOrganizationImpl = async () => [
-      { id: 'org-2' }
-    ] as Awaited<ReturnType<typeof realReadOrganization>>
+    readOrganizationImpl = async () =>
+      [{ id: 'org-2' }] as Awaited<ReturnType<typeof realReadOrganization>>
 
     const result = await resolveStrukturIdFromParams(
       Promise.resolve({ strukturSlug: 'pp' })
