@@ -12,6 +12,12 @@ export type StrukturRouteParams = Promise<{ strukturSlug: string }>
 // shell can't be prerendered. Swallows DB errors so a database that's
 // unreachable at build time falls back to `null` instead of failing the
 // build — mirrors the guard the old `resolvePPOrgId` had.
+//
+// `isSiteActive: true` folds Situs Aktif into the same lookup that already
+// filters Struktur Terhapus (via `withOrganizationCTE`) — an unknown slug, a
+// Terhapus Struktur, and a Situs that hasn't been switched on all collapse to
+// the same `null`, so `[strukturSlug]/layout.tsx` can answer not-found for
+// all three without knowing which one it was (ticket 02).
 export const resolveStrukturId = async (
   slug: string
 ): Promise<string | null> => {
@@ -20,7 +26,7 @@ export const resolveStrukturId = async (
   cacheTag('struktur-slug', `struktur-slug-${slug}`)
 
   try {
-    const [org] = await readOrganization({ slug })
+    const [org] = await readOrganization({ slug, isSiteActive: true })
     return org?.id ?? null
   } catch {
     return null

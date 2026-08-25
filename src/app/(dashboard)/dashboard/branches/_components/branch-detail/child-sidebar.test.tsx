@@ -25,6 +25,7 @@ const child = {
   type: 'pk',
   level: 4,
   logo: null,
+  isSiteActive: false,
   parentId: '00000000-0000-0000-0000-000000000002',
   isNonActive: false,
   nonActiveAt: null,

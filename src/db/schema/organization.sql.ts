@@ -36,6 +36,16 @@ export const organization = pgTable(
       )
       .notNull(),
     logo: t.text(),
+    /**
+     * Situs Aktif — dinyalakan oleh Humas Struktur itu sendiri, terpisah dari
+     * Keadaan Struktur di bawah (ADR 0012, `CONTEXT.md`). Kolom pada Struktur,
+     * bukan nilai di dalam Pengaturan Situs, supaya ia bisa jadi klausa
+     * penyaring pada query alih-alih disaring setelah baris ditarik.
+     *
+     * Default `false`: Struktur baru berhak atas Situs Struktur tapi belum
+     * memilikinya sampai Humas-nya menyalakan sendiri.
+     */
+    isSiteActive: t.boolean('is_site_active').default(false).notNull(),
     parentId: t
       .uuid('parent_id')
       .references((): AnyPgColumn => organization.id),

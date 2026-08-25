@@ -157,6 +157,13 @@ export type OrganizationFilters = {
   parentId?: string[] | null
   isNonActive?: boolean
   /**
+   * Penanda Situs Aktif (ADR 0012). Pembaca situs publik menyaringnya
+   * langsung di query — `resolveStrukturId` memakainya supaya slug tidak
+   * dikenal, Struktur Terhapus, dan Situs yang belum aktif menghasilkan
+   * baris kosong yang sama, tanpa membocorkan mana yang mana.
+   */
+  isSiteActive?: boolean
+  /**
    * Menyaring Keadaan **di antara yang terlihat**. Terhapus tidak ada di
    * pilihannya: penyaringannya sudah dikerjakan `withOrganizationCTE`, dan
    * menaruhnya di sini akan jadi jalan memutarnya.
@@ -181,12 +188,21 @@ export const createOrganization = async (
   >
 > => {
   return await db.transaction(async (tx) => {
-    const [newOrg] = await tx.insert(organization).values(values).returning({
-      id: organization.id,
-      slug: organization.slug,
-      name: organization.name,
-      type: organization.type
-    })
+    const [newOrg] = await tx
+      .insert(organization)
+      .values({
+        ...values,
+        // PP mendarat dengan Situs Aktif menyala sejak lahir — ADR 0012
+        // menuntut apex tidak pernah bisa mati begitu dibuat, sama seperti
+        // migrasi tiket 02 menyalakannya untuk PP yang sudah ada.
+        ...(values.type === 'pp' ? { isSiteActive: true } : {})
+      })
+      .returning({
+        id: organization.id,
+        slug: organization.slug,
+        name: organization.name,
+        type: organization.type
+      })
 
     const roles: Array<'bph' | 'bpk' | 'bpw' | 'humas' | 'root'> = [
       'bph',
@@ -276,6 +292,8 @@ export const countOrganization = async (
   }
   if (filters.isNonActive !== undefined)
     where.push(eq(withOrganizationCTE.isNonActive, filters.isNonActive))
+  if (filters.isSiteActive !== undefined)
+    where.push(eq(withOrganizationCTE.isSiteActive, filters.isSiteActive))
   if (filters.state)
     where.push(inArray(withOrganizationCTE.state, filters.state))
 
@@ -311,6 +329,8 @@ export const readOrganization = async (
   }
   if (filters.isNonActive !== undefined)
     where.push(eq(withOrganizationCTE.isNonActive, filters.isNonActive))
+  if (filters.isSiteActive !== undefined)
+    where.push(eq(withOrganizationCTE.isSiteActive, filters.isSiteActive))
   if (filters.state)
     where.push(inArray(withOrganizationCTE.state, filters.state))
 
@@ -325,6 +345,7 @@ export const readOrganization = async (
       type: withOrganizationCTE.type,
       level: withOrganizationCTE.level,
       logo: withOrganizationCTE.logo,
+      isSiteActive: withOrganizationCTE.isSiteActive,
       parentId: withOrganizationCTE.parentId,
       isNonActive: withOrganizationCTE.isNonActive,
       nonActiveAt: withOrganizationCTE.nonActiveAt,

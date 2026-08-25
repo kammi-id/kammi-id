@@ -46,9 +46,9 @@ afterAll(() => {
 })
 
 describe('resolveStrukturId', () => {
-  it('resolves the organization id for a known slug', async () => {
+  it('resolves the organization id for a known slug with an active Situs', async () => {
     readOrganizationImpl = async (filters) => {
-      expect(filters).toEqual({ slug: 'pp' })
+      expect(filters).toEqual({ slug: 'pp', isSiteActive: true })
       return [{ id: 'org-1' }] as Awaited<ReturnType<typeof realReadOrganization>>
     }
 
@@ -59,6 +59,17 @@ describe('resolveStrukturId', () => {
     readOrganizationImpl = async () => []
 
     expect(await resolveStrukturId('tidak-ada')).toBeNull()
+  })
+
+  it('returns null for a Struktur whose Situs is not yet active', async () => {
+    // `isSiteActive: true` in the filter is what makes this indistinguishable
+    // from an unknown slug — the fake here mirrors that by returning nothing.
+    readOrganizationImpl = async (filters) => {
+      expect(filters).toEqual({ slug: 'belum-aktif', isSiteActive: true })
+      return []
+    }
+
+    expect(await resolveStrukturId('belum-aktif')).toBeNull()
   })
 
   it('returns null instead of throwing when the database is unavailable', async () => {
