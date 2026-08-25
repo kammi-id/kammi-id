@@ -137,9 +137,15 @@ yang baru dibuat, dan satu-satunya Keadaan yang tidak membatasi apa pun.
 Struktur yang kepengurusannya sedang tidak berjalan. Menyangkut keadaan
 kepengurusan, bukan keadaan Kader di dalamnya. Selama Non-Aktif ia tidak
 mencatat Kader baru, tidak menyelenggarakan Daurah, **Akun kepengurusannya**
-berhenti bisa dipakai, dan situs publiknya berhenti melayani — tapi ia dan
+berhenti bisa dipakai, dan **Situs Strukturnya** berhenti melayani — tapi ia dan
 seluruh isinya tetap terlihat dari dalam dasbor, dan Akun Kader di dalamnya
 tetap hidup.
+
+Berhenti melayani menyangkut situsnya, bukan arsipnya. Beranda dan seluruh
+navigasi Situs Struktur itu hilang, sementara **Permalink** setiap **Berita**
+yang telanjur **Terbit** tetap terbuka, dan Berita itu tetap terbaca lewat
+**Berita Jaringan**. Sebuah kepengurusan yang berhenti tidak membatalkan apa
+yang pernah ia terbitkan.
 
 **Struktur Terhapus**:
 Struktur yang dicabut dari pohon karena tercatat keliru — salah Jenjang,
@@ -239,8 +245,63 @@ _Avoid_: Panitia, Pemateri
 
 ### Publikasi
 
+**Situs Struktur**:
+Wajah publik sebuah Struktur — satu untuk tiap Struktur, di alamatnya sendiri.
+Isinya milik Struktur itu saja; menelusuri Situs Struktur tidak pernah membawa
+pembaca ke isi Struktur lain, kecuali lewat **Berita Jaringan**.
+_Avoid_: Situs publik (tanpa kualifikasi), Microsite, Subsitus
+
+**Situs Aktif**:
+Situs Struktur yang sudah dinyalakan oleh Humas-nya. Setiap Struktur berhak
+atas Situs Struktur, tapi tidak setiap Struktur memilikinya — sebelum
+dinyalakan, alamatnya tidak melayani apa pun. Menyalakan adalah keputusan
+Humas Struktur itu sendiri, bukan restu Struktur di atasnya.
+_Avoid_: Situs terbit, Go-live, Publish situs
+
 **Artikel**:
-Tulisan yang diterbitkan sebuah Struktur ke situs publiknya.
+Tulisan milik sebuah Struktur. Payung untuk dua jenis yang berbeda perlakuan:
+**Berita** dan **Halaman**.
+
+**Berita**:
+Artikel bertanggal yang masuk arsip kronologis sebuah Struktur. Tanggal
+terbitnya bagian dari identitasnya, bukan sekadar metadata — ia menentukan
+letak Berita di dalam arsip dan di dalam **Permalink**-nya.
+_Avoid_: Post, Blog, Kabar
+
+**Halaman**:
+Artikel tak bertanggal yang berdiri sendiri di alamat akar sebuah Situs
+Struktur. Tidak masuk arsip, tidak muncul di **Berita Jaringan**.
+_Avoid_: Halaman statik, Page
+
+**Terbit**:
+Keadaan sebuah Artikel yang sudah boleh dibaca publik. Terbit menuntut dua hal
+sekaligus: Artikel itu dinyatakan terbit, **dan** tanggal terbitnya sudah
+lewat. Artikel bertanggal masa depan sudah dinyatakan, tapi belum Terbit.
+_Avoid_: Published, Live, Tayang
+
+**Diarsipkan**:
+Keadaan sebuah Artikel yang ditarik dari seluruh daftar namun **Permalink**-nya
+tetap terbuka. Mengarsipkan bukan menyangkal bahwa tulisannya pernah ada.
+_Avoid_: Dihapus, Disembunyikan
+
+**Permalink**:
+Alamat tetap sebuah Berita. Satu Berita punya tepat satu Permalink yang sah
+pada satu waktu; alamat lain yang pernah menunjuk padanya tetap mengantar ke
+situ, tidak melayaninya sendiri.
+_Avoid_: URL (sebagai istilah domain), Link berita
+
+**Penulis**:
+Nama orang yang menulis sebuah Berita, dicatat sebagai teks. Bukan Kader dan
+bukan Akun — penulis Berita sering bukan pemegang Akun, dan namanya tetap
+tercantum tanpa bergantung pada data siapa pun.
+_Avoid_: Author, Kontributor, Kader penulis
+
+**Berita Jaringan**:
+Kumpulan Berita dari seluruh Struktur, disusun kronologis dan disajikan hanya
+oleh Situs Struktur milik PP. Satu-satunya permukaan tempat Berita lintas
+Struktur berkumpul; dari sana pembaca selalu dilempar ke Situs Struktur
+penerbitnya.
+_Avoid_: Feed nasional, Agregat berita
 
 **Pengaturan Situs**:
 Konfigurasi tampilan publik milik sebuah Struktur.
