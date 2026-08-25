@@ -71,6 +71,31 @@ export const BranchDetailView = async ({
   const resettableAccounts = resetAccess
     ? await readResettableOrganizationAccounts(organization, resetAccess)
     : null
+  // `hasAction`'nya sendiri hidup di dalam `BranchDetailActions` (client), tapi
+  // keputusan "render section-nya atau tidak" harus dibuat di sini (server),
+  // jadi logikanya digandakan dari sana, bukan dari `Boolean(parent)` saja.
+  const manageAction = parent ? (
+    <BranchDetailActions
+      org={{ ...organization, kemampuan }}
+      parent={parent}
+      basePath={basePath}
+    />
+  ) : null
+  const hasManageAction = parent
+    ? Object.values(kemampuan).some(Boolean)
+    : false
+  const resetAction = resettableAccounts ? (
+    <ResetOrganizationAccount
+      accounts={resettableAccounts}
+      organizationId={organization.id}
+      organizationName={organization.name}
+    />
+  ) : null
+  const showChildSidebar =
+    directChildrenTotal > 0 ||
+    buatAnak ||
+    hasManageAction ||
+    Boolean(resettableAccounts)
 
   return (
     <div className='flex flex-col gap-8 px-4 py-4 md:py-6 lg:px-6'>
@@ -150,20 +175,6 @@ export const BranchDetailView = async ({
               ) : (
                 <StrukturAktifBadge />
               )}
-              {parent && (
-                <BranchDetailActions
-                  org={{ ...organization, kemampuan }}
-                  parent={parent}
-                  basePath={basePath}
-                />
-              )}
-              {resettableAccounts && (
-                <ResetOrganizationAccount
-                  accounts={resettableAccounts}
-                  organizationId={organization.id}
-                  organizationName={organization.name}
-                />
-              )}
             </div>
             <div>
               <h1 className='font-heading text-3xl font-bold tracking-tight sm:text-4xl'>
@@ -211,7 +222,7 @@ export const BranchDetailView = async ({
           <MemberSummary data={memberMetrics} />
         </div>
 
-        {(directChildrenTotal > 0 || buatAnak) && (
+        {showChildSidebar && (
           <ChildSidebar
             items={children}
             childTotal={childTotal}
@@ -220,6 +231,8 @@ export const BranchDetailView = async ({
             parentOrg={organization}
             buatAnak={buatAnak}
             basePath={ownPath}
+            manageAction={manageAction}
+            resetAction={resetAction}
           />
         )}
       </div>

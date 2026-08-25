@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '~/components/shadcn/ui/button'
 import {
@@ -38,6 +38,10 @@ type ChildSidebarProps = {
    */
   buatAnak: boolean
   basePath: string
+  /** Slot dari server: tombol "Kelola Struktur", sudah digate oleh `kemampuan`. */
+  manageAction?: ReactNode
+  /** Slot dari server: tombol "Reset Password", sudah digate oleh akses reset. */
+  resetAction?: ReactNode
 }
 
 export const ChildSidebar = ({
@@ -47,7 +51,9 @@ export const ChildSidebar = ({
   page,
   parentOrg,
   buatAnak,
-  basePath
+  basePath,
+  manageAction,
+  resetAction
 }: ChildSidebarProps) => {
   const pathname = usePathname()
   const router = useRouter()
@@ -62,6 +68,11 @@ export const ChildSidebar = ({
   // yang cocok" sebelum pengguna mengetik apa pun itu kalimat yang keliru: yang
   // dibutuhkan di sana bukan kata kunci lain, melainkan Struktur Anak pertama.
   const belumAdaAnak = directChildrenTotal === 0
+  // "Struktur Anak" tetap dipakai sebagai fallback untuk Jenjang tanpa anak
+  // (mis. PK); dalam praktiknya kartu ini tidak pernah dirender untuk kasus
+  // itu karena `showChildSidebar` sudah menyaring di pemanggil.
+  const jenjangAnak = labelJenjangAnak(parentOrg.type)
+  const daftarLabel = jenjangAnak ? `Daftar ${jenjangAnak}` : 'Struktur Anak'
 
   useEffect(() => {
     setSearch(query)
@@ -96,7 +107,7 @@ export const ChildSidebar = ({
     <aside className='xl:sticky xl:top-6 xl:self-start'>
       <Card>
         <CardHeader>
-          <CardTitle>Struktur Anak</CardTitle>
+          <CardTitle>{daftarLabel}</CardTitle>
           <CardDescription>
             Navigasi langsung ke Struktur di bawahnya.
           </CardDescription>
@@ -127,7 +138,7 @@ export const ChildSidebar = ({
                   strokeWidth={2}
                   data-icon='inline-start'
                 />
-                Tambah {labelJenjangAnak(parentOrg.type)}
+                Tambah {jenjangAnak}
               </Button>
             )}
           </div>
@@ -185,6 +196,21 @@ export const ChildSidebar = ({
         </CardContent>
       </Card>
 
+      {(manageAction || resetAction) && (
+        <Card className='mt-4'>
+          <CardHeader>
+            <CardTitle>Kelola Struktur</CardTitle>
+            <CardDescription>
+              Kelola data dan Akun Kepengurusan Struktur ini.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className='flex flex-wrap gap-2'>
+            {manageAction}
+            {resetAction}
+          </CardContent>
+        </Card>
+      )}
+
       {/*
         Tidak ada `router.refresh()` di sini, dan itu disengaja: aksi
         `createOrganizationAction` memanggil `revalidatePath('/dashboard/branches',
@@ -199,7 +225,7 @@ export const ChildSidebar = ({
           isOpen={isAddOpen}
           onOpenChange={setIsAddOpen}
           editData={null}
-          addButtonLabel={labelJenjangAnak(parentOrg.type)}
+          addButtonLabel={jenjangAnak}
           parentOrg={parentOrg}
           basePath={basePath}
         />
