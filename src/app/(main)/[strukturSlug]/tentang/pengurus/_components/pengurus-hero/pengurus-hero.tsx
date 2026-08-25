@@ -2,8 +2,13 @@ import { getLeadershipSettings } from '~/app/(main)/_data/site-settings'
 import { resolveSiteImage } from '~/lib/utils/site-image'
 import { PengurusHeroClient } from './pengurus-hero-client'
 
-export const PengurusHero = async () => {
-  const { periodLabel, heading, triumvirate } = await getLeadershipSettings()
+type PengurusHeroProps = {
+  organizationId: string | null
+}
+
+export const PengurusHero = async ({ organizationId }: PengurusHeroProps) => {
+  const { periodLabel, heading, triumvirate } =
+    await getLeadershipSettings(organizationId)
 
   const hasContent = [
     triumvirate.ketua,

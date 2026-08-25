@@ -2,8 +2,12 @@ import Image from 'next/image'
 import { getHomeExtraItemsSettings } from '~/app/(main)/_data/site-settings'
 import { resolveSiteImage } from '~/lib/utils/site-image'
 
-export const ExtraSection = async () => {
-  const { items } = await getHomeExtraItemsSettings()
+type ExtraSectionProps = {
+  organizationId: string | null
+}
+
+export const ExtraSection = async ({ organizationId }: ExtraSectionProps) => {
+  const { items } = await getHomeExtraItemsSettings(organizationId)
   if (!items.length) return null
 
   const resolved = await Promise.all(

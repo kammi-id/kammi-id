@@ -7,8 +7,12 @@ import { getNavSettings } from '~/app/(main)/_data/site-settings'
 import { NavLinks } from './nav-links'
 import { MobileNav } from './mobile-nav'
 
-export const Navbar = async () => {
-  const nav = await getNavSettings()
+type NavbarProps = {
+  organizationId: string | null
+}
+
+export const Navbar = async ({ organizationId }: NavbarProps) => {
+  const nav = await getNavSettings(organizationId)
 
   return (
     <header className='border-border/60 bg-background/95 sticky top-0 z-50 w-full border-b backdrop-blur-sm'>

@@ -2,8 +2,14 @@ import { getLeadershipSettings } from '~/app/(main)/_data/site-settings'
 import { resolveSiteImage } from '~/lib/utils/site-image'
 import { LeadersDirectoryClient } from './leaders-directory-client'
 
-export const LeadersDirectory = async () => {
-  const { leaderBlocks, leaders } = await getLeadershipSettings()
+type LeadersDirectoryProps = {
+  organizationId: string | null
+}
+
+export const LeadersDirectory = async ({
+  organizationId
+}: LeadersDirectoryProps) => {
+  const { leaderBlocks, leaders } = await getLeadershipSettings(organizationId)
 
   const hasBlocks = leaderBlocks.length > 0
   const hasFlatLeaders = !hasBlocks && leaders.length > 0

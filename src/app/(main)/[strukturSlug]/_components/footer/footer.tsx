@@ -3,9 +3,13 @@ import Image from 'next/image'
 import Logo from '~/assets/logo-header.png'
 import { getFooterSettings } from '~/app/(main)/_data/site-settings'
 
-export const Footer = async () => {
+type FooterProps = {
+  organizationId: string | null
+}
+
+export const Footer = async ({ organizationId }: FooterProps) => {
   'use cache'
-  const footer = await getFooterSettings()
+  const footer = await getFooterSettings(organizationId)
 
   const FOOTER_LINKS = {
     KAMMI: footer.footerKAMMI,

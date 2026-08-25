@@ -12,20 +12,7 @@ import {
   type HomeHeroItemsSettings,
   type HomeExtraItemsSettings
 } from '~/db/query/site-settings'
-import { readOrganizationIdByType } from '~/db/query/organization'
 import { resolveSiteImage } from '~/lib/utils/site-image'
-
-// Cached DB lookup — all site-settings functions that call this must themselves
-// be wrapped in 'use cache' at the call site (e.g. Footer, PengurusHero, etc.)
-// This ensures the entire chain is cached during prerendering.
-// Returns null on DB error or if no PP org exists (e.g. during Docker build).
-const resolvePPOrgId = async (): Promise<string | null> => {
-  try {
-    return await readOrganizationIdByType('pp')
-  } catch {
-    return null
-  }
-}
 
 // Generic cached reader — only called when orgId is known to be valid.
 // Cache is keyed by (key, orgId) so different org IDs are isolated.
@@ -81,50 +68,56 @@ const _cachedTentangSettings = async (
 }
 
 // All public getter functions wrap their implementation with 'use cache' to ensure
-// the entire data-fetching chain (including resolvePPOrgId) is cached during prerendering.
-// This satisfies Next.js 16's requirement that all async operations inside Server Components
+// the entire data-fetching chain is cached during prerendering. This satisfies
+// Next.js 16's requirement that all async operations inside Server Components
 // and generateMetadata must be wrapped in 'use cache'.
+//
+// Each getter takes the Struktur's organization id as an argument — callers
+// resolve it (e.g. via `resolveStrukturId`) rather than this module resolving
+// PP internally, so the same reader works for any Struktur.
 
-const _cachedGetHomeHeroItemsSettings =
-  async (): Promise<HomeHeroItemsSettings> => {
-    'use cache'
-    const orgId = await resolvePPOrgId()
-    if (!orgId) return SETTINGS_DEFAULTS.homeHeroItems
-    return _cachedReadSettings(
-      'home-hero-items',
-      SETTINGS_DEFAULTS.homeHeroItems,
-      orgId
-    )
-  }
-
-const _cachedGetHomeExtraItemsSettings =
-  async (): Promise<HomeExtraItemsSettings> => {
-    'use cache'
-    const orgId = await resolvePPOrgId()
-    if (!orgId) return SETTINGS_DEFAULTS.homeExtraItems
-    return _cachedReadSettings(
-      'home-extra-items',
-      SETTINGS_DEFAULTS.homeExtraItems,
-      orgId
-    )
-  }
-
-const _cachedGetAboutSettings = async (): Promise<AboutSettings> => {
+const _cachedGetHomeHeroItemsSettings = async (
+  organizationId: string | null
+): Promise<HomeHeroItemsSettings> => {
   'use cache'
-  const orgId = await resolvePPOrgId()
-  if (!orgId) return SETTINGS_DEFAULTS.about
-  return _cachedReadSettings('about', SETTINGS_DEFAULTS.about, orgId)
+  if (!organizationId) return SETTINGS_DEFAULTS.homeHeroItems
+  return _cachedReadSettings(
+    'home-hero-items',
+    SETTINGS_DEFAULTS.homeHeroItems,
+    organizationId
+  )
 }
 
-const _cachedGetLeadershipSettings = async (): Promise<LeadershipSettings> => {
+const _cachedGetHomeExtraItemsSettings = async (
+  organizationId: string | null
+): Promise<HomeExtraItemsSettings> => {
   'use cache'
-  const orgId = await resolvePPOrgId()
+  if (!organizationId) return SETTINGS_DEFAULTS.homeExtraItems
+  return _cachedReadSettings(
+    'home-extra-items',
+    SETTINGS_DEFAULTS.homeExtraItems,
+    organizationId
+  )
+}
+
+const _cachedGetAboutSettings = async (
+  organizationId: string | null
+): Promise<AboutSettings> => {
+  'use cache'
+  if (!organizationId) return SETTINGS_DEFAULTS.about
+  return _cachedReadSettings('about', SETTINGS_DEFAULTS.about, organizationId)
+}
+
+const _cachedGetLeadershipSettings = async (
+  organizationId: string | null
+): Promise<LeadershipSettings> => {
+  'use cache'
   const d = SETTINGS_DEFAULTS.leadership
-  if (!orgId) return d
+  if (!organizationId) return d
   const raw = await _cachedReadSettings<Partial<LeadershipSettings>>(
     'leadership',
     d,
-    orgId
+    organizationId
   )
   return {
     periodLabel: raw.periodLabel ?? d.periodLabel,
@@ -135,39 +128,56 @@ const _cachedGetLeadershipSettings = async (): Promise<LeadershipSettings> => {
   }
 }
 
-const _cachedGetActionsSettings = async (): Promise<ActionsSettings> => {
+const _cachedGetActionsSettings = async (
+  organizationId: string | null
+): Promise<ActionsSettings> => {
   'use cache'
-  const orgId = await resolvePPOrgId()
-  if (!orgId) return SETTINGS_DEFAULTS.actions
-  return _cachedReadSettings('actions', SETTINGS_DEFAULTS.actions, orgId)
+  if (!organizationId) return SETTINGS_DEFAULTS.actions
+  return _cachedReadSettings(
+    'actions',
+    SETTINGS_DEFAULTS.actions,
+    organizationId
+  )
 }
 
-const _cachedGetNavSettings = async (): Promise<NavSettings> => {
+const _cachedGetNavSettings = async (
+  organizationId: string | null
+): Promise<NavSettings> => {
   'use cache'
-  const orgId = await resolvePPOrgId()
-  if (!orgId) return SETTINGS_DEFAULTS.nav
-  return _cachedReadSettings('nav', SETTINGS_DEFAULTS.nav, orgId)
+  if (!organizationId) return SETTINGS_DEFAULTS.nav
+  return _cachedReadSettings('nav', SETTINGS_DEFAULTS.nav, organizationId)
 }
 
-const _cachedGetFooterSettings = async (): Promise<FooterSettings> => {
+const _cachedGetFooterSettings = async (
+  organizationId: string | null
+): Promise<FooterSettings> => {
   'use cache'
-  const orgId = await resolvePPOrgId()
-  if (!orgId) return SETTINGS_DEFAULTS.footer
-  return _cachedReadSettings('footer', SETTINGS_DEFAULTS.footer, orgId)
+  if (!organizationId) return SETTINGS_DEFAULTS.footer
+  return _cachedReadSettings(
+    'footer',
+    SETTINGS_DEFAULTS.footer,
+    organizationId
+  )
 }
 
-const _cachedGetMetadataSettings = async (): Promise<MetadataSettings> => {
+const _cachedGetMetadataSettings = async (
+  organizationId: string | null
+): Promise<MetadataSettings> => {
   'use cache'
-  const orgId = await resolvePPOrgId()
-  if (!orgId) return SETTINGS_DEFAULTS.metadata
-  return _cachedReadSettings('metadata', SETTINGS_DEFAULTS.metadata, orgId)
+  if (!organizationId) return SETTINGS_DEFAULTS.metadata
+  return _cachedReadSettings(
+    'metadata',
+    SETTINGS_DEFAULTS.metadata,
+    organizationId
+  )
 }
 
-const _cachedGetTentangSettings = async (): Promise<TentangSettings> => {
+const _cachedGetTentangSettings = async (
+  organizationId: string | null
+): Promise<TentangSettings> => {
   'use cache'
-  const orgId = await resolvePPOrgId()
-  if (!orgId) return SETTINGS_DEFAULTS.tentang
-  return _cachedTentangSettings(orgId)
+  if (!organizationId) return SETTINGS_DEFAULTS.tentang
+  return _cachedTentangSettings(organizationId)
 }
 
 export const getHomeHeroItemsSettings = _cachedGetHomeHeroItemsSettings

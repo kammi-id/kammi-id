@@ -630,17 +630,6 @@ export const isOrgInScope = async (
   return allowedIds.includes(targetOrgId)
 }
 
-export const readOrganizationIdByType = async (
-  type: 'pp' | 'pw' | 'pdln' | 'pd' | 'pk'
-): Promise<string | null> => {
-  const rows = await db
-    .select({ id: organization.id })
-    .from(organization)
-    .where(and(eq(organization.type, type), isNull(organization.deletedAt)))
-    .limit(1)
-  return rows[0]?.id ?? null
-}
-
 /**
  * Walks `parent_id` upward. The chain **stops at a Terhapus ancestor** rather
  * than stepping over it: a breadcrumb that skipped the gap would state a

@@ -12,8 +12,7 @@ import {
   fetchAllowedOrgIds,
   readDeletedOrganizations,
   readOrgHierarchyChain,
-  readOrganization,
-  readOrganizationIdByType
+  readOrganization
 } from '~/db/query/organization'
 import { readDescendantMembers, readMemberAggregates } from '~/db/query/member'
 import { trainingQuery } from '~/db/query/training'
@@ -285,7 +284,7 @@ describe('Invarian lapisan baca Struktur', () => {
       expect(chain.map((n) => n.id)).toEqual([pkYatim.id])
     })
 
-    it('tidak memilih Struktur Terhapus di readOrganizationIdByType', async () => {
+    it('tidak memilih Struktur Terhapus lewat filter type', async () => {
       const soloTerhapus = await insertOrg({
         name: `PK Solo ${suffix}`,
         type: 'pk',
@@ -294,7 +293,8 @@ describe('Invarian lapisan baca Struktur', () => {
       })
       orgIds.unshift(soloTerhapus.id)
 
-      expect(await readOrganizationIdByType('pk')).not.toBe(soloTerhapus.id)
+      const [found] = await readOrganization({ type: ['pk'], limit: 1 })
+      expect(found?.id).not.toBe(soloTerhapus.id)
     })
   })
 

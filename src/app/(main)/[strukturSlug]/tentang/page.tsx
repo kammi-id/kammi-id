@@ -3,6 +3,10 @@ import Link from 'next/link'
 import { TentangScene } from './_components/tentang-scene'
 import { SectionNav } from './_components/section-nav'
 import { getTentangSettings } from '~/app/(main)/_data/site-settings'
+import {
+  resolveStrukturIdFromParams,
+  type StrukturRouteParams
+} from '~/app/(main)/_data/struktur'
 import { buildBreadcrumb } from '~/lib/seo'
 
 export const metadata: Metadata = {
@@ -16,8 +20,13 @@ export const metadata: Metadata = {
   }
 }
 
-const TentangPage = async () => {
-  const settings = await getTentangSettings()
+type TentangPageProps = {
+  params: StrukturRouteParams
+}
+
+const TentangPage = async ({ params }: TentangPageProps) => {
+  const orgId = await resolveStrukturIdFromParams(params)
+  const settings = await getTentangSettings(orgId)
 
   return (
     <>

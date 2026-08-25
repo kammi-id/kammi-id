@@ -4,6 +4,10 @@ import Link from 'next/link'
 import { PengurusHero } from './_components/pengurus-hero'
 import { LeadersDirectory } from './_components/leaders-directory'
 import { ScrollProgress } from './_components/scroll-progress'
+import {
+  resolveStrukturIdFromParams,
+  type StrukturRouteParams
+} from '~/app/(main)/_data/struktur'
 import { buildBreadcrumb } from '~/lib/seo'
 
 export const metadata: Metadata = {
@@ -66,7 +70,13 @@ const DirectorySkeleton = () => (
   </div>
 )
 
-const PengurusPage = () => {
+type PengurusPageProps = {
+  params: StrukturRouteParams
+}
+
+const PengurusPage = async ({ params }: PengurusPageProps) => {
+  const orgId = await resolveStrukturIdFromParams(params)
+
   return (
     <>
       <script
@@ -103,11 +113,11 @@ const PengurusPage = () => {
       </nav>
 
       <Suspense fallback={<LeadershipSkeleton />}>
-        <PengurusHero />
+        <PengurusHero organizationId={orgId} />
       </Suspense>
 
       <Suspense fallback={<DirectorySkeleton />}>
-        <LeadersDirectory />
+        <LeadersDirectory organizationId={orgId} />
       </Suspense>
     </>
   )

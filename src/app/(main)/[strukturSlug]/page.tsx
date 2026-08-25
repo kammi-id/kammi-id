@@ -1,17 +1,28 @@
 import type { Metadata } from 'next'
-import { getMetadataSettings } from './_data/site-settings'
+import { getMetadataSettings } from '../_data/site-settings'
 import {
   getHomeHeroItemsSettings,
   getAboutSettings,
   getLeadershipSettings
-} from './_data/site-settings'
-import { getNetworkStats, getPWOrganizations } from './_data/network'
+} from '../_data/site-settings'
+import { getNetworkStats, getPWOrganizations } from '../_data/network'
+import {
+  resolveStrukturIdFromParams,
+  type StrukturRouteParams
+} from '../_data/struktur'
 import { resolveSiteImage } from '~/lib/utils/site-image'
 import { HomeScene } from './_components/home-scene'
 import { ExtraSection } from './_components/extra-section'
 
-export const generateMetadata = async (): Promise<Metadata> => {
-  const meta = await getMetadataSettings()
+type PageProps = {
+  params: StrukturRouteParams
+}
+
+export const generateMetadata = async ({
+  params
+}: PageProps): Promise<Metadata> => {
+  const orgId = await resolveStrukturIdFromParams(params)
+  const meta = await getMetadataSettings(orgId)
   return {
     title: { absolute: meta.pageTitle },
     description: meta.metaDescription,
@@ -35,13 +46,15 @@ export const generateMetadata = async (): Promise<Metadata> => {
   }
 }
 
-const Page = async () => {
+const Page = async ({ params }: PageProps) => {
+  const orgId = await resolveStrukturIdFromParams(params)
+
   // ── Fetch all scene data in parallel ──────────────────────────────────────
   const [heroSettings, about, leadership, networkStats, pwOrgs] =
     await Promise.all([
-      getHomeHeroItemsSettings(),
-      getAboutSettings(),
-      getLeadershipSettings(),
+      getHomeHeroItemsSettings(orgId),
+      getAboutSettings(orgId),
+      getLeadershipSettings(orgId),
       // Network data: graceful fallback if DB is unavailable
       getNetworkStats().catch(() => ({
         wilayah: 0,
@@ -96,7 +109,7 @@ const Page = async () => {
         networkStats={networkStats}
         pwOrgs={pwOrgs}
       />
-      <ExtraSection />
+      <ExtraSection organizationId={orgId} />
     </>
   )
 }
