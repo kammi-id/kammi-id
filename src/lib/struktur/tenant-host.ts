@@ -39,6 +39,21 @@ export type TenantHostResolution =
  * (bare IP, a preview deployment domain, a health check) rather than turning
  * an unfamiliar Host into a 404.
  */
+/**
+ * Kebalikan `resolveTenantHost`: dari sebuah Struktur ke `Host` yang
+ * melayaninya — dipakai metadata SEO (Open Graph Berita, ADR 0012) yang
+ * butuh URL absolut pada host Struktur yang **benar**, bukan host request
+ * yang sedang menjawab (yang sudah di-rewrite proxy dan tidak lagi
+ * mencerminkan subdomain aslinya di sisi Server Component).
+ *
+ * PP melayani dari apex, sama seperti `resolveTenantHost` mengarahkan apex
+ * ke slug PP sesungguhnya — sisi baliknya di sini adalah tipe `'pp'`.
+ */
+export const resolveStrukturHost = (org: {
+  type: string
+  slug: string
+}): string => (org.type === 'pp' ? ROOT_DOMAIN : `${org.slug}.${ROOT_DOMAIN}`)
+
 export const resolveTenantHost = (hostname: string): TenantHostResolution => {
   const host = hostname.toLowerCase()
 

@@ -31,6 +31,10 @@ import {
   type ArticleStatus
 } from '../_constants'
 import { createArticleAction, updateArticleAction } from './action'
+import {
+  publishedAtToWibWallClock,
+  wibWallClockToPublishedAt
+} from '~/lib/publikasi/tanggal-terbit'
 
 export type ArticleFormCategory = { id: string; name: string }
 
@@ -56,16 +60,18 @@ interface ArticleFormProps {
 
 const NO_CATEGORY = '__none__'
 
-// Convert an ISO string into the value shape a datetime-local input expects
-// ("YYYY-MM-DDTHH:mm"), using the local timezone.
+// Convert a stored `publishedAt` ISO string into the value shape a
+// datetime-local input expects ("YYYY-MM-DDTHH:mm") — as Asia/Jakarta wall
+// clock, via the ADR 0014 centralized helper. NOT the browser's local
+// timezone: this form is filled by a Humas who means "jam 6 pagi WIB" no
+// matter what timezone their OS happens to be set to, and `getFullYear()`/
+// `getHours()` (local getters) would silently reinterpret the stored WIB
+// digits through whatever timezone the browser runs in.
 const toDatetimeLocal = (iso?: string | null): string => {
   if (!iso) return ''
   const date = new Date(iso)
   if (Number.isNaN(date.getTime())) return ''
-  const pad = (n: number) => String(n).padStart(2, '0')
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(
-    date.getDate()
-  )}T${pad(date.getHours())}:${pad(date.getMinutes())}`
+  return publishedAtToWibWallClock(date)
 }
 
 export const ArticleForm = ({
@@ -105,8 +111,16 @@ export const ArticleForm = ({
     e.preventDefault()
     setErrors({})
 
+    // `publishedAt` di sini adalah nilai mentah `<input type="datetime-local">`
+    // — jam dinding WIB tanpa info zona sama sekali, BUKAN waktu lokal
+    // browser. `wibWallClockToPublishedAt` menaruh digitnya langsung ke slot
+    // UTC (bukan mengonversi lewat zona waktu proses), meniru cara driver
+    // basis data membaca `published_at` (ADR 0014, `tanggal-terbit.ts`) —
+    // itulah bug yang persis diperingatkan ADR itu: `new Date(publishedAt)`
+    // lama membaca string tanpa-zona sebagai waktu lokal, menggeser jam
+    // terbit sebesar offset WIB.
     const isoPublishedAt = publishedAt
-      ? new Date(publishedAt).toISOString()
+      ? (wibWallClockToPublishedAt(publishedAt)?.toISOString() ?? undefined)
       : undefined
 
     const payload = {

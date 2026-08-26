@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'bun:test'
-import { resolveTenantHost } from './tenant-host'
+import { resolveTenantHost, resolveStrukturHost } from './tenant-host'
 
 describe('resolveTenantHost', () => {
   it('reads the apex domain as apex', () => {
@@ -43,5 +43,17 @@ describe('resolveTenantHost', () => {
     expect(resolveTenantHost('kammi.id.evil.example')).toEqual({
       kind: 'apex'
     })
+  })
+})
+
+describe('resolveStrukturHost', () => {
+  it('resolves a non-PP Struktur to its <slug>.kammi.id subdomain', () => {
+    expect(resolveStrukturHost({ type: 'pw', slug: 'pw-jabar' })).toBe(
+      'pw-jabar.kammi.id'
+    )
+  })
+
+  it('resolves PP to the apex, not "pp.kammi.id"', () => {
+    expect(resolveStrukturHost({ type: 'pp', slug: 'pp' })).toBe('kammi.id')
   })
 })
