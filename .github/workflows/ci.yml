@@ -60,6 +60,9 @@ jobs:
       - name: Run Unit Tests
         run: bun test
 
+      - name: Seed Database for E2E
+        run: bun src/scripts/seed-pp-minimal.ts
+
       - name: Install Playwright Browsers
         run: bunx playwright install --with-deps
 
