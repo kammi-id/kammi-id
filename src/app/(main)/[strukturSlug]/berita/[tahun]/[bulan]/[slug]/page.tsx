@@ -159,6 +159,12 @@ const BeritaDetailPage = async ({ params }: BeritaDetailPageProps) => {
         <time dateTime={toWibIsoString(articleRow.publishedAt)}>
           {formatTanggalTerbit(articleRow.publishedAt)}
         </time>
+        {articleRow.penulis && (
+          <>
+            <span aria-hidden='true'>&middot;</span>
+            <span>{articleRow.penulis}</span>
+          </>
+        )}
         <span aria-hidden='true'>&middot;</span>
         <span>{org.name}</span>
       </div>

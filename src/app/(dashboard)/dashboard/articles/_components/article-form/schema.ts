@@ -17,6 +17,7 @@ export const ArticleInputSchema = z
       ),
     body: z.unknown(),
     featuredImage: z.string().optional(),
+    penulis: z.string().optional(),
     status: z.enum(['draft', 'published', 'archived']),
     tags: z.array(z.string()).default([]),
     categoryId: z.string().uuid().optional(),

@@ -19,6 +19,10 @@ export const article = pgTable(
     slug: t.text().notNull(),
     body: t.jsonb().notNull(),
     featuredImage: t.text('featured_image'),
+    // Nama Penulis (CONTEXT.md): teks bebas, BUKAN rujukan ke Member/Akun —
+    // penulis Berita sering bukan pemegang Akun. Nullable: artikel lama dan
+    // Halaman (yang tidak wajib punya Penulis) tidak punya nilai di sini.
+    penulis: t.text(),
     publishedAt: t.timestamp('published_at'),
     status: t
       .text({ enum: ['draft', 'published', 'archived'] })

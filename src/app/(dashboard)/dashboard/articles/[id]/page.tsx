@@ -64,6 +64,7 @@ const EditArticlePage = async ({ params }: EditArticlePageProps) => {
             slug: existing.slug,
             body: existing.body as ArticleBodyJSON,
             featuredImage: existing.featuredImage,
+            penulis: existing.penulis,
             status: existing.status,
             tags: existing.tags,
             categoryId: existing.categoryId,

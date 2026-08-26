@@ -45,6 +45,7 @@ export type ArticleFormInitial = {
   slug: string
   body: ArticleBodyJSON
   featuredImage?: string | null
+  penulis?: string | null
   status: ArticleStatus
   tags: string[]
   categoryId?: string | null
@@ -93,6 +94,7 @@ export const ArticleForm = ({
   const [featuredImage, setFeaturedImage] = useState(
     initial?.featuredImage ?? ''
   )
+  const [penulis, setPenulis] = useState(initial?.penulis ?? '')
   const [categoryId, setCategoryId] = useState(
     initial?.categoryId ?? NO_CATEGORY
   )
@@ -130,6 +132,7 @@ export const ArticleForm = ({
       slug,
       body,
       featuredImage: featuredImage || undefined,
+      penulis: penulis || undefined,
       status,
       tags,
       categoryId: categoryId === NO_CATEGORY ? undefined : categoryId,
@@ -208,6 +211,20 @@ export const ArticleForm = ({
               className='w-64'
             />
             <FieldError errors={fieldErrors('publishedAt')} />
+          </Field>
+        )}
+
+        {type === 'blog' && (
+          <Field data-invalid={Boolean(fieldErrors('penulis')) || undefined}>
+            <FieldLabel htmlFor='article-penulis'>Penulis</FieldLabel>
+            <Input
+              id='article-penulis'
+              value={penulis}
+              onChange={(e) => setPenulis(e.target.value)}
+              placeholder='Nama penulis (opsional)'
+              aria-invalid={Boolean(fieldErrors('penulis')) || undefined}
+            />
+            <FieldError errors={fieldErrors('penulis')} />
           </Field>
         )}
 
