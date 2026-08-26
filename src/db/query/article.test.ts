@@ -145,6 +145,80 @@ describe('articleQuery.getBlogArticleBySlug', () => {
 })
 
 /**
+ * Ticket 09 (Halaman beralamat akar). Fixture bersufiks, dibereskan sendiri,
+ * mengikuti preseden `getBlogArticleBySlug` di atas.
+ */
+describe('articleQuery.getPageArticleBySlug', () => {
+  const suffix = Date.now().toString(36)
+  const orgIds: string[] = []
+  const articleIds: string[] = []
+  let orgId: string
+
+  beforeAll(async () => {
+    const [row] = await db
+      .insert(organization)
+      .values({
+        name: `Halaman Query Org ${suffix}`,
+        slug: `halaman-query-org-${suffix}`,
+        code: `HQO-${suffix}`,
+        type: 'pk',
+        parentId: null,
+        isNonActive: false,
+        deletedAt: null
+      })
+      .returning({ id: organization.id })
+    orgId = row.id
+    orgIds.push(orgId)
+  })
+
+  afterAll(async () => {
+    if (articleIds.length > 0)
+      await db.delete(article).where(inArray(article.id, articleIds))
+    await db.delete(organization).where(inArray(organization.id, orgIds))
+  })
+
+  it('menemukan Halaman lewat slug di organisasinya', async () => {
+    const slug = `tentang-kami-${suffix}`
+    const [row] = await db
+      .insert(article)
+      .values({
+        organizationId: orgId,
+        type: 'page',
+        title: 'Tentang Kami',
+        slug,
+        body: { type: 'doc', content: [] },
+        status: 'published'
+      })
+      .returning()
+    articleIds.push(row.id)
+
+    const found = await articleQuery.getPageArticleBySlug(orgId, slug)
+    expect(found?.slug).toBe(slug)
+    expect(found?.type).toBe('page')
+  })
+
+  it('tidak menemukan Berita (type blog) dengan slug yang sama', async () => {
+    const slug = `berita-bukan-halaman-${suffix}`
+    const [row] = await db
+      .insert(article)
+      .values({
+        organizationId: orgId,
+        type: 'blog',
+        title: 'Judul Berita',
+        slug,
+        body: { type: 'doc', content: [] },
+        status: 'published',
+        publishedAt: new Date()
+      })
+      .returning()
+    articleIds.push(row.id)
+
+    const found = await articleQuery.getPageArticleBySlug(orgId, slug)
+    expect(found).toBeUndefined()
+  })
+})
+
+/**
  * Ticket 03, spec "Aktivasi Situs", CONTEXT.md "Terbit". Fixture-nya
  * bersufiks dan dibereskan sendiri tanpa `TRUNCATE`, mengikuti preseden
  * `struktur-keadaan/action.test.ts` — banyak berkas tes lain berebut tabel

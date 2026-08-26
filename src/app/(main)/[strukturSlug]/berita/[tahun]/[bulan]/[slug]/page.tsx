@@ -15,7 +15,7 @@ import {
   formatTanggalTerbit,
   toWibIsoString
 } from '~/lib/publikasi/tanggal-terbit'
-import { ArticleBodyRenderer } from './_components/article-body-renderer'
+import { ArticleBodyRenderer } from '~/components/article-body-renderer'
 import { resolvePermalinkBerita } from './_components/_permalink-berita'
 
 // Halaman ini WAJIB dinamis (request-time), bukan statik: badan tulisan

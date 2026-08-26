@@ -161,6 +161,27 @@ export const articleQuery = {
     return row
   },
 
+  // Ticket 09 (Halaman beralamat akar). Mirip `getBlogArticleBySlug` di atas
+  // tapi menyaring `type: 'page'` — Halaman tidak bertanggal, jadi tidak ada
+  // gerbang Terbit berbasis tanggal untuk diterapkan di sini. Draft/archived
+  // tetap ikut terbaca; pemanggil (halaman Permalink Halaman) menyaringnya
+  // lewat `resolvePermalinkHalaman` sebelum merender apa pun ke publik.
+  getPageArticleBySlug: async (organizationId: string, slug: string) => {
+    const [row] = await db
+      .select()
+      .from(article)
+      .where(
+        and(
+          eq(article.organizationId, organizationId),
+          eq(article.slug, slug),
+          eq(article.type, 'page'),
+          organizationNotDeleted(article.organizationId)
+        )
+      )
+      .limit(1)
+    return row
+  },
+
   listDistinctTags: async (organizationId: string): Promise<string[]> => {
     const result = await db.execute(sql`
       SELECT DISTINCT unnest(${article.tags}) AS tag

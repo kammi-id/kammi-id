@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { isReservedStrukturPath } from '~/lib/struktur/reserved-paths'
 
 export const ArticleInputSchema = z
   .object({
@@ -26,6 +27,25 @@ export const ArticleInputSchema = z
   .refine((data) => data.type !== 'blog' || Boolean(data.publishedAt), {
     message: 'Tanggal wajib diisi untuk artikel blog',
     path: ['publishedAt']
+  })
+  // Tiket 09 (Halaman beralamat akar): Permalink Halaman disajikan sebagai
+  // `/<slug>` — segmen tunggal langsung di bawah Situs Struktur (lihat
+  // `[strukturSlug]/[slug]/page.tsx`). Kalau slug itu bertabrakan dengan
+  // alamat milik sistem (`RESERVED_STRUKTUR_PATHS`), baris ini akan
+  // tersimpan sukses tapi tidak akan PERNAH terbaca di alamatnya — Next.js
+  // rute statis (mis. `/berita`) menang, atau proxy sudah memotong path itu
+  // duluan. Ditolak di sini, saat simpan, bukan diam-diam gagal di jalur
+  // baca. Hanya berlaku untuk `type: 'page'` — permalink Berita (`blog`)
+  // hidup di bawah `/berita/<tahun>/<bulan>/<slug>` dan tidak pernah
+  // bertabrakan dengan segmen akar ini.
+  .superRefine((data, ctx) => {
+    if (data.type === 'page' && isReservedStrukturPath(data.slug)) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['slug'],
+        message: `Permalink "/${data.slug}" dipakai sistem — pilih alamat lain.`
+      })
+    }
   })
 
 export type ArticleInput = z.infer<typeof ArticleInputSchema>
