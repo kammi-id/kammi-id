@@ -68,3 +68,29 @@ export const resolvePermalinkBerita = (params: {
 
   return { kind: 'ok', noindex: article.status === 'archived' }
 }
+
+/**
+ * Ticket 10 (Riwayat alamat Berita, ADR 0014). Dipakai HANYA oleh cabang
+ * riwayat di `page.tsx` — dijalankan setelah lookup langsung by slug gagal
+ * (kind 'not-found') DAN sebuah baris riwayat ditemukan untuk alamat yang
+ * diminta (`articlePermalinkHistoryQuery.findCurrentArticleForOldPermalink`).
+ *
+ * Baris riwayat menjamin Berita tujuannya ADA, bukan bahwa ia masih boleh
+ * dibaca publik SEKARANG — keadaan Terbit/Diarsipkannya bisa saja sudah
+ * berubah (mis. ditarik balik ke draft) sejak baris riwayat itu ditulis.
+ * Jadi disaring ulang persis seperti `resolvePermalinkBerita`, dan
+ * mengembalikan `null` (bukan melempar) kalau sudah tidak layak — pemanggil
+ * memperlakukan itu sama seperti tidak ada riwayat sama sekali (404).
+ */
+export const canonicalPermalinkForHistoryTarget = (
+  target: ArticleLikeRow & { slug: string },
+  now?: Date
+): string | null => {
+  if (target.status === 'draft') return null
+  if (!target.publishedAt) return null
+  if (target.status === 'published' && !isTerbit(target.publishedAt, now))
+    return null
+
+  const { tahun, bulan } = deriveTahunBulanTerbit(target.publishedAt)
+  return buildPermalinkBerita(tahun, bulan, target.slug)
+}

@@ -4,6 +4,12 @@ import { revalidatePath, updateTag } from 'next/cache'
 import { readActiveSession } from '~/lib/auth/cookies'
 import { articleQuery, isArticleOrgInScope } from '~/db/query/article'
 import { articleCategoryQuery } from '~/db/query/article-category'
+import { articlePermalinkHistoryQuery } from '~/db/query/article-permalink-history'
+import {
+  wasPermalinkBeritaLive,
+  permalinkBeritaBerubah
+} from '~/lib/publikasi/permalink-riwayat'
+import { deriveTahunBulanTerbit } from '~/lib/publikasi/tanggal-terbit'
 import { getLogger, redact } from '~/lib/logger'
 import type { ActionResponse } from './types'
 import { ArticleInputSchema, type ArticleInput } from './schema'
@@ -38,6 +44,56 @@ const assertCategoryInOrg = async (
   if (!category || category.organizationId !== organizationId)
     return 'Kategori tidak ditemukan di organisasi ini.'
   return null
+}
+
+/**
+ * Ticket 10 (Riwayat alamat Berita, ADR 0014). Dipanggil SEBELUM
+ * `articleQuery.update` menimpa `slug`/`published_at` — kalau Permalink lama
+ * `existing` pernah benar-benar live (`wasPermalinkBeritaLive`) DAN edit ini
+ * benar-benar mengubah bentuknya (`permalinkBeritaBerubah`), alamat lamanya
+ * disimpan supaya tautan yang telanjur tersebar tetap punya jalan pulang
+ * (dibaca lewat `articlePermalinkHistoryQuery.findCurrentArticleForOldPermalink`
+ * di jalur 404 halaman publik). Berita yang belum pernah Terbit (draft, atau
+ * published tapi tanggalnya belum lewat) tidak punya alamat publik yang
+ * perlu dilindungi — fungsi ini diam saja untuk keduanya.
+ */
+const recordPermalinkHistoryIfNeeded = async (
+  existing: {
+    id: string
+    organizationId: string
+    type: 'page' | 'blog'
+    status: 'draft' | 'published' | 'archived'
+    slug: string
+    publishedAt: Date | null
+  },
+  newValues: { slug: string; publishedAt: Date | null }
+): Promise<void> => {
+  if (!existing.publishedAt || !newValues.publishedAt) return
+  if (
+    !wasPermalinkBeritaLive({
+      type: existing.type,
+      status: existing.status,
+      slug: existing.slug,
+      publishedAt: existing.publishedAt
+    })
+  )
+    return
+  if (
+    !permalinkBeritaBerubah(
+      { slug: existing.slug, publishedAt: existing.publishedAt },
+      { slug: newValues.slug, publishedAt: newValues.publishedAt }
+    )
+  )
+    return
+
+  const old = deriveTahunBulanTerbit(existing.publishedAt)
+  await articlePermalinkHistoryQuery.record({
+    organizationId: existing.organizationId,
+    articleId: existing.id,
+    oldSlug: existing.slug,
+    oldTahun: old.tahun,
+    oldBulan: old.bulan
+  })
 }
 
 export const createArticleAction = async (
@@ -134,11 +190,21 @@ export const updateArticleAction = async (
         errors: { categoryId: [categoryError] }
       }
 
+    const newPublishedAt = validated.data.publishedAt
+      ? new Date(validated.data.publishedAt)
+      : null
+
+    // WAJIB sebelum `articleQuery.update` di bawah — begitu update jalan,
+    // `existing.slug`/`existing.publishedAt` tidak lagi mewakili alamat lama
+    // yang perlu dilindungi (ticket 10, ADR 0014).
+    await recordPermalinkHistoryIfNeeded(existing, {
+      slug: validated.data.slug,
+      publishedAt: newPublishedAt
+    })
+
     const updated = await articleQuery.update(id, {
       ...validated.data,
-      publishedAt: validated.data.publishedAt
-        ? new Date(validated.data.publishedAt)
-        : null
+      publishedAt: newPublishedAt
     })
 
     revalidatePath('/dashboard/articles')

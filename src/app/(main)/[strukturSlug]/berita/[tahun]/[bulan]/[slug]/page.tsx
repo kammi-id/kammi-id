@@ -8,6 +8,7 @@ import {
 } from '~/app/(main)/_data/struktur'
 import { articleQuery } from '~/db/query/article'
 import { articleCategoryQuery } from '~/db/query/article-category'
+import { articlePermalinkHistoryQuery } from '~/db/query/article-permalink-history'
 import { readOrganization } from '~/db/query/organization'
 import { resolveStrukturHost } from '~/lib/struktur/tenant-host'
 import { resolveSiteImage } from '~/lib/utils/site-image'
@@ -16,7 +17,10 @@ import {
   toWibIsoString
 } from '~/lib/publikasi/tanggal-terbit'
 import { ArticleBodyRenderer } from '~/components/article-body-renderer'
-import { resolvePermalinkBerita } from './_components/_permalink-berita'
+import {
+  resolvePermalinkBerita,
+  canonicalPermalinkForHistoryTarget
+} from './_components/_permalink-berita'
 
 // Halaman ini WAJIB dinamis (request-time), bukan statik: badan tulisan
 // dirender dari dokumen tersimpan pada saat request (bukan dibekukan saat
@@ -76,12 +80,28 @@ const resolveOutcome = async (
     loadStrukturOrg(organizationId)
   ])
 
-  const outcome = resolvePermalinkBerita({
+  let outcome = resolvePermalinkBerita({
     requestedTahun: tahun,
     requestedBulan: bulan,
     slug,
     article: articleRow ?? undefined
   })
+
+  // Ticket 10 (Riwayat alamat Berita, ADR 0014): riwayat HANYA disentuh di
+  // jalur tidak-ditemukan di atas — lookup langsung by slug yang berhasil
+  // (outcome 'ok' atau 'redirect' kanonik) tidak pernah query tabel riwayat
+  // sama sekali.
+  if (outcome.kind === 'not-found') {
+    const historyTarget =
+      await articlePermalinkHistoryQuery.findCurrentArticleForOldPermalink(
+        organizationId,
+        slug
+      )
+    const to = historyTarget
+      ? canonicalPermalinkForHistoryTarget(historyTarget)
+      : null
+    if (to) outcome = { kind: 'redirect', to }
+  }
 
   return { organizationId, articleRow, org, outcome }
 }
