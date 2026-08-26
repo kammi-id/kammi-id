@@ -19,17 +19,23 @@ import {
 } from '~/components/shadcn/ui/select'
 import { Button } from '~/components/shadcn/ui/button'
 import {
+  Alert,
+  AlertTitle,
+  AlertDescription
+} from '~/components/shadcn/ui/alert'
+import {
   createOrganizationAction,
   updateOrganizationAction,
   type OrgFormState
 } from './action'
 import { type Organization } from '../struktur-row'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Loading03Icon } from '@hugeicons/core-free-icons'
+import { Loading03Icon, Alert02Icon } from '@hugeicons/core-free-icons'
 import { ImageUpload } from '~/components/image-upload'
 import { deleteImageAction } from '~/lib/actions/storage'
 import { InitialCredentialsDialog } from './initial-credentials-dialog'
 import { opsiJenjangAnak } from '../_jenjang-anak'
+import { isSlugChangeHazardous } from './utils'
 
 export const AddOrganizationForm = ({
   parentOrg,
@@ -93,6 +99,13 @@ export const AddOrganizationForm = ({
   }, [logoPath, editData?.logo])
 
   const availableTypes = opsiJenjangAnak(parentOrg.type)
+
+  // Ticket 10 (ADR 0014): slug Struktur tidak punya riwayat. Berbeda dari
+  // slug Berita (yang dilindungi riwayat alamat), mengubah slug di sini
+  // sementara Situsnya sudah aktif mematahkan SELURUH Permalink Berita di
+  // Situs itu tanpa jalan pulang — peringatan keras di bawah, bukan block,
+  // sesuai konsekuensi ADR 0014 ("memperingatkan keras... bukan memulihkan").
+  const slugChangeHazardous = isSlugChangeHazardous(editData, slug)
 
   return (
     <>
@@ -217,6 +230,18 @@ export const AddOrganizationForm = ({
               errors={state.errors?.slug?.map((m) => ({ message: m }))}
             />
           </Field>
+
+          {slugChangeHazardous && (
+            <Alert variant='destructive'>
+              <HugeiconsIcon icon={Alert02Icon} strokeWidth={2} />
+              <AlertTitle>Situs ini sudah aktif</AlertTitle>
+              <AlertDescription>
+                Slug Struktur tidak punya riwayat alamat. Menyimpan perubahan
+                ini akan mematahkan SEMUA Permalink Berita di Situs{' '}
+                {editData?.name} — alamat lama tidak akan dialihkan ke mana pun.
+              </AlertDescription>
+            </Alert>
+          )}
 
           <Field>
             <ImageUpload

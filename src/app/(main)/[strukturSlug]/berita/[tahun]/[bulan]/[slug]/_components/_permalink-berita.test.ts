@@ -1,7 +1,8 @@
 import { describe, it, expect } from 'bun:test'
 import {
   resolvePermalinkBerita,
-  buildPermalinkBerita
+  buildPermalinkBerita,
+  canonicalPermalinkForHistoryTarget
 } from './_permalink-berita'
 
 // Instan sungguhan Berita "06:00 WIB 1 Jan 2026" (lihat tanggal-terbit.ts)
@@ -106,5 +107,56 @@ describe('resolvePermalinkBerita', () => {
       article: { status: 'archived', publishedAt: publishedJan1_0600WIB }
     })
     expect(outcome).toEqual({ kind: 'redirect', to: '/berita/2026/01/contoh' })
+  })
+})
+
+describe('canonicalPermalinkForHistoryTarget', () => {
+  it('null untuk Berita tujuan yang draft — riwayat menjamin baris ADA, bukan boleh dibaca publik', () => {
+    expect(
+      canonicalPermalinkForHistoryTarget({
+        status: 'draft',
+        publishedAt: publishedJan1_0600WIB,
+        slug: 'contoh'
+      })
+    ).toBeNull()
+  })
+
+  it('null untuk Berita tujuan yang terjadwal (published tapi tanggalnya belum lewat)', () => {
+    expect(
+      canonicalPermalinkForHistoryTarget(
+        {
+          status: 'published',
+          publishedAt: publishedJan1_0600WIB,
+          slug: 'contoh'
+        },
+        sebelumTerbit
+      )
+    ).toBeNull()
+  })
+
+  it('permalink kanonik BARU untuk Berita tujuan yang Terbit', () => {
+    expect(
+      canonicalPermalinkForHistoryTarget(
+        {
+          status: 'published',
+          publishedAt: publishedJan1_0600WIB,
+          slug: 'slug-terkini'
+        },
+        setelahTerbit
+      )
+    ).toBe('/berita/2026/01/slug-terkini')
+  })
+
+  it('permalink kanonik BARU untuk Berita tujuan yang Diarsipkan, tanpa syarat tanggal', () => {
+    expect(
+      canonicalPermalinkForHistoryTarget(
+        {
+          status: 'archived',
+          publishedAt: publishedJan1_0600WIB,
+          slug: 'slug-terkini'
+        },
+        sebelumTerbit
+      )
+    ).toBe('/berita/2026/01/slug-terkini')
   })
 })

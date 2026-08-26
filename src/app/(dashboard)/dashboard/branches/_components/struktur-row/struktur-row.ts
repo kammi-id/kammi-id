@@ -21,6 +21,11 @@ export interface Organization {
   parentId: string | null
   logo?: string | null
   isNonActive?: boolean
+  // Situs Aktif (ADR 0012) — dibaca di sini murni untuk memperingatkan keras
+  // saat slug diubah sementara Situsnya sudah aktif (ticket 10, ADR 0014):
+  // slug Struktur tidak punya riwayat, jadi mengubahnya mematahkan seluruh
+  // Permalink Berita di Situs itu tanpa jalan pulang.
+  isSiteActive?: boolean
   state?: 'aktif' | 'non_aktif' | 'terhapus'
   childrenCount?: number
 }
