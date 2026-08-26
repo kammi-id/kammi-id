@@ -81,6 +81,34 @@ export const articleQuery = {
       .orderBy(desc(article.updatedAt))
   },
 
+  // Ticket 05 (permalink Berita). Sengaja TIDAK menyaring `status` atau
+  // `publishedAt` di sini — Terbit (dinyatakan terbit DAN tanggalnya sudah
+  // lewat, ADR 0014) adalah aturan yang butuh helper zona waktu terpusat
+  // (`src/lib/publikasi/tanggal-terbit.ts`), dan menegakkannya lewat SQL
+  // `now()` mentah akan diam-diam menulis ulang aturan itu dalam dialek
+  // kedua yang bisa keliru sendiri. Baris draft/terjadwal memang ikut
+  // terbaca fungsi ini — pemanggil (halaman Permalink) WAJIB menyaringnya
+  // lewat pembantu terpusat sebelum merender apa pun, tidak pernah
+  // menyuguhkan hasil fungsi ini langsung ke publik.
+  //
+  // `organizationNotDeleted` tetap dipasang di sini: Struktur Terhapus tidak
+  // boleh terbaca di permukaan publik mana pun, apa pun status Beritanya.
+  getBlogArticleBySlug: async (organizationId: string, slug: string) => {
+    const [row] = await db
+      .select()
+      .from(article)
+      .where(
+        and(
+          eq(article.organizationId, organizationId),
+          eq(article.slug, slug),
+          eq(article.type, 'blog'),
+          organizationNotDeleted(article.organizationId)
+        )
+      )
+      .limit(1)
+    return row
+  },
+
   listDistinctTags: async (organizationId: string): Promise<string[]> => {
     const result = await db.execute(sql`
       SELECT DISTINCT unnest(${article.tags}) AS tag
