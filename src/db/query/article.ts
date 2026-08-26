@@ -1,5 +1,7 @@
 import { db } from '~/db/db'
 import { article } from '~/db/schema/article.sql'
+import { organization } from '~/db/schema/organization.sql'
+import { articleCategory } from '~/db/schema/article-category.sql'
 import { organizationNotDeleted } from '~/db/query/organization'
 import { terbitCutoffForQuery } from '~/lib/publikasi/tanggal-terbit'
 import { eq, and, ilike, desc, lte, sql } from 'drizzle-orm'
@@ -56,6 +58,129 @@ export const listLatestBeritaForOrg = async (
     .limit(limit)
 
   return rows.filter((r): r is BeritaPreviewItem => r.publishedAt !== null)
+}
+
+// ── Ticket 07 — arsip Berita per Situs Struktur ──────────────────────────────
+//
+// Sengaja fungsi TERPISAH dari `listLatestBeritaForOrg` di atas (bukan
+// generalisasi satu fungsi dengan parameter limit/page), dan sengaja tidak
+// menyentuh `articleQuery.listForOrg`/`getBlogArticleBySlug` — tiket lain
+// (10) yang paralel juga menyentuh berkas ini, jadi blok ini berdiri sendiri
+// supaya mudah digabung manual.
+
+export type BeritaArsipItem = {
+  id: string
+  title: string
+  slug: string
+  featuredImage: string | null
+  publishedAt: Date
+  organization: {
+    id: string
+    name: string
+    slug: string
+  }
+  category: {
+    id: string
+    name: string
+  } | null
+}
+
+export type BeritaArsipPage = {
+  items: BeritaArsipItem[]
+  totalCount: number
+  totalPages: number
+}
+
+/** Spec "Template Situs": 48 Berita per halaman arsip `/berita`. */
+export const BERITA_ARSIP_PAGE_SIZE = 48
+
+/**
+ * Arsip kronologis PENUH satu Struktur, berpaginasi (spec "Pembacaan data").
+ * Tiga hal yang tiket ini secara eksplisit minta beda dari
+ * `listLatestBeritaForOrg`:
+ *
+ * 1. **Total halaman dalam query yang sama** — lewat window function
+ *    `count(*) over()`, bukan roundtrip `COUNT(*)` kedua yang terpisah.
+ * 2. **Identitas Struktur lewat JOIN** — `organization` disambungkan di
+ *    query yang sama, bukan ditempelkan per baris di kode pemanggil (N+1).
+ * 3. **Label Kategori** — `LEFT JOIN article_category` (opsional; artikel
+ *    boleh tak berkategori), disajikan sebagai label saja — tanpa tautan,
+ *    tanpa halaman arsip per kategori (di luar cakupan tiket ini).
+ *
+ * Urutan `publishedAt DESC, id DESC` — `id` (uuidv7, terurut waktu) sebagai
+ * pemecah seri yang stabil ketika dua Berita berbagi `publishedAt` yang
+ * sama persis, supaya berpindah halaman tidak pernah melewatkan atau
+ * menduakan baris.
+ *
+ * Catatan window function: `count(*) over()` menghitung seluruh baris yang
+ * lolos WHERE — dihitung SEBELUM LIMIT/OFFSET diterapkan. Tapi kalau `page`
+ * yang diminta melampaui halaman terakhir, OFFSET menghabiskan semua baris
+ * dan hasilnya nol baris — nilai count itu sendiri ikut hilang karena tidak
+ * ada baris yang membawanya pulang. Pemanggil (halaman `/berita`)
+ * membedakan dua nol: nol baris DAN `page` > 1 berarti nomor halaman di
+ * luar jangkauan (⇒ `notFound()`); nol baris di `page` 1 berarti Struktur
+ * ini memang belum punya Berita Terbit sama sekali.
+ */
+export const listBeritaArsipForOrg = async (
+  organizationId: string,
+  page = 1,
+  pageSize: number = BERITA_ARSIP_PAGE_SIZE
+): Promise<BeritaArsipPage> => {
+  const safePage = Math.max(1, Math.trunc(page) || 1)
+  const offset = (safePage - 1) * pageSize
+
+  const rows = await db
+    .select({
+      id: article.id,
+      title: article.title,
+      slug: article.slug,
+      featuredImage: article.featuredImage,
+      publishedAt: article.publishedAt,
+      organizationId: organization.id,
+      organizationName: organization.name,
+      organizationSlug: organization.slug,
+      categoryId: articleCategory.id,
+      categoryName: articleCategory.name,
+      totalCount: sql<number>`count(*) over()`.mapWith(Number)
+    })
+    .from(article)
+    .innerJoin(organization, eq(article.organizationId, organization.id))
+    .leftJoin(articleCategory, eq(article.categoryId, articleCategory.id))
+    .where(
+      and(
+        eq(article.organizationId, organizationId),
+        eq(article.type, 'blog'),
+        eq(article.status, 'published'),
+        lte(article.publishedAt, terbitCutoffForQuery()),
+        organizationNotDeleted(article.organizationId)
+      )
+    )
+    .orderBy(desc(article.publishedAt), desc(article.id))
+    .limit(pageSize)
+    .offset(offset)
+
+  const totalCount = rows[0]?.totalCount ?? 0
+  const totalPages = totalCount === 0 ? 0 : Math.ceil(totalCount / pageSize)
+
+  const items: BeritaArsipItem[] = rows
+    .filter((r): r is typeof r & { publishedAt: Date } => r.publishedAt !== null)
+    .map((r) => ({
+      id: r.id,
+      title: r.title,
+      slug: r.slug,
+      featuredImage: r.featuredImage,
+      publishedAt: r.publishedAt,
+      organization: {
+        id: r.organizationId,
+        name: r.organizationName,
+        slug: r.organizationSlug
+      },
+      category: r.categoryId
+        ? { id: r.categoryId, name: r.categoryName as string }
+        : null
+    }))
+
+  return { items, totalCount, totalPages }
 }
 
 export const isArticleOrgInScope = (
