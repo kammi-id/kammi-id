@@ -37,3 +37,20 @@ export const isLegalChildType = (
   parentType: string,
   childType: string
 ): boolean => childTypesOf(parentType).includes(childType as StrukturJenjang)
+
+/**
+ * Human-facing Jenjang name, CONTEXT.md wording exactly (full "Daerah Luar
+ * Negeri", not the dashboard's abbreviated "Daerah LN" — this is read by the
+ * public, not scanned in a table column). Used by the lean Situs Struktur
+ * template's identity block (ticket 04).
+ */
+const JENJANG_LABELS: Record<StrukturJenjang, string> = {
+  pp: 'Pusat',
+  pw: 'Wilayah',
+  pd: 'Daerah',
+  pdln: 'Daerah Luar Negeri',
+  pk: 'Komisariat'
+}
+
+export const jenjangLabel = (jenjang: StrukturJenjang): string =>
+  JENJANG_LABELS[jenjang]

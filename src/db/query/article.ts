@@ -3,6 +3,72 @@ import { article } from '~/db/schema/article.sql'
 import { organizationNotDeleted } from '~/db/query/organization'
 import { eq, and, ilike, desc, lte, sql } from 'drizzle-orm'
 
+export type ArticleType = 'page' | 'blog'
+export type ArticleStatus = 'draft' | 'published' | 'archived'
+
+export type BeritaPreviewItem = {
+  id: string
+  title: string
+  slug: string
+  featuredImage: string | null
+  publishedAt: Date
+}
+
+/**
+ * Terbit (spec "Artikel di permukaan publik"): dinyatakan terbit **dan**
+ * tanggal terbitnya sudah lewat — sebuah Berita berjadwal di masa depan
+ * bukan Berita terbaca. A pure predicate, mirroring `isArticleOrgInScope`
+ * below, so the rule is unit-testable without a database.
+ */
+export const isBeritaTerbit = (
+  a: { status: ArticleStatus; publishedAt: Date | null },
+  now: Date = new Date()
+): boolean =>
+  a.status === 'published' && a.publishedAt !== null && a.publishedAt <= now
+
+/**
+ * Top-N Berita preview for one Struktur's homepage (ticket 04, spec
+ * "Template Situs" — 12 latest for the Struktur's own Situs). Deliberately
+ * minimal: the full paginated `/berita` archive — `organization` JOIN,
+ * combined-count pagination, cross-Struktur Berita Jaringan, and the stable
+ * sort/index work spec "Pembacaan data" calls for — is a later ticket's job.
+ *
+ * The Terbit comparison happens in SQL via `now() AT TIME ZONE 'Asia/Jakarta'`
+ * — converting Postgres' own `now()` (a `timestamptz`, a real instant) into
+ * the Jakarta *wall-clock* reading of that instant, the same representation
+ * `published_at` itself is stored in (`timestamp` with no zone — ADR 0014).
+ * Comparing two real UTC instants instead, or applying the process's own
+ * local timezone via JS `Date` methods, is exactly the "06.00 WIB terlempar
+ * ke Desember tahun sebelumnya" bug that ADR warns about.
+ */
+export const listLatestBeritaForOrg = async (
+  organizationId: string,
+  limit = 12
+): Promise<BeritaPreviewItem[]> => {
+  const rows = await db
+    .select({
+      id: article.id,
+      title: article.title,
+      slug: article.slug,
+      featuredImage: article.featuredImage,
+      publishedAt: article.publishedAt
+    })
+    .from(article)
+    .where(
+      and(
+        eq(article.organizationId, organizationId),
+        eq(article.type, 'blog'),
+        eq(article.status, 'published'),
+        sql`${article.publishedAt} <= (now() AT TIME ZONE 'Asia/Jakarta')`,
+        organizationNotDeleted(article.organizationId)
+      )
+    )
+    .orderBy(desc(article.publishedAt), desc(article.id))
+    .limit(limit)
+
+  return rows.filter((r): r is BeritaPreviewItem => r.publishedAt !== null)
+}
+
 export const isArticleOrgInScope = (
   user: { role: string; connectedOrganizationId?: string | null },
   articleOrgId: string
@@ -15,9 +81,6 @@ export const isArticleOrgInScope = (
     )
   return false
 }
-
-export type ArticleType = 'page' | 'blog'
-export type ArticleStatus = 'draft' | 'published' | 'archived'
 
 export type ArticleListFilters = {
   search?: string

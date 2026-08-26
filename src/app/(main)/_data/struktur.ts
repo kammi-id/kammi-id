@@ -1,5 +1,5 @@
 import { cacheLife, cacheTag } from 'next/cache'
-import { readOrganization } from '~/db/query/organization'
+import { readOrganization, type Organization } from '~/db/query/organization'
 
 // Shared shape for every page/layout under `[strukturSlug]`.
 export type StrukturRouteParams = Promise<{ strukturSlug: string }>
@@ -39,4 +39,45 @@ export const resolveStrukturIdFromParams = async (
 ): Promise<string | null> => {
   const { strukturSlug } = await params
   return resolveStrukturId(strukturSlug)
+}
+
+/**
+ * Identity fields a Situs Struktur's public pages need to describe the
+ * Struktur itself — name, Jenjang, logo — for the lean template's identity
+ * block (ticket 04) and for anything else that needs them without a session.
+ * Not the settings a Humas authors (that's `_data/site-settings.ts`); this is
+ * the `organization` row itself.
+ */
+export type StrukturIdentity = Pick<
+  Organization,
+  'id' | 'name' | 'slug' | 'type' | 'level' | 'logo'
+>
+
+/**
+ * Takes an already-resolved organization id (from `resolveStrukturId`) rather
+ * than a slug, mirroring every `_data/site-settings.ts` getter — one lookup
+ * per page render, not two.
+ *
+ * Cached under both a broad `organizations` tag — already busted by
+ * `organization-profile-form`'s save action, so an edited name/logo shows up
+ * immediately — and a per-id tag for when a future edit path wants to
+ * invalidate just this Struktur without the broad tag's blast radius. Only
+ * the broad one is wired to a writer today; the specific one is left for that
+ * writer to pick up, same as `resolveStrukturId`'s own `struktur-slug` tag
+ * above.
+ */
+export const getStrukturIdentity = async (
+  organizationId: string | null
+): Promise<StrukturIdentity | null> => {
+  'use cache'
+  if (!organizationId) return null
+  cacheLife('days')
+  cacheTag('organizations', `struktur-identity-${organizationId}`)
+
+  try {
+    const [org] = await readOrganization({ id: [organizationId] })
+    return org ?? null
+  } catch {
+    return null
+  }
 }
