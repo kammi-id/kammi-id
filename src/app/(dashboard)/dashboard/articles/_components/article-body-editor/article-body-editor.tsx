@@ -1,10 +1,11 @@
 'use client'
 
 import { EditorContent, useEditor } from '@tiptap/react'
-import StarterKit from '@tiptap/starter-kit'
 
 import { cn } from '~/lib/shadcn/utils'
 
+import { ArticleBodyEditorToolbar } from './article-body-editor-toolbar'
+import { ARTICLE_BODY_EDITOR_EXTENSIONS } from './constants'
 import type { ArticleBodyJSON } from './types'
 
 interface ArticleBodyEditorProps {
@@ -19,7 +20,7 @@ export const ArticleBodyEditor = ({
   className
 }: ArticleBodyEditorProps) => {
   const editor = useEditor({
-    extensions: [StarterKit],
+    extensions: ARTICLE_BODY_EDITOR_EXTENSIONS,
     content: value ?? { type: 'doc', content: [{ type: 'paragraph' }] },
     immediatelyRender: false,
     onUpdate: ({ editor }) => {
@@ -28,8 +29,12 @@ export const ArticleBodyEditor = ({
   })
 
   return (
-    <div className={cn('min-h-48 rounded-md border p-3', className)}>
-      <EditorContent editor={editor} />
+    <div className={cn('rounded-md border', className)}>
+      <ArticleBodyEditorToolbar editor={editor} />
+      <EditorContent
+        editor={editor}
+        className='prose min-h-48 max-w-none p-3 focus-within:outline-none'
+      />
     </div>
   )
 }
