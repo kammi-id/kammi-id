@@ -64,6 +64,18 @@ export const isTerbit = (
   return toInstanSungguhan(publishedAt).getTime() <= now.getTime()
 }
 
+/**
+ * Kebalikan `toInstanSungguhan`: nilai yang bisa dibandingkan langsung
+ * (`<=`) terhadap kolom `published_at` mentah di dalam SQL — dipakai ketika
+ * gerbang Terbit perlu ditegakkan di jalur query, bukan lewat baris yang
+ * sudah ditarik ke JS (mis. cek "apakah Struktur ini punya Berita Terbit"
+ * tanpa menarik semua barisnya). `stored <= terbitCutoffForQuery(now)` setara
+ * dengan `isTerbit(stored, now)` — lihat komentar `toInstanSungguhan` untuk
+ * aljabarnya.
+ */
+export const terbitCutoffForQuery = (now: Date = new Date()): Date =>
+  new Date(now.getTime() + WIB_OFFSET_MS)
+
 const WIB_WALL_CLOCK_PATTERN =
   /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?/
 

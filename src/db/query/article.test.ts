@@ -3,7 +3,6 @@ import {
   isArticleOrgInScope,
   articleQuery,
   hasPublishedArticle,
-  isBeritaTerbit,
   listLatestBeritaForOrg
 } from './article'
 import { db } from '~/db/db'
@@ -14,67 +13,6 @@ import {
   wibWallClockToPublishedAt,
   deriveTahunBulanTerbit
 } from '~/lib/publikasi/tanggal-terbit'
-
-describe('isBeritaTerbit', () => {
-  const now = new Date('2026-06-15T12:00:00.000Z')
-
-  test('draft is never Terbit, even with a past publishedAt', () => {
-    expect(
-      isBeritaTerbit(
-        { status: 'draft', publishedAt: new Date('2026-01-01T00:00:00.000Z') },
-        now
-      )
-    ).toBe(false)
-  })
-
-  test('archived is never Terbit', () => {
-    expect(
-      isBeritaTerbit(
-        {
-          status: 'archived',
-          publishedAt: new Date('2026-01-01T00:00:00.000Z')
-        },
-        now
-      )
-    ).toBe(false)
-  })
-
-  test('published with no publishedAt is not Terbit', () => {
-    expect(
-      isBeritaTerbit({ status: 'published', publishedAt: null }, now)
-    ).toBe(false)
-  })
-
-  test('published with a future publishedAt is terjadwal, not Terbit', () => {
-    expect(
-      isBeritaTerbit(
-        {
-          status: 'published',
-          publishedAt: new Date('2026-12-31T00:00:00.000Z')
-        },
-        now
-      )
-    ).toBe(false)
-  })
-
-  test('published with a past publishedAt is Terbit', () => {
-    expect(
-      isBeritaTerbit(
-        {
-          status: 'published',
-          publishedAt: new Date('2026-01-01T00:00:00.000Z')
-        },
-        now
-      )
-    ).toBe(true)
-  })
-
-  test('published exactly at now is Terbit (inclusive)', () => {
-    expect(isBeritaTerbit({ status: 'published', publishedAt: now }, now)).toBe(
-      true
-    )
-  })
-})
 
 /**
  * Tiket 05 (permalink Berita). Fixture bersufiks, dibereskan sendiri —

@@ -1,6 +1,7 @@
 import { db } from '~/db/db'
 import { article } from '~/db/schema/article.sql'
 import { organizationNotDeleted } from '~/db/query/organization'
+import { terbitCutoffForQuery } from '~/lib/publikasi/tanggal-terbit'
 import { eq, and, ilike, desc, lte, sql } from 'drizzle-orm'
 
 export type ArticleType = 'page' | 'blog'
@@ -13,18 +14,6 @@ export type BeritaPreviewItem = {
   featuredImage: string | null
   publishedAt: Date
 }
-
-/**
- * Terbit (spec "Artikel di permukaan publik"): dinyatakan terbit **dan**
- * tanggal terbitnya sudah lewat — sebuah Berita berjadwal di masa depan
- * bukan Berita terbaca. A pure predicate, mirroring `isArticleOrgInScope`
- * below, so the rule is unit-testable without a database.
- */
-export const isBeritaTerbit = (
-  a: { status: ArticleStatus; publishedAt: Date | null },
-  now: Date = new Date()
-): boolean =>
-  a.status === 'published' && a.publishedAt !== null && a.publishedAt <= now
 
 /**
  * Top-N Berita preview for one Struktur's homepage (ticket 04, spec
@@ -190,6 +179,11 @@ export const articleQuery = {
 // A future-dated Artikel is dinyatakan but not yet Terbit, and a Halaman
 // doesn't count: CONTEXT.md calls it "tak bertanggal" and outside Berita's
 // archive, so it can't be what "Berita Terbit" means.
+//
+// `publishedAt` is compared against `terbitCutoffForQuery()`
+// (`~/lib/publikasi/tanggal-terbit`), not a raw `new Date()` — the column
+// stores Asia/Jakarta wall-clock digits directly (ADR 0014), so comparing it
+// straight against a true UTC instant is off by the WIB offset.
 export const hasPublishedArticle = async (
   organizationId: string
 ): Promise<boolean> => {
@@ -201,7 +195,7 @@ export const hasPublishedArticle = async (
         eq(article.organizationId, organizationId),
         eq(article.type, 'blog'),
         eq(article.status, 'published'),
-        lte(article.publishedAt, new Date()),
+        lte(article.publishedAt, terbitCutoffForQuery()),
         organizationNotDeleted(article.organizationId)
       )
     )
