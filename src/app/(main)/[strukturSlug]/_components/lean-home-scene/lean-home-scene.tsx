@@ -76,10 +76,7 @@ const Portrait = ({
   </div>
 )
 
-export const LeanHomeScene = ({
-  identity,
-  leadership
-}: LeanHomeSceneProps) => {
+export const LeanHomeScene = ({ identity, leadership }: LeanHomeSceneProps) => {
   const { ketua, sekretaris, bendahara } = leadership.triumvirate
   const triumvirate = [
     { key: 'ketua', label: 'Ketua', ...ketua },

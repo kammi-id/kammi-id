@@ -46,7 +46,14 @@ export type SitusSectionKey =
  */
 const SITUS_SECTIONS: Record<SitusTemplateVariant, readonly SitusSectionKey[]> =
   {
-    lengkap: ['hero-items', 'about', 'extra-items', 'nav', 'footer', 'metadata'],
+    lengkap: [
+      'hero-items',
+      'about',
+      'extra-items',
+      'nav',
+      'footer',
+      'metadata'
+    ],
     ramping: ['nav', 'footer', 'metadata']
   }
 

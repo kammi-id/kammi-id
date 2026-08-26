@@ -76,7 +76,7 @@ export const BeritaPreviewSection = async ({
             <Link
               key={item.id}
               href={beritaPermalinkPath(item)}
-              className='group border-border/60 bg-background overflow-hidden rounded-3xl border shadow-sm ring-1 ring-foreground/5 transition-shadow hover:shadow-md'
+              className='group border-border/60 bg-background ring-foreground/5 overflow-hidden rounded-3xl border shadow-sm ring-1 transition-shadow hover:shadow-md'
             >
               <div className='bg-muted relative aspect-[4/3] w-full overflow-hidden'>
                 {item.resolvedImageUrl ? (

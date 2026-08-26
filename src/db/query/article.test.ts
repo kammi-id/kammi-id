@@ -40,9 +40,9 @@ describe('isBeritaTerbit', () => {
   })
 
   test('published with no publishedAt is not Terbit', () => {
-    expect(isBeritaTerbit({ status: 'published', publishedAt: null }, now)).toBe(
-      false
-    )
+    expect(
+      isBeritaTerbit({ status: 'published', publishedAt: null }, now)
+    ).toBe(false)
   })
 
   test('published with a future publishedAt is terjadwal, not Terbit', () => {
