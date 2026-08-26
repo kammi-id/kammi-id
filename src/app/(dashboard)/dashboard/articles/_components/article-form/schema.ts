@@ -28,6 +28,15 @@ export const ArticleInputSchema = z
     message: 'Tanggal wajib diisi untuk artikel blog',
     path: ['publishedAt']
   })
+  // Gambar utama wajib untuk Berita (`type === 'blog'`) supaya daftar Berita
+  // tidak pernah tampil setengah bergambar — tetap opsional untuk Halaman.
+  // Kolom DB `featuredImage` tetap nullable: kewajiban ini murni di level
+  // Zod, berlaku saat SUBMIT form, bukan saat membaca baris lama tanpa
+  // gambar utama (baca tidak lewat skema ini sama sekali).
+  .refine((data) => data.type !== 'blog' || Boolean(data.featuredImage), {
+    message: 'Gambar utama wajib diisi untuk artikel blog',
+    path: ['featuredImage']
+  })
   // Tiket 09 (Halaman beralamat akar): Permalink Halaman disajikan sebagai
   // `/<slug>` — segmen tunggal langsung di bawah Situs Struktur (lihat
   // `[strukturSlug]/[slug]/page.tsx`). Kalau slug itu bertabrakan dengan

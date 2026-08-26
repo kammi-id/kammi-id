@@ -228,14 +228,19 @@ export const ArticleForm = ({
           </Field>
         )}
 
-        <Field>
-          <FieldLabel>Gambar Utama</FieldLabel>
+        <Field
+          data-invalid={Boolean(fieldErrors('featuredImage')) || undefined}
+        >
+          <FieldLabel>
+            Gambar Utama{type === 'blog' ? ' (wajib)' : ' (opsional)'}
+          </FieldLabel>
           <ImageUpload
             value={featuredImage}
             onChange={setFeaturedImage}
             folder='articles'
             variant='background'
           />
+          <FieldError errors={fieldErrors('featuredImage')} />
         </Field>
 
         <Field>
