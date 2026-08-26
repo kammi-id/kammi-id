@@ -134,6 +134,7 @@ describe('ArticleInputSchema', () => {
       body: { type: 'doc', content: [] },
       status: 'draft',
       tags: [],
+      featuredImage: '/api/images/placeholder.jpg',
       publishedAt: new Date().toISOString()
     })
     expect(result.success).toBe(true)

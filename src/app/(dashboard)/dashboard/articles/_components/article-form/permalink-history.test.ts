@@ -68,6 +68,7 @@ describe('updateArticleAction — riwayat alamat Berita', () => {
     body: { type: 'doc', content: [] },
     status: 'published' as const,
     tags: [] as string[],
+    featuredImage: '/api/images/placeholder.jpg',
     ...overrides
   })
 

@@ -7,7 +7,8 @@ import { articleCategoryQuery } from '~/db/query/article-category'
 import { articlePermalinkHistoryQuery } from '~/db/query/article-permalink-history'
 import {
   wasPermalinkBeritaLive,
-  permalinkBeritaBerubah
+  permalinkBeritaBerubah,
+  type ArticlePermalinkState
 } from '~/lib/publikasi/permalink-riwayat'
 import { deriveTahunBulanTerbit } from '~/lib/publikasi/tanggal-terbit'
 import { getLogger, redact } from '~/lib/logger'
@@ -58,14 +59,7 @@ const assertCategoryInOrg = async (
  * perlu dilindungi — fungsi ini diam saja untuk keduanya.
  */
 const recordPermalinkHistoryIfNeeded = async (
-  existing: {
-    id: string
-    organizationId: string
-    type: 'page' | 'blog'
-    status: 'draft' | 'published' | 'archived'
-    slug: string
-    publishedAt: Date | null
-  },
+  existing: ArticlePermalinkState & { id: string; organizationId: string },
   newValues: { slug: string; publishedAt: Date | null }
 ): Promise<void> => {
   if (!existing.publishedAt || !newValues.publishedAt) return
