@@ -1,4 +1,4 @@
-import { pgTable, unique } from 'drizzle-orm/pg-core'
+import { pgTable, unique, index } from 'drizzle-orm/pg-core'
 import { sql } from 'drizzle-orm'
 import { organization } from './organization.sql'
 import { articleCategory } from './article-category.sql'
@@ -45,5 +45,25 @@ export const article = pgTable(
       .default(sql`now()`)
       .notNull()
   }),
-  (table) => [unique().on(table.organizationId, table.slug)]
+  (table) => [
+    unique().on(table.organizationId, table.slug),
+    /**
+     * Ticket 07 (arsip Berita per Situs Struktur): `listBeritaArsipForOrg`
+     * menyaring satu `organizationId` lalu mengurutkan
+     * `publishedAt DESC, id DESC` — persis bentuk index ini. Parsial, bukan
+     * menyeluruh: hanya baris yang benar-benar bisa menjadi "Berita Terbit"
+     * (`type = 'blog'`, `status = 'published'`) yang pernah muncul di arsip
+     * publik mana pun, jadi draft/terjadwal/Halaman tidak perlu ikut
+     * menggemukkan index yang tak pernah mereka pakai.
+     *
+     * BELUM di-generate jadi migrasi fisik di sini secara sengaja — sesi
+     * integrasi terpisah yang menggabungkan migrasi tiket-tiket paralel akan
+     * men-generate-nya. Definisi skema ini cukup untuk kebenaran fungsional
+     * (Postgres tetap bisa menjalankan query tanpa index-nya ada secara
+     * fisik, hanya lebih lambat).
+     */
+    index('article_terbit_kronologis_idx')
+      .on(table.organizationId, table.publishedAt.desc(), table.id.desc())
+      .where(sql`${table.type} = 'blog' AND ${table.status} = 'published'`)
+  ]
 )

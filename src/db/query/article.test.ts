@@ -3,11 +3,15 @@ import {
   isArticleOrgInScope,
   articleQuery,
   hasPublishedArticle,
-  listLatestBeritaForOrg
+  listLatestBeritaForOrg,
+  listBeritaArsipForOrg,
+  BERITA_ARSIP_PAGE_SIZE
 } from './article'
+import { articleCategoryQuery } from './article-category'
 import { db } from '~/db/db'
 import { organization } from '~/db/schema/organization.sql'
 import { article } from '~/db/schema/article.sql'
+import { articleCategory } from '~/db/schema/article-category.sql'
 import { eq, inArray } from 'drizzle-orm'
 import {
   wibWallClockToPublishedAt,
@@ -368,5 +372,226 @@ describe('listLatestBeritaForOrg', () => {
     expect(ids).toContain(terbitOld.id)
     expect(ids).toContain(terbitNew.id)
     expect(ids.indexOf(terbitNew.id)).toBeLessThan(ids.indexOf(terbitOld.id))
+  })
+})
+
+/**
+ * Ticket 07 (arsip Berita per Situs Struktur). Fixture bersufiks dan
+ * dibereskan sendiri tanpa TRUNCATE — mengikuti preseden `hasPublishedArticle`
+ * di atas, bukan `listLatestBeritaForOrg` yang menumpang `TEST_ORGANIZATION_ID`
+ * bersama tanpa pembersihan (berkas ini butuh isolasi ketat untuk menghitung
+ * totalCount/totalPages dengan tepat).
+ */
+describe('listBeritaArsipForOrg', () => {
+  const suffix = Date.now().toString(36)
+  const articleIds: string[] = []
+  const categoryIds: string[] = []
+  const orgIds: string[] = []
+  let orgId: string
+  let otherOrgId: string
+  let categoryId: string
+
+  const seedOrg = async (name: string, code: string) => {
+    const [row] = await db
+      .insert(organization)
+      .values({
+        name: `${name} ${suffix}`,
+        slug: `${name.toLowerCase().replace(/\s+/g, '-')}-${suffix}`,
+        code,
+        type: 'pk',
+        isNonActive: false
+      })
+      .returning({ id: organization.id })
+    orgIds.push(row.id)
+    return row.id
+  }
+
+  const seedArticle = async (
+    values: Partial<typeof article.$inferInsert> & {
+      organizationId: string
+      publishedAt: Date | null
+    },
+    idx: number
+  ) => {
+    const [row] = await db
+      .insert(article)
+      .values({
+        type: 'blog',
+        title: `Arsip ${suffix} ${idx}`,
+        slug: `arsip-${suffix}-${idx}`,
+        body: { type: 'doc', content: [] },
+        status: 'published',
+        ...values
+      })
+      .returning()
+    articleIds.push(row.id)
+    return row
+  }
+
+  beforeAll(async () => {
+    orgId = await seedOrg('Arsip Berita Org', `ABO-${suffix}`)
+    otherOrgId = await seedOrg('Arsip Berita Lain', `ABL-${suffix}`)
+
+    const category = await articleCategoryQuery.create({
+      organizationId: orgId,
+      name: `Kategori ${suffix}`,
+      slug: `kategori-${suffix}`
+    })
+    categoryId = category.id
+    categoryIds.push(category.id)
+  })
+
+  afterAll(async () => {
+    // Articles first — `article.categoryId` is `onDelete: 'restrict'`, so the
+    // category row can't go while an article still points at it.
+    if (articleIds.length > 0)
+      await db.delete(article).where(inArray(article.id, articleIds))
+    if (categoryIds.length > 0)
+      await db
+        .delete(articleCategory)
+        .where(inArray(articleCategory.id, categoryIds))
+    if (orgIds.length > 0)
+      await db.delete(organization).where(inArray(organization.id, orgIds))
+  })
+
+  test('exposes a 48-item page size, per spec "48 per halaman"', () => {
+    expect(BERITA_ARSIP_PAGE_SIZE).toBe(48)
+  })
+
+  test('paginates with total count and total pages computed in the same query, no gaps or duplicates across pages', async () => {
+    const now = Date.now()
+    const seeded = []
+    for (let i = 0; i < 7; i++) {
+      seeded.push(
+        await seedArticle(
+          {
+            organizationId: orgId,
+            publishedAt: new Date(now - i * 60_000)
+          },
+          100 + i
+        )
+      )
+    }
+
+    const page1 = await listBeritaArsipForOrg(orgId, 1, 3)
+    const page2 = await listBeritaArsipForOrg(orgId, 2, 3)
+    const page3 = await listBeritaArsipForOrg(orgId, 3, 3)
+
+    expect(page1.totalCount).toBe(7)
+    expect(page1.totalPages).toBe(3)
+    expect(page1.items.length).toBe(3)
+    expect(page2.items.length).toBe(3)
+    expect(page3.items.length).toBe(1)
+    expect(page2.totalCount).toBe(7)
+    expect(page3.totalCount).toBe(7)
+
+    const allIds = [...page1.items, ...page2.items, ...page3.items].map(
+      (i) => i.id
+    )
+    const seededIds = seeded.map((s) => s.id)
+    expect(new Set(allIds).size).toBe(allIds.length) // no duplicates
+    expect(allIds.sort()).toEqual(seededIds.sort()) // no gaps
+  })
+
+  test('orders newest publishedAt first, with a stable tie-breaker for equal timestamps', async () => {
+    const same = new Date(Date.now() - 999_000_000)
+    const a = await seedArticle(
+      { organizationId: orgId, publishedAt: same },
+      200
+    )
+    const b = await seedArticle(
+      { organizationId: orgId, publishedAt: same },
+      201
+    )
+
+    const first = await listBeritaArsipForOrg(orgId, 1, 200)
+    const second = await listBeritaArsipForOrg(orgId, 1, 200)
+
+    const idxA1 = first.items.findIndex((i) => i.id === a.id)
+    const idxB1 = second.items.findIndex((i) => i.id === a.id)
+    expect(idxA1).toBe(idxB1) // same position across repeated calls
+
+    const orderOfTie = first.items
+      .filter((i) => i.id === a.id || i.id === b.id)
+      .map((i) => i.id)
+    // b has a larger uuidv7 (created later) — tie-break is deterministic
+    expect(orderOfTie).toEqual([b.id, a.id])
+  })
+
+  test('excludes draft, scheduled, and Halaman (type page) rows from both items and totalCount', async () => {
+    const past = new Date(Date.now() - 60_000)
+    const future = new Date(Date.now() + 1000 * 60 * 60 * 24 * 30)
+
+    await seedArticle(
+      { organizationId: orgId, publishedAt: past, status: 'draft' },
+      300
+    )
+    await seedArticle(
+      { organizationId: orgId, publishedAt: future, status: 'published' },
+      301
+    )
+    await seedArticle(
+      { organizationId: orgId, publishedAt: past, type: 'page' },
+      302
+    )
+
+    const result = await listBeritaArsipForOrg(orgId, 1, 200)
+    const titles = result.items.map((i) => i.title)
+    expect(titles).not.toContain(`Arsip ${suffix} 300`)
+    expect(titles).not.toContain(`Arsip ${suffix} 301`)
+    expect(titles).not.toContain(`Arsip ${suffix} 302`)
+  })
+
+  test('attaches Struktur identity via the same query (organization name/slug on every item)', async () => {
+    await seedArticle(
+      { organizationId: orgId, publishedAt: new Date(Date.now() - 1000) },
+      400
+    )
+
+    const result = await listBeritaArsipForOrg(orgId, 1, 200)
+    expect(result.items.length).toBeGreaterThan(0)
+    for (const item of result.items) {
+      expect(item.organization.id).toBe(orgId)
+      expect(item.organization.slug).toBe(`arsip-berita-org-${suffix}`)
+    }
+  })
+
+  test('attaches the category label when set, and null when the article has none', async () => {
+    const withCategory = await seedArticle(
+      {
+        organizationId: orgId,
+        publishedAt: new Date(Date.now() - 2000),
+        categoryId
+      },
+      500
+    )
+    const withoutCategory = await seedArticle(
+      { organizationId: orgId, publishedAt: new Date(Date.now() - 3000) },
+      501
+    )
+
+    const result = await listBeritaArsipForOrg(orgId, 1, 200)
+    const withCat = result.items.find((i) => i.id === withCategory.id)
+    const withoutCat = result.items.find((i) => i.id === withoutCategory.id)
+
+    expect(withCat?.category?.name).toBe(`Kategori ${suffix}`)
+    expect(withoutCat?.category).toBeNull()
+  })
+
+  test("does not leak another Struktur's Berita into items or totalCount", async () => {
+    await seedArticle(
+      {
+        organizationId: otherOrgId,
+        publishedAt: new Date(Date.now() - 1000)
+      },
+      600
+    )
+
+    const own = await listBeritaArsipForOrg(orgId, 1, 200)
+    const other = await listBeritaArsipForOrg(otherOrgId, 1, 200)
+
+    expect(own.items.every((i) => i.organization.id === orgId)).toBe(true)
+    expect(other.items.length).toBe(1)
+    expect(other.totalCount).toBe(1)
   })
 })
