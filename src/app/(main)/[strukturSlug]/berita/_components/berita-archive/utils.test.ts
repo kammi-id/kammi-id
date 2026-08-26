@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'bun:test'
-import { beritaArsipPermalinkPath, beritaArsipPageHref, buildPaginationItems } from './utils'
+import {
+  beritaArsipPermalinkPath,
+  beritaArsipPageHref,
+  buildPaginationItems
+} from './utils'
 
 describe('beritaArsipPermalinkPath', () => {
   it('derives tahun/bulan from the UTC fields of publishedAt (ADR 0014 wall-clock digits)', () => {
@@ -47,7 +51,15 @@ describe('buildPaginationItems', () => {
   })
 
   it('windows around the current page with a single ellipsis on each side', () => {
-    expect(buildPaginationItems(5, 10)).toEqual([1, 'ellipsis', 4, 5, 6, 'ellipsis', 10])
+    expect(buildPaginationItems(5, 10)).toEqual([
+      1,
+      'ellipsis',
+      4,
+      5,
+      6,
+      'ellipsis',
+      10
+    ])
   })
 
   it('drops the left ellipsis when the current page is near the start', () => {

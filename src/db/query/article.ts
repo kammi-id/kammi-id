@@ -163,7 +163,9 @@ export const listBeritaArsipForOrg = async (
   const totalPages = totalCount === 0 ? 0 : Math.ceil(totalCount / pageSize)
 
   const items: BeritaArsipItem[] = rows
-    .filter((r): r is typeof r & { publishedAt: Date } => r.publishedAt !== null)
+    .filter(
+      (r): r is typeof r & { publishedAt: Date } => r.publishedAt !== null
+    )
     .map((r) => ({
       id: r.id,
       title: r.title,

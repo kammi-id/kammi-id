@@ -130,27 +130,21 @@ export const ArticleBodyEditorToolbar = ({
       <Toggle
         aria-label='Daftar poin'
         pressed={editor.isActive('bulletList')}
-        onPressedChange={() =>
-          editor.chain().focus().toggleBulletList().run()
-        }
+        onPressedChange={() => editor.chain().focus().toggleBulletList().run()}
       >
         <HugeiconsIcon icon={ListViewIcon} />
       </Toggle>
       <Toggle
         aria-label='Daftar bernomor'
         pressed={editor.isActive('orderedList')}
-        onPressedChange={() =>
-          editor.chain().focus().toggleOrderedList().run()
-        }
+        onPressedChange={() => editor.chain().focus().toggleOrderedList().run()}
       >
         <HugeiconsIcon icon={LeftToRightListNumberIcon} />
       </Toggle>
       <Toggle
         aria-label='Kutipan'
         pressed={editor.isActive('blockquote')}
-        onPressedChange={() =>
-          editor.chain().focus().toggleBlockquote().run()
-        }
+        onPressedChange={() => editor.chain().focus().toggleBlockquote().run()}
       >
         <HugeiconsIcon icon={QuoteUpIcon} />
       </Toggle>

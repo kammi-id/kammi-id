@@ -12,7 +12,9 @@ afterEach(() => {
 // instance ProseMirror sungguhan (lambat & rawan di jsdom/happy-dom).
 // Toolbar cuma pernah memanggil editor.isActive, editor.getAttributes, dan
 // rantai editor.chain().<perintah>().run() — jadi itu saja yang ditiru.
-const createFakeEditor = (isActive: (name: string) => boolean = () => false) => {
+const createFakeEditor = (
+  isActive: (name: string) => boolean = () => false
+) => {
   const run = mock(() => true)
   const chain: Record<string, unknown> = {}
   const chainable = [
@@ -84,9 +86,7 @@ describe('ArticleBodyEditorToolbar', () => {
   })
 
   test('tombol tajuk mencerminkan status aktif via aria-pressed', () => {
-    const editor = createFakeEditor(
-      (name) => name === 'heading'
-    )
+    const editor = createFakeEditor((name) => name === 'heading')
     render(<ArticleBodyEditorToolbar editor={editor as never} />)
 
     expect(screen.getByRole('button', { name: 'Tajuk 2' })).toHaveAttribute(

@@ -1,8 +1,5 @@
 import { cacheLife, cacheTag } from 'next/cache'
-import {
-  listBeritaArsipForOrg,
-  type BeritaArsipPage
-} from '~/db/query/article'
+import { listBeritaArsipForOrg, type BeritaArsipPage } from '~/db/query/article'
 
 /**
  * `/berita` full archive (ticket 07, spec "Template Situs") — one page of

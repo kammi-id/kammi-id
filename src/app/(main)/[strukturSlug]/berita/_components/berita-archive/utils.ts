@@ -64,7 +64,8 @@ export const buildPaginationItems = (
   if (showRightEllipsis) {
     items.push('ellipsis')
   } else {
-    for (let page = rightSiblingIndex + 1; page < total; page++) items.push(page)
+    for (let page = rightSiblingIndex + 1; page < total; page++)
+      items.push(page)
   }
 
   items.push(total)
