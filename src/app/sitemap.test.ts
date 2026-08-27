@@ -1,14 +1,12 @@
 import { afterAll, beforeEach, describe, expect, it, mock } from 'bun:test'
 
 let host = 'pw-jabar.kammi.id'
-let origin: string | null = 'https://pw-jabar.kammi.id'
-let useFakeRequestHost = true
 let useFakeHeaders = true
 let useFakeSitemapQuery = true
 
-const actualRequestHost = await import('~/lib/struktur/request-host')
 const actualNextHeaders = await import('next/headers')
 const actualSitemapQuery = await import('~/db/query/sitemap')
+const actualOrganizationQuery = await import('~/db/query/organization')
 let struktur: {
   id: string
   type: string
@@ -24,19 +22,15 @@ mock.module('next/headers', () => ({
       : actualNextHeaders.headers(...args)
 }))
 
-mock.module('~/lib/struktur/request-host', () => ({
-  resolveStrukturForRequestHost: (
-    ...args: Parameters<typeof actualRequestHost.resolveStrukturForRequestHost>
+mock.module('~/db/query/organization', () => ({
+  readOrganization: (
+    ...args: Parameters<typeof actualOrganizationQuery.readOrganization>
   ) =>
-    useFakeRequestHost
-      ? Promise.resolve(struktur)
-      : actualRequestHost.resolveStrukturForRequestHost(...args),
-  requestOriginFromHost: (
-    ...args: Parameters<typeof actualRequestHost.requestOriginFromHost>
-  ) =>
-    useFakeRequestHost
-      ? origin
-      : actualRequestHost.requestOriginFromHost(...args)
+    useFakeSitemapQuery
+      ? (Promise.resolve(struktur ? [struktur] : []) as ReturnType<
+          typeof actualOrganizationQuery.readOrganization
+        >)
+      : actualOrganizationQuery.readOrganization(...args)
 }))
 
 mock.module('~/db/query/sitemap', () => ({
@@ -65,7 +59,6 @@ mock.module('~/db/query/sitemap', () => ({
 const { default: sitemap } = await import('./sitemap')
 
 afterAll(() => {
-  useFakeRequestHost = false
   useFakeHeaders = false
   useFakeSitemapQuery = false
   struktur = null
@@ -73,7 +66,6 @@ afterAll(() => {
 
 beforeEach(() => {
   host = 'pw-jabar.kammi.id'
-  origin = 'https://pw-jabar.kammi.id'
   struktur = {
     id: 'pw-jabar',
     type: 'pw',
@@ -99,7 +91,6 @@ describe('sitemap', () => {
 
   it('menambahkan Berita Jaringan hanya pada Situs PP', async () => {
     host = 'kammi.id'
-    origin = 'https://kammi.id'
     struktur = {
       id: 'pp',
       type: 'pp',
@@ -132,7 +123,6 @@ describe('sitemap', () => {
 
   it('kosong untuk host yang tidak dikenali', async () => {
     host = 'attacker.example'
-    origin = null
 
     expect(await sitemap()).toEqual([])
   })

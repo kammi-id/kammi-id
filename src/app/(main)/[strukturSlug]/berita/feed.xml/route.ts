@@ -1,7 +1,7 @@
 import { deriveTahunBulanTerbit } from '~/lib/publikasi/tanggal-terbit'
 import { resolveStrukturIdFromParams } from '~/app/(main)/_data/struktur'
 import { listBeritaArsipForOrg } from '~/db/query/article'
-import { requestOriginFromHost } from '~/lib/struktur/request-host'
+import { requestOriginFromHost } from '~/lib/struktur/request-origin'
 
 const escapeXml = (value: string): string =>
   value.replace(/[<>&'\"]/g, (character) => {

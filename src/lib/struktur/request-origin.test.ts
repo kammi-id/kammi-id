@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'bun:test'
-import { requestOriginFromHost } from './request-host'
+import { requestOriginFromHost } from './request-origin'
 
 describe('requestOriginFromHost', () => {
   it('menerima host tenant yang dikenal', () => {

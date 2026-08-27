@@ -1,10 +1,8 @@
 import type { MetadataRoute } from 'next'
 import { headers } from 'next/headers'
 import { listSitemapArticlesForOrg } from '~/db/query/sitemap'
-import {
-  requestOriginFromHost,
-  resolveStrukturForRequestHost
-} from '~/lib/struktur/request-host'
+import { resolveStrukturForRequestHost } from '~/lib/struktur/request-host'
+import { requestOriginFromHost } from '~/lib/struktur/request-origin'
 import { deriveTahunBulanTerbit } from '~/lib/publikasi/tanggal-terbit'
 
 type SitemapEntry = MetadataRoute.Sitemap[number]

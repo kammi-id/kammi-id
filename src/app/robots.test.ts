@@ -1,12 +1,10 @@
 import { afterAll, beforeEach, describe, expect, it, mock } from 'bun:test'
 
 let host = 'pw-jabar.kammi.id'
-let origin: string | null = 'https://pw-jabar.kammi.id'
-let useFakeRequestHost = true
 let useFakeHeaders = true
 
-const actualRequestHost = await import('~/lib/struktur/request-host')
 const actualNextHeaders = await import('next/headers')
+const actualOrganizationQuery = await import('~/db/query/organization')
 let struktur: { isSiteActive: boolean; isNonActive: boolean } | null = null
 
 mock.module('next/headers', () => ({
@@ -17,31 +15,25 @@ mock.module('next/headers', () => ({
       : actualNextHeaders.headers(...args)
 }))
 
-mock.module('~/lib/struktur/request-host', () => ({
-  resolveStrukturForRequestHost: (
-    ...args: Parameters<typeof actualRequestHost.resolveStrukturForRequestHost>
+mock.module('~/db/query/organization', () => ({
+  readOrganization: (
+    ...args: Parameters<typeof actualOrganizationQuery.readOrganization>
   ) =>
-    useFakeRequestHost
-      ? Promise.resolve(struktur)
-      : actualRequestHost.resolveStrukturForRequestHost(...args),
-  requestOriginFromHost: (
-    ...args: Parameters<typeof actualRequestHost.requestOriginFromHost>
-  ) =>
-    useFakeRequestHost
-      ? origin
-      : actualRequestHost.requestOriginFromHost(...args)
+    useFakeHeaders
+      ? (Promise.resolve(struktur ? [{ id: 'struktur', type: 'pw', ...struktur }] : []) as ReturnType<
+          typeof actualOrganizationQuery.readOrganization
+        >)
+      : actualOrganizationQuery.readOrganization(...args)
 }))
 
 const { default: robots } = await import('./robots')
 
 afterAll(() => {
-  useFakeRequestHost = false
   useFakeHeaders = false
 })
 
 beforeEach(() => {
   host = 'pw-jabar.kammi.id'
-  origin = 'https://pw-jabar.kammi.id'
   struktur = { isSiteActive: true, isNonActive: false }
 })
 
@@ -73,7 +65,6 @@ describe('robots', () => {
 
   it('menolak crawler untuk host yang tidak dikenali', async () => {
     host = 'attacker.example'
-    origin = null
 
     expect(await robots()).toEqual({
       rules: { userAgent: '*', disallow: '/' }

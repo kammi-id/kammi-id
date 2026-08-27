@@ -1,9 +1,7 @@
 import type { MetadataRoute } from 'next'
 import { headers } from 'next/headers'
-import {
-  requestOriginFromHost,
-  resolveStrukturForRequestHost
-} from '~/lib/struktur/request-host'
+import { resolveStrukturForRequestHost } from '~/lib/struktur/request-host'
+import { requestOriginFromHost } from '~/lib/struktur/request-origin'
 
 const robots = async (): Promise<MetadataRoute.Robots> => {
   const requestHost = (await headers()).get('host') ?? 'kammi.id'
