@@ -20,9 +20,9 @@ mock.module('~/db/query/organization', () => ({
     ...args: Parameters<typeof actualOrganizationQuery.readOrganization>
   ) =>
     useFakeHeaders
-      ? (Promise.resolve(struktur ? [{ id: 'struktur', type: 'pw', ...struktur }] : []) as ReturnType<
-          typeof actualOrganizationQuery.readOrganization
-        >)
+      ? (Promise.resolve(
+          struktur ? [{ id: 'struktur', type: 'pw', ...struktur }] : []
+        ) as ReturnType<typeof actualOrganizationQuery.readOrganization>)
       : actualOrganizationQuery.readOrganization(...args)
 }))
 
