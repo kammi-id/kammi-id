@@ -3,12 +3,18 @@ import { afterAll, beforeEach, describe, expect, it, mock } from 'bun:test'
 let host = 'pw-jabar.kammi.id'
 let origin: string | null = 'https://pw-jabar.kammi.id'
 let useFakeRequestHost = true
+let useFakeHeaders = true
 
 const actualRequestHost = await import('~/lib/struktur/request-host')
+const actualNextHeaders = await import('next/headers')
 let struktur: { isSiteActive: boolean; isNonActive: boolean } | null = null
 
 mock.module('next/headers', () => ({
-  headers: async () => new Headers({ host })
+  ...actualNextHeaders,
+  headers: (...args: Parameters<typeof actualNextHeaders.headers>) =>
+    useFakeHeaders
+      ? Promise.resolve(new Headers({ host }))
+      : actualNextHeaders.headers(...args)
 }))
 
 mock.module('~/lib/struktur/request-host', () => ({
@@ -30,6 +36,7 @@ const { default: robots } = await import('./robots')
 
 afterAll(() => {
   useFakeRequestHost = false
+  useFakeHeaders = false
 })
 
 beforeEach(() => {

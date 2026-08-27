@@ -3,8 +3,12 @@ import { afterAll, beforeEach, describe, expect, it, mock } from 'bun:test'
 let host = 'pw-jabar.kammi.id'
 let origin: string | null = 'https://pw-jabar.kammi.id'
 let useFakeRequestHost = true
+let useFakeHeaders = true
+let useFakeSitemapQuery = true
 
 const actualRequestHost = await import('~/lib/struktur/request-host')
+const actualNextHeaders = await import('next/headers')
+const actualSitemapQuery = await import('~/db/query/sitemap')
 let struktur: {
   id: string
   type: string
@@ -13,7 +17,11 @@ let struktur: {
 } | null = null
 
 mock.module('next/headers', () => ({
-  headers: async () => new Headers({ host })
+  ...actualNextHeaders,
+  headers: (...args: Parameters<typeof actualNextHeaders.headers>) =>
+    useFakeHeaders
+      ? Promise.resolve(new Headers({ host }))
+      : actualNextHeaders.headers(...args)
 }))
 
 mock.module('~/lib/struktur/request-host', () => ({
@@ -32,26 +40,34 @@ mock.module('~/lib/struktur/request-host', () => ({
 }))
 
 mock.module('~/db/query/sitemap', () => ({
-  listSitemapArticlesForOrg: async () => ({
-    halaman: [
-      {
-        slug: 'tentang-kami',
-        updatedAt: new Date('2026-08-01T00:00:00.000Z')
-      }
-    ],
-    berita: [
-      {
-        slug: 'kabar-terbaru',
-        publishedAt: new Date('2026-08-02T00:00:00.000Z')
-      }
-    ]
-  })
+  ...actualSitemapQuery,
+  listSitemapArticlesForOrg: (
+    ...args: Parameters<typeof actualSitemapQuery.listSitemapArticlesForOrg>
+  ) =>
+    useFakeSitemapQuery
+      ? Promise.resolve({
+          halaman: [
+            {
+              slug: 'tentang-kami',
+              updatedAt: new Date('2026-08-01T00:00:00.000Z')
+            }
+          ],
+          berita: [
+            {
+              slug: 'kabar-terbaru',
+              publishedAt: new Date('2026-08-02T00:00:00.000Z')
+            }
+          ]
+        })
+      : actualSitemapQuery.listSitemapArticlesForOrg(...args)
 }))
 
 const { default: sitemap } = await import('./sitemap')
 
 afterAll(() => {
   useFakeRequestHost = false
+  useFakeHeaders = false
+  useFakeSitemapQuery = false
   struktur = null
 })
 
