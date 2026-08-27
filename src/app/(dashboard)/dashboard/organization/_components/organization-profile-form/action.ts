@@ -74,6 +74,12 @@ export const updateOrganizationProfileAction = async (
 
     await updateOrganization(validated.data, org.id)
     updateTag('organizations')
+    if (validated.data.slug !== org.slug) {
+      updateTag('struktur-slug')
+      updateTag(`struktur-slug-${org.slug}`)
+      updateTag(`struktur-slug-${validated.data.slug}`)
+      updateTag('berita-jaringan')
+    }
     revalidatePath('/dashboard/organization')
 
     logger.info('Profil Struktur diperbarui', {

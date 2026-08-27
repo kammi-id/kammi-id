@@ -17,6 +17,12 @@ import { ArticleInputSchema, type ArticleInput } from './schema'
 
 const logger = getLogger(['app', 'action', 'article'])
 
+const updateArticleCacheTags = (organizationId: string, articleId?: string) => {
+  updateTag(`article-${organizationId}`)
+  updateTag('berita-jaringan')
+  if (articleId) updateTag(`article-detail-${articleId}`)
+}
+
 const assertCanManageOrg = (
   user: { role: string; connectedOrganization?: { id: string } | null },
   organizationId: string
@@ -129,7 +135,7 @@ export const createArticleAction = async (
     })
 
     revalidatePath('/dashboard/articles')
-    updateTag('articles')
+    updateArticleCacheTags(created.organizationId)
     logger.info('Artikel dibuat', { actorId: user.id, articleId: created.id })
 
     return { success: true, message: 'Artikel berhasil dibuat', data: created }
@@ -203,7 +209,9 @@ export const updateArticleAction = async (
 
     revalidatePath('/dashboard/articles')
     revalidatePath(`/dashboard/articles/${id}`)
-    updateTag('articles')
+    updateArticleCacheTags(existing.organizationId, id)
+    if (updated.organizationId !== existing.organizationId)
+      updateArticleCacheTags(updated.organizationId)
     logger.info('Artikel diperbarui', { actorId: user.id, articleId: id })
 
     return {

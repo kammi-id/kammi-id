@@ -4,7 +4,7 @@
 
 **Blocked by:** 11
 
-**Status:** ready-for-agent
+**Status:** resolved
 
 - [ ] Menonaktifkan atau mengaktifkan kembali sebuah Struktur segera mengubah apa yang dilayani publik, Berita Jaringan termasuk.
 - [ ] Menghapus dan memulihkan Struktur diperlakukan sama.

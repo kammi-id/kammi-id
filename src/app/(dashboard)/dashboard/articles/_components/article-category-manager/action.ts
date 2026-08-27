@@ -76,7 +76,7 @@ export const createCategoryAction = async (
 
     const created = await articleCategoryQuery.create(validated.data)
     revalidatePath('/dashboard/articles')
-    updateTag('articles')
+    updateTag(`article-category-${created.organizationId}`)
     logger.info('Kategori artikel dibuat', {
       actorId: user.id,
       categoryId: created.id
@@ -153,7 +153,7 @@ export const updateCategoryAction = async (
 
     const updated = await articleCategoryQuery.update(id, validated.data)
     revalidatePath('/dashboard/articles')
-    updateTag('articles')
+    updateTag(`article-category-${updated.organizationId}`)
     logger.info('Kategori artikel diperbarui', {
       actorId: user.id,
       categoryId: id
@@ -194,7 +194,7 @@ export const deleteCategoryAction = async (
 
     await articleCategoryQuery.delete(id)
     revalidatePath('/dashboard/articles')
-    updateTag('articles')
+    updateTag(`article-category-${existing.organizationId}`)
     logger.info('Kategori artikel dihapus', {
       actorId: user.id,
       categoryId: id

@@ -43,7 +43,9 @@ export const deleteArticleAction = async (
 
     await articleQuery.delete(id)
     revalidatePath('/dashboard/articles')
-    updateTag('articles')
+    updateTag(`article-${existing.organizationId}`)
+    updateTag(`article-detail-${id}`)
+    updateTag('berita-jaringan')
 
     logger.info('Artikel dihapus', { actorId: user.id, articleId: id })
 

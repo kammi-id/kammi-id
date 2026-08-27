@@ -8,7 +8,7 @@ export const getCachedArticlesForOrg = async (
 ) => {
   'use cache'
   cacheLife('minutes')
-  cacheTag('articles')
+  cacheTag(`article-${organizationId}`)
 
   return articleQuery.listForOrg(organizationId, filters)
 }
@@ -16,7 +16,7 @@ export const getCachedArticlesForOrg = async (
 export const getCachedArticleById = async (id: string) => {
   'use cache'
   cacheLife('minutes')
-  cacheTag('articles')
+  cacheTag(`article-detail-${id}`)
 
   return articleQuery.getById(id)
 }
@@ -24,7 +24,7 @@ export const getCachedArticleById = async (id: string) => {
 export const getCachedArticleTags = async (organizationId: string) => {
   'use cache'
   cacheLife('minutes')
-  cacheTag('articles')
+  cacheTag(`article-${organizationId}`)
 
   return articleQuery.listDistinctTags(organizationId)
 }
@@ -32,7 +32,7 @@ export const getCachedArticleTags = async (organizationId: string) => {
 export const getCachedArticleCategories = async (organizationId: string) => {
   'use cache'
   cacheLife('minutes')
-  cacheTag('articles')
+  cacheTag(`article-category-${organizationId}`)
 
   return articleCategoryQuery.listForOrg(organizationId)
 }
