@@ -4,7 +4,7 @@ import { Navbar } from './_components/navbar'
 import { Footer } from './_components/footer'
 import { LenisProvider } from '~/components/lenis-provider'
 import {
-  resolveStrukturIdFromParams,
+  resolveStrukturForPermalinkFromParams,
   type StrukturRouteParams
 } from '../_data/struktur'
 
@@ -26,20 +26,22 @@ type MainLayoutProps = {
 }
 
 const MainLayout = async ({ children, params }: MainLayoutProps) => {
-  const organizationId = await resolveStrukturIdFromParams(params)
+  const struktur = await resolveStrukturForPermalinkFromParams(params)
 
-  // `resolveStrukturIdFromParams` already folds "slug tidak dikenal",
-  // "Struktur Terhapus", and "Situs belum aktif" into the same `null` —
-  // gating here, once, covers every route under `[strukturSlug]` instead of
-  // each page repeating the check (ticket 02).
-  if (!organizationId) notFound()
+  // Deleted, unknown, and not-yet-active sites never serve. A Non-Aktif
+  // Struktur is the one exception that reaches this layout: its Berita
+  // permalink is preserved as an archive (ADR 0013), while each navigable
+  // page below resolves with `resolveStrukturIdFromParams` and answers 404.
+  if (!struktur) notFound()
+
+  if (struktur.isNonActive) return children
 
   return (
     <LenisProvider>
       <div className='flex min-h-screen flex-col'>
-        <Navbar organizationId={organizationId} />
+        <Navbar organizationId={struktur.id} />
         <main className='flex-1'>{children}</main>
-        <Footer organizationId={organizationId} />
+        <Footer organizationId={struktur.id} />
       </div>
     </LenisProvider>
   )

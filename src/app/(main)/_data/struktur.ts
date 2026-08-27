@@ -13,11 +13,10 @@ export type StrukturRouteParams = Promise<{ strukturSlug: string }>
 // unreachable at build time falls back to `null` instead of failing the
 // build — mirrors the guard the old `resolvePPOrgId` had.
 //
-// `isSiteActive: true` folds Situs Aktif into the same lookup that already
-// filters Struktur Terhapus (via `withOrganizationCTE`) — an unknown slug, a
-// Terhapus Struktur, and a Situs that hasn't been switched on all collapse to
-// the same `null`, so `[strukturSlug]/layout.tsx` can answer not-found for
-// all three without knowing which one it was (ticket 02).
+// `isSiteActive: true` dan `isNonActive: false` melipat Situs Aktif dan
+// Keadaan Aktif ke lookup yang sama yang sudah menyaring Struktur Terhapus
+// (via `withOrganizationCTE`). Ketiganya menjadi `null`, agar seluruh
+// permukaan yang dapat ditelusuri menjawab not-found (ticket 11, ADR 0013).
 export const resolveStrukturId = async (
   slug: string
 ): Promise<string | null> => {
@@ -26,11 +25,45 @@ export const resolveStrukturId = async (
   cacheTag('struktur-slug', `struktur-slug-${slug}`)
 
   try {
-    const [org] = await readOrganization({ slug, isSiteActive: true })
+    const [org] = await readOrganization({
+      slug,
+      isSiteActive: true,
+      isNonActive: false
+    })
     return org?.id ?? null
   } catch {
     return null
   }
+}
+
+export type PermalinkStruktur = Pick<Organization, 'id' | 'isNonActive'>
+
+/**
+ * Resolves a Situs Aktif for a Berita Permalink. Unlike `resolveStrukturId`,
+ * this deliberately keeps a Struktur Non-Aktif reachable: ADR 0013 preserves
+ * its published archive while removing every navigable surface. Deleted,
+ * unknown, and not-yet-active sites still collapse to `null`.
+ */
+export const resolveStrukturForPermalink = async (
+  slug: string
+): Promise<PermalinkStruktur | null> => {
+  'use cache'
+  cacheLife('days')
+  cacheTag('struktur-slug', `struktur-slug-${slug}`)
+
+  try {
+    const [org] = await readOrganization({ slug, isSiteActive: true })
+    return org ? { id: org.id, isNonActive: org.isNonActive } : null
+  } catch {
+    return null
+  }
+}
+
+export const resolveStrukturForPermalinkFromParams = async (
+  params: StrukturRouteParams
+): Promise<PermalinkStruktur | null> => {
+  const { strukturSlug } = await params
+  return resolveStrukturForPermalink(strukturSlug)
 }
 
 // Convenience for page/layout components: resolves straight from `params`.
@@ -60,11 +93,9 @@ export type StrukturIdentity = Pick<
  *
  * Cached under both a broad `organizations` tag — already busted by
  * `organization-profile-form`'s save action, so an edited name/logo shows up
- * immediately — and a per-id tag for when a future edit path wants to
- * invalidate just this Struktur without the broad tag's blast radius. Only
- * the broad one is wired to a writer today; the specific one is left for that
- * writer to pick up, same as `resolveStrukturId`'s own `struktur-slug` tag
- * above.
+ * immediately — and a per-id tag for when a writer wants to invalidate just
+ * this Struktur without the broad tag's blast radius. Keadaan and Situs Aktif
+ * actions invalidate the related `struktur-slug` tags at the same time.
  */
 export const getStrukturIdentity = async (
   organizationId: string | null

@@ -36,8 +36,12 @@ mock.module('next/cache', () => ({
     useFakeNextCache ? undefined : actualNextCache.cacheTag(...args)
 }))
 
-const { resolveStrukturId, resolveStrukturIdFromParams, getStrukturIdentity } =
-  await import('./struktur')
+const {
+  resolveStrukturId,
+  resolveStrukturIdFromParams,
+  resolveStrukturForPermalink,
+  getStrukturIdentity
+} = await import('./struktur')
 
 afterAll(() => {
   useFakeReadOrganization = false
@@ -47,7 +51,11 @@ afterAll(() => {
 describe('resolveStrukturId', () => {
   it('resolves the organization id for a known slug with an active Situs', async () => {
     readOrganizationImpl = async (filters) => {
-      expect(filters).toEqual({ slug: 'pp', isSiteActive: true })
+      expect(filters).toEqual({
+        slug: 'pp',
+        isSiteActive: true,
+        isNonActive: false
+      })
       return [{ id: 'org-1' }] as Awaited<
         ReturnType<typeof realReadOrganization>
       >
@@ -73,12 +81,45 @@ describe('resolveStrukturId', () => {
     expect(await resolveStrukturId('belum-aktif')).toBeNull()
   })
 
+  it('returns null for a Struktur Non-Aktif so its Situs cannot be navigated', async () => {
+    readOrganizationImpl = async (filters) =>
+      filters?.isNonActive === false
+        ? []
+        : ([{ id: 'org-non-aktif', isNonActive: true }] as Awaited<
+            ReturnType<typeof realReadOrganization>
+          >)
+
+    expect(await resolveStrukturId('non-aktif')).toBeNull()
+  })
+
   it('returns null instead of throwing when the database is unavailable', async () => {
     readOrganizationImpl = async () => {
       throw new Error('connection refused')
     }
 
     expect(await resolveStrukturId('pp')).toBeNull()
+  })
+})
+
+describe('resolveStrukturForPermalink', () => {
+  it('keeps a Situs Aktif milik Struktur Non-Aktif available only to its Berita permalink', async () => {
+    readOrganizationImpl = async (filters) => {
+      expect(filters).toEqual({ slug: 'non-aktif', isSiteActive: true })
+      return [{ id: 'org-non-aktif', isNonActive: true }] as Awaited<
+        ReturnType<typeof realReadOrganization>
+      >
+    }
+
+    expect(await resolveStrukturForPermalink('non-aktif')).toEqual({
+      id: 'org-non-aktif',
+      isNonActive: true
+    })
+  })
+
+  it('returns null for an unknown, deleted, or not-yet-active Situs', async () => {
+    readOrganizationImpl = async () => []
+
+    expect(await resolveStrukturForPermalink('tidak-ada')).toBeNull()
   })
 })
 

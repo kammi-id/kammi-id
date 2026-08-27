@@ -768,6 +768,22 @@ describe('listBeritaJaringan & listLatestBeritaJaringan', () => {
     expect(result.items.map((i) => i.id)).toContain(included.id)
   })
 
+  test('excludes the same Berita from its Struktur archive (ADR 0013)', async () => {
+    const archivedFromStruktur = await seedArticle(
+      {
+        organizationId: nonAktifStrukturOrgId,
+        publishedAt: new Date(Date.now() - 2_000)
+      },
+      6
+    )
+
+    const result = await listBeritaArsipForOrg(nonAktifStrukturOrgId, 1, 200)
+
+    expect(result.items.map((item) => item.id)).not.toContain(
+      archivedFromStruktur.id
+    )
+  })
+
   test('paginates with total count computed in the same query', async () => {
     const now = Date.now()
     const seeded = []

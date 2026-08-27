@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { notFound } from 'next/navigation'
 import { getMetadataSettings } from '../_data/site-settings'
 import {
   getHomeHeroItemsSettings,
@@ -54,6 +55,7 @@ export const generateMetadata = async ({
 
 const Page = async ({ params }: PageProps) => {
   const orgId = await resolveStrukturIdFromParams(params)
+  if (!orgId) notFound()
   const identity = await getStrukturIdentity(orgId)
 
   // `layout.tsx` already answers not-found for a null organization id before

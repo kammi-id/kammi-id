@@ -51,7 +51,12 @@ export const listLatestBeritaForOrg = async (
         eq(article.type, 'blog'),
         eq(article.status, 'published'),
         sql`${article.publishedAt} <= (now() AT TIME ZONE 'Asia/Jakarta')`,
-        organizationNotDeleted(article.organizationId)
+        organizationNotDeleted(article.organizationId),
+        sql`EXISTS (
+          SELECT 1 FROM ${organization} live_org
+          WHERE live_org.id = ${article.organizationId}
+            AND live_org.is_non_active = false
+        )`
       )
     )
     .orderBy(desc(article.publishedAt), desc(article.id))
@@ -152,7 +157,8 @@ export const listBeritaArsipForOrg = async (
         eq(article.type, 'blog'),
         eq(article.status, 'published'),
         lte(article.publishedAt, terbitCutoffForQuery()),
-        organizationNotDeleted(article.organizationId)
+        isNull(organization.deletedAt),
+        eq(organization.isNonActive, false)
       )
     )
     .orderBy(desc(article.publishedAt), desc(article.id))

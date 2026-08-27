@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { notFound } from 'next/navigation'
 import { TentangScene } from './_components/tentang-scene'
 import { SectionNav } from './_components/section-nav'
 import { getTentangSettings } from '~/app/(main)/_data/site-settings'
@@ -26,6 +27,7 @@ type TentangPageProps = {
 
 const TentangPage = async ({ params }: TentangPageProps) => {
   const orgId = await resolveStrukturIdFromParams(params)
+  if (!orgId) notFound()
   const settings = await getTentangSettings(orgId)
 
   return (

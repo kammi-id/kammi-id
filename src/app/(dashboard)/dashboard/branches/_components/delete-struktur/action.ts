@@ -117,6 +117,8 @@ export const deleteStrukturAction = async (
 
     await softDeleteOrganization(org.id, session.user.id)
     updateTag('organizations')
+    updateTag('struktur-slug')
+    updateTag(`struktur-slug-${org.slug}`)
     // ADR 0013: Struktur Terhapus disaring dari Berita Jaringan — tanpa ini
     // Berita-nya tetap muncul di sana sampai `cacheLife('days')` habis
     // sendiri.

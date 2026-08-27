@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Suspense } from 'react'
 import Link from 'next/link'
+import { notFound } from 'next/navigation'
 import { PengurusHero } from './_components/pengurus-hero'
 import { LeadersDirectory } from './_components/leaders-directory'
 import { ScrollProgress } from './_components/scroll-progress'
@@ -76,6 +77,7 @@ type PengurusPageProps = {
 
 const PengurusPage = async ({ params }: PengurusPageProps) => {
   const orgId = await resolveStrukturIdFromParams(params)
+  if (!orgId) notFound()
 
   return (
     <>

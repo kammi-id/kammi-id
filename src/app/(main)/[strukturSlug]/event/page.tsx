@@ -1,8 +1,13 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { notFound } from 'next/navigation'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Calendar01Icon } from '@hugeicons/core-free-icons'
 import { buildBreadcrumb } from '~/lib/seo'
+import {
+  resolveStrukturIdFromParams,
+  type StrukturRouteParams
+} from '~/app/(main)/_data/struktur'
 
 export const metadata: Metadata = {
   title: 'Event & Agenda',
@@ -15,7 +20,14 @@ export const metadata: Metadata = {
   }
 }
 
-const EventPage = () => {
+type EventPageProps = {
+  params: StrukturRouteParams
+}
+
+const EventPage = async ({ params }: EventPageProps) => {
+  const organizationId = await resolveStrukturIdFromParams(params)
+  if (!organizationId) notFound()
+
   return (
     <div className='bg-background min-h-[70vh] pb-24'>
       <script

@@ -2,10 +2,7 @@ import { cache } from 'react'
 import type { Metadata } from 'next'
 import { connection } from 'next/server'
 import { notFound, permanentRedirect } from 'next/navigation'
-import {
-  resolveStrukturIdFromParams,
-  type StrukturRouteParams
-} from '~/app/(main)/_data/struktur'
+import { resolveStrukturForPermalinkFromParams } from '~/app/(main)/_data/struktur'
 import { articleQuery } from '~/db/query/article'
 import { articleCategoryQuery } from '~/db/query/article-category'
 import { articlePermalinkHistoryQuery } from '~/db/query/article-permalink-history'
@@ -21,6 +18,7 @@ import {
   resolvePermalinkBerita,
   canonicalPermalinkForHistoryTarget
 } from './_components/_permalink-berita'
+import { InactiveStrukturPermalinkFrame } from './_components/inactive-struktur-permalink-frame'
 
 // Halaman ini WAJIB dinamis (request-time), bukan statik: badan tulisan
 // dirender dari dokumen tersimpan pada saat request (bukan dibekukan saat
@@ -60,6 +58,7 @@ const loadStrukturOrg = cache(async (organizationId: string) => {
 
 type ResolvedOutcome = {
   organizationId: string | null
+  isNonActive: boolean
   articleRow: Awaited<ReturnType<typeof loadBeritaBySlug>> | undefined
   org: Awaited<ReturnType<typeof loadStrukturOrg>> | undefined
   outcome: ReturnType<typeof resolvePermalinkBerita> | null
@@ -69,15 +68,18 @@ const resolveOutcome = async (
   params: BeritaDetailParams
 ): Promise<ResolvedOutcome> => {
   const { tahun, bulan, slug } = await params
-  const organizationId = await resolveStrukturIdFromParams(params)
-  if (!organizationId) {
+  const struktur = await resolveStrukturForPermalinkFromParams(params)
+  if (!struktur) {
     return {
       organizationId: null,
+      isNonActive: false,
       articleRow: undefined,
       org: undefined,
       outcome: null
     }
   }
+
+  const { id: organizationId, isNonActive } = struktur
 
   const [articleRow, org] = await Promise.all([
     loadBeritaBySlug(organizationId, slug),
@@ -107,7 +109,7 @@ const resolveOutcome = async (
     if (to) outcome = { kind: 'redirect', to }
   }
 
-  return { organizationId, articleRow, org, outcome }
+  return { organizationId, isNonActive, articleRow, org, outcome }
 }
 
 export const generateMetadata = async ({
@@ -148,7 +150,7 @@ export const generateMetadata = async ({
 
 const BeritaDetailPage = async ({ params }: BeritaDetailPageProps) => {
   await connection()
-  const { organizationId, articleRow, org, outcome } =
+  const { organizationId, isNonActive, articleRow, org, outcome } =
     await resolveOutcome(params)
 
   if (!organizationId) notFound()
@@ -167,7 +169,7 @@ const BeritaDetailPage = async ({ params }: BeritaDetailPageProps) => {
     ? await resolveSiteImage(articleRow.featuredImage)
     : null
 
-  return (
+  const content = (
     <article className='mx-auto max-w-3xl px-6 py-16 lg:px-8'>
       {category && (
         <span className='text-primary mb-4 inline-block text-sm font-semibold tracking-wide uppercase'>
@@ -206,6 +208,14 @@ const BeritaDetailPage = async ({ params }: BeritaDetailPageProps) => {
         <ArticleBodyRenderer body={articleRow.body} />
       </div>
     </article>
+  )
+
+  return isNonActive ? (
+    <InactiveStrukturPermalinkFrame organizationName={org.name}>
+      {content}
+    </InactiveStrukturPermalinkFrame>
+  ) : (
+    content
   )
 }
 
