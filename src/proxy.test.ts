@@ -27,7 +27,7 @@ mock.module('~/lib/auth/cookies', () => ({
   readActiveSession: async () => undefined
 }))
 
-const { proxy } = await import('./proxy')
+const { config, proxy } = await import('./proxy')
 
 afterAll(() => {
   useFakeReadOrganization = false
@@ -149,5 +149,17 @@ describe('proxy — tenant routing', () => {
     const res = await proxy(new NextRequest('https://kammi.id/opengraph-image'))
 
     expect(res).toBeUndefined()
+  })
+
+  it('rewrites the RSS XML route despite its file extension', async () => {
+    expect(config.matcher).toContain('/berita/feed.xml')
+
+    const res = await proxy(
+      new NextRequest('https://pw-jabar.kammi.id/berita/feed.xml')
+    )
+
+    expect(res?.headers.get('x-middleware-rewrite')).toBe(
+      'https://pw-jabar.kammi.id/pw-jabar/berita/feed.xml'
+    )
   })
 })

@@ -7,7 +7,7 @@ export const config = {
   // Excludes `_next`, `/api/*`, and any path with a file extension (assets,
   // `robots.txt`, `sitemap.xml`, …) — everything else, including `/dashboard`
   // and `/login`, still reaches `proxy()` below.
-  matcher: ['/((?!_next|api|.*\\..*).*)']
+  matcher: ['/berita/feed.xml', '/((?!_next|api|.*\\..*).*)']
 }
 
 export async function proxy(request: NextRequest) {
