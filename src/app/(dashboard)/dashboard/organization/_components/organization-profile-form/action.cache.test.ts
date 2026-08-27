@@ -1,12 +1,16 @@
-import { expect, it, mock } from 'bun:test'
+import { afterAll, expect, it, mock } from 'bun:test'
 
 const updatedTags: string[] = []
 const actualNextCache = await import('next/cache')
+let useFakeNextCache = true
 
 mock.module('next/cache', () => ({
   ...actualNextCache,
-  revalidatePath: () => undefined,
-  updateTag: (tag: string) => updatedTags.push(tag)
+  revalidatePath: (
+    ...args: Parameters<typeof actualNextCache.revalidatePath>
+  ) => (useFakeNextCache ? undefined : actualNextCache.revalidatePath(...args)),
+  updateTag: (tag: string) =>
+    useFakeNextCache ? updatedTags.push(tag) : actualNextCache.updateTag(tag)
 }))
 
 mock.module('~/lib/auth/kestrukturan', () => ({
@@ -21,6 +25,10 @@ mock.module('~/db/query/organization', () => ({
 }))
 
 const { updateOrganizationProfileAction } = await import('./action')
+
+afterAll(() => {
+  useFakeNextCache = false
+})
 
 it('membatalkan alamat lama dan baru serta Berita Jaringan saat slug berubah', async () => {
   const formData = new FormData()
