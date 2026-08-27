@@ -4,7 +4,7 @@ import { organization } from '~/db/schema/organization.sql'
 import { articleCategory } from '~/db/schema/article-category.sql'
 import { organizationNotDeleted } from '~/db/query/organization'
 import { terbitCutoffForQuery } from '~/lib/publikasi/tanggal-terbit'
-import { eq, and, ilike, desc, lte, sql } from 'drizzle-orm'
+import { eq, and, ilike, desc, lte, isNull, sql } from 'drizzle-orm'
 
 export type ArticleType = 'page' | 'blog'
 export type ArticleStatus = 'draft' | 'published' | 'archived'
@@ -180,6 +180,159 @@ export const listBeritaArsipForOrg = async (
       category: r.categoryId
         ? { id: r.categoryId, name: r.categoryName as string }
         : null
+    }))
+
+  return { items, totalCount, totalPages }
+}
+
+// ── Ticket 08 — Berita Jaringan (arsip nasional lintas Struktur) ────────────
+//
+// Sengaja DUA fungsi terpisah (top-N beranda dan arsip berpaginasi), sama
+// seperti `listLatestBeritaForOrg`/`listBeritaArsipForOrg` di atas sengaja
+// tidak digeneralisasi jadi satu fungsi dengan parameter limit/page.
+//
+// Filter Struktur di kedua fungsi ini BEDA dari filter arsip per-Struktur di
+// atas (ADR 0013): Terhapus dan Situs yang belum Aktif disaring, Struktur
+// Non-Aktif TIDAK — Beritanya tetap harus terbaca di sini meski berandanya
+// sendiri sudah mati. Karena `organization` sudah di-JOIN untuk identitasnya,
+// filter ini ditegakkan langsung pada kolom yang di-JOIN
+// (`organization.deletedAt`, `organization.isSiteActive`), bukan lewat
+// `organizationNotDeleted` (yang hanya menyaring Terhapus).
+
+export type BeritaJaringanItem = {
+  id: string
+  title: string
+  slug: string
+  featuredImage: string | null
+  publishedAt: Date
+  organization: {
+    id: string
+    name: string
+    slug: string
+    type: string
+  }
+}
+
+export type BeritaJaringanPage = {
+  items: BeritaJaringanItem[]
+  totalCount: number
+  totalPages: number
+}
+
+/** Spec "Template Situs": 48 Berita per halaman arsip `/berita/jaringan`. */
+export const BERITA_JARINGAN_PAGE_SIZE = 48
+
+/**
+ * Top-12 Berita Jaringan untuk bagian Beranda PP (spec "Template Situs") —
+ * padanan lintas-Struktur `listLatestBeritaForOrg`.
+ */
+export const listLatestBeritaJaringan = async (
+  limit = 12
+): Promise<BeritaJaringanItem[]> => {
+  const rows = await db
+    .select({
+      id: article.id,
+      title: article.title,
+      slug: article.slug,
+      featuredImage: article.featuredImage,
+      publishedAt: article.publishedAt,
+      organizationId: organization.id,
+      organizationName: organization.name,
+      organizationSlug: organization.slug,
+      organizationType: organization.type
+    })
+    .from(article)
+    .innerJoin(organization, eq(article.organizationId, organization.id))
+    .where(
+      and(
+        eq(article.type, 'blog'),
+        eq(article.status, 'published'),
+        lte(article.publishedAt, terbitCutoffForQuery()),
+        isNull(organization.deletedAt),
+        eq(organization.isSiteActive, true)
+      )
+    )
+    .orderBy(desc(article.publishedAt), desc(article.id))
+    .limit(limit)
+
+  return rows
+    .filter((r): r is typeof r & { publishedAt: Date } => r.publishedAt !== null)
+    .map((r) => ({
+      id: r.id,
+      title: r.title,
+      slug: r.slug,
+      featuredImage: r.featuredImage,
+      publishedAt: r.publishedAt,
+      organization: {
+        id: r.organizationId,
+        name: r.organizationName,
+        slug: r.organizationSlug,
+        type: r.organizationType
+      }
+    }))
+}
+
+/**
+ * Arsip Berita Jaringan PENUH, berpaginasi (spec "Pembacaan data") — padanan
+ * lintas-Struktur `listBeritaArsipForOrg`, sama bentuk paginasinya
+ * (`count(*) over()` dalam query yang sama, `publishedAt DESC, id DESC`
+ * dengan `id` sebagai pemecah seri stabil, nol baris pada `page` 1 vs `page`
+ * di luar jangkauan dibedakan pemanggil persis seperti arsip per-Struktur).
+ */
+export const listBeritaJaringan = async (
+  page = 1,
+  pageSize: number = BERITA_JARINGAN_PAGE_SIZE
+): Promise<BeritaJaringanPage> => {
+  const safePage = Math.max(1, Math.trunc(page) || 1)
+  const offset = (safePage - 1) * pageSize
+
+  const rows = await db
+    .select({
+      id: article.id,
+      title: article.title,
+      slug: article.slug,
+      featuredImage: article.featuredImage,
+      publishedAt: article.publishedAt,
+      organizationId: organization.id,
+      organizationName: organization.name,
+      organizationSlug: organization.slug,
+      organizationType: organization.type,
+      totalCount: sql<number>`count(*) over()`.mapWith(Number)
+    })
+    .from(article)
+    .innerJoin(organization, eq(article.organizationId, organization.id))
+    .where(
+      and(
+        eq(article.type, 'blog'),
+        eq(article.status, 'published'),
+        lte(article.publishedAt, terbitCutoffForQuery()),
+        isNull(organization.deletedAt),
+        eq(organization.isSiteActive, true)
+      )
+    )
+    .orderBy(desc(article.publishedAt), desc(article.id))
+    .limit(pageSize)
+    .offset(offset)
+
+  const totalCount = rows[0]?.totalCount ?? 0
+  const totalPages = totalCount === 0 ? 0 : Math.ceil(totalCount / pageSize)
+
+  const items: BeritaJaringanItem[] = rows
+    .filter(
+      (r): r is typeof r & { publishedAt: Date } => r.publishedAt !== null
+    )
+    .map((r) => ({
+      id: r.id,
+      title: r.title,
+      slug: r.slug,
+      featuredImage: r.featuredImage,
+      publishedAt: r.publishedAt,
+      organization: {
+        id: r.organizationId,
+        name: r.organizationName,
+        slug: r.organizationSlug,
+        type: r.organizationType
+      }
     }))
 
   return { items, totalCount, totalPages }

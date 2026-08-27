@@ -120,6 +120,10 @@ export const deactivateStrukturAction = async (
 
     await deactivateOrganization(org.id, session.user.id)
     updateTag('organizations')
+    // ADR 0013: Keadaan Struktur mengubah apa yang dilayani publik — Situs
+    // mati, tapi Berita Jaringan-nya wajib ikut ter-invalidate juga, bukan
+    // hanya cache dasbor.
+    updateTag('berita-jaringan')
     revalidatePath('/dashboard/branches')
 
     logger.info('Struktur dinonaktifkan', {
@@ -192,6 +196,8 @@ export const reactivateStrukturAction = async (
 
     await reactivateOrganization(org.id)
     updateTag('organizations')
+    // ADR 0013 — same reasoning as the deactivation branch above.
+    updateTag('berita-jaringan')
     revalidatePath('/dashboard/branches')
 
     logger.info('Struktur diaktifkan kembali', {

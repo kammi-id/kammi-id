@@ -5,7 +5,10 @@ import {
   hasPublishedArticle,
   listLatestBeritaForOrg,
   listBeritaArsipForOrg,
-  BERITA_ARSIP_PAGE_SIZE
+  BERITA_ARSIP_PAGE_SIZE,
+  listLatestBeritaJaringan,
+  listBeritaJaringan,
+  BERITA_JARINGAN_PAGE_SIZE
 } from './article'
 import { articleCategoryQuery } from './article-category'
 import { db } from '~/db/db'
@@ -593,5 +596,211 @@ describe('listBeritaArsipForOrg', () => {
     expect(own.items.every((i) => i.organization.id === orgId)).toBe(true)
     expect(other.items.length).toBe(1)
     expect(other.totalCount).toBe(1)
+  })
+})
+
+/**
+ * Ticket 08 (Berita Jaringan). Fixture bersufiks dan dibereskan sendiri,
+ * mengikuti preseden `listBeritaArsipForOrg` di atas — tapi filter Struktur
+ * yang diuji BEDA (ADR 0013): Terhapus dan Situs belum Aktif disaring,
+ * Non-Aktif TIDAK.
+ */
+describe('listBeritaJaringan & listLatestBeritaJaringan', () => {
+  const suffix = Date.now().toString(36)
+  const articleIds: string[] = []
+  const orgIds: string[] = []
+  let activeOrgId: string
+  let otherActiveOrgId: string
+  let inactiveSiteOrgId: string
+  let deletedOrgId: string
+  let nonAktifStrukturOrgId: string
+
+  const seedOrg = async (
+    name: string,
+    code: string,
+    opts: { isSiteActive: boolean; deletedAt?: Date; isNonActive?: boolean }
+  ) => {
+    const [row] = await db
+      .insert(organization)
+      .values({
+        name: `${name} ${suffix}`,
+        slug: `${name.toLowerCase().replace(/\s+/g, '-')}-${suffix}`,
+        code,
+        type: 'pk',
+        isNonActive: opts.isNonActive ?? false,
+        isSiteActive: opts.isSiteActive,
+        deletedAt: opts.deletedAt ?? null
+      })
+      .returning({ id: organization.id })
+    orgIds.push(row.id)
+    return row.id
+  }
+
+  const seedArticle = async (
+    values: Partial<typeof article.$inferInsert> & {
+      organizationId: string
+      publishedAt: Date | null
+    },
+    idx: number
+  ) => {
+    const [row] = await db
+      .insert(article)
+      .values({
+        type: 'blog',
+        title: `Jaringan ${suffix} ${idx}`,
+        slug: `jaringan-${suffix}-${idx}`,
+        body: { type: 'doc', content: [] },
+        status: 'published',
+        ...values
+      })
+      .returning()
+    articleIds.push(row.id)
+    return row
+  }
+
+  beforeAll(async () => {
+    activeOrgId = await seedOrg('Jaringan Org Aktif', `JOA-${suffix}`, {
+      isSiteActive: true
+    })
+    otherActiveOrgId = await seedOrg('Jaringan Org Aktif Lain', `JOL-${suffix}`, {
+      isSiteActive: true
+    })
+    inactiveSiteOrgId = await seedOrg('Jaringan Situs Belum Aktif', `JSB-${suffix}`, {
+      isSiteActive: false
+    })
+    deletedOrgId = await seedOrg('Jaringan Org Terhapus', `JOT-${suffix}`, {
+      isSiteActive: true,
+      deletedAt: new Date()
+    })
+    nonAktifStrukturOrgId = await seedOrg('Jaringan Struktur Non Aktif', `JNA-${suffix}`, {
+      isSiteActive: true,
+      isNonActive: true
+    })
+  })
+
+  afterAll(async () => {
+    if (articleIds.length > 0)
+      await db.delete(article).where(inArray(article.id, articleIds))
+    if (orgIds.length > 0)
+      await db.delete(organization).where(inArray(organization.id, orgIds))
+  })
+
+  test('exposes a 48-item page size, per spec "48 per halaman"', () => {
+    expect(BERITA_JARINGAN_PAGE_SIZE).toBe(48)
+  })
+
+  test('combines Berita across multiple Struktur, newest first, with organization identity attached', async () => {
+    const a = await seedArticle(
+      {
+        organizationId: activeOrgId,
+        publishedAt: new Date(Date.now() - 60_000)
+      },
+      1
+    )
+    const b = await seedArticle(
+      {
+        organizationId: otherActiveOrgId,
+        publishedAt: new Date(Date.now() - 30_000)
+      },
+      2
+    )
+
+    const result = await listBeritaJaringan(1, 200)
+    const ids = result.items.map((i) => i.id)
+
+    expect(ids).toContain(a.id)
+    expect(ids).toContain(b.id)
+    expect(ids.indexOf(b.id)).toBeLessThan(ids.indexOf(a.id))
+
+    const itemB = result.items.find((i) => i.id === b.id)
+    expect(itemB?.organization.id).toBe(otherActiveOrgId)
+    expect(itemB?.organization.type).toBe('pk')
+  })
+
+  test('excludes Berita from a Struktur Terhapus', async () => {
+    const excluded = await seedArticle(
+      {
+        organizationId: deletedOrgId,
+        publishedAt: new Date(Date.now() - 1000)
+      },
+      3
+    )
+
+    const result = await listBeritaJaringan(1, 200)
+    expect(result.items.map((i) => i.id)).not.toContain(excluded.id)
+  })
+
+  test('excludes Berita from a Struktur whose Situs is not yet Aktif', async () => {
+    const excluded = await seedArticle(
+      {
+        organizationId: inactiveSiteOrgId,
+        publishedAt: new Date(Date.now() - 1000)
+      },
+      4
+    )
+
+    const result = await listBeritaJaringan(1, 200)
+    expect(result.items.map((i) => i.id)).not.toContain(excluded.id)
+  })
+
+  test('does NOT exclude Berita from a Struktur Non-Aktif (ADR 0013 — beda dari filter arsip per Situs)', async () => {
+    const included = await seedArticle(
+      {
+        organizationId: nonAktifStrukturOrgId,
+        publishedAt: new Date(Date.now() - 1000)
+      },
+      5
+    )
+
+    const result = await listBeritaJaringan(1, 200)
+    expect(result.items.map((i) => i.id)).toContain(included.id)
+  })
+
+  test('paginates with total count computed in the same query', async () => {
+    const now = Date.now()
+    const seeded = []
+    for (let i = 0; i < 5; i++) {
+      seeded.push(
+        await seedArticle(
+          {
+            organizationId: activeOrgId,
+            publishedAt: new Date(now - i * 60_000)
+          },
+          10 + i
+        )
+      )
+    }
+
+    const page1 = await listBeritaJaringan(1, 2)
+    expect(page1.items.length).toBe(2)
+    expect(page1.totalPages).toBe(Math.ceil(page1.totalCount / 2))
+    expect(page1.totalCount).toBeGreaterThanOrEqual(5)
+  })
+
+  test('listLatestBeritaJaringan returns the same cross-Struktur filter, newest first, limited', async () => {
+    const excluded = await seedArticle(
+      {
+        organizationId: deletedOrgId,
+        publishedAt: new Date(Date.now() - 500)
+      },
+      20
+    )
+    // +60s, still well inside the Terbit cutoff (now + 7h) but guaranteed
+    // newer than every `Date.now() - X` fixture seeded by earlier tests in
+    // this block — a `- X` offset close to the process clock can otherwise
+    // race with a later test's own `Date.now()` within the same run.
+    const included = await seedArticle(
+      {
+        organizationId: activeOrgId,
+        publishedAt: new Date(Date.now() + 60_000)
+      },
+      21
+    )
+
+    const items = await listLatestBeritaJaringan(3)
+    const ids = items.map((i) => i.id)
+    expect(ids).not.toContain(excluded.id)
+    expect(ids[0]).toBe(included.id)
+    expect(items.length).toBeLessThanOrEqual(3)
   })
 })

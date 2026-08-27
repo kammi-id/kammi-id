@@ -68,6 +68,10 @@ export const setSiteActiveAction = async (
   updateTag('organizations')
   updateTag('struktur-slug')
   updateTag(`struktur-slug-${org.slug}`)
+  // ADR 0013: Situs Aktif adalah salah satu filter Berita Jaringan
+  // (menyalakan/mematikannya mengubah baris mana yang lolos, sama seperti
+  // perubahan Keadaan Struktur).
+  updateTag('berita-jaringan')
 
   return {
     success: true,

@@ -64,6 +64,18 @@ export const article = pgTable(
      */
     index('article_terbit_kronologis_idx')
       .on(table.organizationId, table.publishedAt.desc(), table.id.desc())
+      .where(sql`${table.type} = 'blog' AND ${table.status} = 'published'`),
+    /**
+     * Ticket 08 (Berita Jaringan): `listBeritaJaringan` mengurutkan
+     * `publishedAt DESC, id DESC` LINTAS seluruh Struktur — tanpa
+     * `organizationId` sebagai kolom pertama, berbeda dari index arsip
+     * per-Struktur di atas. Penyaringan Struktur (Terhapus, Situs belum
+     * Aktif — ADR 0013) tidak bisa masuk predikat index ini karena predikat
+     * partial index hanya boleh merujuk kolom `article` sendiri, bukan
+     * `organization` yang di-JOIN; itu tetap ditegakkan lewat WHERE runtime.
+     */
+    index('article_terbit_jaringan_idx')
+      .on(table.publishedAt.desc(), table.id.desc())
       .where(sql`${table.type} = 'blog' AND ${table.status} = 'published'`)
   ]
 )

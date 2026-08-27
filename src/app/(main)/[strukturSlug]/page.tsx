@@ -18,6 +18,7 @@ import { HomeScene } from './_components/home-scene'
 import { ExtraSection } from './_components/extra-section'
 import { LeanHomeScene } from './_components/lean-home-scene'
 import { BeritaPreviewSection } from './_components/berita-preview-section'
+import { BeritaJaringanSection } from './_components/berita-jaringan-section'
 
 type PageProps = {
   params: StrukturRouteParams
@@ -183,12 +184,7 @@ const Page = async ({ params }: PageProps) => {
         pwOrgs={pwOrgs}
       />
       <BeritaPreviewSection organizationId={orgId} />
-      {/*
-       * TODO(ticket 08): Berita Jaringan — 12 Berita terbaru dari seluruh
-       * Struktur, menautkan ke /berita/jaringan (spec "Template Situs").
-       * Needs the cross-Struktur query spec "Pembacaan data" describes
-       * (JOIN organization, combined-count pagination) — out of scope here.
-       */}
+      <BeritaJaringanSection />
       <ExtraSection organizationId={orgId} />
     </>
   )

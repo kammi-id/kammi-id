@@ -162,6 +162,10 @@ export const restoreStrukturAction = async (
       desiredSlug === org.slug ? undefined : desiredSlug
     )
     updateTag('organizations')
+    // ADR 0013: memulihkan Struktur Terhapus membuat Berita-nya lolos lagi
+    // dari filter Berita Jaringan — cache-nya wajib ikut ter-invalidate,
+    // sama seperti tiap perubahan Keadaan lainnya.
+    updateTag('berita-jaringan')
     revalidatePath('/dashboard/branches/terhapus')
     revalidatePath('/dashboard/branches')
 
