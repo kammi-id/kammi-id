@@ -1,8 +1,10 @@
 import { expect, it, mock } from 'bun:test'
 
 const updatedTags: string[] = []
+const actualNextCache = await import('next/cache')
 
 mock.module('next/cache', () => ({
+  ...actualNextCache,
   revalidatePath: () => undefined,
   updateTag: (tag: string) => updatedTags.push(tag)
 }))
