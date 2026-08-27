@@ -1,6 +1,10 @@
 import { afterAll, beforeEach, describe, expect, it, mock } from 'bun:test'
 
 let host = 'pw-jabar.kammi.id'
+let origin: string | null = 'https://pw-jabar.kammi.id'
+let useFakeRequestHost = true
+
+const actualRequestHost = await import('~/lib/struktur/request-host')
 let struktur: {
   id: string
   type: string
@@ -13,8 +17,18 @@ mock.module('next/headers', () => ({
 }))
 
 mock.module('~/lib/struktur/request-host', () => ({
-  resolveStrukturForRequestHost: async () => struktur,
-  requestOriginFromHost: (requestHost: string) => `https://${requestHost}`
+  resolveStrukturForRequestHost: (
+    ...args: Parameters<typeof actualRequestHost.resolveStrukturForRequestHost>
+  ) =>
+    useFakeRequestHost
+      ? Promise.resolve(struktur)
+      : actualRequestHost.resolveStrukturForRequestHost(...args),
+  requestOriginFromHost: (
+    ...args: Parameters<typeof actualRequestHost.requestOriginFromHost>
+  ) =>
+    useFakeRequestHost
+      ? origin
+      : actualRequestHost.requestOriginFromHost(...args)
 }))
 
 mock.module('~/db/query/sitemap', () => ({
@@ -37,11 +51,13 @@ mock.module('~/db/query/sitemap', () => ({
 const { default: sitemap } = await import('./sitemap')
 
 afterAll(() => {
+  useFakeRequestHost = false
   struktur = null
 })
 
 beforeEach(() => {
   host = 'pw-jabar.kammi.id'
+  origin = 'https://pw-jabar.kammi.id'
   struktur = {
     id: 'pw-jabar',
     type: 'pw',
@@ -67,6 +83,7 @@ describe('sitemap', () => {
 
   it('menambahkan Berita Jaringan hanya pada Situs PP', async () => {
     host = 'kammi.id'
+    origin = 'https://kammi.id'
     struktur = {
       id: 'pp',
       type: 'pp',
@@ -94,6 +111,13 @@ describe('sitemap', () => {
       isSiteActive: true,
       isNonActive: true
     }
+    expect(await sitemap()).toEqual([])
+  })
+
+  it('kosong untuk host yang tidak dikenali', async () => {
+    host = 'attacker.example'
+    origin = null
+
     expect(await sitemap()).toEqual([])
   })
 })

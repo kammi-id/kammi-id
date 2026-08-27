@@ -1,6 +1,7 @@
 import { deriveTahunBulanTerbit } from '~/lib/publikasi/tanggal-terbit'
 import { resolveStrukturIdFromParams } from '~/app/(main)/_data/struktur'
 import { listBeritaArsipForOrg } from '~/db/query/article'
+import { requestOriginFromHost } from '~/lib/struktur/request-host'
 
 const escapeXml = (value: string): string =>
   value.replace(/[<>&'\"]/g, (character) => {
@@ -23,7 +24,10 @@ export const GET = async (
   if (!organizationId) return new Response(null, { status: 404 })
 
   const { items } = await listBeritaArsipForOrg(organizationId)
-  const origin = new URL(request.url).origin
+  const origin = requestOriginFromHost(
+    request.headers.get('host') ?? new URL(request.url).host
+  )
+  if (!origin) return new Response(null, { status: 404 })
   const siteName = items[0]?.organization.name ?? 'KAMMI'
   const itemsXml = items
     .map((item) => {

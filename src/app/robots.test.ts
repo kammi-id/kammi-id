@@ -1,6 +1,10 @@
-import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import { afterAll, beforeEach, describe, expect, it, mock } from 'bun:test'
 
 let host = 'pw-jabar.kammi.id'
+let origin: string | null = 'https://pw-jabar.kammi.id'
+let useFakeRequestHost = true
+
+const actualRequestHost = await import('~/lib/struktur/request-host')
 let struktur: { isSiteActive: boolean; isNonActive: boolean } | null = null
 
 mock.module('next/headers', () => ({
@@ -8,14 +12,29 @@ mock.module('next/headers', () => ({
 }))
 
 mock.module('~/lib/struktur/request-host', () => ({
-  resolveStrukturForRequestHost: async () => struktur,
-  requestOriginFromHost: (requestHost: string) => `https://${requestHost}`
+  resolveStrukturForRequestHost: (
+    ...args: Parameters<typeof actualRequestHost.resolveStrukturForRequestHost>
+  ) =>
+    useFakeRequestHost
+      ? Promise.resolve(struktur)
+      : actualRequestHost.resolveStrukturForRequestHost(...args),
+  requestOriginFromHost: (
+    ...args: Parameters<typeof actualRequestHost.requestOriginFromHost>
+  ) =>
+    useFakeRequestHost
+      ? origin
+      : actualRequestHost.requestOriginFromHost(...args)
 }))
 
 const { default: robots } = await import('./robots')
 
+afterAll(() => {
+  useFakeRequestHost = false
+})
+
 beforeEach(() => {
   host = 'pw-jabar.kammi.id'
+  origin = 'https://pw-jabar.kammi.id'
   struktur = { isSiteActive: true, isNonActive: false }
 })
 
@@ -40,6 +59,15 @@ describe('robots', () => {
     })
 
     struktur = { isSiteActive: true, isNonActive: true }
+    expect(await robots()).toEqual({
+      rules: { userAgent: '*', disallow: '/' }
+    })
+  })
+
+  it('menolak crawler untuk host yang tidak dikenali', async () => {
+    host = 'attacker.example'
+    origin = null
+
     expect(await robots()).toEqual({
       rules: { userAgent: '*', disallow: '/' }
     })

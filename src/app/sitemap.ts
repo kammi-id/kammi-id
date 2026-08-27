@@ -55,10 +55,11 @@ const publicRoutes = (origin: string, isPP: boolean): SitemapEntry[] => [
 const sitemap = async (): Promise<MetadataRoute.Sitemap> => {
   const requestHost = (await headers()).get('host') ?? 'kammi.id'
   const struktur = await resolveStrukturForRequestHost(requestHost)
-
-  if (!struktur || !struktur.isSiteActive || struktur.isNonActive) return []
-
   const origin = requestOriginFromHost(requestHost)
+
+  if (!origin || !struktur || !struktur.isSiteActive || struktur.isNonActive)
+    return []
+
   const articles = await listSitemapArticlesForOrg(struktur.id)
 
   return [

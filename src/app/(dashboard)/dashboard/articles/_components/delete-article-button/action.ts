@@ -46,6 +46,7 @@ export const deleteArticleAction = async (
     updateTag(`article-${existing.organizationId}`)
     updateTag(`article-detail-${id}`)
     updateTag('berita-jaringan')
+    updateTag(`site-active-toggle-${existing.organizationId}`)
 
     logger.info('Artikel dihapus', { actorId: user.id, articleId: id })
 

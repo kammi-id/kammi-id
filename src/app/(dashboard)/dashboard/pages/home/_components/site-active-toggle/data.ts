@@ -12,15 +12,15 @@ export type SiteActiveToggleData = {
  * Cached read backing the toggle. Tagged `organizations` — the same broad
  * tag `setSiteActiveAction` already invalidates on write (matching the
  * existing convention in `organization-profile-form/action.ts`) — and
- * `articles`, so a freshly published Berita lifts the gate on next render
- * without waiting out `cacheLife('minutes')`.
+ * its own Artikel gate, so a freshly published Berita lifts the gate on next
+ * render without waiting out `cacheLife('minutes')`.
  */
 export const getCachedSiteActiveToggleData = async (
   organizationId: string
 ): Promise<SiteActiveToggleData> => {
   'use cache'
   cacheLife('minutes')
-  cacheTag('organizations', 'articles')
+  cacheTag('organizations', `site-active-toggle-${organizationId}`)
 
   const [[org], published] = await Promise.all([
     readOrganization({ id: [organizationId] }),

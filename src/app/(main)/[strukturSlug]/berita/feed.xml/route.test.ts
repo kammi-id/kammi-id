@@ -62,4 +62,18 @@ describe('GET /berita/feed.xml', () => {
 
     expect(response.status).toBe(404)
   })
+
+  it('menggunakan Host peminta, bukan origin server di balik proxy', async () => {
+    const response = await GET(
+      {
+        url: 'http://127.0.0.1:3010/berita/feed.xml',
+        headers: new Headers({ host: 'pw-jabar.kammi.id' })
+      } as Request,
+      { params: Promise.resolve({ strukturSlug: 'pw-jabar' }) }
+    )
+
+    expect(await response.text()).toContain(
+      'https://pw-jabar.kammi.id/berita/2026/8/kabar-terbaru'
+    )
+  })
 })

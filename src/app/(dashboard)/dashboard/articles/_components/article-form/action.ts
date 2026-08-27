@@ -20,6 +20,7 @@ const logger = getLogger(['app', 'action', 'article'])
 const updateArticleCacheTags = (organizationId: string, articleId?: string) => {
   updateTag(`article-${organizationId}`)
   updateTag('berita-jaringan')
+  updateTag(`site-active-toggle-${organizationId}`)
   if (articleId) updateTag(`article-detail-${articleId}`)
 }
 
