@@ -8,6 +8,18 @@ import {
   type StrukturRouteParams
 } from '../_data/struktur'
 
+// `resolveStrukturIdFromParams` awaits `params` di luar batas `'use cache'`
+// (dirinya sendiri bukan fungsi ter-cache, cuma pembungkus tipis di atas
+// `resolveStrukturId` yang ter-cache) — Cache Components menghitung itu
+// sebagai akses data dinamis di luar `<Suspense>`, dan karena ini layout
+// bersama SETIAP rute di bawah `[strukturSlug]`, tanpa opt-out ini `next
+// build` menolak memprarender shell statis satu pun halaman di subtree ini
+// (lihat referensi `instant`: "Place the `false` as low as possible — only
+// as high as needed to cover the routes you want to opt out"). Menaruhnya
+// di sini, satu tempat, menutup seluruh subtree sekaligus — tidak perlu
+// diulang di tiap `page.tsx` turunannya.
+export const instant = false
+
 type MainLayoutProps = {
   children: ReactNode
   params: StrukturRouteParams

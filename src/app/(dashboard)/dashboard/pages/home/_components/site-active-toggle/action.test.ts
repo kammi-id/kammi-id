@@ -11,6 +11,7 @@ import { db } from '~/db/db'
 import { eq, inArray } from 'drizzle-orm'
 import { organization } from '~/db/schema/organization.sql'
 import { article } from '~/db/schema/article.sql'
+import { NO_PUBLISHED_ARTICLE_MESSAGE } from './constants'
 
 let mockSession: unknown = undefined
 
@@ -22,8 +23,7 @@ mock.module('next/cache', () => ({
   updateTag: () => {}
 }))
 
-const { setSiteActiveAction, NO_PUBLISHED_ARTICLE_MESSAGE } =
-  await import('./action')
+const { setSiteActiveAction } = await import('./action')
 
 /**
  * Tiket 03, spec "Aktivasi Situs". `requireSiteSettingsAccess` sudah diuji

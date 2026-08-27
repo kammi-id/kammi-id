@@ -29,6 +29,10 @@ import {
 // tanpa menunggu revalidasi cache. `connection()` menandai ini eksplisit ke
 // Cache Components, mengikuti pola yang sama dengan
 // `dashboard/branches/[[...slug]]/page.tsx`.
+//
+// Tidak perlu `instant = false` di sini sendiri — `[strukturSlug]/layout.tsx`
+// sudah menyatakannya untuk seluruh subtree (satu titik menutup semua rute
+// turunannya, lihat komentar di sana).
 
 type BeritaDetailParams = Promise<{
   strukturSlug: string

@@ -19,6 +19,10 @@ import { resolvePermalinkHalaman } from './_components/_permalink-halaman'
 // `tentang`, `event`, dst.) — dijaga saat SIMPAN (`ArticleInputSchema`
 // menolak slug yang bertabrakan), bukan di sini. Next.js App Router sendiri
 // yang memenangkan segmen statis di atas `[slug]` pada level yang sama.
+//
+// Tidak perlu `instant = false` di sini sendiri — `[strukturSlug]/layout.tsx`
+// sudah menyatakannya untuk seluruh subtree (satu titik menutup semua rute
+// turunannya, lihat komentar di sana).
 
 type HalamanDetailParams = Promise<{ strukturSlug: string; slug: string }>
 

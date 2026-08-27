@@ -4,15 +4,13 @@ import { updateTag } from 'next/cache'
 import { requireSiteSettingsAccess } from '~/lib/auth/site-settings'
 import { readOrganization, updateOrganization } from '~/db/query/organization'
 import { hasPublishedArticle } from '~/db/query/article'
+import { NO_PUBLISHED_ARTICLE_MESSAGE } from './constants'
 
 export type SiteActiveToggleState = {
   success: boolean
   message: string
   isActive: boolean
 }
-
-export const NO_PUBLISHED_ARTICLE_MESSAGE =
-  'Situs belum bisa dinyalakan — Struktur ini belum memiliki satu pun Berita Terbit.'
 
 /**
  * Turns a Struktur's own Situs Aktif on or off (ticket 03, spec "Aktivasi
