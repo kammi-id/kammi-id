@@ -21,7 +21,7 @@
     "dev": "next dev",
     "format": "prettier --write .",
     "start": "next start",
-    "test": "bun test --preload ./tests/setup.ts",
+    "test": "bun test --isolate --preload ./tests/setup.ts",
     "test:coverage": "bun test --coverage --preload ./tests/setup.ts",
     "test:e2e": "playwright test",
     "test:ct": "playwright test-ct"

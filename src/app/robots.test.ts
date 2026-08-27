@@ -1,11 +1,22 @@
-import { afterAll, beforeEach, describe, expect, it, mock } from 'bun:test'
+import {
+  afterAll,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  mock
+} from 'bun:test'
+import { eq, sql } from 'drizzle-orm'
+import { db } from '~/db/db'
+import { createOrganization } from '~/db/query/organization'
+import { organization } from '~/db/schema/organization.sql'
 
 let host = 'pw-jabar.kammi.id'
 let useFakeHeaders = true
 
 const actualNextHeaders = await import('next/headers')
-const actualOrganizationQuery = await import('~/db/query/organization')
-let struktur: { isSiteActive: boolean; isNonActive: boolean } | null = null
+let pwJabarId: string
 
 mock.module('next/headers', () => ({
   ...actualNextHeaders,
@@ -15,26 +26,41 @@ mock.module('next/headers', () => ({
       : actualNextHeaders.headers(...args)
 }))
 
-mock.module('~/db/query/organization', () => ({
-  readOrganization: (
-    ...args: Parameters<typeof actualOrganizationQuery.readOrganization>
-  ) =>
-    useFakeHeaders
-      ? (Promise.resolve(
-          struktur ? [{ id: 'struktur', type: 'pw', ...struktur }] : []
-        ) as ReturnType<typeof actualOrganizationQuery.readOrganization>)
-      : actualOrganizationQuery.readOrganization(...args)
-}))
-
 const { default: robots } = await import('./robots')
 
 afterAll(() => {
   useFakeHeaders = false
 })
 
+beforeAll(async () => {
+  await db.execute(sql`TRUNCATE TABLE "user", "member", organization CASCADE`)
+
+  const [pp] = await createOrganization({
+    name: 'PP KAMMI',
+    slug: 'pp-kammi',
+    code: 'PP-00',
+    type: 'pp',
+    parentId: null,
+    isNonActive: false
+  })
+  const [pwJabar] = await createOrganization({
+    name: 'PW Jabar',
+    slug: 'pw-jabar',
+    code: 'PW-32',
+    type: 'pw',
+    parentId: pp.id,
+    isNonActive: false
+  })
+
+  pwJabarId = pwJabar.id
+  await db
+    .update(organization)
+    .set({ isSiteActive: true })
+    .where(eq(organization.id, pwJabarId))
+})
+
 beforeEach(() => {
   host = 'pw-jabar.kammi.id'
-  struktur = { isSiteActive: true, isNonActive: false }
 })
 
 describe('robots', () => {
@@ -52,12 +78,18 @@ describe('robots', () => {
   })
 
   it('menolak semua crawler untuk Situs belum aktif dan Struktur Non-Aktif', async () => {
-    struktur = { isSiteActive: false, isNonActive: false }
+    await db
+      .update(organization)
+      .set({ isSiteActive: false })
+      .where(eq(organization.id, pwJabarId))
     expect(await robots()).toEqual({
       rules: { userAgent: '*', disallow: '/' }
     })
 
-    struktur = { isSiteActive: true, isNonActive: true }
+    await db
+      .update(organization)
+      .set({ isSiteActive: true, isNonActive: true })
+      .where(eq(organization.id, pwJabarId))
     expect(await robots()).toEqual({
       rules: { userAgent: '*', disallow: '/' }
     })

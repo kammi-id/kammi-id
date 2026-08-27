@@ -58,7 +58,7 @@ jobs:
         run: bun run db:migrate
 
       - name: Run Unit Tests
-        run: bun test
+        run: bun test --isolate
 
       - name: Seed Database for E2E
         run: bun src/scripts/seed-pp-minimal.ts

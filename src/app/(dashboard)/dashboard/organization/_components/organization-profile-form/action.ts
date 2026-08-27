@@ -1,10 +1,10 @@
 'use server'
 
-import { revalidatePath, updateTag } from 'next/cache'
 import { updateOrganization } from '~/db/query/organization'
 import { requireOwnStrukturEditAccess } from '~/lib/auth/kestrukturan'
 import { isSlugConflict } from '~/lib/struktur/slug-conflict'
 import { getLogger, redact } from '~/lib/logger'
+import { revalidateOrganizationProfile } from './cache'
 import { organizationProfileSchema } from './schema'
 
 const logger = getLogger(['app', 'action', 'organization'])
@@ -73,14 +73,7 @@ export const updateOrganizationProfileAction = async (
     }
 
     await updateOrganization(validated.data, org.id)
-    updateTag('organizations')
-    if (validated.data.slug !== org.slug) {
-      updateTag('struktur-slug')
-      updateTag(`struktur-slug-${org.slug}`)
-      updateTag(`struktur-slug-${validated.data.slug}`)
-      updateTag('berita-jaringan')
-    }
-    revalidatePath('/dashboard/organization')
+    revalidateOrganizationProfile(org.slug, validated.data.slug)
 
     logger.info('Profil Struktur diperbarui', {
       organizationId: org.id,

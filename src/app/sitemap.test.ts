@@ -1,4 +1,16 @@
-import { afterAll, beforeEach, describe, expect, it, mock } from 'bun:test'
+import {
+  afterAll,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  mock
+} from 'bun:test'
+import { eq, sql } from 'drizzle-orm'
+import { db } from '~/db/db'
+import { createOrganization } from '~/db/query/organization'
+import { organization } from '~/db/schema/organization.sql'
 
 let host = 'pw-jabar.kammi.id'
 let useFakeHeaders = true
@@ -6,13 +18,7 @@ let useFakeSitemapQuery = true
 
 const actualNextHeaders = await import('next/headers')
 const actualSitemapQuery = await import('~/db/query/sitemap')
-const actualOrganizationQuery = await import('~/db/query/organization')
-let struktur: {
-  id: string
-  type: string
-  isSiteActive: boolean
-  isNonActive: boolean
-} | null = null
+let pwJabarId: string
 
 mock.module('next/headers', () => ({
   ...actualNextHeaders,
@@ -20,17 +26,6 @@ mock.module('next/headers', () => ({
     useFakeHeaders
       ? Promise.resolve(new Headers({ host }))
       : actualNextHeaders.headers(...args)
-}))
-
-mock.module('~/db/query/organization', () => ({
-  readOrganization: (
-    ...args: Parameters<typeof actualOrganizationQuery.readOrganization>
-  ) =>
-    useFakeSitemapQuery
-      ? (Promise.resolve(struktur ? [struktur] : []) as ReturnType<
-          typeof actualOrganizationQuery.readOrganization
-        >)
-      : actualOrganizationQuery.readOrganization(...args)
 }))
 
 mock.module('~/db/query/sitemap', () => ({
@@ -61,17 +56,37 @@ const { default: sitemap } = await import('./sitemap')
 afterAll(() => {
   useFakeHeaders = false
   useFakeSitemapQuery = false
-  struktur = null
+})
+
+beforeAll(async () => {
+  await db.execute(sql`TRUNCATE TABLE "user", "member", organization CASCADE`)
+
+  const [pp] = await createOrganization({
+    name: 'PP KAMMI',
+    slug: 'pp-kammi',
+    code: 'PP-00',
+    type: 'pp',
+    parentId: null,
+    isNonActive: false
+  })
+  const [pwJabar] = await createOrganization({
+    name: 'PW Jabar',
+    slug: 'pw-jabar',
+    code: 'PW-32',
+    type: 'pw',
+    parentId: pp.id,
+    isNonActive: false
+  })
+
+  pwJabarId = pwJabar.id
+  await db
+    .update(organization)
+    .set({ isSiteActive: true })
+    .where(eq(organization.id, pwJabarId))
 })
 
 beforeEach(() => {
   host = 'pw-jabar.kammi.id'
-  struktur = {
-    id: 'pw-jabar',
-    type: 'pw',
-    isSiteActive: true,
-    isNonActive: false
-  }
 })
 
 describe('sitemap', () => {
@@ -91,12 +106,6 @@ describe('sitemap', () => {
 
   it('menambahkan Berita Jaringan hanya pada Situs PP', async () => {
     host = 'kammi.id'
-    struktur = {
-      id: 'pp',
-      type: 'pp',
-      isSiteActive: true,
-      isNonActive: false
-    }
 
     expect((await sitemap()).at(2)?.url).toBe(
       'https://kammi.id/berita/jaringan'
@@ -104,20 +113,16 @@ describe('sitemap', () => {
   })
 
   it('kosong bagi Situs yang belum aktif atau Struktur Non-Aktif', async () => {
-    struktur = {
-      id: 'pw-jabar',
-      type: 'pw',
-      isSiteActive: false,
-      isNonActive: false
-    }
+    await db
+      .update(organization)
+      .set({ isSiteActive: false })
+      .where(eq(organization.id, pwJabarId))
     expect(await sitemap()).toEqual([])
 
-    struktur = {
-      id: 'pw-jabar',
-      type: 'pw',
-      isSiteActive: true,
-      isNonActive: true
-    }
+    await db
+      .update(organization)
+      .set({ isSiteActive: true, isNonActive: true })
+      .where(eq(organization.id, pwJabarId))
     expect(await sitemap()).toEqual([])
   })
 
