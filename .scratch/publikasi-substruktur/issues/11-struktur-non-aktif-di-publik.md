@@ -4,10 +4,10 @@
 
 **Blocked by:** 08
 
-**Status:** ready-for-agent
+**Status:** resolved
 
-- [ ] Beranda, `/berita`, dan Halaman milik Struktur Non-Aktif menjawab tidak ditemukan.
-- [ ] Permalink Berita yang Terbit milik Struktur Non-Aktif tetap melayani, dengan kerangka minimal tanpa satu pun tautan navigasi ke situs itu.
-- [ ] Halaman tersebut menyebut bahwa kepengurusan sedang tidak berjalan dan menautkan ke `kammi.id`.
-- [ ] Berita milik Struktur Non-Aktif tetap muncul di Berita Jaringan; arsip per Struktur menyaringnya. Perbedaan penyaringan antar permukaan ini diuji, bukan hanya ditulis.
-- [ ] Struktur Terhapus tetap hilang seluruhnya, Berita-nya termasuk.
+- [x] Beranda, `/berita`, dan Halaman milik Struktur Non-Aktif menjawab tidak ditemukan.
+- [x] Permalink Berita yang Terbit milik Struktur Non-Aktif tetap melayani, dengan kerangka minimal tanpa satu pun tautan navigasi ke situs itu.
+- [x] Halaman tersebut menyebut bahwa kepengurusan sedang tidak berjalan dan menautkan ke `kammi.id`.
+- [x] Berita milik Struktur Non-Aktif tetap muncul di Berita Jaringan; arsip per Struktur menyaringnya. Perbedaan penyaringan antar permukaan ini diuji, bukan hanya ditulis.
+- [x] Struktur Terhapus tetap hilang seluruhnya, Berita-nya termasuk.
