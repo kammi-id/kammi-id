@@ -256,7 +256,9 @@ export const listLatestBeritaJaringan = async (
     .limit(limit)
 
   return rows
-    .filter((r): r is typeof r & { publishedAt: Date } => r.publishedAt !== null)
+    .filter(
+      (r): r is typeof r & { publishedAt: Date } => r.publishedAt !== null
+    )
     .map((r) => ({
       id: r.id,
       title: r.title,

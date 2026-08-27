@@ -662,20 +662,32 @@ describe('listBeritaJaringan & listLatestBeritaJaringan', () => {
     activeOrgId = await seedOrg('Jaringan Org Aktif', `JOA-${suffix}`, {
       isSiteActive: true
     })
-    otherActiveOrgId = await seedOrg('Jaringan Org Aktif Lain', `JOL-${suffix}`, {
-      isSiteActive: true
-    })
-    inactiveSiteOrgId = await seedOrg('Jaringan Situs Belum Aktif', `JSB-${suffix}`, {
-      isSiteActive: false
-    })
+    otherActiveOrgId = await seedOrg(
+      'Jaringan Org Aktif Lain',
+      `JOL-${suffix}`,
+      {
+        isSiteActive: true
+      }
+    )
+    inactiveSiteOrgId = await seedOrg(
+      'Jaringan Situs Belum Aktif',
+      `JSB-${suffix}`,
+      {
+        isSiteActive: false
+      }
+    )
     deletedOrgId = await seedOrg('Jaringan Org Terhapus', `JOT-${suffix}`, {
       isSiteActive: true,
       deletedAt: new Date()
     })
-    nonAktifStrukturOrgId = await seedOrg('Jaringan Struktur Non Aktif', `JNA-${suffix}`, {
-      isSiteActive: true,
-      isNonActive: true
-    })
+    nonAktifStrukturOrgId = await seedOrg(
+      'Jaringan Struktur Non Aktif',
+      `JNA-${suffix}`,
+      {
+        isSiteActive: true,
+        isNonActive: true
+      }
+    )
   })
 
   afterAll(async () => {

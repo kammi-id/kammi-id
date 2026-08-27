@@ -84,9 +84,7 @@ const BeritaJaringanPage = async ({
             /
           </li>
           <li>
-            <span className='text-foreground font-medium'>
-              Berita Jaringan
-            </span>
+            <span className='text-foreground font-medium'>Berita Jaringan</span>
           </li>
         </ol>
       </nav>

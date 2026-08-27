@@ -1,8 +1,5 @@
 import { cacheLife, cacheTag } from 'next/cache'
-import {
-  listBeritaJaringan,
-  type BeritaJaringanPage
-} from '~/db/query/article'
+import { listBeritaJaringan, type BeritaJaringanPage } from '~/db/query/article'
 
 /**
  * `/berita/jaringan` full archive (ticket 08, spec "Template Situs") — one
