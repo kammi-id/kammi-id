@@ -4,8 +4,8 @@ Deployment berkelanjutan ke non-production menuntut skema basis data ikut naik
 bersama kodenya; bila tidak, tiap tiket yang menyentuh skema meninggalkan
 lingkungan yang rusak sampai ada yang menjalankan migrasi dengan tangan. Kami
 memilih menjalankannya dari **entrypoint container**: stage `runner` di
-`Dockerfile` ikut membawa `drizzle-kit` dan `src/db/__migrations`, dan
-entrypoint menjalankan `drizzle-kit migrate` sebelum `bun server.js` — tetapi
+`Dockerfile` ikut membawa migrator runtime Drizzle dan `src/db/__migrations`,
+dan entrypoint menjalankan migrator sebelum `bun server.js` — tetapi
 **hanya** bila `RUN_MIGRATIONS=1` diset. Non-production menyetelnya; production
 tidak, dan migrasinya tetap dijalankan manusia.
 

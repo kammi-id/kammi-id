@@ -42,17 +42,14 @@ COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-# ADR 0008: the runner also carries drizzle-kit and the migration folder, so
-# the entrypoint can migrate the database it is about to serve. The deps
-# stage already installed devDependencies (drizzle-kit among them) against
-# the same lockfile, so reuse that install rather than resolving it again.
+# ADR 0008: the runner carries duplicate preflight, Drizzle's runtime
+# migrator, and migration files so a one-shot container can check and migrate
+# the database before the application starts.
 COPY --from=deps --chown=nextjs:nodejs /app/node_modules ./node_modules
-COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
 COPY --from=builder --chown=nextjs:nodejs /app/tsconfig.json ./tsconfig.json
-COPY --from=builder --chown=nextjs:nodejs /app/drizzle.config.ts ./drizzle.config.ts
-COPY --from=builder --chown=nextjs:nodejs /app/src/db/schema ./src/db/schema
 COPY --from=builder --chown=nextjs:nodejs /app/src/db/__migrations ./src/db/__migrations
-COPY --from=builder --chown=nextjs:nodejs /app/src/scripts/db-guard.ts ./src/scripts/db-guard.ts
+COPY --from=builder --chown=nextjs:nodejs /app/src/scripts/check-duplicates.ts ./src/scripts/check-duplicates.ts
+COPY --from=builder --chown=nextjs:nodejs /app/src/scripts/migrate.ts ./src/scripts/migrate.ts
 COPY --from=builder --chown=nextjs:nodejs /app/src/lib/db-guard ./src/lib/db-guard
 COPY --chown=nextjs:nodejs docker-entrypoint.sh ./docker-entrypoint.sh
 RUN chmod +x ./docker-entrypoint.sh

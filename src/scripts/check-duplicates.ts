@@ -247,3 +247,7 @@ if (duplicateCode > 0) {
 }
 
 await sql.end()
+
+if (duplicateCode > 0 || duplicateSlug > 0) {
+  process.exitCode = 1
+}

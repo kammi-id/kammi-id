@@ -212,8 +212,9 @@ production pada Application baru sebelum cutover.
 
 - [ ] Pastikan Application utama masih tidak memiliki `RUN_MIGRATIONS`.
 - [ ] Jalankan one-shot container dari digest kandidat pada network PostgreSQL
-      baru, dengan `RUN_MIGRATIONS=1` dan acknowledgement DB guard yang
-      eksplisit.
+      baru, dengan `RUN_MIGRATIONS=1`, `MIGRATIONS_ONLY=1`, dan acknowledgement
+      DB guard yang eksplisit. Hapus ketiga environment sementara itu bersama
+      container.
 - [ ] Terapkan lock timeout 10 detik. Jika DDL tidak mendapat lock, biarkan
       transaksi rollback, STOP, dan jangan deploy kode.
 - [ ] Pastikan one-shot container selesai sukses lalu hapus container beserta

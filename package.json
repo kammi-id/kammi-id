@@ -24,6 +24,7 @@
     "test": "bun test --isolate --preload ./tests/setup.ts",
     "test:coverage": "bun test --coverage --preload ./tests/setup.ts",
     "test:e2e": "playwright test",
+    "test:maintenance": "sh maintenance/maintenance.e2e.sh",
     "test:ct": "playwright test-ct"
   },
   "dependencies": {
