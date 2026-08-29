@@ -9,6 +9,12 @@ production baru.
 
 **Status:** ready-for-human
 
+**Wizard:** `wizard-05-observability-dan-routing-preflight.sh` (10 stage).
+Uptime dan alert memakai Uptime Kuma; seluruh pemeriksaan Dokploy, SSH, DNS,
+TLS, log, routing, sesi PostgreSQL, dan backup bersifat read-only. Stage Uptime
+Kuma boleh dilewati sementara agar pemeriksaan lain tetap berjalan, tetapi
+hasil preflight otomatis `NO-GO` sampai monitor dan alert end-to-end lulus.
+
 - [ ] Liveness dan readiness Application baru terhubung ke health policy
       Dokploy dan menunjukkan keadaan dependency yang benar.
 - [ ] External uptime monitor memeriksa endpoint yang disepakati dan jalur
