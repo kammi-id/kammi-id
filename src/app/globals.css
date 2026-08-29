@@ -1,6 +1,7 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
 @import 'shadcn/tailwind.css';
+@plugin '@tailwindcss/typography';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -155,6 +156,12 @@
   }
   html {
     @apply font-sans;
+  }
+  /* Badan tulisan Berita rata kiri-kanan — dibatasi ke paragraf saja supaya
+     judul (h1 di luar `.prose`, dan subjudul di dalamnya) tidak ikut
+     dipaksa rata kiri-kanan, yang merenggang jelek untuk baris pendek. */
+  .prose p {
+    @apply text-justify hyphens-auto;
   }
 }
 

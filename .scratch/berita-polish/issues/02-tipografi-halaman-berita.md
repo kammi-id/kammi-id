@@ -6,18 +6,18 @@ dihidupkan.
 
 **Blocked by:** None — can start immediately.
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] `@tailwindcss/typography` terpasang dan terdaftar di `globals.css`,
+- [x] `@tailwindcss/typography` terpasang dan terdaftar di `globals.css`,
       sehingga `prose` benar-benar berefek.
-- [ ] Badan tulisan di halaman Berita rata kiri-kanan dengan `hyphens: auto`,
+- [x] Badan tulisan di halaman Berita rata kiri-kanan dengan `hyphens: auto`,
       dan punya jarak antar paragraf.
-- [ ] Judul artikel **tetap rata kiri**. Judul dua baris yang dipaksa rata
+- [x] Judul artikel **tetap rata kiri**. Judul dua baris yang dipaksa rata
       kiri-kanan merenggang jelek.
-- [ ] Editor badan tulisan di dasbor ikut memakai `prose` yang sama, sehingga
+- [x] Editor badan tulisan di dasbor ikut memakai `prose` yang sama, sehingga
       apa yang dilihat Humas saat menyunting mendekati hasil terbitnya.
-- [ ] Gambar di dalam badan tulisan tampil dengan lebar yang wajar di dalam
+- [x] Gambar di dalam badan tulisan tampil dengan lebar yang wajar di dalam
       kolom teks, tidak melimpah keluar.
-- [ ] Tidak ada tes yang ditulis untuk perubahan kelas Tailwind. Ukuran
+- [x] Tidak ada tes yang ditulis untuk perubahan kelas Tailwind. Ukuran
       keberhasilannya adalah halaman yang dilihat, bukan assertion.
-- [ ] `check:types`, `check:lint`, dan `check:structure` hijau.
+- [x] `check:types`, `check:lint`, dan `check:structure` hijau.
