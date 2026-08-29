@@ -118,7 +118,10 @@ const Page = async ({ params }: PageProps) => {
             leaderBlocks: resolvedLeaderBlocks
           }}
         />
-        <BeritaPreviewSection organizationId={orgId} />
+        <BeritaPreviewSection
+          organizationId={orgId}
+          strukturName={identity.name}
+        />
       </>
     )
   }
@@ -185,7 +188,10 @@ const Page = async ({ params }: PageProps) => {
         networkStats={networkStats}
         pwOrgs={pwOrgs}
       />
-      <BeritaPreviewSection organizationId={orgId} />
+      <BeritaPreviewSection
+        organizationId={orgId}
+        strukturName={identity?.name ?? null}
+      />
       <BeritaJaringanSection />
       <ExtraSection organizationId={orgId} />
     </>

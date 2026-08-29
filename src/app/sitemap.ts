@@ -23,7 +23,10 @@ const publicRoutes = (origin: string, isPP: boolean): SitemapEntry[] => [
   ...(isPP
     ? [
         {
-          url: `${origin}/berita/jaringan`,
+          // Alamat lama `/berita/jaringan` sengaja TIDAK ikut didaftarkan:
+          // ia hidup hanya sebagai redirect permanen (ADR 0016), dan sitemap
+          // yang memuat dua alamat untuk satu isi adalah sinyal duplikat.
+          url: `${origin}/berita/seindonesia`,
           lastModified: new Date(),
           changeFrequency: 'daily' as const,
           priority: 0.8

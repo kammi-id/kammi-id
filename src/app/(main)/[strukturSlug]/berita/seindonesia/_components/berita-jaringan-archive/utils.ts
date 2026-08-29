@@ -23,9 +23,12 @@ export const beritaJaringanPermalinkUrl = (item: {
 }
 
 /**
- * Page 1 stays at the bare `/berita/jaringan` — no `?page=1` noise. Anything
- * below 1 clamps to the same bare path. Mirrors `beritaArsipPageHref`
+ * Page 1 stays at the bare `/berita/seindonesia` — no `?page=1` noise.
+ * Anything below 1 clamps to the same bare path. Mirrors `beritaArsipPageHref`
  * (`berita-archive/utils.ts`), pointed at this archive's own address.
+ *
+ * Nama fungsinya tetap menyebut "jaringan" (ADR 0016): yang di-rename adalah
+ * istilah domain dan alamatnya, bukan identifier di dalam kode.
  */
 export const beritaJaringanPageHref = (page: number): string =>
-  page <= 1 ? '/berita/jaringan' : `/berita/jaringan?page=${page}`
+  page <= 1 ? '/berita/seindonesia' : `/berita/seindonesia?page=${page}`

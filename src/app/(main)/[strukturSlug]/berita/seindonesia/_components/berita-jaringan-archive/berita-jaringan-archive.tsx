@@ -11,7 +11,7 @@ type BeritaJaringanArchiveProps = {
 }
 
 /**
- * `/berita/jaringan` — arsip nasional lintas Struktur (ticket 08), padanan
+ * `/berita/seindonesia` — arsip nasional lintas Struktur (ticket 08), padanan
  * `BeritaArchive` (`berita-archive/berita-archive.tsx`) tapi tanpa
  * `organizationId` (network-wide) dan dengan nama Struktur pada tiap kartu +
  * tautan absolut ke Situs penerbitnya. Pembedaan nol-baris-`page`-1

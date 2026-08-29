@@ -225,7 +225,7 @@ export type BeritaJaringanPage = {
   totalPages: number
 }
 
-/** Spec "Template Situs": 48 Berita per halaman arsip `/berita/jaringan`. */
+/** Spec "Template Situs": 48 Berita per halaman arsip `/berita/seindonesia`. */
 export const BERITA_JARINGAN_PAGE_SIZE = 48
 
 /**

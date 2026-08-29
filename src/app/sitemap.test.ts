@@ -104,11 +104,11 @@ describe('sitemap', () => {
     ])
   })
 
-  it('menambahkan Berita Jaringan hanya pada Situs PP', async () => {
+  it('menambahkan Berita KAMMI se-Indonesia hanya pada Situs PP', async () => {
     host = 'kammi.id'
 
     expect((await sitemap()).at(2)?.url).toBe(
-      'https://kammi.id/berita/jaringan'
+      'https://kammi.id/berita/seindonesia'
     )
   })
 

@@ -24,15 +24,15 @@ describe('beritaJaringanPermalinkUrl', () => {
 })
 
 describe('beritaJaringanPageHref', () => {
-  it('points page 1 (and below) at the bare /berita/jaringan path', () => {
-    expect(beritaJaringanPageHref(1)).toBe('/berita/jaringan')
-    expect(beritaJaringanPageHref(0)).toBe('/berita/jaringan')
-    expect(beritaJaringanPageHref(-3)).toBe('/berita/jaringan')
+  it('points page 1 (and below) at the bare /berita/seindonesia path', () => {
+    expect(beritaJaringanPageHref(1)).toBe('/berita/seindonesia')
+    expect(beritaJaringanPageHref(0)).toBe('/berita/seindonesia')
+    expect(beritaJaringanPageHref(-3)).toBe('/berita/seindonesia')
   })
 
   it('appends ?page=N for any page beyond the first', () => {
-    expect(beritaJaringanPageHref(2)).toBe('/berita/jaringan?page=2')
-    expect(beritaJaringanPageHref(48)).toBe('/berita/jaringan?page=48')
+    expect(beritaJaringanPageHref(2)).toBe('/berita/seindonesia?page=2')
+    expect(beritaJaringanPageHref(48)).toBe('/berita/seindonesia?page=48')
   })
 })
 

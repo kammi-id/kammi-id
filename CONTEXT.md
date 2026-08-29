@@ -144,7 +144,7 @@ tetap hidup.
 Berhenti melayani menyangkut situsnya, bukan arsipnya. Beranda dan seluruh
 navigasi Situs Struktur itu hilang, sementara **Permalink** setiap **Berita**
 yang telanjur **Terbit** tetap terbuka, dan Berita itu tetap terbaca lewat
-**Berita Jaringan**. Sebuah kepengurusan yang berhenti tidak membatalkan apa
+**Berita KAMMI se-Indonesia**. Sebuah kepengurusan yang berhenti tidak membatalkan apa
 yang pernah ia terbitkan.
 
 **Struktur Terhapus**:
@@ -248,7 +248,7 @@ _Avoid_: Panitia, Pemateri
 **Situs Struktur**:
 Wajah publik sebuah Struktur — satu untuk tiap Struktur, di alamatnya sendiri.
 Isinya milik Struktur itu saja; menelusuri Situs Struktur tidak pernah membawa
-pembaca ke isi Struktur lain, kecuali lewat **Berita Jaringan**.
+pembaca ke isi Struktur lain, kecuali lewat **Berita KAMMI se-Indonesia**.
 _Avoid_: Situs publik (tanpa kualifikasi), Microsite, Subsitus
 
 **Situs Aktif**:
@@ -270,7 +270,7 @@ _Avoid_: Post, Blog, Kabar
 
 **Halaman**:
 Artikel tak bertanggal yang berdiri sendiri di alamat akar sebuah Situs
-Struktur. Tidak masuk arsip, tidak muncul di **Berita Jaringan**.
+Struktur. Tidak masuk arsip, tidak muncul di **Berita KAMMI se-Indonesia**.
 _Avoid_: Halaman statik, Page
 
 **Terbit**:
@@ -296,12 +296,29 @@ bukan Akun — penulis Berita sering bukan pemegang Akun, dan namanya tetap
 tercantum tanpa bergantung pada data siapa pun.
 _Avoid_: Author, Kontributor, Kader penulis
 
-**Berita Jaringan**:
+**Berita KAMMI se-Indonesia**:
 Kumpulan Berita dari seluruh Struktur, disusun kronologis dan disajikan hanya
 oleh Situs Struktur milik PP. Satu-satunya permukaan tempat Berita lintas
 Struktur berkumpul; dari sana pembaca selalu dilempar ke Situs Struktur
 penerbitnya.
-_Avoid_: Feed nasional, Agregat berita
+Term ini **dulu bernama "Berita Jaringan"**, dan nama lama itu masih dipakai
+di ADR 0012 & 0013, di nama berkas komponen, di cache tag, dan di nama index
+basis data — semuanya sengaja tidak ikut di-rename. Yang berubah adalah
+istilah domain dan apa yang dibaca pembaca.
+_Avoid_: Berita Jaringan (nama lama), Feed nasional, Agregat berita
+
+**Gambar Utama**:
+Satu gambar yang mewakili sebuah Artikel di luar halamannya sendiri — di
+kartu arsip, di kartu Berita KAMMI se-Indonesia, dan sebagai gambar yang
+muncul saat Permalink-nya dibagikan. Tepat satu, dan selalu ditunjuk
+eksplisit: ia tidak disimpulkan dari urutan **Galeri**.
+_Avoid_: Thumbnail, Cover, Featured image
+
+**Galeri**:
+Kumpulan gambar tambahan milik sebuah Artikel, tampil berurutan di halaman
+Artikel itu saja. Galeri tidak pernah mewakili Artikel di permukaan lain —
+itu tugas **Gambar Utama**. Urutannya ditentukan Humas dan bermakna.
+_Avoid_: Album, Lampiran, Slider
 
 **Pengaturan Situs**:
 Konfigurasi tampilan publik milik sebuah Struktur.

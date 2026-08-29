@@ -6,6 +6,13 @@ import { resolveSiteImage } from '~/lib/utils/site-image'
 
 type BeritaPreviewSectionProps = {
   organizationId: string | null
+  /**
+   * Nama Struktur pemilik section ini. Judulnya WAJIB ikut Struktur yang
+   * sedang dilayani: komponen ini dipakai Situs PP dan Situs Wilayah/Daerah/
+   * Komisariat sekaligus (lihat `page.tsx`, dua cabang template), jadi judul
+   * yang dipatok mati akan membuat Situs Wilayah menulis nama PP.
+   */
+  strukturName: string | null
 }
 
 /**
@@ -15,7 +22,8 @@ type BeritaPreviewSectionProps = {
  * Terbit yet, so an empty Struktur never shows a broken/empty section.
  */
 export const BeritaPreviewSection = async ({
-  organizationId
+  organizationId,
+  strukturName
 }: BeritaPreviewSectionProps) => {
   if (!organizationId) return null
 
@@ -39,15 +47,17 @@ export const BeritaPreviewSection = async ({
       <div className='mx-auto w-full max-w-7xl px-6 lg:px-8'>
         <div className='flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end'>
           <div>
-            <p className='text-primary font-sans text-xs font-semibold tracking-widest uppercase'>
-              Kabar Terkini
-            </p>
             <h2
               id='berita-preview-heading'
-              className='font-heading text-foreground mt-2 text-[clamp(1.5rem,3vw,2.25rem)] font-bold'
+              className='font-heading text-foreground text-[clamp(1.5rem,3vw,2.25rem)] font-bold'
             >
-              Berita Terbaru
+              {strukturName ? `Berita ${strukturName}` : 'Berita Terbaru'}
             </h2>
+            <p className='text-muted-foreground mt-2 font-sans text-sm'>
+              {strukturName
+                ? `Kegiatan dan kabar terbaru ${strukturName}`
+                : 'Kegiatan dan kabar terbaru'}
+            </p>
           </div>
           <Link
             href='/berita'

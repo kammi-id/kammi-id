@@ -2,7 +2,7 @@ import { cacheLife, cacheTag } from 'next/cache'
 import { listBeritaJaringan, type BeritaJaringanPage } from '~/db/query/article'
 
 /**
- * `/berita/jaringan` full archive (ticket 08, spec "Template Situs") — one
+ * `/berita/seindonesia` full archive (ticket 08, spec "Template Situs") — one
  * page of Berita across every Struktur, newest first, 48 per page.
  *
  * Shares `berita-jaringan` with its homepage counterpart, so a mutation in
