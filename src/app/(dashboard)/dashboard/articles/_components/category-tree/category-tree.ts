@@ -26,7 +26,10 @@ export const buildCategoryTree = <T extends CategoryTreeInput>(
     byParent.set(key, siblings)
   }
 
-  const build = (parentId: string | null, depth: number): CategoryTreeNode<T>[] =>
+  const build = (
+    parentId: string | null,
+    depth: number
+  ): CategoryTreeNode<T>[] =>
     (byParent.get(parentId) ?? [])
       .slice()
       .sort((a, b) => a.name.localeCompare(b.name))

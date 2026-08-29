@@ -89,7 +89,10 @@ describe('toGalleryUploadValue', () => {
   test('mainId di tengah array tetap mengeluarkan sisanya sesuai urutan aslinya', () => {
     const value = toGalleryUploadValue(items, '2')
     expect(value.featuredImage).toBe('articles/a.jpg')
-    expect(value.galleryImages).toEqual(['articles/utama.jpg', 'articles/b.jpg'])
+    expect(value.galleryImages).toEqual([
+      'articles/utama.jpg',
+      'articles/b.jpg'
+    ])
   })
 
   test('mainId null menghasilkan featuredImage kosong dan semua item jadi galleryImages', () => {

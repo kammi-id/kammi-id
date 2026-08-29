@@ -122,8 +122,14 @@ const GalleryThumbnail = ({
   onRemove: () => void
 }) => {
   const preview = useResolvedPreview(item.path)
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
-    useSortable({ id: item.id })
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging
+  } = useSortable({ id: item.id })
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -153,7 +159,7 @@ const GalleryThumbnail = ({
         type='button'
         {...attributes}
         {...listeners}
-        className='absolute top-1 left-1 flex size-6 cursor-grab items-center justify-center rounded-md bg-black/50 text-white opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 active:cursor-grabbing'
+        className='absolute top-1 left-1 flex size-6 cursor-grab items-center justify-center rounded-md bg-black/50 text-white opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100 active:cursor-grabbing'
         aria-label='Geser gambar'
       >
         <GripIcon className='size-3.5' />
@@ -162,10 +168,14 @@ const GalleryThumbnail = ({
       <button
         type='button'
         onClick={onRemove}
-        className='hover:bg-destructive absolute top-1 right-1 flex size-6 items-center justify-center rounded-md bg-black/50 text-white opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100'
+        className='hover:bg-destructive absolute top-1 right-1 flex size-6 items-center justify-center rounded-md bg-black/50 text-white opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100'
         aria-label='Hapus gambar'
       >
-        <HugeiconsIcon icon={Delete02Icon} className='size-3.5' strokeWidth={2} />
+        <HugeiconsIcon
+          icon={Delete02Icon}
+          className='size-3.5'
+          strokeWidth={2}
+        />
       </button>
 
       <button
@@ -176,7 +186,7 @@ const GalleryThumbnail = ({
           'absolute bottom-1 left-1 flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] font-medium transition-opacity',
           isMain
             ? 'bg-primary text-primary-foreground opacity-100'
-            : 'bg-black/50 text-white opacity-0 group-hover:opacity-100 group-focus-within:opacity-100'
+            : 'bg-black/50 text-white opacity-0 group-focus-within:opacity-100 group-hover:opacity-100'
         )}
         aria-label={
           isMain ? 'Batalkan sebagai Gambar Utama' : 'Jadikan Gambar Utama'
@@ -207,7 +217,11 @@ interface GalleryUploadProps {
   folder: string
 }
 
-export const GalleryUpload = ({ value, onChange, folder }: GalleryUploadProps) => {
+export const GalleryUpload = ({
+  value,
+  onChange,
+  folder
+}: GalleryUploadProps) => {
   const dndId = React.useId()
   const [initial] = React.useState(() => buildInitialGalleryState(value))
   const [items, setItems] = React.useState<GalleryImageItem[]>(initial.items)
@@ -231,7 +245,8 @@ export const GalleryUpload = ({ value, onChange, folder }: GalleryUploadProps) =
     onChange(toGalleryUploadValue(nextItems, resolvedMainId))
   }
 
-  const handleDragStart = (e: DragStartEvent) => setActiveId(e.active.id as string)
+  const handleDragStart = (e: DragStartEvent) =>
+    setActiveId(e.active.id as string)
 
   const handleDragEnd = (e: DragEndEvent) => {
     const { active, over } = e
@@ -242,7 +257,9 @@ export const GalleryUpload = ({ value, onChange, folder }: GalleryUploadProps) =
     emit(arrayMove(items, oldIndex, newIndex), mainId)
   }
 
-  const handleFilesSelected = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFilesSelected = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const files = Array.from(e.target.files ?? [])
     e.target.value = ''
     if (files.length === 0) return
@@ -262,7 +279,10 @@ export const GalleryUpload = ({ value, onChange, folder }: GalleryUploadProps) =
           formData.append('file', file)
           formData.append('folder', folder)
           const path = await uploadImageAction(formData)
-          const uploadedItem: GalleryImageItem = { id: crypto.randomUUID(), path }
+          const uploadedItem: GalleryImageItem = {
+            id: crypto.randomUUID(),
+            path
+          }
           return uploadedItem
         })
       )
@@ -276,7 +296,9 @@ export const GalleryUpload = ({ value, onChange, folder }: GalleryUploadProps) =
     }
   }
 
-  const activeItem = activeId ? (items.find((item) => item.id === activeId) ?? null) : null
+  const activeItem = activeId
+    ? (items.find((item) => item.id === activeId) ?? null)
+    : null
 
   return (
     <div className='space-y-2'>
@@ -300,7 +322,12 @@ export const GalleryUpload = ({ value, onChange, folder }: GalleryUploadProps) =
                 onSetMain={() =>
                   emit(items, item.id === mainId ? null : item.id)
                 }
-                onRemove={() => emit(items.filter((i) => i.id !== item.id), mainId)}
+                onRemove={() =>
+                  emit(
+                    items.filter((i) => i.id !== item.id),
+                    mainId
+                  )
+                }
               />
             ))}
           </SortableContext>
@@ -326,7 +353,11 @@ export const GalleryUpload = ({ value, onChange, folder }: GalleryUploadProps) =
 
       {items.length === 0 && (
         <div className='text-muted-foreground flex items-center gap-2 text-xs'>
-          <HugeiconsIcon icon={ImageAdd01Icon} className='size-4' strokeWidth={1.5} />
+          <HugeiconsIcon
+            icon={ImageAdd01Icon}
+            className='size-4'
+            strokeWidth={1.5}
+          />
           Belum ada gambar.
         </div>
       )}

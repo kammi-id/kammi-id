@@ -211,7 +211,10 @@ const BeritaDetailPage = async ({ params }: BeritaDetailPageProps) => {
         <ArticleBodyRenderer body={articleRow.body} />
       </div>
 
-      <ImageGalleryGrid images={galleryImageUrls} articleTitle={articleRow.title} />
+      <ImageGalleryGrid
+        images={galleryImageUrls}
+        articleTitle={articleRow.title}
+      />
     </article>
   )
 

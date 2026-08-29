@@ -24,7 +24,10 @@ describe('articlePernahTerbit', () => {
 
   test('Halaman draft belum pernah terbit', () => {
     expect(
-      articlePernahTerbit({ type: 'page', status: 'draft', publishedAt: null }, now)
+      articlePernahTerbit(
+        { type: 'page', status: 'draft', publishedAt: null },
+        now
+      )
     ).toBe(false)
   })
 
@@ -48,7 +51,10 @@ describe('articlePernahTerbit', () => {
 
   test('Berita draft belum pernah terbit', () => {
     expect(
-      articlePernahTerbit({ type: 'blog', status: 'draft', publishedAt: null }, now)
+      articlePernahTerbit(
+        { type: 'blog', status: 'draft', publishedAt: null },
+        now
+      )
     ).toBe(false)
   })
 

@@ -22,11 +22,18 @@ import {
   SelectValue
 } from '~/components/shadcn/ui/select'
 import { TagInput } from '../tag-input'
-import { CategoryCombobox, type CategoryComboboxOption } from '../category-combobox'
+import {
+  CategoryCombobox,
+  type CategoryComboboxOption
+} from '../category-combobox'
 import { GalleryUpload } from '../gallery-upload'
 import { ArticleBodyEditor } from '../article-body-editor'
 import type { ArticleBodyJSON } from '../article-body-editor'
-import { ARTICLE_STATUS_LABELS, type ArticleType, type ArticleStatus } from '../_constants'
+import {
+  ARTICLE_STATUS_LABELS,
+  type ArticleType,
+  type ArticleStatus
+} from '../_constants'
 import { TypeChoiceCards } from './type-choice-cards'
 import { articlePernahTerbit, slugify } from './utils'
 import { createArticleAction, updateArticleAction } from './action'
@@ -103,9 +110,8 @@ export const ArticleForm = ({
     initial?.galleryImages ?? []
   )
   const [penulis, setPenulis] = useState(initial?.penulis ?? '')
-  const [categories, setCategories] = useState<ArticleFormCategory[]>(
-    initialCategories
-  )
+  const [categories, setCategories] =
+    useState<ArticleFormCategory[]>(initialCategories)
   const [categoryId, setCategoryId] = useState<string | null>(
     initial?.categoryId ?? null
   )
@@ -207,7 +213,7 @@ export const ArticleForm = ({
             placeholder='Judul artikel'
             aria-label='Judul'
             aria-invalid={Boolean(fieldErrors('title')) || undefined}
-            className='font-heading text-foreground h-auto w-full min-w-0 rounded-none border-none bg-transparent p-0 text-3xl font-bold tracking-tight shadow-none outline-none placeholder:text-muted-foreground/50 focus-visible:ring-0 sm:text-4xl'
+            className='font-heading text-foreground placeholder:text-muted-foreground/50 h-auto w-full min-w-0 rounded-none border-none bg-transparent p-0 text-3xl font-bold tracking-tight shadow-none outline-none focus-visible:ring-0 sm:text-4xl'
           />
           <FieldError errors={fieldErrors('title')} />
         </div>
@@ -218,7 +224,11 @@ export const ArticleForm = ({
       <FieldGroup className='lg:sticky lg:top-6'>
         <Field>
           <FieldLabel>Tipe</FieldLabel>
-          <TypeChoiceCards name='article-type' value={type} onChange={setType} />
+          <TypeChoiceCards
+            name='article-type'
+            value={type}
+            onChange={setType}
+          />
         </Field>
 
         {type === 'blog' && (

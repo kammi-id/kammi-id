@@ -97,7 +97,10 @@ const HalamanDetailPage = async ({ params }: HalamanDetailPageProps) => {
         <ArticleBodyRenderer body={articleRow.body} />
       </div>
 
-      <ImageGalleryGrid images={galleryImageUrls} articleTitle={articleRow.title} />
+      <ImageGalleryGrid
+        images={galleryImageUrls}
+        articleTitle={articleRow.title}
+      />
     </article>
   )
 }

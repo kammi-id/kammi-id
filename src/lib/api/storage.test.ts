@@ -110,9 +110,7 @@ describe('storage.uploadFile — HEIC', () => {
       )
 
       expect(key.endsWith('.jpg')).toBe(true)
-      expect(await Bun.file(join(root, key)).text()).toBe(
-        'jpeg-hasil-konversi'
-      )
+      expect(await Bun.file(join(root, key)).text()).toBe('jpeg-hasil-konversi')
     } finally {
       fakeHeicOutcome = null
     }

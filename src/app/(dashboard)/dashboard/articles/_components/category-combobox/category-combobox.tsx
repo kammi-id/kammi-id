@@ -77,7 +77,9 @@ export const CategoryCombobox = ({
   const filtered = React.useMemo(() => {
     if (!query.trim()) return tree
     const needle = query.trim().toLowerCase()
-    return tree.filter((category) => category.name.toLowerCase().includes(needle))
+    return tree.filter((category) =>
+      category.name.toLowerCase().includes(needle)
+    )
   }, [tree, query])
 
   const trimmedQuery = query.trim()
@@ -172,7 +174,7 @@ export const CategoryCombobox = ({
                 >
                   <HugeiconsIcon
                     icon={FolderLibraryIcon}
-                    className='size-4 shrink-0 text-muted-foreground'
+                    className='text-muted-foreground size-4 shrink-0'
                   />
                   {category.name}
                 </ComboboxItem>
