@@ -36,6 +36,12 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
+# Catatan operator dari wizard di .scratch/. Folder itu sendiri ikut ter-commit,
+# jadi berkas yang memuat ID resource, appName, atau hostname production harus
+# dikecualikan satu per satu — bukan cuma diandalkan tidak ikut `git add`.
+*.local.md
+*.local.env
+
 # vercel
 .vercel
 
