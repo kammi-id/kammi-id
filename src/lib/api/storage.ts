@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto'
 import { mkdir, unlink } from 'node:fs/promises'
 import { dirname, resolve, sep } from 'node:path'
+import sharp from 'sharp'
 import { getLogger } from '~/lib/logger'
 
 const logger = getLogger(['app', 'storage'])
@@ -48,12 +49,66 @@ const EXTENSION_BY_MIME: Record<string, string> = {
   'image/webp': 'webp'
 }
 
-const extensionFor = (file: File | Blob): string => {
-  const ext = EXTENSION_BY_MIME[file.type]
-  if (!ext) {
-    throw new Error('Tipe file tidak didukung. Gunakan JPG, PNG, atau WebP.')
+const HEIC_MIME_TYPES = new Set(['image/heic', 'image/heif'])
+
+const ACCEPTED_FORMATS_MESSAGE = 'Gunakan JPG, PNG, WebP, atau HEIC.'
+
+/**
+ * Mengonversi foto HEIC (default kamera iPhone) menjadi JPEG lewat `sharp`,
+ * satu-satunya titik di seluruh aplikasi yang menyentuh byte gambar sebelum
+ * ditulis — jadi berlaku untuk ke-13 pemanggil `ImageUpload` sekaligus, bukan
+ * cuma jalur artikel.
+ *
+ * Build `sharp` di image ini (`oven/bun:1.4.0-slim`) punya libheif tapi bukan
+ * bukti punya decoder HEVC yang dipakai HEIC — `sharp.format.heif.input`
+ * melaporkan `true` di macOS maupun container ini sekalipun decode-nya gagal,
+ * karena flag itu cuma menandai kontainer HEIF terdaftar, bukan codec-nya
+ * tersedia. Dibuktikan lewat percobaan langsung: lihat `## Comments` di
+ * `.scratch/berita-polish/issues/03-unggah-gambar-gagal-diam-diam.md`. Karena
+ * itu percobaan decode ini bisa gagal di production, dan kegagalannya harus
+ * berakhir sebagai pesan yang jelas, bukan error mentah dari `sharp`.
+ */
+const convertHeicToJpeg = async (file: File | Blob): Promise<Blob> => {
+  try {
+    const input = Buffer.from(await file.arrayBuffer())
+    const jpeg = await sharp(input).jpeg().toBuffer()
+    return new Blob([jpeg], { type: 'image/jpeg' })
+  } catch (error) {
+    logger.warn(
+      'Gagal mengonversi HEIC ke JPEG — decoder HEIF kemungkinan tidak tersedia di build sharp ini: {error}',
+      { error }
+    )
+    throw new Error(
+      'Foto HEIC tidak dapat diproses oleh server ini saat ini. Ekspor sebagai JPEG di iPhone (Pengaturan > Kamera > Format > Kompatibilitas Maksimum), lalu unggah ulang.'
+    )
   }
-  return ext
+}
+
+/**
+ * Menentukan byte yang sungguh ditulis dan ekstensi kuncinya. JPG/PNG/WebP
+ * lewat apa adanya; HEIC dikonversi ke JPEG; AVIF ditolak dengan pesan jelas
+ * — non-goal spec ini terlepas dari kapabilitas `sharp`. (Sekadar catatan:
+ * build `sharp` yang ada justru bisa decode/encode AVIF — HEIC/HEVC yang
+ * absen, lihat docblock `convertHeicToJpeg`. AVIF tetap ditolak karena format
+ * ini jarang diunggah orang, bukan karena tidak bisa diproses.)
+ */
+const normalizeForStorage = async (
+  file: File | Blob
+): Promise<{ bytes: File | Blob; extension: string }> => {
+  const passthroughExtension = EXTENSION_BY_MIME[file.type]
+  if (passthroughExtension) {
+    return { bytes: file, extension: passthroughExtension }
+  }
+
+  if (HEIC_MIME_TYPES.has(file.type)) {
+    return { bytes: await convertHeicToJpeg(file), extension: 'jpg' }
+  }
+
+  if (file.type === 'image/avif') {
+    throw new Error(`Format AVIF tidak didukung. ${ACCEPTED_FORMATS_MESSAGE}`)
+  }
+
+  throw new Error(`Tipe file tidak didukung. ${ACCEPTED_FORMATS_MESSAGE}`)
 }
 
 const requireKey = (key: string): string => {
@@ -94,8 +149,9 @@ export const storage = {
     file: File | Blob,
     folder: string = 'uploads'
   ): Promise<string> {
-    const key = `${folder}/${randomUUID()}.${extensionFor(file)}`
-    return writeFileAt(key, file)
+    const { bytes, extension } = await normalizeForStorage(file)
+    const key = `${folder}/${randomUUID()}.${extension}`
+    return writeFileAt(key, bytes)
   },
 
   /**

@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useRef, useState, useEffect } from 'react'
+import { toast } from 'sonner'
 import { Input } from '~/components/shadcn/ui/input'
 import {
   ImageUploadIcon,
@@ -10,6 +11,10 @@ import {
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { uploadImageAction, getSignedUrlAction } from '~/lib/actions/storage'
+import {
+  ACCEPTED_IMAGE_MIME_TYPES,
+  MAX_UPLOAD_BYTES
+} from '~/lib/api/upload-constraints'
 import { cn } from '~/lib/shadcn/utils'
 
 interface ImageUploadProps {
@@ -61,6 +66,14 @@ const ImageUpload = ({
     const file = e.target.files?.[0]
     if (!file) return
 
+    if (file.size > MAX_UPLOAD_BYTES) {
+      toast.error(
+        `Ukuran file ${(file.size / 1024 / 1024).toFixed(1)}MB melebihi batas 5MB.`
+      )
+      e.target.value = ''
+      return
+    }
+
     // 1. Local Preview immediately
     const localPreview = URL.createObjectURL(file)
     setPreview(localPreview)
@@ -88,7 +101,9 @@ const ImageUpload = ({
       // Clean up local object URL
       URL.revokeObjectURL(localPreview)
     } catch (error) {
-      console.error('Upload failed:', error)
+      toast.error(
+        error instanceof Error ? error.message : 'Gagal mengunggah gambar.'
+      )
       setPreview(null)
     } finally {
       setIsUploading(false)
@@ -107,7 +122,7 @@ const ImageUpload = ({
         <input
           ref={fileInputRef}
           type='file'
-          accept='image/*'
+          accept={ACCEPTED_IMAGE_MIME_TYPES}
           onChange={handleFileChange}
           disabled={isUploading}
           className='hidden'
@@ -155,7 +170,7 @@ const ImageUpload = ({
                   Klik untuk upload
                 </p>
                 <p className='text-muted-foreground/70 mt-0.5 text-[11px]'>
-                  JPG, PNG, WebP · Maks. 5MB
+                  JPG, PNG, WebP, HEIC · Maks. 5MB
                 </p>
               </div>
             </div>
@@ -218,7 +233,7 @@ const ImageUpload = ({
           <div className='relative'>
             <Input
               type='file'
-              accept='image/*'
+              accept={ACCEPTED_IMAGE_MIME_TYPES}
               onChange={handleFileChange}
               disabled={isUploading}
               className='cursor-pointer'
@@ -231,7 +246,7 @@ const ImageUpload = ({
             </div>
           </div>
           <p className='text-muted-foreground mt-1 text-[11px]'>
-            Max size: 5MB. Supported: JPG, PNG, WebP.
+            Max size: 5MB. Supported: JPG, PNG, WebP, HEIC.
           </p>
         </div>
       </div>

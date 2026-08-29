@@ -4,6 +4,10 @@ import React, { useRef, useState, useEffect, useTransition } from 'react'
 import { toast } from 'sonner'
 import { cn } from '~/lib/shadcn/utils'
 import { uploadImageAction, getSignedUrlAction } from '~/lib/actions/storage'
+import {
+  ACCEPTED_IMAGE_MIME_TYPES,
+  MAX_UPLOAD_BYTES
+} from '~/lib/api/upload-constraints'
 import { updateMemberPhotoAction } from '../action'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Camera01Icon } from '@hugeicons/core-free-icons'
@@ -57,6 +61,14 @@ export const ProfileAvatar = ({
     const file = e.target.files?.[0]
     if (!file) return
 
+    if (file.size > MAX_UPLOAD_BYTES) {
+      toast.error(
+        `Ukuran file ${(file.size / 1024 / 1024).toFixed(1)}MB melebihi batas 5MB.`
+      )
+      e.target.value = ''
+      return
+    }
+
     const previousPreview = preview
     const localUrl = URL.createObjectURL(file)
     setPreview(localUrl)
@@ -76,10 +88,12 @@ export const ProfileAvatar = ({
         const uploadedPath = await uploadImageAction(formData)
         await updateMemberPhotoAction(memberId, uploadedPath)
         URL.revokeObjectURL(localUrl)
-      } catch {
+      } catch (error) {
         setPreview(previousPreview)
         URL.revokeObjectURL(localUrl)
-        toast.error('Gagal mengupload foto. Silakan coba lagi.')
+        toast.error(
+          error instanceof Error ? error.message : 'Gagal mengupload foto.'
+        )
       }
     })
   }
@@ -136,7 +150,7 @@ export const ProfileAvatar = ({
         <input
           ref={inputRef}
           type='file'
-          accept='image/*'
+          accept={ACCEPTED_IMAGE_MIME_TYPES}
           className='sr-only'
           onChange={handleFile}
           aria-hidden='true'

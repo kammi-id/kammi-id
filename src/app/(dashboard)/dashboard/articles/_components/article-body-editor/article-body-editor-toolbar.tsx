@@ -1,6 +1,7 @@
 'use client'
 
 import { useRef, useState } from 'react'
+import { toast } from 'sonner'
 import type { Editor } from '@tiptap/react'
 import {
   Heading02Icon,
@@ -24,6 +25,10 @@ import {
 } from '~/components/shadcn/ui/popover'
 import { Toggle } from '~/components/shadcn/ui/toggle'
 import { getSignedUrlAction, uploadImageAction } from '~/lib/actions/storage'
+import {
+  ACCEPTED_IMAGE_MIME_TYPES,
+  MAX_UPLOAD_BYTES
+} from '~/lib/api/upload-constraints'
 
 interface ArticleBodyEditorToolbarProps {
   editor: Editor | null
@@ -74,6 +79,13 @@ export const ArticleBodyEditorToolbar = ({
     e.target.value = ''
     if (!file) return
 
+    if (file.size > MAX_UPLOAD_BYTES) {
+      toast.error(
+        `Ukuran file ${(file.size / 1024 / 1024).toFixed(1)}MB melebihi batas 5MB.`
+      )
+      return
+    }
+
     setIsUploading(true)
     try {
       const formData = new FormData()
@@ -83,7 +95,9 @@ export const ArticleBodyEditorToolbar = ({
       const src = await getSignedUrlAction(uploadedPath)
       editor.chain().focus().setImage({ src, alt: file.name }).run()
     } catch (error) {
-      console.error('Gagal mengunggah gambar:', error)
+      toast.error(
+        error instanceof Error ? error.message : 'Gagal mengunggah gambar.'
+      )
     } finally {
       setIsUploading(false)
     }
@@ -194,7 +208,7 @@ export const ArticleBodyEditorToolbar = ({
       <input
         ref={fileInputRef}
         type='file'
-        accept='image/*'
+        accept={ACCEPTED_IMAGE_MIME_TYPES}
         className='hidden'
         onChange={handleImageFileChange}
       />

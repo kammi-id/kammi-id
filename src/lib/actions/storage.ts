@@ -1,14 +1,14 @@
 'use server'
 
 import { storage } from '~/lib/api/storage'
+import { MAX_UPLOAD_BYTES } from '~/lib/api/upload-constraints'
 import { getLogger } from '~/lib/logger'
 
 const logger = getLogger(['app', 'storage'])
 
-// `image-upload.tsx` menjanjikan "Maks. 5MB" di UI, tapi janji itu tidak
-// pernah ditegakkan di server — `bodySizeLimit` tetap 50mb. Batas ini yang
-// mengikat; pemeriksaan di klien sekadar kenyamanan.
-const MAX_UPLOAD_BYTES = 5 * 1024 * 1024
+// Klien memeriksa batas ini juga (lihat `upload-constraints.ts`), tapi
+// `bodySizeLimit` tetap 50mb — jadi ini yang mengikat, pemeriksaan di klien
+// sekadar kenyamanan.
 
 /**
  * Uploads an image to storage.
@@ -25,7 +25,9 @@ export const uploadImageAction = async (formData: FormData) => {
   }
 
   if (file.size > MAX_UPLOAD_BYTES) {
-    throw new Error('Ukuran file melebihi batas 5MB.')
+    throw new Error(
+      `Ukuran file ${(file.size / 1024 / 1024).toFixed(1)}MB melebihi batas 5MB.`
+    )
   }
 
   if (existingPath) {

@@ -61,10 +61,13 @@ bug yang sama menganga di 13 tempat lain.
 
 ## Non-Goals
 
-- **Dukungan AVIF.** Build `sharp` yang ada punya decoder HEIF tapi
-  `avif.input = false`. Mengejarnya berarti mengganti build `sharp` di image
-  production demi format yang praktis tidak pernah dipakai orang mengunggah.
-  AVIF ditolak dengan pesan jelas, bukan diam-diam.
+- **Dukungan AVIF.** Non-goal terlepas dari kapabilitas build `sharp` — lihat
+  `## Comments` di tiket 03 untuk apa yang sungguh terbukti lewat percobaan
+  langsung (kebalikan dari dugaan awal `avif.input = false` di sini: AVIF
+  justru decode/encode, HEIC/HEVC yang absen). Mengejar dukungan AVIF tetap
+  berarti mengganti build `sharp` di image production demi format yang
+  praktis tidak pernah dipakai orang mengunggah. AVIF ditolak dengan pesan
+  jelas, bukan diam-diam.
 - **Menjalankan migrasi ke basis data production.** ADR 0008 menyatakan
   production tetap manual dan itu bukan kelalaian. Tiket 04 menghasilkan
   berkas migrasi dan wizard langkahnya; eksekusinya milik manusia.

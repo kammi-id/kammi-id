@@ -11,6 +11,12 @@ import type { Instrumentation } from 'next'
  * blocks — the blocking guard lives in `src/db/db.ts` and only fires outside
  * Next.js, where the destructive commands run.
  *
+ * Also probes once, here at boot, whether the `sharp` build in this process
+ * can actually decode HEIC (see `src/lib/api/heif-decoder.ts`) — the storage
+ * layer converts HEIC uploads to JPEG when it can and rejects them with a
+ * clear message when it can't, but only a boot-time log makes that capability
+ * visible without exec-ing into a running container.
+ *
  * Guarded by `NEXT_RUNTIME` because `instrumentation.ts` also runs in the
  * Edge runtime, where `@logtape/logtape`'s Node-oriented console sink isn't
  * needed (and importing it eagerly would bloat the edge bundle).
@@ -20,9 +26,12 @@ export const register = async (): Promise<void> => {
     const { configureLogger } = await import('~/lib/logger/config')
     await configureLogger()
 
-    // After `configureLogger`, never before — it logs through the app logger.
+    // After `configureLogger`, never before — both log through the app logger.
     const { warnRemoteDatabase } = await import('~/lib/db-guard/warn')
     warnRemoteDatabase()
+
+    const { checkHeifDecoderAtBoot } = await import('~/lib/api/heif-decoder')
+    await checkHeifDecoderAtBoot()
   }
 }
 
