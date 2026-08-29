@@ -30,6 +30,12 @@ describe('resolveTenantHost', () => {
     expect(resolveTenantHost('staging.kammi.id')).toEqual({ kind: 'apex' })
   })
 
+  it('reads the production candidate host as apex, not the slug "candidate"', () => {
+    expect(resolveTenantHost('candidate.production.kammi.id')).toEqual({
+      kind: 'apex'
+    })
+  })
+
   it('reads localhost as apex for local dev', () => {
     expect(resolveTenantHost('localhost')).toEqual({ kind: 'apex' })
   })

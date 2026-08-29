@@ -86,6 +86,19 @@ describe('proxy — tenant routing', () => {
     )
   })
 
+  it('resolves PP on the production candidate host, not the slug "candidate"', async () => {
+    readOrganizationImpl = async () =>
+      [{ slug: 'kammi' }] as Awaited<ReturnType<typeof realReadOrganization>>
+
+    const res = await proxy(
+      new NextRequest('https://candidate.production.kammi.id/')
+    )
+
+    expect(res?.headers.get('x-middleware-rewrite')).toBe(
+      'https://candidate.production.kammi.id/kammi'
+    )
+  })
+
   it('lets a request fall through instead of 500ing when PP cannot be found', async () => {
     readOrganizationImpl = async () => {
       throw new Error('connection refused')

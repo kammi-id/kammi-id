@@ -12,12 +12,13 @@ export const ROOT_DOMAIN = 'kammi.id'
  * `<slug>.kammi.id` by coincidence of how it was provisioned. Without this
  * exception it would be read as the slug `staging`, and the whole staging
  * site would 404 the moment this ships (mirrors the apex risk ADR 0012 calls
- * out for `kammi.id` itself). `localhost` keeps local dev on PP, unchanged
- * from before this ticket.
+ * out for `kammi.id` itself). The production candidate host has the same role
+ * during release validation. `localhost` keeps local dev on PP, unchanged.
  */
 const APEX_HOSTS = new Set<string>([
   ROOT_DOMAIN,
   'staging.kammi.id',
+  'candidate.production.kammi.id',
   'localhost'
 ])
 
