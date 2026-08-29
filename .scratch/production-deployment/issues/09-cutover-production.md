@@ -8,6 +8,10 @@ serta checkpoint baru sebelum write dibuka.
 
 **Status:** ready-for-human
 
+**Wizard:** `wizard-09-cutover-production.sh` (12 stage). Blocked by 07,
+bukan 08. Deadline abort dihitung di stage 1; batas rollback ke stack lama
+tertutup di stage 11.
+
 - [ ] Deployment lead dan product/data owner hadir, kandidat/digest masih sama,
       seluruh gate masih valid, dan deadline abort sudah ditetapkan.
 - [ ] Backup/snapshot pre-deploy terverifikasi sebelum Host rule production

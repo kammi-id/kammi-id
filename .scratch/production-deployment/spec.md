@@ -2,6 +2,39 @@
 
 **Status:** ready-for-agent
 
+## Keputusan operasional rilis ini (2026-08-29)
+
+Tiga keputusan diambil saat menyiapkan eksekusi dan **menyimpang dari teks di
+bawah**. Yang tertulis di sini menang untuk rilis ini.
+
+**Kandidat dibekukan pada `sha-b0e5ee6`**, digest
+`sha256:27a43de67c6e66301c2d2d65126f94f6c629fc3ec149d00cc67b9934a6744f85`.
+Itu image yang sudah berjalan dan terverifikasi di staging, dan commit yang
+menutup tiket 01–03. **`main` sengaja tidak disentuh** — ia tertinggal 572
+commit dan hanya bisa maju lewat fast-forward. Konsekuensi yang diterima
+sadar: `main` tidak mencerminkan apa yang berjalan di production sampai ada
+pekerjaan terpisah yang memajukannya. Ini membatalkan "Kandidat berasal dari
+`main`" pada _Bentuk rilis_ dan checklist pertama tiket 06.
+
+**Rehearsal terpisah ditiadakan; rilis berjalan satu jalur.** Project baru
+mulai kosong dan seluruh langkah sebelum flip domain tidak menyentuh stack
+lama, sehingga jalur itu sendiri sudah menjadi rehearsal-nya. Flip domain
+adalah gate: ia hanya terjadi setelah migrasi, health, dan smoke test hijau,
+dan pembatalan sebelum titik itu cukup mengembalikan Host rule. Tiket 07 dan
+08 karena itu melebur menjadi dua wizard, bukan dua putaran.
+
+**Write freeze tetap dipertahankan penuh.** Maintenance page mengambil apex,
+`www`, dan wildcard sebelum final dump/delta, sehingga RPO cutover tetap nol.
+Ini bagian runbook yang tidak dipotong.
+
+Eksekusinya:
+
+| Wizard                                    | Cakupan                                                         |
+| ----------------------------------------- | --------------------------------------------------------------- |
+| `wizard-04-provision-project-production-baru.sh` | Project, Postgres, Application, volume, environment, backup |
+| `wizard-07-precopy-data-dan-aset.sh`      | Pre-copy DB + aset, migrasi, smoke test — tanpa downtime         |
+| `wizard-09-cutover-production.sh`         | Maintenance window, salin final, flip domain, buka trafik        |
+
 Keputusan arsitektur sudah diterima dalam
 [ADR 0015](../../docs/adr/0015-production-baru-di-project-dokploy-terpisah.md).
 Urutan operator yang disepakati hidup dalam

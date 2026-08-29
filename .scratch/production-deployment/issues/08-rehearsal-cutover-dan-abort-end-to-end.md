@@ -7,7 +7,9 @@ mempunyai bukti nyata sebelum menyentuh domain production.
 **Blocked by:** 03 — Application maintenance statis; 05 — Observability dan
 routing preflight; 07 — Rehearsal migrasi database dan aset.
 
-**Status:** ready-for-human
+**Status:** melebur — rehearsal terpisah ditiadakan (lihat "Keputusan
+operasional" di `spec.md`). Isinya terbagi ke `wizard-07` (smoke test di
+hostname validasi) dan `wizard-09` (maintenance, abort, flip domain).
 
 - [ ] Host validasi berpindah Application lama-equivalent → maintenance →
       kandidat tanpa pernah dimiliki dua Application bersamaan.

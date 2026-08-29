@@ -7,7 +7,11 @@ sebagai satu-satunya kandidat production.
 **Blocked by:** 01 — Health endpoints production; 02 — One-shot preflight dan
 migrasi.
 
-**Status:** ready-for-agent
+**Status:** done — diselesaikan lewat keputusan, lihat "Keputusan operasional"
+di `spec.md`. Kandidat dibekukan pada `sha-b0e5ee6`, digest
+`sha256:27a43de67c6e66301c2d2d65126f94f6c629fc3ec149d00cc67b9934a6744f85`,
+yang sudah berjalan dan terverifikasi di staging. Checklist pertama
+("Kandidat berasal dari `main`") sengaja dibatalkan: `main` tidak disentuh.
 
 - [ ] Kandidat berasal dari `main`; worktree, commit SHA penuh, tag image, dan
       digest dicatat.

@@ -50,23 +50,39 @@ Jangan memperbaiki data secara improvisasi selama window. Batalkan, buka
 pekerjaan koreksi tersendiri, lalu ulangi release gate dari SHA baru bila kode
 berubah.
 
-## Prasyarat yang belum tersedia di repo
+## Prasyarat
 
-Runbook tidak boleh dijalankan sebelum item berikut selesai:
+Ditutup di `b0e5ee6` — image kandidat sudah membawa semuanya:
 
-- endpoint liveness dan readiness, dengan readiness memeriksa koneksi
-  PostgreSQL serta ketersediaan dan izin volume upload;
+- endpoint liveness (`/api/health/live`) dan readiness (`/api/health/ready`),
+  dengan readiness memeriksa koneksi PostgreSQL serta ketersediaan dan izin
+  volume upload;
+- Application maintenance statis tanpa dependency database (`maintenance/`);
+- `src/scripts/check-duplicates.ts` ikut disalin ke stage `runner`
+  (Dockerfile baris 51) — catatan lama bahwa script ini tidak ada di container
+  sudah tidak berlaku;
+- one-shot migration container: `docker-entrypoint.sh` menjalankan preflight
+  duplikat lalu migrasi saat `RUN_MIGRATIONS=1`, dan berhenti tanpa melayani
+  HTTP saat `MIGRATIONS_ONLY=1`. Lock timeout 10 detik tertanam di
+  `src/scripts/migrate.ts`.
+
+Masih pekerjaan manusia sebelum window dibuka (tiket 05):
+
 - external uptime monitor dan jalur notifikasi insiden;
-- Application maintenance kecil tanpa dependency database;
-- cara teruji menjalankan `check:duplicates` terhadap PostgreSQL baru. Release
-  image saat ini membawa migrasi tetapi tidak membawa
-  `src/scripts/check-duplicates.ts`; jangan menganggap script itu tersedia di
-  container;
 - akses read-only untuk memeriksa service, network, volume, domain, sertifikat,
-  backup, sesi PostgreSQL, dan kapasitas host production;
-- cara teruji menjalankan release image sebagai one-shot migration container
-  di network PostgreSQL baru, termasuk cara menerapkan dan membuktikan lock
-  timeout 10 detik.
+  backup, sesi PostgreSQL, dan kapasitas host production.
+
+## Wizard
+
+Fase di bawah dieksekusi lewat tiga wizard di `.scratch/production-deployment/`.
+Keputusan operasional rilis ini — termasuk penyimpangan yang disengaja dari
+Fase 1 dan Fase 2 — ada di `spec.md` folder yang sama.
+
+| Wizard                                           | Fase       |
+| ------------------------------------------------ | ---------- |
+| `wizard-04-provision-project-production-baru.sh` | 3          |
+| `wizard-07-precopy-data-dan-aset.sh`             | 2 dan 4    |
+| `wizard-09-cutover-production.sh`                | 5 sampai 9 |
 
 ## Kontrak resource project baru
 

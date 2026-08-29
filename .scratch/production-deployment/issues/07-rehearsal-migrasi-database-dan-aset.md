@@ -9,6 +9,10 @@ production baru; 06 — Sahkan digest kandidat di staging.
 
 **Status:** ready-for-human
 
+**Wizard:** `wizard-07-precopy-data-dan-aset.sh` (12 stage). Jalur tunggal —
+bukan rehearsal terpisah lagi; lihat "Keputusan operasional" di `spec.md`.
+Stack lama hanya dibaca, trafik tidak disentuh.
+
 - [ ] Fresh `pg_dump -Fc` production lama direstore penuh ke PostgreSQL baru
       memakai opsi yang sudah terbukti di staging.
 - [ ] Migration journal hasil restore dibandingkan dengan kandidat dan setiap
