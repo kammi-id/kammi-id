@@ -5,6 +5,8 @@ import { notFound } from 'next/navigation'
 import { resolveStrukturIdFromParams } from '~/app/(main)/_data/struktur'
 import { articleQuery } from '~/db/query/article'
 import { ArticleBodyRenderer } from '~/components/article-body-renderer'
+import { ImageGalleryGrid } from '~/components/image-gallery-grid'
+import { resolveGalleryImages } from '~/lib/utils/site-image'
 import { resolvePermalinkHalaman } from './_components/_permalink-halaman'
 
 // Tiket 09 (Halaman beralamat akar). Mengikuti pola halaman Permalink
@@ -83,6 +85,8 @@ const HalamanDetailPage = async ({ params }: HalamanDetailPageProps) => {
   // menjawab 'ok' ketika `articleRow` ada.
   if (!articleRow) notFound()
 
+  const galleryImageUrls = await resolveGalleryImages(articleRow.galleryImages)
+
   return (
     <article className='mx-auto max-w-3xl px-6 py-16 lg:px-8'>
       <h1 className='font-heading text-foreground text-3xl font-bold tracking-tight sm:text-4xl'>
@@ -92,6 +96,8 @@ const HalamanDetailPage = async ({ params }: HalamanDetailPageProps) => {
       <div className='mt-8'>
         <ArticleBodyRenderer body={articleRow.body} />
       </div>
+
+      <ImageGalleryGrid images={galleryImageUrls} articleTitle={articleRow.title} />
     </article>
   )
 }

@@ -18,6 +18,10 @@ export const ArticleInputSchema = z
       ),
     body: z.unknown(),
     featuredImage: z.string().optional(),
+    // Galeri berdampingan dengan Gambar Utama, tidak menggantikannya — ADR
+    // 0017. Tidak ada refinement "wajib non-kosong": Galeri selalu opsional
+    // untuk kedua tipe artikel, beda dari featuredImage yang wajib untuk Berita.
+    galleryImages: z.array(z.string()).default([]),
     penulis: z.string().optional(),
     status: z.enum(['draft', 'published', 'archived']),
     tags: z.array(z.string()).default([]),

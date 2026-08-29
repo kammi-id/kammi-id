@@ -18,7 +18,8 @@ const NewArticlePage = async () => {
   const categoryRows = await getCachedArticleCategories(organizationId)
   const categories = categoryRows.map((category) => ({
     id: category.id,
-    name: category.name
+    name: category.name,
+    parentId: category.parentId
   }))
 
   const tagSuggestions = await getCachedArticleTags(organizationId)

@@ -29,11 +29,11 @@ export const ArticleBodyEditor = ({
   })
 
   return (
-    <div className={cn('rounded-md border', className)}>
+    <div className={cn('flex flex-1 flex-col rounded-md border', className)}>
       <ArticleBodyEditorToolbar editor={editor} />
       <EditorContent
         editor={editor}
-        className='prose min-h-48 max-w-none p-3 focus-within:outline-none'
+        className='prose min-h-105 max-w-none flex-1 p-3 focus-within:outline-none'
       />
     </div>
   )

@@ -8,12 +8,13 @@ import { articleCategoryQuery } from '~/db/query/article-category'
 import { articlePermalinkHistoryQuery } from '~/db/query/article-permalink-history'
 import { readOrganization } from '~/db/query/organization'
 import { resolveStrukturHost } from '~/lib/struktur/tenant-host'
-import { resolveSiteImage } from '~/lib/utils/site-image'
+import { resolveGalleryImages, resolveSiteImage } from '~/lib/utils/site-image'
 import {
   formatTanggalTerbit,
   toWibIsoString
 } from '~/lib/publikasi/tanggal-terbit'
 import { ArticleBodyRenderer } from '~/components/article-body-renderer'
+import { ImageGalleryGrid } from '~/components/image-gallery-grid'
 import {
   resolvePermalinkBerita,
   canonicalPermalinkForHistoryTarget
@@ -169,6 +170,8 @@ const BeritaDetailPage = async ({ params }: BeritaDetailPageProps) => {
     ? await resolveSiteImage(articleRow.featuredImage)
     : null
 
+  const galleryImageUrls = await resolveGalleryImages(articleRow.galleryImages)
+
   const content = (
     <article className='mx-auto max-w-3xl px-6 py-16 lg:px-8'>
       {category && (
@@ -207,6 +210,8 @@ const BeritaDetailPage = async ({ params }: BeritaDetailPageProps) => {
       <div className='mt-8'>
         <ArticleBodyRenderer body={articleRow.body} />
       </div>
+
+      <ImageGalleryGrid images={galleryImageUrls} articleTitle={articleRow.title} />
     </article>
   )
 

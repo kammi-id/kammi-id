@@ -49,6 +49,7 @@ import {
   updateCategoryAction,
   deleteCategoryAction
 } from './action'
+import { buildCategoryTree, flattenCategoryTree } from '../category-tree'
 
 export type CategoryRow = {
   id: string
@@ -75,33 +76,6 @@ const slugify = (value: string): string =>
     .replace(/[^a-z0-9\s-]/g, '')
     .replace(/\s+/g, '-')
     .replace(/-+/g, '-')
-
-type TreeNode = CategoryRow & { children: TreeNode[]; depth: number }
-
-const buildTree = (categories: CategoryRow[]): TreeNode[] => {
-  const byParent = new Map<string | null, CategoryRow[]>()
-  for (const category of categories) {
-    const key = category.parentId
-    const siblings = byParent.get(key) ?? []
-    siblings.push(category)
-    byParent.set(key, siblings)
-  }
-
-  const build = (parentId: string | null, depth: number): TreeNode[] =>
-    (byParent.get(parentId) ?? [])
-      .slice()
-      .sort((a, b) => a.name.localeCompare(b.name))
-      .map((category) => ({
-        ...category,
-        depth,
-        children: build(category.id, depth + 1)
-      }))
-
-  return build(null, 0)
-}
-
-const flattenTree = (nodes: TreeNode[]): TreeNode[] =>
-  nodes.flatMap((node) => [node, ...flattenTree(node.children)])
 
 // Descendant ids of a category — used to exclude invalid parent options when
 // editing (a category cannot be parented to itself or its own descendants).
@@ -149,7 +123,10 @@ export const ArticleCategoryManager = ({
   const [parentValue, setParentValue] = useState<string>(NO_PARENT)
   const [errors, setErrors] = useState<Record<string, string[]>>({})
 
-  const tree = useMemo(() => flattenTree(buildTree(categories)), [categories])
+  const tree = useMemo(
+    () => flattenCategoryTree(buildCategoryTree(categories)),
+    [categories]
+  )
 
   const fieldErrors = (field: string) =>
     errors[field]?.map((message) => ({ message }))

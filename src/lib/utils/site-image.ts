@@ -22,3 +22,13 @@ export const resolveSiteImage = async (path: string): Promise<string> => {
   if (path.startsWith('http')) return path
   return `/api/images/${path}`
 }
+
+/**
+ * Sama seperti `resolveSiteImage`, untuk Galeri (issue 04) — dipakai dua
+ * halaman publik (Berita dan Halaman) yang keduanya merender
+ * `ImageGalleryGrid`, jadi satu tempat alih-alih `Promise.all(...map(...))`
+ * diulang di keduanya.
+ */
+export const resolveGalleryImages = async (
+  paths: string[]
+): Promise<string[]> => Promise.all(paths.map((path) => resolveSiteImage(path)))

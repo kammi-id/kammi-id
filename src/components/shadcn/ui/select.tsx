@@ -7,7 +7,50 @@ import { cn } from "~/lib/shadcn/utils"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { UnfoldMoreIcon, Tick02Icon, ArrowUp01Icon, ArrowDown01Icon } from "@hugeicons/core-free-icons"
 
-const Select = SelectPrimitive.Root
+type SelectItemEntry = { value: unknown; label: React.ReactNode }
+
+// `SelectItem`'s `label` prop only feeds dnd-kit-style keyboard typeahead in
+// Base UI, it never reaches `state.items` (see @base-ui/react's
+// select/item/SelectItem.js) — `Select.Value` resolves its displayed label
+// purely from the `items` prop passed to `Select.Root`
+// (internals/resolveValueLabel.js). No call site in this repo ever passed
+// `items`, so the trigger always fell back to stringifying the raw `value`
+// (a uuid, an enum key) instead of the label. Fixed here, once, by deriving
+// `items` from each `SelectItem`'s `value` + `children` — already the label
+// rendered at every call site — instead of patching all 13 consumers.
+function collectSelectItems(node: React.ReactNode): SelectItemEntry[] {
+  const items: SelectItemEntry[] = []
+  React.Children.forEach(node, (child) => {
+    if (!React.isValidElement(child)) return
+    if (child.type === SelectItem) {
+      const itemProps = child.props as SelectPrimitive.Item.Props
+      if (itemProps.value !== undefined)
+        items.push({ value: itemProps.value, label: itemProps.children })
+      return
+    }
+    const nested = (child.props as { children?: React.ReactNode } | undefined)
+      ?.children
+    if (nested) items.push(...collectSelectItems(nested))
+  })
+  return items
+}
+
+function Select<Value = string, Multiple extends boolean | undefined = false>({
+  children,
+  items,
+  ...props
+}: SelectPrimitive.Root.Props<Value, Multiple>) {
+  type SelectItems = SelectPrimitive.Root.Props<Value, Multiple>["items"]
+  const derivedItems = React.useMemo<SelectItems>(
+    () => items ?? (collectSelectItems(children) as SelectItems),
+    [children, items]
+  )
+  return (
+    <SelectPrimitive.Root items={derivedItems} {...props}>
+      {children}
+    </SelectPrimitive.Root>
+  )
+}
 
 function SelectGroup({ className, ...props }: SelectPrimitive.Group.Props) {
   return (

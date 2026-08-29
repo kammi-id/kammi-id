@@ -10,6 +10,7 @@ import {
   Field,
   FieldGroup,
   FieldLabel,
+  FieldDescription,
   FieldError
 } from '~/components/shadcn/ui/field'
 import { Button } from '~/components/shadcn/ui/button'
@@ -20,23 +21,21 @@ import {
   SelectTrigger,
   SelectValue
 } from '~/components/shadcn/ui/select'
-import { ImageUpload } from '~/components/image-upload'
 import { TagInput } from '../tag-input'
+import { CategoryCombobox, type CategoryComboboxOption } from '../category-combobox'
+import { GalleryUpload } from '../gallery-upload'
 import { ArticleBodyEditor } from '../article-body-editor'
 import type { ArticleBodyJSON } from '../article-body-editor'
-import {
-  ARTICLE_STATUS_LABELS,
-  ARTICLE_TYPE_LABELS,
-  type ArticleType,
-  type ArticleStatus
-} from '../_constants'
+import { ARTICLE_STATUS_LABELS, type ArticleType, type ArticleStatus } from '../_constants'
+import { TypeChoiceCards } from './type-choice-cards'
+import { articlePernahTerbit, slugify } from './utils'
 import { createArticleAction, updateArticleAction } from './action'
 import {
   publishedAtToWibWallClock,
   wibWallClockToPublishedAt
 } from '~/lib/publikasi/tanggal-terbit'
 
-export type ArticleFormCategory = { id: string; name: string }
+export type ArticleFormCategory = CategoryComboboxOption
 
 export type ArticleFormInitial = {
   id: string
@@ -45,6 +44,7 @@ export type ArticleFormInitial = {
   slug: string
   body: ArticleBodyJSON
   featuredImage?: string | null
+  galleryImages: string[]
   penulis?: string | null
   status: ArticleStatus
   tags: string[]
@@ -58,8 +58,6 @@ interface ArticleFormProps {
   tagSuggestions: string[]
   initial?: ArticleFormInitial
 }
-
-const NO_CATEGORY = '__none__'
 
 // Convert a stored `publishedAt` ISO string into the value shape a
 // datetime-local input expects ("YYYY-MM-DDTHH:mm") — as Asia/Jakarta wall
@@ -77,7 +75,7 @@ const toDatetimeLocal = (iso?: string | null): string => {
 
 export const ArticleForm = ({
   organizationId,
-  categories,
+  categories: initialCategories,
   tagSuggestions,
   initial
 }: ArticleFormProps) => {
@@ -88,15 +86,28 @@ export const ArticleForm = ({
   const [type, setType] = useState<ArticleType>(initial?.type ?? 'page')
   const [title, setTitle] = useState(initial?.title ?? '')
   const [slug, setSlug] = useState(initial?.slug ?? '')
+  // Artikel yang sudah ada (`initial` terisi) dianggap "touched" — persis
+  // konvensi `article-category-manager`'s `openEdit` — supaya menyunting
+  // Judul draft lama tidak diam-diam menimpa Permalink yang sudah pernah
+  // diketik manusia. Artikel baru mulai `false`: autogenerate aktif sejak
+  // ketukan pertama.
+  const [slugTouched, setSlugTouched] = useState(Boolean(initial))
+  const [slugManuallyUnlocked, setSlugManuallyUnlocked] = useState(false)
   const [publishedAt, setPublishedAt] = useState(
     toDatetimeLocal(initial?.publishedAt)
   )
   const [featuredImage, setFeaturedImage] = useState(
     initial?.featuredImage ?? ''
   )
+  const [galleryImages, setGalleryImages] = useState<string[]>(
+    initial?.galleryImages ?? []
+  )
   const [penulis, setPenulis] = useState(initial?.penulis ?? '')
-  const [categoryId, setCategoryId] = useState(
-    initial?.categoryId ?? NO_CATEGORY
+  const [categories, setCategories] = useState<ArticleFormCategory[]>(
+    initialCategories
+  )
+  const [categoryId, setCategoryId] = useState<string | null>(
+    initial?.categoryId ?? null
   )
   const [tags, setTags] = useState<string[]>(initial?.tags ?? [])
   const [body, setBody] = useState<ArticleBodyJSON>(
@@ -106,8 +117,36 @@ export const ArticleForm = ({
     initial?.status ?? 'draft'
   )
 
+  // Sengaja dibaca dari `initial` (keadaan TERSIMPAN), bukan dari `type`
+  // state yang sedang disunting — riwayat "pernah Terbit" milik baris di
+  // basis data, tidak berubah hanya karena Tipe sedang diutak-atik di form
+  // sebelum disimpan.
+  const wasPernahTerbit = initial
+    ? articlePernahTerbit({
+        type: initial.type,
+        status: initial.status,
+        publishedAt: initial.publishedAt ? new Date(initial.publishedAt) : null
+      })
+    : false
+  const slugFrozen = wasPernahTerbit && !slugManuallyUnlocked
+
   const fieldErrors = (name: string) =>
     errors[name]?.map((message) => ({ message }))
+
+  const handleTitleChange = (value: string) => {
+    setTitle(value)
+    if (!slugFrozen && !slugTouched) setSlug(slugify(value))
+  }
+
+  const handleSlugChange = (value: string) => {
+    setSlugTouched(true)
+    setSlug(value)
+  }
+
+  const unlockSlug = () => {
+    setSlugManuallyUnlocked(true)
+    setSlugTouched(true)
+  }
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -132,10 +171,11 @@ export const ArticleForm = ({
       slug,
       body,
       featuredImage: featuredImage || undefined,
+      galleryImages,
       penulis: penulis || undefined,
       status,
       tags,
-      categoryId: categoryId === NO_CATEGORY ? undefined : categoryId,
+      categoryId: categoryId ?? undefined,
       publishedAt: type === 'blog' ? isoPublishedAt : undefined
     }
 
@@ -155,44 +195,30 @@ export const ArticleForm = ({
   }
 
   return (
-    <form onSubmit={handleSubmit} className='space-y-6'>
-      <FieldGroup>
-        <Field>
-          <FieldLabel htmlFor='article-type'>Tipe</FieldLabel>
-          <Select
-            value={type}
-            onValueChange={(val) => setType((val as ArticleType) ?? 'page')}
-          >
-            <SelectTrigger id='article-type' className='w-48'>
-              <SelectValue placeholder='Pilih tipe' />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value='page'>{ARTICLE_TYPE_LABELS.page}</SelectItem>
-              <SelectItem value='blog'>{ARTICLE_TYPE_LABELS.blog}</SelectItem>
-            </SelectContent>
-          </Select>
-        </Field>
-
-        <Field data-invalid={Boolean(fieldErrors('title')) || undefined}>
-          <FieldLabel htmlFor='article-title'>Judul</FieldLabel>
+    <form
+      onSubmit={handleSubmit}
+      className='grid grid-cols-1 items-start gap-6 lg:grid-cols-3'
+    >
+      <div className='flex min-w-0 flex-col gap-4 lg:col-span-2'>
+        <div>
           <Input
-            id='article-title'
             value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            onChange={(e) => handleTitleChange(e.target.value)}
+            placeholder='Judul artikel'
+            aria-label='Judul'
             aria-invalid={Boolean(fieldErrors('title')) || undefined}
+            className='font-heading text-foreground h-auto w-full min-w-0 rounded-none border-none bg-transparent p-0 text-3xl font-bold tracking-tight shadow-none outline-none placeholder:text-muted-foreground/50 focus-visible:ring-0 sm:text-4xl'
           />
           <FieldError errors={fieldErrors('title')} />
-        </Field>
+        </div>
 
-        <Field data-invalid={Boolean(fieldErrors('slug')) || undefined}>
-          <FieldLabel htmlFor='article-slug'>Permalink</FieldLabel>
-          <Input
-            id='article-slug'
-            value={slug}
-            onChange={(e) => setSlug(e.target.value)}
-            aria-invalid={Boolean(fieldErrors('slug')) || undefined}
-          />
-          <FieldError errors={fieldErrors('slug')} />
+        <ArticleBodyEditor value={body} onChange={setBody} className='flex-1' />
+      </div>
+
+      <FieldGroup className='lg:sticky lg:top-6'>
+        <Field>
+          <FieldLabel>Tipe</FieldLabel>
+          <TypeChoiceCards name='article-type' value={type} onChange={setType} />
         </Field>
 
         {type === 'blog' && (
@@ -208,7 +234,6 @@ export const ArticleForm = ({
               value={publishedAt}
               onChange={(e) => setPublishedAt(e.target.value)}
               aria-invalid={Boolean(fieldErrors('publishedAt')) || undefined}
-              className='w-64'
             />
             <FieldError errors={fieldErrors('publishedAt')} />
           </Field>
@@ -228,39 +253,50 @@ export const ArticleForm = ({
           </Field>
         )}
 
-        <Field
-          data-invalid={Boolean(fieldErrors('featuredImage')) || undefined}
-        >
-          <FieldLabel>
-            Gambar Utama{type === 'blog' ? ' (wajib)' : ' (opsional)'}
-          </FieldLabel>
-          <ImageUpload
-            value={featuredImage}
-            onChange={setFeaturedImage}
-            folder='articles'
-            variant='background'
+        <Field data-invalid={Boolean(fieldErrors('slug')) || undefined}>
+          <FieldLabel htmlFor='article-slug'>Permalink</FieldLabel>
+          <Input
+            id='article-slug'
+            value={slug}
+            onChange={(e) => handleSlugChange(e.target.value)}
+            disabled={slugFrozen}
+            aria-invalid={Boolean(fieldErrors('slug')) || undefined}
           />
-          <FieldError errors={fieldErrors('featuredImage')} />
+          {slugFrozen ? (
+            <>
+              <FieldDescription>
+                Artikel ini sudah pernah Terbit — Permalink beku (ADR 0014).
+              </FieldDescription>
+              <Button
+                type='button'
+                variant='ghost'
+                size='sm'
+                onClick={unlockSlug}
+                className='h-auto w-fit px-0 text-xs underline-offset-2 hover:underline'
+              >
+                Ubah Permalink secara manual
+              </Button>
+            </>
+          ) : (
+            <FieldDescription>
+              Otomatis mengikuti Judul sampai artikel ini pertama kali Terbit.
+            </FieldDescription>
+          )}
+          <FieldError errors={fieldErrors('slug')} />
         </Field>
 
         <Field>
           <FieldLabel htmlFor='article-category'>Kategori</FieldLabel>
-          <Select
+          <CategoryCombobox
+            id='article-category'
+            organizationId={organizationId}
+            categories={categories}
             value={categoryId}
-            onValueChange={(val) => setCategoryId(val ?? NO_CATEGORY)}
-          >
-            <SelectTrigger id='article-category' className='w-64'>
-              <SelectValue placeholder='Pilih kategori' />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={NO_CATEGORY}>Tanpa Kategori</SelectItem>
-              {categories.map((category) => (
-                <SelectItem key={category.id} value={category.id}>
-                  {category.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            onChange={setCategoryId}
+            onCategoryCreated={(created) =>
+              setCategories((prev) => [...prev, created])
+            }
+          />
         </Field>
 
         <Field>
@@ -274,11 +310,6 @@ export const ArticleForm = ({
         </Field>
 
         <Field>
-          <FieldLabel>Konten</FieldLabel>
-          <ArticleBodyEditor value={body} onChange={setBody} />
-        </Field>
-
-        <Field>
           <FieldLabel htmlFor='article-status'>Status</FieldLabel>
           <Select
             value={status}
@@ -286,7 +317,7 @@ export const ArticleForm = ({
               setStatus((val as ArticleStatus) ?? 'draft')
             }
           >
-            <SelectTrigger id='article-status' className='w-48'>
+            <SelectTrigger id='article-status' className='w-full'>
               <SelectValue placeholder='Pilih status' />
             </SelectTrigger>
             <SelectContent>
@@ -302,31 +333,48 @@ export const ArticleForm = ({
             </SelectContent>
           </Select>
         </Field>
-      </FieldGroup>
 
-      <div className='flex gap-2'>
-        <Button type='submit' disabled={isPending}>
-          {isPending && (
-            <HugeiconsIcon
-              icon={Loading03Icon}
-              className='size-4 animate-spin'
-            />
-          )}
-          {isPending
-            ? 'Menyimpan...'
-            : initial
-              ? 'Simpan Perubahan'
-              : 'Buat Artikel'}
-        </Button>
-        <Button
-          type='button'
-          variant='outline'
-          onClick={() => router.push('/dashboard/articles')}
-          disabled={isPending}
+        <Field
+          data-invalid={Boolean(fieldErrors('featuredImage')) || undefined}
         >
-          Batal
-        </Button>
-      </div>
+          <FieldLabel>
+            Gambar{type === 'blog' ? ' — Utama wajib' : ' (opsional)'}
+          </FieldLabel>
+          <GalleryUpload
+            value={{ featuredImage, galleryImages }}
+            onChange={(next) => {
+              setFeaturedImage(next.featuredImage)
+              setGalleryImages(next.galleryImages)
+            }}
+            folder='articles'
+          />
+          <FieldError errors={fieldErrors('featuredImage')} />
+        </Field>
+
+        <div className='flex gap-2 pt-2'>
+          <Button type='submit' disabled={isPending}>
+            {isPending && (
+              <HugeiconsIcon
+                icon={Loading03Icon}
+                className='size-4 animate-spin'
+              />
+            )}
+            {isPending
+              ? 'Menyimpan...'
+              : initial
+                ? 'Simpan Perubahan'
+                : 'Buat Artikel'}
+          </Button>
+          <Button
+            type='button'
+            variant='outline'
+            onClick={() => router.push('/dashboard/articles')}
+            disabled={isPending}
+          >
+            Batal
+          </Button>
+        </div>
+      </FieldGroup>
     </form>
   )
 }

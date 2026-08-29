@@ -37,7 +37,8 @@ const EditArticlePage = async ({ params }: EditArticlePageProps) => {
   const categoryRows = await getCachedArticleCategories(existing.organizationId)
   const categories = categoryRows.map((category) => ({
     id: category.id,
-    name: category.name
+    name: category.name,
+    parentId: category.parentId
   }))
 
   const tagSuggestions = await getCachedArticleTags(existing.organizationId)
@@ -64,6 +65,7 @@ const EditArticlePage = async ({ params }: EditArticlePageProps) => {
             slug: existing.slug,
             body: existing.body as ArticleBodyJSON,
             featuredImage: existing.featuredImage,
+            galleryImages: existing.galleryImages,
             penulis: existing.penulis,
             status: existing.status,
             tags: existing.tags,
