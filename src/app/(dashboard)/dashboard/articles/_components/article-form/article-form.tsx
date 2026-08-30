@@ -6,6 +6,7 @@ import { toast } from 'sonner'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Loading03Icon } from '@hugeicons/core-free-icons'
 import { Input } from '~/components/shadcn/ui/input'
+import { Textarea } from '~/components/shadcn/ui/textarea'
 import {
   Field,
   FieldGroup,
@@ -207,13 +208,14 @@ export const ArticleForm = ({
     >
       <div className='flex min-w-0 flex-col gap-4 lg:col-span-2'>
         <div>
-          <Input
+          <Textarea
             value={title}
             onChange={(e) => handleTitleChange(e.target.value)}
             placeholder='Judul artikel'
             aria-label='Judul'
             aria-invalid={Boolean(fieldErrors('title')) || undefined}
-            className='font-heading text-foreground placeholder:text-muted-foreground/50 h-auto w-full min-w-0 rounded-none border-none bg-transparent p-0 text-3xl font-bold tracking-tight shadow-none outline-none focus-visible:ring-0 sm:text-4xl md:text-4xl'
+            rows={1}
+            className='font-heading text-foreground placeholder:text-muted-foreground/50 h-auto min-h-0 w-full min-w-0 resize-none rounded-none border-none bg-transparent p-0 text-3xl font-bold tracking-tight shadow-none outline-none focus-visible:ring-0 sm:text-4xl md:text-4xl'
           />
           <FieldError errors={fieldErrors('title')} />
         </div>
