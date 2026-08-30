@@ -167,6 +167,68 @@ export const checkDeletion = (
   }
 }
 
+export type HardDeletionCounts = {
+  /** Anak Struktur dalam Keadaan **apa pun** — Terhapus termasuk (ADR 0019). */
+  children: number
+  /** Kader yang **pernah** ada, soft-deleted termasuk (ADR 0019). */
+  membersEver: number
+  trainings: number
+  /** Artikel, Kategori Artikel, dan Pengaturan Situs yang masih menggantung. */
+  publikasi: number
+}
+
+export type HardDeletionRefusal = {
+  reason: 'prasyarat'
+  message: string
+  counts: HardDeletionCounts
+}
+
+/**
+ * Whether a Struktur Terhapus may be erased dari basis data sungguhan.
+ * Returns a refusal, or null. Lihat ADR 0019.
+ *
+ * **Bukan `checkDeletion` yang dilonggarkan — jauh lebih ketat**, sebab
+ * taruhannya beda: `checkDeletion` menjaga supaya data yang masih dipakai tidak
+ * ikut hilang lewat soft delete yang bisa dibatalkan; fungsi ini menjaga supaya
+ * `code` yang dibebaskan tidak pernah tersusun ke Nomor Induk siapa pun (ADR
+ * 0004), sebuah kesalahan yang tidak bisa dibatalkan sekali barisnya lenyap.
+ *
+ * Tiga bedanya dengan `checkDeletion`, semua ke arah lebih ketat:
+ *
+ * 1. **`membersEver`, bukan Member hidup.** Nol Member hidup tidak cukup —
+ *    persis lubang yang membuat ADR 0004 menolak hard delete Struktur kosong.
+ * 2. **Anak Terhapus IKUT dihitung.** `checkDeletion` sengaja mengecualikannya
+ *    (spec §3 klausa 2); di sini alasannya sudah bukan kebijakan, tapi fisik —
+ *    `parent_id` anak itu tetap menunjuk baris yang mau lenyap.
+ * 3. **Publikasi dan Daurah IKUT jadi prasyarat**, padahal `checkDeletion`
+ *    eksplisit membiarkan Publikasi menggantung. Hard delete tidak punya opsi
+ *    "menggantung" — barisnya lenyap, jadi yang menunjuk ke sana harus sudah
+ *    nol lebih dulu, atau FK menolak dengan `23503` mentah.
+ */
+export const checkHardDeletion = (
+  org: { type: StrukturJenjang },
+  counts: HardDeletionCounts
+): HardDeletionRefusal | null => {
+  const clauses = [
+    counts.membersEver > 0
+      ? `${counts.membersEver} Kader (termasuk yang sudah dihapus)`
+      : null,
+    counts.trainings > 0 ? `${counts.trainings} Daurah` : null,
+    counts.publikasi > 0 ? 'data Publikasi (Berita/Pengaturan Situs)' : null,
+    counts.children > 0
+      ? `${counts.children} ${describeChildJenjang(org.type)} (termasuk yang sudah dihapus)`
+      : null
+  ].filter((clause): clause is string => clause !== null)
+
+  if (clauses.length === 0) return null
+
+  return {
+    reason: 'prasyarat',
+    message: `Tidak bisa dihapus selamanya: masih ada ${joinClauses(clauses)}.`,
+    counts
+  }
+}
+
 export type RestoreRefusal =
   | { reason: 'induk-non-aktif'; message: string }
   | {

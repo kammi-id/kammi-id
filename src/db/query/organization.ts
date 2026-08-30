@@ -1,5 +1,10 @@
 import { db } from '../db'
 import { organization } from '../schema/organization.sql'
+import { user } from '../schema/user.sql'
+import { article } from '../schema/article.sql'
+import { articleCategory } from '../schema/article-category.sql'
+import { articlePermalinkHistory } from '../schema/article-permalink-history.sql'
+import { siteSettings } from '../schema/site-settings.sql'
 import { withOrganizationCTE, type Organization } from './cte/organization'
 export type { Organization }
 import {
@@ -477,6 +482,85 @@ export const softDeleteOrganization = async (
     .update(organization)
     .set({ deletedAt: new Date(), deletedBy: actorId })
     .where(eq(organization.id, id))
+}
+
+/**
+ * ALL rows with this parent — every Keadaan, Terhapus termasuk. Beda dari
+ * `childrenCount` di `readOrganization`, yang sengaja mengecualikan anak
+ * Terhapus mengikuti prasyarat penghapusan biasa (spec §3 klausa 2).
+ *
+ * Prasyarat Hapus Selamanya (ADR 0019) tidak punya opsi mengecualikan: anak
+ * dalam Keadaan apa pun tetap memegang `parent_id` yang menunjuk baris yang
+ * mau lenyap, dan FK akan menolak persis karena itu.
+ */
+export const countAllChildrenByOrganization = async (
+  id: string
+): Promise<number> => {
+  const [row] = await db
+    .select({ total: count() })
+    .from(organization)
+    .where(eq(organization.parentId, id))
+
+  return Number(row?.total ?? 0)
+}
+
+/**
+ * Berapa baris Publikasi (Artikel, Kategori Artikel, riwayat Permalink-nya,
+ * Pengaturan Situs) yang masih menunjuk Struktur ini — separuh lain dari
+ * prasyarat Hapus Selamanya (ADR 0019), yang sengaja **tidak** dimiliki
+ * `checkDeletion` biasa (spec §3 menyatakan Publikasi boleh menggantung).
+ *
+ * Hard delete tidak punya opsi menggantung: keempat tabelnya NOT NULL, NO
+ * ACTION ke `organization.id` sejak tiket 13, jadi baris yang tersisa membuat
+ * penghapusan gagal dengan `23503` mentah alih-alih pesan yang bisa dibaca.
+ */
+export const countPublikasiByOrganization = async (
+  id: string
+): Promise<number> => {
+  const [articleRow] = await db
+    .select({ total: count() })
+    .from(article)
+    .where(eq(article.organizationId, id))
+  const [categoryRow] = await db
+    .select({ total: count() })
+    .from(articleCategory)
+    .where(eq(articleCategory.organizationId, id))
+  const [permalinkRow] = await db
+    .select({ total: count() })
+    .from(articlePermalinkHistory)
+    .where(eq(articlePermalinkHistory.organizationId, id))
+  const [siteSettingsRow] = await db
+    .select({ total: count() })
+    .from(siteSettings)
+    .where(eq(siteSettings.organizationId, id))
+
+  return (
+    Number(articleRow?.total ?? 0) +
+    Number(categoryRow?.total ?? 0) +
+    Number(permalinkRow?.total ?? 0) +
+    Number(siteSettingsRow?.total ?? 0)
+  )
+}
+
+/**
+ * Menghapus baris Struktur Terhapus dari basis data sungguhan — **satu-satunya
+ * pengecualian ADR 0004, dan hanya lewat gerbang `checkHardDeletion`** (ADR
+ * 0019), yang menutup persis lubang yang membuat ADR 0004 menolak hard delete
+ * Struktur kosong: nol Kader SELAMANYA (bukan cuma nol yang hidup) dan nol anak
+ * dalam Keadaan apa pun. Pemanggil wajib memeriksa gerbang itu **sebelum**
+ * memanggil ini — fungsi ini sendiri tidak mengulang pemeriksaan, sama seperti
+ * `softDeleteOrganization` tidak mengulang `checkDeletion`.
+ *
+ * Akun kepengurusan yang terhubung ikut terhapus di transaksi yang sama —
+ * bukan cascade skema (ADR 0004 mencabutnya justru supaya ini tidak pernah
+ * terjadi *diam-diam*), melainkan langkah yang disengaja di jalur yang sudah
+ * lolos gerbangnya sendiri.
+ */
+export const hardDeleteOrganization = async (id: string): Promise<void> => {
+  await db.transaction(async (tx) => {
+    await tx.delete(user).where(eq(user.connectedOrganizationId, id))
+    await tx.delete(organization).where(eq(organization.id, id))
+  })
 }
 
 /**

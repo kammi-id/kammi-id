@@ -10,6 +10,7 @@ import {
   StrukturTerhapusList,
   type DeletedStrukturRow
 } from './_components/struktur-terhapus-list'
+import { readHardDeleteRefusal } from './_components/hard-delete-struktur'
 
 /**
  * The Struktur Terhapus surface (spec §8.4) — **its own route, not a filter on
@@ -54,12 +55,23 @@ const StrukturTerhapusPage = async () => {
     [...liveParents, ...deletedParents].map((org) => [org.id, org.name])
   )
 
-  const rows: DeletedStrukturRow[] = deleted.map((org) => ({
+  // Dihitung sungguhan per baris, bukan diasumsikan dari yang sudah dibaca di
+  // atas: prasyarat Hapus Selamanya (ADR 0019) jauh lebih ketat daripada nol
+  // anak/Kader yang terlihat di sini — ia menghitung anak Terhapus dan Kader
+  // yang sudah di-soft-delete juga. Tombolnya wajib nonaktif sebelum ditekan,
+  // bukan cuma menolak sesudahnya (kebiasaan repo ini untuk prasyarat yang
+  // tidak terpenuhi).
+  const hardDeleteRefusals = await Promise.all(
+    deleted.map((org) => readHardDeleteRefusal(org))
+  )
+
+  const rows: DeletedStrukturRow[] = deleted.map((org, i) => ({
     id: org.id,
     name: org.name,
     code: org.code,
     type: org.type,
-    parentName: org.parentId ? (nameById.get(org.parentId) ?? null) : null
+    parentName: org.parentId ? (nameById.get(org.parentId) ?? null) : null,
+    hardDeleteRefusal: hardDeleteRefusals[i]?.message ?? null
   }))
 
   return (

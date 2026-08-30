@@ -271,6 +271,28 @@ export const countLiveMembersByOrganization = async (
   return Number(row?.count ?? 0)
 }
 
+/**
+ * Berapa Kader yang **pernah** ada di Struktur ini — tanpa filter
+ * `deleted_at` sama sekali, sengaja beda dari `countLiveMembersByOrganization`.
+ *
+ * Ini separuh gerbang Hapus Selamanya (ADR 0019), yang menutup persis lubang
+ * yang membuat ADR 0004 menolak hard delete Struktur kosong: "nol Member
+ * hidup" tidak berarti "tidak pernah punya Member" — seorang Kader yang sudah
+ * di-soft-delete tetap memegang Nomor Induk yang tercetak dari `code`
+ * Struktur ini. Hanya baris ini yang membuktikan `code`-nya tidak pernah
+ * tersusun ke Nomor Induk siapa pun.
+ */
+export const countMembersEverByOrganization = async (
+  organizationId: string
+): Promise<number> => {
+  const [row] = await db
+    .select({ count: sql<number>`count(*)::int` })
+    .from(member)
+    .where(eq(member.organizationId, organizationId))
+
+  return Number(row?.count ?? 0)
+}
+
 export const createMember = async (
   values: MemberInsertValues,
   tx?: DBExecutor

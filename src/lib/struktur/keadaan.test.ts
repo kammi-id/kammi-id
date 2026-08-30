@@ -4,6 +4,7 @@ import {
   checkReactivation,
   checkRestore,
   checkDeletion,
+  checkHardDeletion,
   describeChildJenjang
 } from './keadaan'
 
@@ -157,6 +158,74 @@ describe('checkDeletion', () => {
     )
 
     expect(refusal?.counts).toEqual({ children: 1, members: 0, trainings: 0 })
+  })
+})
+
+/** ADR 0019 — gerbang jauh lebih ketat dari `checkDeletion`, bukan alias. */
+describe('checkHardDeletion', () => {
+  it('meloloskan Struktur yang benar-benar tidak pernah dipakai', () => {
+    expect(
+      checkHardDeletion(
+        { type: 'pd' },
+        { children: 0, membersEver: 0, trainings: 0, publikasi: 0 }
+      )
+    ).toBeNull()
+  })
+
+  it('menolak selama pernah ada Kader, sekalipun sudah di-soft-delete', () => {
+    const refusal = checkHardDeletion(
+      { type: 'pk' },
+      { children: 0, membersEver: 1, trainings: 0, publikasi: 0 }
+    )
+
+    expect(refusal?.message).toContain('1 Kader (termasuk yang sudah dihapus)')
+  })
+
+  it('menolak selama masih ada anak dalam Keadaan apa pun, Terhapus termasuk', () => {
+    const refusal = checkHardDeletion(
+      { type: 'pd' },
+      { children: 1, membersEver: 0, trainings: 0, publikasi: 0 }
+    )
+
+    expect(refusal?.message).toContain(
+      '1 Komisariat (termasuk yang sudah dihapus)'
+    )
+  })
+
+  it('menolak selama Publikasi masih menggantung — beda dari checkDeletion', () => {
+    const refusal = checkHardDeletion(
+      { type: 'pk' },
+      { children: 0, membersEver: 0, trainings: 0, publikasi: 1 }
+    )
+
+    expect(refusal?.message).toContain(
+      'data Publikasi (Berita/Pengaturan Situs)'
+    )
+  })
+
+  it('merangkai lebih dari satu prasyarat jadi satu kalimat', () => {
+    const refusal = checkHardDeletion(
+      { type: 'pd' },
+      { children: 2, membersEver: 5, trainings: 1, publikasi: 1 }
+    )
+
+    expect(refusal?.message).toBe(
+      'Tidak bisa dihapus selamanya: masih ada 5 Kader (termasuk yang sudah dihapus), 1 Daurah, data Publikasi (Berita/Pengaturan Situs) dan 2 Komisariat (termasuk yang sudah dihapus).'
+    )
+  })
+
+  it('membawa keempat hitungan meski cuma satu yang gagal', () => {
+    const refusal = checkHardDeletion(
+      { type: 'pw' },
+      { children: 0, membersEver: 0, trainings: 3, publikasi: 0 }
+    )
+
+    expect(refusal?.counts).toEqual({
+      children: 0,
+      membersEver: 0,
+      trainings: 3,
+      publikasi: 0
+    })
   })
 })
 

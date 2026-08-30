@@ -11,7 +11,7 @@ import {
 } from '../struktur-keadaan'
 import { deleteStrukturAction } from '../delete-struktur'
 import { moveActiveChildrenToParentAction } from '../move-parent'
-import { StrukturConfirmDialog } from './struktur-confirm-dialog'
+import { StrukturConfirmDialog } from '~/components/struktur-confirm-dialog'
 import { type StrukturSheetInfo } from './action'
 import { type StrukturRow } from '../struktur-row'
 

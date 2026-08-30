@@ -11,7 +11,7 @@ import {
 } from '~/components/shadcn/ui/select'
 import { Label } from '~/components/shadcn/ui/label'
 import { moveStrukturParentAction } from '../move-parent'
-import { StrukturConfirmDialog } from './struktur-confirm-dialog'
+import { StrukturConfirmDialog } from '~/components/struktur-confirm-dialog'
 import { type MoveCandidate } from './action'
 
 interface StrukturMoveDialogProps {

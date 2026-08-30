@@ -27,11 +27,13 @@ import {
   AlertDialogTitle
 } from '~/components/shadcn/ui/alert-dialog'
 import { StrukturJenjangBadge } from '~/app/(dashboard)/dashboard/branches/_components/struktur-badges'
+import { StrukturConfirmDialog } from '~/components/struktur-confirm-dialog'
 import {
   readRestoreInfoAction,
   restoreStrukturAction,
   type RestoreInfo
 } from './action'
+import { hardDeleteStrukturAction } from '../hard-delete-struktur'
 
 export type DeletedStrukturRow = {
   id: string
@@ -40,6 +42,12 @@ export type DeletedStrukturRow = {
   type: string
   /** The induk it was under — it is what states the restore order. */
   parentName: string | null
+  /**
+   * Alasan Hapus Selamanya belum bisa ditekan, dihitung di server lewat
+   * prasyarat ADR 0019 — jauh lebih ketat dari sekadar nol anak/Kader yang
+   * terlihat di baris ini. `null` berarti tombolnya menyala.
+   */
+  hardDeleteRefusal: string | null
 }
 
 const rowAnchor = (id: string) => `struktur-terhapus-${id}`
@@ -64,6 +72,31 @@ export const StrukturTerhapusList = ({
   const [slugError, setSlugError] = React.useState<string | null>(null)
   const [isPending, startTransition] = React.useTransition()
   const slugId = React.useId()
+
+  const [hardDeleteTarget, setHardDeleteTarget] =
+    React.useState<DeletedStrukturRow | null>(null)
+  const [hardDeleteError, setHardDeleteError] = React.useState<string | null>(
+    null
+  )
+  const [isHardDeletePending, startHardDeleteTransition] = React.useTransition()
+
+  const handleHardDelete = (confirmCode: string) => {
+    if (!hardDeleteTarget) return
+    setHardDeleteError(null)
+    startHardDeleteTransition(async () => {
+      const result = await hardDeleteStrukturAction(
+        hardDeleteTarget.id,
+        confirmCode
+      )
+      if (!result.success) {
+        setHardDeleteError(result.message)
+        return
+      }
+      toast.success(result.message)
+      setHardDeleteTarget(null)
+      router.refresh()
+    })
+  }
 
   // Cek saat dibuka, lalu eskalasi jadi form (spec §8.4). Yang dibeli:
   // pelakunya melihat masalahnya sebelum menekan, bukan sesudah.
@@ -154,13 +187,30 @@ export const StrukturTerhapusList = ({
                   {row.parentName ?? '—'}
                 </TableCell>
                 <TableCell className='text-right'>
-                  <Button
-                    variant='outline'
-                    size='sm'
-                    onClick={() => setTarget(row)}
-                  >
-                    Pulihkan
-                  </Button>
+                  <div className='flex flex-col items-end gap-1.5'>
+                    <div className='flex justify-end gap-2'>
+                      <Button
+                        variant='outline'
+                        size='sm'
+                        onClick={() => setTarget(row)}
+                      >
+                        Pulihkan
+                      </Button>
+                      <Button
+                        variant='destructive'
+                        size='sm'
+                        disabled={!!row.hardDeleteRefusal}
+                        onClick={() => setHardDeleteTarget(row)}
+                      >
+                        Hapus Selamanya
+                      </Button>
+                    </div>
+                    {row.hardDeleteRefusal && (
+                      <p className='text-muted-foreground max-w-2xs text-right text-xs text-balance'>
+                        {row.hardDeleteRefusal}
+                      </p>
+                    )}
+                  </div>
                 </TableCell>
               </TableRow>
             ))}
@@ -254,6 +304,38 @@ export const StrukturTerhapusList = ({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <StrukturConfirmDialog
+        open={hardDeleteTarget !== null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setHardDeleteTarget(null)
+            setHardDeleteError(null)
+          }
+        }}
+        title={`Hapus ${hardDeleteTarget?.name} selamanya?`}
+        code={hardDeleteTarget?.code ?? ''}
+        confirmLabel='Ya, hapus selamanya'
+        isPending={isHardDeletePending}
+        error={hardDeleteError}
+        onConfirm={handleHardDelete}
+      >
+        <ul className='text-muted-foreground list-disc space-y-2 pl-4 text-sm'>
+          <li>
+            <strong>
+              Tidak seperti Hapus biasa, ini tidak bisa dibatalkan.
+            </strong>{' '}
+            Barisnya lenyap dari basis data — tidak ada lagi yang bisa
+            dipulihkan.
+          </li>
+          <li>Seluruh Akun kepengurusannya ikut terhapus, bukan cuma mati.</li>
+          <li>
+            Kodenya,{' '}
+            <span className='font-geist-mono'>{hardDeleteTarget?.code}</span>,
+            menjadi bebas dipakai Struktur baru.
+          </li>
+        </ul>
+      </StrukturConfirmDialog>
     </>
   )
 }
