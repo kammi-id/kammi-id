@@ -60,8 +60,6 @@ describe('resolveStrukturHost', () => {
   })
 
   it('resolves PP to www.kammi.id, not the apex or "pp.kammi.id"', () => {
-    expect(resolveStrukturHost({ type: 'pp', slug: 'pp' })).toBe(
-      'www.kammi.id'
-    )
+    expect(resolveStrukturHost({ type: 'pp', slug: 'pp' })).toBe('www.kammi.id')
   })
 })
