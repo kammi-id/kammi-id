@@ -60,7 +60,7 @@ describe('proxy — tenant routing', () => {
     )
   })
 
-  it("resolves PP's real slug on the apex", async () => {
+  it("resolves PP's real slug on www.kammi.id (ADR 0018)", async () => {
     readOrganizationImpl = async (filters) => {
       expect(filters).toEqual({ type: ['pp'], limit: 1 })
       return [{ slug: 'kammi' }] as Awaited<
@@ -68,10 +68,10 @@ describe('proxy — tenant routing', () => {
       >
     }
 
-    const res = await proxy(new NextRequest('https://kammi.id/tentang'))
+    const res = await proxy(new NextRequest('https://www.kammi.id/tentang'))
 
     expect(res?.headers.get('x-middleware-rewrite')).toBe(
-      'https://kammi.id/kammi/tentang'
+      'https://www.kammi.id/kammi/tentang'
     )
   })
 
@@ -104,16 +104,28 @@ describe('proxy — tenant routing', () => {
       throw new Error('connection refused')
     }
 
-    const res = await proxy(new NextRequest('https://kammi.id/'))
+    const res = await proxy(new NextRequest('https://www.kammi.id/'))
 
     expect(res).toBeUndefined()
   })
 
-  it('redirects www.kammi.id permanently to the apex, path preserved', async () => {
-    const res = await proxy(new NextRequest('https://www.kammi.id/tentang'))
+  it('redirects the bare apex to www.kammi.id, path preserved', async () => {
+    const res = await proxy(new NextRequest('https://kammi.id/tentang'))
 
     expect(res?.status).toBe(308)
-    expect(res?.headers.get('location')).toBe('https://kammi.id/tentang')
+    expect(res?.headers.get('location')).toBe('https://www.kammi.id/tentang')
+  })
+
+  it('redirects the bare apex to www.kammi.id without leaking the internal container port', async () => {
+    // Regression test for the 2026-08-30 incident: behind Traefik, nextUrl
+    // can carry the app's own listening port (3000). Simulated here by
+    // constructing the request with that port already on the URL — the fix
+    // must clear it explicitly rather than inherit whatever nextUrl.clone()
+    // carries.
+    const res = await proxy(new NextRequest('https://kammi.id:3000/tentang'))
+
+    expect(res?.status).toBe(308)
+    expect(res?.headers.get('location')).toBe('https://www.kammi.id/tentang')
   })
 
   it('blocks a directly-typed internal path instead of serving it (ADR 0012)', async () => {

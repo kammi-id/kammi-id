@@ -14,7 +14,7 @@ const caveatHand = Caveat({
 })
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://kammi.id'),
+  metadataBase: new URL('https://www.kammi.id'),
   title: {
     default: 'KAMMI.id',
     template: '%s — KAMMI.id'

@@ -2,14 +2,14 @@ import { describe, expect, it } from 'bun:test'
 import { beritaJaringanPermalinkUrl } from './utils'
 
 describe('beritaJaringanPermalinkUrl', () => {
-  it('points at the apex for a PP article, not a subdomain', () => {
+  it('points at www.kammi.id for a PP article, not a subdomain (ADR 0018)', () => {
     expect(
       beritaJaringanPermalinkUrl({
         slug: 'kabar-pusat',
         publishedAt: new Date('2026-02-10T06:00:00.000Z'),
         organization: { type: 'pp', slug: 'pp-kammi' }
       })
-    ).toBe('https://kammi.id/berita/2026/02/kabar-pusat')
+    ).toBe('https://www.kammi.id/berita/2026/02/kabar-pusat')
   })
 
   it('points at the organization subdomain for a non-PP publisher', () => {

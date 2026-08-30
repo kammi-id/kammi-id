@@ -9,7 +9,7 @@ describe('buildWebSite', () => {
   it('returns WebSite @type with correct url and name', () => {
     const result = buildWebSite()
     expect(result['@type']).toBe('WebSite')
-    expect(result.url).toBe('https://kammi.id')
+    expect(result.url).toBe('https://www.kammi.id')
     expect(result.name).toBe('KAMMI.id')
   })
 })
@@ -20,7 +20,7 @@ describe('buildOrganization', () => {
     expect(result['@type']).toBe('Organization')
     expect(result.name).toBe('Kesatuan Aksi Mahasiswa Muslim Indonesia')
     expect(result.alternateName).toBe('KAMMI')
-    expect(result.logo).toBe('https://kammi.id/icon1.png')
+    expect(result.logo).toBe('https://www.kammi.id/icon1.png')
   })
 
   it('includes all 6 social media sameAs entries', () => {
@@ -47,9 +47,9 @@ describe('buildBreadcrumb', () => {
     expect(result.itemListElement).toHaveLength(2)
     expect(result.itemListElement[0].position).toBe(1)
     expect(result.itemListElement[0].name).toBe('Beranda')
-    expect(result.itemListElement[0].item).toBe('https://kammi.id/')
+    expect(result.itemListElement[0].item).toBe('https://www.kammi.id/')
     expect(result.itemListElement[1].position).toBe(2)
-    expect(result.itemListElement[1].item).toBe('https://kammi.id/tentang')
+    expect(result.itemListElement[1].item).toBe('https://www.kammi.id/tentang')
   })
 
   it('handles a single-item breadcrumb', () => {

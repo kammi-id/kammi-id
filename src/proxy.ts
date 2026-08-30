@@ -51,8 +51,10 @@ export async function proxy(request: NextRequest) {
   }
 
   // Situs publik: seluruh path lain hidup di bawah segmen `[strukturSlug]`.
-  // `Host` menentukan Struktur yang melayani (ADR 0012) — apex dan
+  // `Host` menentukan Struktur yang melayani (ADR 0012) — `www.kammi.id` dan
   // `staging.kammi.id` melayani PP, `<slug>.kammi.id` melayani Struktur itu.
+  // PP di `www`, bukan apex, karena Cloudflare sudah redirect apex ke `www`
+  // duluan dan itu bukan rule yang kita ubah (ADR 0018).
   //
   // Dibaca dari header `Host`, **bukan** `request.nextUrl.hostname`: di balik
   // proxy sungguhan (dan bahkan di server dev lokal), `nextUrl.hostname`
@@ -61,9 +63,16 @@ export async function proxy(request: NextRequest) {
   const hostHeader = request.headers.get('host') ?? request.nextUrl.hostname
   const routing = resolveTenantHost(hostHeader.split(':')[0])
 
-  if (routing.kind === 'redirect-to-apex') {
+  if (routing.kind === 'redirect-to-www') {
+    // `nextUrl.clone()` membawa port bind internal container (3000) karena
+    // Traefik tidak diteruskan lewat X-Forwarded-Port yang dipercaya di sini
+    // — kalau cuma `hostname` yang diganti, redirect publik bocor jadi
+    // "https://kammi.id:3000/" dan mati bagi klien di luar Docker network.
+    // Protokol dan port dipatok eksplisit, tidak diwarisi dari request masuk.
     const url = request.nextUrl.clone()
-    url.hostname = ROOT_DOMAIN
+    url.protocol = 'https:'
+    url.hostname = `www.${ROOT_DOMAIN}`
+    url.port = ''
     return NextResponse.redirect(url, 308)
   }
 

@@ -195,7 +195,12 @@ finish() {
 
 TOTAL_STAGES=12
 
-CANDIDATE_DIGEST="sha256:27a43de67c6e66301c2d2d65126f94f6c629fc3ec149d00cc67b9934a6744f85"
+# Digest kandidat yang sedang berjalan di candidate.production.kammi.id
+# (tag sha-7bd5305, lihat provisioning-record.local.md § "Update kandidat
+# 2026-08-30"). sha-b0e5ee6 lama sudah tidak dipakai sejak digest dipindah;
+# memakainya lagi akan menjalankan migrasi tanpa 20260829210747_huge_lockjaw
+# (kolom article.gallery_images) yang sudah diasumsikan Application kandidat.
+CANDIDATE_DIGEST="sha256:385e8caae8641fb09e83b328ab88174d907c413e81240b3ad6cc766b54af4cf9"
 CANDIDATE_IMAGE="ghcr.io/kammi-id/kammi-id@${CANDIDATE_DIGEST}"
 
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)

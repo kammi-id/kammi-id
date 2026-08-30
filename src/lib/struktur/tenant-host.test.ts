@@ -2,8 +2,8 @@ import { describe, expect, it } from 'bun:test'
 import { resolveTenantHost, resolveStrukturHost } from './tenant-host'
 
 describe('resolveTenantHost', () => {
-  it('reads the apex domain as apex', () => {
-    expect(resolveTenantHost('kammi.id')).toEqual({ kind: 'apex' })
+  it('reads www.kammi.id as apex (PP canonical host, ADR 0018)', () => {
+    expect(resolveTenantHost('www.kammi.id')).toEqual({ kind: 'apex' })
   })
 
   it('reads a <slug>.kammi.id host as that Struktur subdomain', () => {
@@ -20,9 +20,9 @@ describe('resolveTenantHost', () => {
     })
   })
 
-  it('redirects www.kammi.id to the apex', () => {
-    expect(resolveTenantHost('www.kammi.id')).toEqual({
-      kind: 'redirect-to-apex'
+  it('redirects the bare apex to www.kammi.id', () => {
+    expect(resolveTenantHost('kammi.id')).toEqual({
+      kind: 'redirect-to-www'
     })
   })
 
@@ -59,7 +59,9 @@ describe('resolveStrukturHost', () => {
     )
   })
 
-  it('resolves PP to the apex, not "pp.kammi.id"', () => {
-    expect(resolveStrukturHost({ type: 'pp', slug: 'pp' })).toBe('kammi.id')
+  it('resolves PP to www.kammi.id, not the apex or "pp.kammi.id"', () => {
+    expect(resolveStrukturHost({ type: 'pp', slug: 'pp' })).toBe(
+      'www.kammi.id'
+    )
   })
 })
