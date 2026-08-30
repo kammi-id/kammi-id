@@ -13,6 +13,17 @@ di `spec.md`. Kandidat dibekukan pada `sha-b0e5ee6`, digest
 yang sudah berjalan dan terverifikasi di staging. Checklist pertama
 ("Kandidat berasal dari `main`") sengaja dibatalkan: `main` tidak disentuh.
 
+**Update 2026-08-30:** kandidat sudah dipindah lagi (lihat
+`provisioning-record.local.md` § "Update kandidat 2026-08-30`) ke digest
+`sha256:385e8caae8641fb09e83b328ab88174d907c413e81240b3ad6cc766b54af4cf9`
+(`sha-7bd5305`), menyamakan dengan image yang sedang berjalan di staging.
+Migrasi baru (`20260829210747_huge_lockjaw`) sudah dijalankan dan health
+check candidate lulus, tapi checklist di bawah ini **belum diulang penuh**
+(tidak ada CI/E2E/production release gate baru untuk digest ini) — hanya
+image swap + migrasi + health check manual. Perlakukan checklist di bawah
+sebagai belum tuntas untuk digest yang sekarang aktif sampai diverifikasi
+ulang.
+
 - [ ] Kandidat berasal dari `main`; worktree, commit SHA penuh, tag image, dan
       digest dicatat.
 - [ ] Agent berhenti sebelum push dan menyerahkan commit untuk gate manusia;
