@@ -37,6 +37,11 @@ _Avoid_: Akun Struktur, Akun organisasi, Akun pengurus
 Payung untuk Kader yang tersertifikasi menjalankan Daurah — yaitu Pemandu dan
 Instruktur. Bukan entitas tersendiri, melainkan cara memandang sekumpulan
 Kader.
+
+Sertifikasi saja tidak cukup untuk menjalankan Daurah mana pun: jenjang minimum
+seorang Perangkat ditentukan oleh **jenis Daurah** yang ia layani, bukan oleh
+satu angka yang berlaku di mana-mana. DM3 menuntut AB3; Daurah lain menerima
+AB2. Sertifikasi Instruktur tetap syarat mutlak di semuanya.
 _Avoid_: Staf, Petugas, Specialist
 
 **Pemandu**:
@@ -55,11 +60,35 @@ riwayatnya perlu dilengkapi.
 _Avoid_: Sertifikasi palsu, Data tidak valid
 
 **Nomor Induk Anggota**:
-Identitas permanen seorang Kader, tersusun dari Wilayah dan Daerah tempatnya
-bernaung, tahun masuknya, dan nomor urutnya di dalam Daerah itu. Komisariat
-tempat Kader terdaftar **tidak** muncul di dalamnya, sehingga seluruh Kader satu
-Daerah berbagi satu deret nomor. Dipakai sekaligus sebagai identitas login.
+Identitas permanen seorang Kader, tersusun dari Wilayah dan Daerah tempat ia
+**pertama kali terdaftar**, tahun masuknya, dan nomor urutnya di dalam Daerah
+itu. Komisariat tempat Kader terdaftar **tidak** muncul di dalamnya, sehingga
+seluruh Kader satu Daerah berbagi satu deret nomor. Dipakai sekaligus sebagai
+identitas login.
+
+Ia nomor kelahiran, bukan alamat. Setelah **Mutasi**, Wilayah dan Daerah di
+dalamnya berhenti menunjuk tempat Kader itu bernaung sekarang — dan itu
+disengaja. Struktur seorang Kader selalu dibaca dari datanya, tidak pernah
+diurai dari Nomor Induknya.
+
+Satu nomor tidak pernah dipakai dua orang, dan nomor yang pernah terbit tidak
+pernah terbit lagi — termasuk setelah Kader pemegangnya dihapus. Deret sebuah
+Daerah karena itu boleh berlubang, dan lubangnya permanen: ia penomoran, bukan
+hitungan jumlah Kader.
 _Avoid_: Register number, NIK, Nomor anggota
+
+**Mutasi**:
+Perpindahan seorang Kader dari satu Struktur ke Struktur lain, karena alasan
+hidup yang sah — pulang ke kampung halaman, menikah dan mengikuti pasangan,
+pindah kuliah. Mutasi mengubah Struktur tempat Kader bernaung tanpa menyentuh
+**Nomor Induk Anggota**-nya, dan tanpa memutus riwayat Daurah-nya. Setiap
+Mutasi tercatat — asal, tujuan, dan kapan — sebab tanpa catatan itu Nomor Induk
+yang menyebut Daerah lama tidak punya penjelasan di permukaan mana pun.
+
+Berbeda dari **Organisasi Eksternal**, yang mencatat khidmat di luar KAMMI, dan
+berbeda dari koreksi salah input, yang membetulkan sesuatu yang sejak awal
+keliru. Mutasi mencatat perpindahan yang benar pada kedua sisinya.
+_Avoid_: Pindah struktur, Transfer, Perpindahan cabang
 
 ### Struktur
 
@@ -160,9 +189,9 @@ _Avoid_: Dihapus permanen, Diarsipkan, Dibubarkan
 ### Keadaan Kader
 
 Seorang Kader berada pada **tepat satu** Keadaan dalam satu waktu. Keadaan
-saling meniadakan: menetapkan yang satu membatalkan yang lain. Keadaan berjalan
-terpisah dari Jenjang Kekaderan dan dari sertifikasi Perangkat, yang keduanya
-punya sumbunya sendiri.
+saling meniadakan: menetapkan yang satu membatalkan yang lain, dan Kader
+Terhapus mendahului semuanya. Keadaan berjalan terpisah dari Jenjang Kekaderan
+dan dari sertifikasi Perangkat, yang keduanya punya sumbunya sendiri.
 
 **Aktif**:
 Kader yang tidak sedang berada dalam Keadaan lain — masih terlibat berkegiatan
@@ -182,6 +211,25 @@ _Avoid_: Tidak aktif, Vakum, Keluar
 Kader yang telah menuntaskan masa kekaderannya secara sah. Menggantikan Keadaan
 sebelumnya — seorang Alumni tidak lagi tercatat Non-Aktif maupun Sanksi.
 _Avoid_: Mantan kader, Lulusan
+
+**Kader Terhapus**:
+Kader yang barisnya dicabut dari daftar karena tercatat keliru — salah ketik,
+duplikat, atau didaftarkan lalu ternyata bukan orangnya. Mendahului seluruh
+Keadaan lain: seorang Kader Terhapus berhenti disebut Aktif, Non-Aktif, Sanksi,
+maupun Alumni. Ia tidak terbaca di permukaan mana pun kecuali satu, tempat
+kepengurusan yang menaunginya melihat dan memulihkannya. Akun-nya ikut
+tersimpan dan ikut kembali saat ia dipulihkan.
+
+Menghapus bukan mengakhiri kekaderan. Kader yang berhenti terlibat itu
+Non-Aktif, dan yang menuntaskannya itu Alumni; Terhapus dipakai ketika barisnya
+sendiri yang tidak seharusnya ada.
+
+**Hapus Selamanya** berdiri terpisah dan tidak bisa dibatalkan: ia membuang
+baris itu dari basis data untuk seterusnya, hanya boleh ditempuh terhadap Kader
+yang **belum mengumpulkan apa pun** — tanpa riwayat Daurah, akademik, karier,
+Organisasi Eksternal, maupun Mutasi — dan tidak mengembalikan nomor urut
+**Nomor Induk Anggota**-nya.
+_Avoid_: Dihapus permanen (untuk soft delete), Diarsipkan, Dikeluarkan
 
 **Jenjang Kekaderan**:
 Tahapan pembinaan seorang Kader: AB1, AB2, AB3. Naik jenjang lewat Kelulusan
