@@ -213,7 +213,7 @@ export const ArticleForm = ({
             placeholder='Judul artikel'
             aria-label='Judul'
             aria-invalid={Boolean(fieldErrors('title')) || undefined}
-            className='font-heading text-foreground placeholder:text-muted-foreground/50 h-auto w-full min-w-0 rounded-none border-none bg-transparent p-0 text-3xl font-bold tracking-tight shadow-none outline-none focus-visible:ring-0 sm:text-4xl'
+            className='font-heading text-foreground placeholder:text-muted-foreground/50 h-auto w-full min-w-0 rounded-none border-none bg-transparent p-0 text-3xl font-bold tracking-tight shadow-none outline-none focus-visible:ring-0 sm:text-4xl md:text-4xl'
           />
           <FieldError errors={fieldErrors('title')} />
         </div>
