@@ -22,7 +22,7 @@ import {
   WRONG_STRUKTUR_CODE
 } from '~/lib/struktur/konfirmasi'
 import { getLogger } from '~/lib/logger'
-import { hardDeleteStrukturSchema } from './schema'
+import { hardDeleteStrukturSchema, confirmationSentenceFor } from './schema'
 
 const logger = getLogger(['app', 'action', 'organization'])
 
@@ -67,13 +67,18 @@ export const readHardDeleteRefusal = async (
  */
 export const hardDeleteStrukturAction = async (
   id: string,
-  confirmCode: string
+  confirmCode: string,
+  confirmSentence: string
 ): Promise<HardDeleteStrukturState> => {
   try {
     const session = await readActiveSession()
     if (!session) return { success: false, message: 'Sesi tidak ditemukan.' }
 
-    const validated = hardDeleteStrukturSchema.safeParse({ id, confirmCode })
+    const validated = hardDeleteStrukturSchema.safeParse({
+      id,
+      confirmCode,
+      confirmSentence
+    })
     if (!validated.success) {
       return {
         success: false,
@@ -97,6 +102,16 @@ export const hardDeleteStrukturAction = async (
 
     if (!confirmsStrukturCode(org, confirmCode)) {
       return { success: false, message: WRONG_STRUKTUR_CODE }
+    }
+
+    // Gerbang kedua, dicek server terlepas dari yang pertama — dua field yang
+    // sama-sama diketik salah wajib menghasilkan dua penolakan yang berbeda,
+    // bukan satu yang menyembunyikan yang lain.
+    if (confirmSentence.trim() !== confirmationSentenceFor(org.name)) {
+      return {
+        success: false,
+        message: 'Kalimat konfirmasi yang dimasukkan tidak sesuai.'
+      }
     }
 
     const refusal = await readHardDeleteRefusal(org)

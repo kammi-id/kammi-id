@@ -28,6 +28,7 @@ mock.module('next/cache', () => ({
 
 const { hardDeleteStrukturAction, readHardDeleteRefusal } =
   await import('./action')
+const { confirmationSentenceFor } = await import('./schema')
 
 /**
  * ADR 0019. Bukan pengulangan `delete-struktur/action.test.ts` — gerbangnya
@@ -52,7 +53,6 @@ describe('aksi Hapus Selamanya', () => {
   let pdKosongTerhapusId: string
   let pkBerkaderSoftDeletedId: string
   let pdBeranakTerhapusId: string
-  let pkAnakTerhapusId: string
   let pkBerdaurahId: string
   let pkBerartikelId: string
   let actorId: string
@@ -130,12 +130,9 @@ describe('aksi Hapus Selamanya', () => {
       'pd',
       pwId
     )
-    pkAnakTerhapusId = await seed(
-      'PK Anak Terhapus',
-      '97.PD-2.ANK',
-      'pk',
-      pdBeranakTerhapusId
-    )
+    // Baris ini sendiri tidak pernah dirujuk lagi — cukup ada, supaya
+    // `pdBeranakTerhapusId` sungguhan punya anak Terhapus.
+    await seed('PK Anak Terhapus', '97.PD-2.ANK', 'pk', pdBeranakTerhapusId)
     pkBerdaurahId = await seed(
       'PK Berdaurah',
       '97.PD-1.DRH',
@@ -226,7 +223,8 @@ describe('aksi Hapus Selamanya', () => {
     it('menolak induk selama anaknya Terhapus — beda dari checkDeletion', async () => {
       const result = await hardDeleteStrukturAction(
         pdBeranakTerhapusId,
-        '97.PD-2'
+        '97.PD-2',
+        confirmationSentenceFor(`PD Beranak Selamanya ${suffix}`)
       )
 
       expect(result.success).toBe(false)
@@ -238,7 +236,8 @@ describe('aksi Hapus Selamanya', () => {
     it('menolak selama masih ada Daurah', async () => {
       const result = await hardDeleteStrukturAction(
         pkBerdaurahId,
-        '97.PD-1.DRH'
+        '97.PD-1.DRH',
+        confirmationSentenceFor(`PK Berdaurah ${suffix}`)
       )
 
       expect(result.success).toBe(false)
@@ -248,7 +247,8 @@ describe('aksi Hapus Selamanya', () => {
     it('menolak selama Artikel menggantung — beda dari checkDeletion, yang membiarkannya', async () => {
       const result = await hardDeleteStrukturAction(
         pkBerartikelId,
-        '97.PD-1.ART'
+        '97.PD-1.ART',
+        confirmationSentenceFor(`PK Berartikel ${suffix}`)
       )
 
       expect(result.success).toBe(false)
@@ -263,7 +263,8 @@ describe('aksi Hapus Selamanya', () => {
 
       const result = await hardDeleteStrukturAction(
         pdKosongTerhapusId,
-        '97.PD-1'
+        '97.PD-1',
+        confirmationSentenceFor(`PD Kosong Selamanya ${suffix}`)
       )
 
       expect(result.success).toBe(false)
@@ -275,7 +276,8 @@ describe('aksi Hapus Selamanya', () => {
         mockSession = sessionOf(role, ppId)
         const result = await hardDeleteStrukturAction(
           pdKosongTerhapusId,
-          '97.PD-1'
+          '97.PD-1',
+          confirmationSentenceFor(`PD Kosong Selamanya ${suffix}`)
         )
         expect(result.success).toBe(false)
       }
@@ -287,7 +289,8 @@ describe('aksi Hapus Selamanya', () => {
 
       const result = await hardDeleteStrukturAction(
         pdKosongTerhapusId,
-        '97.PD-1'
+        '97.PD-1',
+        confirmationSentenceFor(`PD Kosong Selamanya ${suffix}`)
       )
 
       expect(result.success).toBe(false)
@@ -296,14 +299,36 @@ describe('aksi Hapus Selamanya', () => {
   })
 
   it('menolak kode konfirmasi yang tidak sesuai', async () => {
-    const result = await hardDeleteStrukturAction(pdKosongTerhapusId, 'SALAH')
+    const result = await hardDeleteStrukturAction(
+      pdKosongTerhapusId,
+      'SALAH',
+      confirmationSentenceFor(`PD Kosong Selamanya ${suffix}`)
+    )
 
     expect(result.success).toBe(false)
     expect(await rowExists(pdKosongTerhapusId)).toBe(true)
   })
 
+  it('menolak kalimat konfirmasi yang tidak sesuai, meski kodenya benar', async () => {
+    const result = await hardDeleteStrukturAction(
+      pdKosongTerhapusId,
+      '97.PD-1',
+      'Saya ingin menghapus Struktur yang salah'
+    )
+
+    expect(result.success).toBe(false)
+    expect(result.message).toBe(
+      'Kalimat konfirmasi yang dimasukkan tidak sesuai.'
+    )
+    expect(await rowExists(pdKosongTerhapusId)).toBe(true)
+  })
+
   it('menolak Struktur yang belum Terhapus sama sekali', async () => {
-    const result = await hardDeleteStrukturAction(pwId, 'PWS7')
+    const result = await hardDeleteStrukturAction(
+      pwId,
+      'PWS7',
+      confirmationSentenceFor(`PW Selamanya ${suffix}`)
+    )
 
     expect(result.success).toBe(false)
     expect(result.message).toBe('Struktur tidak ditemukan.')
@@ -311,10 +336,11 @@ describe('aksi Hapus Selamanya', () => {
 
   it('berhasil menghapus Struktur yang benar-benar tidak pernah dipakai, dan barisnya sungguhan lenyap', async () => {
     const code = `97.PD-KOSONG.${suffix}`
+    const name = `PK Benar Kosong ${suffix}`
     const [org] = await db
       .insert(organization)
       .values({
-        name: `PK Benar Kosong ${suffix}`,
+        name,
         slug: `pk-benar-kosong-${suffix}`,
         code,
         type: 'pk',
@@ -345,7 +371,11 @@ describe('aksi Hapus Selamanya', () => {
       ])
       .returning({ id: userTable.id })
 
-    const result = await hardDeleteStrukturAction(org.id, code)
+    const result = await hardDeleteStrukturAction(
+      org.id,
+      code,
+      confirmationSentenceFor(name)
+    )
 
     expect(result.success).toBe(true)
     expect(await rowExists(org.id)).toBe(false)

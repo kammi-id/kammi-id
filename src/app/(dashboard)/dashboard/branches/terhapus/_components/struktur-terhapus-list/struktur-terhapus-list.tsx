@@ -27,13 +27,15 @@ import {
   AlertDialogTitle
 } from '~/components/shadcn/ui/alert-dialog'
 import { StrukturJenjangBadge } from '~/app/(dashboard)/dashboard/branches/_components/struktur-badges'
-import { StrukturConfirmDialog } from '~/components/struktur-confirm-dialog'
 import {
   readRestoreInfoAction,
   restoreStrukturAction,
   type RestoreInfo
 } from './action'
-import { hardDeleteStrukturAction } from '../hard-delete-struktur'
+import {
+  hardDeleteStrukturAction,
+  HardDeleteStrukturDialog
+} from '../hard-delete-struktur'
 
 export type DeletedStrukturRow = {
   id: string
@@ -80,13 +82,14 @@ export const StrukturTerhapusList = ({
   )
   const [isHardDeletePending, startHardDeleteTransition] = React.useTransition()
 
-  const handleHardDelete = (confirmCode: string) => {
+  const handleHardDelete = (confirmCode: string, confirmSentence: string) => {
     if (!hardDeleteTarget) return
     setHardDeleteError(null)
     startHardDeleteTransition(async () => {
       const result = await hardDeleteStrukturAction(
         hardDeleteTarget.id,
-        confirmCode
+        confirmCode,
+        confirmSentence
       )
       if (!result.success) {
         setHardDeleteError(result.message)
@@ -305,7 +308,7 @@ export const StrukturTerhapusList = ({
         </AlertDialogContent>
       </AlertDialog>
 
-      <StrukturConfirmDialog
+      <HardDeleteStrukturDialog
         open={hardDeleteTarget !== null}
         onOpenChange={(open) => {
           if (!open) {
@@ -313,29 +316,11 @@ export const StrukturTerhapusList = ({
             setHardDeleteError(null)
           }
         }}
-        title={`Hapus ${hardDeleteTarget?.name} selamanya?`}
-        code={hardDeleteTarget?.code ?? ''}
-        confirmLabel='Ya, hapus selamanya'
+        org={hardDeleteTarget}
         isPending={isHardDeletePending}
         error={hardDeleteError}
         onConfirm={handleHardDelete}
-      >
-        <ul className='text-muted-foreground list-disc space-y-2 pl-4 text-sm'>
-          <li>
-            <strong>
-              Tidak seperti Hapus biasa, ini tidak bisa dibatalkan.
-            </strong>{' '}
-            Barisnya lenyap dari basis data — tidak ada lagi yang bisa
-            dipulihkan.
-          </li>
-          <li>Seluruh Akun kepengurusannya ikut terhapus, bukan cuma mati.</li>
-          <li>
-            Kodenya,{' '}
-            <span className='font-geist-mono'>{hardDeleteTarget?.code}</span>,
-            menjadi bebas dipakai Struktur baru.
-          </li>
-        </ul>
-      </StrukturConfirmDialog>
+      />
     </>
   )
 }

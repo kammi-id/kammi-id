@@ -559,7 +559,7 @@ export const countPublikasiByOrganization = async (
 export const hardDeleteOrganization = async (id: string): Promise<void> => {
   await db.transaction(async (tx) => {
     await tx.delete(user).where(eq(user.connectedOrganizationId, id))
-    await tx.delete(organization).where(eq(organization.id, id))
+    await tx.delete(organization).where(eq(organization.id, id)) // ADR_0019_SANCTIONED_HARD_DELETE
   })
 }
 
