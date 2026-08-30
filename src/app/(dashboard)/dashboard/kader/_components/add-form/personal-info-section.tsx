@@ -69,12 +69,13 @@ export const PersonalInfoSection = ({
   orgSearchQuery,
   setOrgSearchQuery
 }: PersonalInfoSectionProps) => {
-  // Filter organizations to only show 'pd' and 'pk' that are descendants of the selectedOrgId
+  // Filter organizations to only show 'pd', 'pdln', and 'pk' that are descendants of the selectedOrgId
   const filteredOrganizations = React.useMemo(() => {
     const descendants = getDescendantIds(selectedOrgId, organizations)
 
     return organizations.filter((org) => {
-      const isCorrectType = org.type === 'pd' || org.type === 'pk'
+      const isCorrectType =
+        org.type === 'pd' || org.type === 'pdln' || org.type === 'pk'
       const isDescendant =
         descendants.includes(org.id) || org.id === selectedOrgId
       return isCorrectType && isDescendant

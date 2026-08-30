@@ -115,7 +115,8 @@ export const getColumns = (
 ): ColumnDef<IndividualMember>[] => {
   const descendants = getDescendantIds(parentOrgId, organizations)
   const filteredOrganizations = organizations.filter((org) => {
-    const isCorrectType = org.type === 'pd' || org.type === 'pk'
+    const isCorrectType =
+      org.type === 'pd' || org.type === 'pdln' || org.type === 'pk'
     const isDescendant = descendants.includes(org.id) || org.id === parentOrgId
     return isCorrectType && isDescendant
   })
