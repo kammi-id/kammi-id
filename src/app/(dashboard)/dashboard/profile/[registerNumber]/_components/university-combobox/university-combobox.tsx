@@ -35,7 +35,7 @@ export const UniversityCombobox = ({
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
-    if (query.length < 2) {
+    if (query.length < 4) {
       setResults([])
       return
     }
@@ -44,12 +44,17 @@ export const UniversityCombobox = ({
       setLoading(true)
       const res = await fetchUniversitiesAction(query)
       setLoading(false)
-      if (res.success) setResults(res.data)
-    }, 350)
+      setResults(res.data)
+    }, 600)
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current)
     }
   }, [query])
+
+  const handleQueryChange = (value: string) => {
+    setQuery(value)
+    if (selected && value !== selected.name) setSelected(null)
+  }
 
   const handleValueChange = (name: string | null) => {
     if (!name) {
@@ -67,7 +72,7 @@ export const UniversityCombobox = ({
         <ComboboxInput
           placeholder='Cari nama institusi...'
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(e) => handleQueryChange(e.target.value)}
         />
         <ComboboxContent>
           <ComboboxList>
@@ -77,8 +82,8 @@ export const UniversityCombobox = ({
               </div>
             ) : results.length === 0 ? (
               <ComboboxEmpty>
-                {query.length < 2
-                  ? 'Ketik minimal 2 karakter.'
+                {query.length < 4
+                  ? 'Ketik minimal 4 karakter.'
                   : 'Institusi tidak ditemukan.'}
               </ComboboxEmpty>
             ) : (
@@ -101,11 +106,11 @@ export const UniversityCombobox = ({
           </ComboboxList>
         </ComboboxContent>
       </Combobox>
-      <input type='hidden' name={nameField} value={selected?.name ?? ''} />
+      <input type='hidden' name={nameField} value={query} />
       <input
         type='hidden'
         name={dataField}
-        value={selected ? JSON.stringify(selected) : ''}
+        value={selected ? JSON.stringify(selected) : '{}'}
       />
     </>
   )
