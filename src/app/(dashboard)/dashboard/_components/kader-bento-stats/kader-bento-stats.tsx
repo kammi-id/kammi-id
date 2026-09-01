@@ -216,45 +216,67 @@ const KaderGenderDonut = ({ data }: { data: KaderBentoStatsData }) => (
   />
 )
 
-// ─── Perangkat (stat pair — no chart for 2 values) ───────────────────────────
+// ─── Perangkat ────────────────────────────────────────────────────────────────
+// Dua bar apa adanya (pola bg-muted + fill dari KaderOrgRankedList di bawah).
+// Sengaja tanpa sumbu total bersama: kedua hitungan bisa tumpang tindih (satu
+// Kader bisa Pemandu dan Instruktur sekaligus), jadi tinggi bar cuma bisa
+// dibandingkan satu sama lain, bukan terhadap total Kader.
 
-const KaderPerangkatCard = ({ data }: { data: KaderBentoStatsData }) => (
-  <div className='bg-card flex h-full flex-col rounded-xl border p-5'>
-    <p className='text-muted-foreground text-xs font-medium tracking-wider uppercase'>
-      Perangkat Pengkaderan
-    </p>
-    <div className='mt-4 flex flex-1 flex-col justify-center gap-4'>
-      <div className='flex items-center gap-3'>
-        <span className='inline-block size-2.5 shrink-0 rounded-full bg-[var(--chart-pemandu)]' />
-        <span className='text-muted-foreground flex-1 text-sm'>
-          <abbr
-            title='Pemandu: fasilitator pelatihan kaderisasi'
-            className='cursor-default no-underline'
-          >
-            Pemandu
-          </abbr>
-        </span>
-        <span className='text-foreground font-mono text-xl font-bold tabular-nums'>
-          {fmt(data.pemandu)}
-        </span>
-      </div>
-      <div className='flex items-center gap-3'>
-        <span className='inline-block size-2.5 shrink-0 rounded-full bg-[var(--chart-instruktur)]' />
-        <span className='text-muted-foreground flex-1 text-sm'>
-          <abbr
-            title='Instruktur: pengajar materi kaderisasi bersertifikat'
-            className='cursor-default no-underline'
-          >
-            Instruktur
-          </abbr>
-        </span>
-        <span className='text-foreground font-mono text-xl font-bold tabular-nums'>
-          {fmt(data.instruktur)}
-        </span>
+const KaderPerangkatCard = ({ data }: { data: KaderBentoStatsData }) => {
+  const maxCount = Math.max(data.pemandu, data.instruktur, 1)
+  const pemanduW = pct(data.pemandu, maxCount)
+  const instrukturW = pct(data.instruktur, maxCount)
+
+  return (
+    <div className='bg-card flex h-full flex-col rounded-xl border p-5'>
+      <p className='text-muted-foreground text-xs font-medium tracking-wider uppercase'>
+        Perangkat Pengkaderan
+      </p>
+      <div className='mt-4 flex flex-1 flex-col justify-center gap-4'>
+        <div className='flex items-center gap-3'>
+          <span className='inline-block size-2.5 shrink-0 rounded-full bg-[var(--chart-pemandu)]' />
+          <span className='text-muted-foreground w-20 shrink-0 text-sm'>
+            <abbr
+              title='Pemandu: fasilitator pelatihan kaderisasi'
+              className='cursor-default no-underline'
+            >
+              Pemandu
+            </abbr>
+          </span>
+          <div className='bg-muted flex h-2 flex-1 overflow-hidden rounded-full'>
+            <div
+              className='h-full bg-[var(--chart-pemandu)] transition-all'
+              style={{ width: `${pemanduW}%` }}
+            />
+          </div>
+          <span className='text-foreground w-10 shrink-0 text-right font-mono text-xl font-bold tabular-nums'>
+            {fmt(data.pemandu)}
+          </span>
+        </div>
+        <div className='flex items-center gap-3'>
+          <span className='inline-block size-2.5 shrink-0 rounded-full bg-[var(--chart-instruktur)]' />
+          <span className='text-muted-foreground w-20 shrink-0 text-sm'>
+            <abbr
+              title='Instruktur: pengajar materi kaderisasi bersertifikat'
+              className='cursor-default no-underline'
+            >
+              Instruktur
+            </abbr>
+          </span>
+          <div className='bg-muted flex h-2 flex-1 overflow-hidden rounded-full'>
+            <div
+              className='h-full bg-[var(--chart-instruktur)] transition-all'
+              style={{ width: `${instrukturW}%` }}
+            />
+          </div>
+          <span className='text-foreground w-10 shrink-0 text-right font-mono text-xl font-bold tabular-nums'>
+            {fmt(data.instruktur)}
+          </span>
+        </div>
       </div>
     </div>
-  </div>
-)
+  )
+}
 
 // ─── Org Ranked List (PW / PD) ───────────────────────────────────────────────
 // Pure CSS ranked list dengan stacked inline bar — total + breakdown AB1/AB2/AB3.
@@ -416,7 +438,7 @@ export const KaderBentoStats = ({
       </div>
       <div className='col-span-3 sm:col-span-2'>
         <KaderOrgRankedList
-          title='Per PW'
+          title='Top 10 PW'
           data={pwDistribution}
           emptyMessage='Belum ada data distribusi per PW.'
         />
@@ -425,7 +447,7 @@ export const KaderBentoStats = ({
       {/* Row 3: PD full width */}
       <div className='col-span-3'>
         <KaderOrgRankedList
-          title='Per PD'
+          title='Top 10 PD'
           data={pdDistribution}
           emptyMessage='Belum ada data distribusi per PD.'
         />
