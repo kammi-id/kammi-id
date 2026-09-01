@@ -21,7 +21,7 @@ import {
   FieldLabel
 } from '~/components/shadcn/ui/field'
 import { createTrainingAction, searchMasterCandidatesAction } from './action'
-import type { EligibleMember } from '~/db/query/training'
+import type { EligibleMember, TrainingType } from '~/db/query/training'
 import { toast } from 'sonner'
 import { closeAddTrainingSheet } from './store'
 import { cn } from '~/lib/shadcn/utils'
@@ -88,13 +88,16 @@ export const TrainingForm = ({
       }
       setMasterLoading(true)
       try {
-        const res = await searchMasterCandidatesAction(masterQuery)
+        const res = await searchMasterCandidatesAction(
+          masterQuery,
+          type as TrainingType
+        )
         if (res.success) setMasterResults(res.data)
       } finally {
         setMasterLoading(false)
       }
     }, 300)
-  }, [masterQuery])
+  }, [masterQuery, type])
 
   useEffect(() => {
     if (state.values && !state.success) {

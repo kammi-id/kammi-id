@@ -3,7 +3,8 @@
 import { z } from 'zod'
 import {
   trainingQuery,
-  searchEligibleInstructorsGlobal
+  searchEligibleInstructorsByType,
+  type TrainingType
 } from '~/db/query/training'
 import { revalidatePath, updateTag } from 'next/cache'
 import { type SessionUser } from '~/lib/auth/cookies'
@@ -45,7 +46,10 @@ type ActionResponse<T = unknown> = {
   values?: Record<string, string>
 }
 
-export const searchMasterCandidatesAction = async (query: string) => {
+export const searchMasterCandidatesAction = async (
+  query: string,
+  trainingType: TrainingType
+) => {
   try {
     // Gate mendahului pintasan `query.length < 2`: aksi ini endpoint POST
     // tersendiri, jadi tidak boleh mengandalkan form yang sudah menyaring di
@@ -56,7 +60,7 @@ export const searchMasterCandidatesAction = async (query: string) => {
 
     if (query.length < 2) return { data: [], success: true }
 
-    const data = await searchEligibleInstructorsGlobal(query)
+    const data = await searchEligibleInstructorsByType(trainingType, query)
     return { data, success: true }
   } catch {
     return { data: [], success: false }

@@ -616,7 +616,19 @@ export const searchEligibleAttendants = async (
   return results as EligibleMember[]
 }
 
-export const searchEligibleInstructorsGlobal = async (
+// Jenjang minimum perangkat bergantung jenis Daurah, bukan satu angka yang
+// berlaku di mana-mana (ADR 0022). DM3 mengunci AB3; DM1/DM2/DPMK/TFI/other
+// menerima AB2 ke atas. `other` tidak disebut tabel keputusan — diperlakukan
+// selonggar DM1/DM2/DPMK/TFI (bukan DM3): lihat ADR 0022 & tiket 03.
+// `type` yang hilang (mis. trainingId tak ditemukan) jatuh ke cabang paling
+// ketat sebagai fallback aman, bukan yang paling longgar.
+const instructorStatusFilter = (type: TrainingType | undefined) =>
+  type && type !== 'dm3'
+    ? inArray(member.status, ['ab2', 'ab3'])
+    : eq(member.status, 'ab3')
+
+export const searchEligibleInstructorsByType = async (
+  trainingType: TrainingType,
   query: string
 ): Promise<EligibleMember[]> => {
   const results = await db
@@ -632,7 +644,7 @@ export const searchEligibleInstructorsGlobal = async (
     .from(member)
     .where(
       and(
-        eq(member.status, 'ab3'),
+        instructorStatusFilter(trainingType),
         eq(member.isCertifiedInstructor, true),
         eq(member.isSuspended, false),
         eq(member.isNonActive, false),
@@ -651,6 +663,12 @@ export const searchEligibleInstructors = async (
   trainingId: string,
   query: string
 ): Promise<EligibleMember[]> => {
+  const [trainingRow] = await db
+    .select({ type: training.type })
+    .from(training)
+    .where(eq(training.id, trainingId))
+    .limit(1)
+
   const existingInstructors = await db
     .select({ memberId: trainingInstructors.memberId })
     .from(trainingInstructors)
@@ -673,7 +691,7 @@ export const searchEligibleInstructors = async (
     .from(member)
     .where(
       and(
-        eq(member.status, 'ab3'),
+        instructorStatusFilter(trainingRow?.type),
         eq(member.isCertifiedInstructor, true),
         eq(member.isSuspended, false),
         eq(member.isNonActive, false),
