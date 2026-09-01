@@ -793,9 +793,11 @@ export const readMemberDistributionByOrgType = async (
       AND m.is_alumn = false
       AND m.is_suspended = false
       AND m.is_non_active = false
+      AND m.deleted_at IS NULL
     GROUP BY root_org.id, root_org.name
     HAVING count(m.id) > 0
     ORDER BY count(m.id) DESC
+    LIMIT 10
   `)
 
   return (
