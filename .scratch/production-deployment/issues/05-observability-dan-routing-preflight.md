@@ -7,7 +7,7 @@ mengganggu exact route RustFS.
 **Blocked by:** 01 — Health endpoints production; 04 — Provision project
 production baru.
 
-**Status:** ready-for-human
+**Status:** closed — dikerjakan di luar tiket
 
 **Wizard:** `wizard-05-observability-dan-routing-preflight.sh` (10 stage).
 Uptime dan alert memakai Uptime Kuma; seluruh pemeriksaan Dokploy, SSH, DNS,
@@ -34,3 +34,18 @@ hasil preflight otomatis `NO-GO` sampai monitor dan alert end-to-end lulus.
 - [ ] Backup schedule terlihat sehat, sementara restore viability tetap menjadi
       acceptance gate rehearsal end-to-end.
 - [ ] Seluruh bukti preflight dicatat tanpa nilai secret.
+
+## Comments
+
+### 2026-09-01 — ditutup di luar tiket
+
+Routing production sudah berpindah: `www.kammi.id` (domainId
+`SBU0mY6YmvwWqbNs98JAW`, dibuat 2026-08-30T06:28:46Z) menempel pada Application
+production bersama `candidate.production.kammi.id`, keduanya menjawab
+`200 {"status":"ok"}` di `/api/health/ready`. Backup PostgreSQL (`0 3 * * *`)
+dan volume (`0 4 * * *`) terjadwal, retensi 14.
+
+Bukti: `provisioning-record.local.md` §"Update kandidat 2026-08-30 (ketiga)".
+
+**Tidak diverifikasi:** stage `wizard-05` tidak dijalankan; bukti observability
+(log, diagnosis, exact route RustFS) tidak dikumpulkan.

@@ -6,7 +6,7 @@ tidak dihapus.
 
 **Blocked by:** 09 — Cutover production.
 
-**Status:** ready-for-human
+**Status:** closed — sebagian dikerjakan di luar tiket
 
 - [ ] Readiness, uptime, 5xx, login, latency PostgreSQL, disk, upload, gambar,
       dan log exception dipantau aktif minimal 60 menit.
@@ -28,3 +28,14 @@ tidak dihapus.
       perubahan production langsung.
 - [ ] Penghapusan stack lama tetap di luar ticket ini dan membutuhkan pekerjaan
       serta konfirmasi eksplisit setelah masa retensi.
+
+## Comments
+
+### 2026-09-01 — ditutup di luar tiket
+
+Backup PostgreSQL dan volume terjadwal dengan retensi 14. Health check
+production hijau pada verifikasi terakhir 2026-08-30.
+
+**Tidak diverifikasi:** soak 60 menit, pemantauan uptime/5xx/latency/disk, dan
+pembekuan stack lama tanpa writer tidak ada catatannya. Ditutup atas keputusan
+pemilik rilis, bukan karena checklist-nya terpenuhi.

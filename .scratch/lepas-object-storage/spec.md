@@ -1,6 +1,6 @@
 # Lepas object storage: gambar pindah ke volume
 
-**Status:** ready-for-agent (sebagian tiket `ready-for-human` — lihat per tiket)
+**Status:** closed 2026-09-01 — 01, 02, 03, 06 mendarat lewat tiket; 04 dan 05 dikerjakan langsung ke host di luar tiket. Penyalinan 173,9 MB dan pencabutan RustFS sebagai origin TIDAK terverifikasi — lihat Comments di tiket 05.
 
 Keputusan dan alasannya ada di
 [ADR 0006](../../docs/adr/0006-gambar-di-volume-bukan-object-storage.md). Spec

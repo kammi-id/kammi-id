@@ -5,7 +5,7 @@
 
 **Blocked by:** 01, 04
 
-**Status:** ready-for-human — butuh kredensial RustFS dan akses host
+**Status:** closed — ditutup atas keputusan operator, tanpa verifikasi
 
 **44 objek, 173,9 MB, bucket `kammiid`** di `https://assets.kammi.id`. Catatan:
 `.env.local` menunjuk `kammiidz` — itu salah ketik, bucket tersebut tidak ada.
@@ -31,3 +31,22 @@ tercatat di ADR 0006.
 
 Setelah cutover, periksa dengan mata: satu halaman publik yang menampilkan foto
 Kader, satu logo Struktur di dasbor, satu Artikel bergambar.
+
+## Comments
+
+### 2026-09-01 — ditutup di luar tiket
+
+Production sudah berjalan di stack baru (`www.kammi.id`, health check `200`)
+dengan volume `kammi-id-assets` ter-mount. Ditutup atas keputusan operator:
+pekerjaannya dijalankan langsung ke host, di luar tiket dan di luar catatan.
+
+**Tidak diverifikasi — dan tidak bisa diverifikasi dari repo:**
+
+- Apakah 44 objek / 173,9 MB bucket `kammiid` benar-benar sudah tersalin ke
+  `/data/uploads`.
+- Apakah RustFS sudah turun peran dari origin menjadi sasaran backup.
+
+Keduanya hanya terjawab lewat SSH ke host (`ls`/`du` pada volume) dan panel
+Dokploy. Kalau ternyata belum, gejalanya adalah gambar lama 404 di production —
+bukan error di build atau tes. `bun run assets:pull` (tiket 06) tetap tersedia
+kalau perlu menarik ulang.

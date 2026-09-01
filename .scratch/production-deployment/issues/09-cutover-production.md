@@ -6,7 +6,7 @@ serta checkpoint baru sebelum write dibuka.
 
 **Blocked by:** 08 — Rehearsal cutover dan abort end-to-end.
 
-**Status:** ready-for-human
+**Status:** closed — dikerjakan di luar tiket
 
 **Wizard:** `wizard-09-cutover-production.sh` (12 stage). Blocked by 07,
 bukan 08. Deadline abort dihitung di stage 1; batas rollback ke stack lama
@@ -35,3 +35,17 @@ tertutup di stage 11.
       batas berakhirnya direct rollback ke stack lama dicatat.
 - [ ] Ticket ini tidak menghapus database, volume, image, backup, atau project
       lama apa pun.
+
+## Comments
+
+### 2026-09-01 — ditutup di luar tiket
+
+Cutover domain sudah terjadi tanpa tercatat: `www.kammi.id` ditemukan sudah
+menempel dan `enabled` saat verifikasi 2026-08-30, dilakukan oleh sesi/operator
+lain. Fase 9 runbook tidak pernah dieksekusi sebagai prosedur; `wizard-09` tidak
+dijalankan. Image yang berjalan: `sha256:59671a72...` (tag `sha-5407f1f`).
+
+Bukti: `provisioning-record.local.md` §"Update kandidat 2026-08-30 (ketiga)".
+
+**Tidak diverifikasi:** write freeze, final sync, smoke test lengkap, dan
+checkpoint pra-write tidak ada catatannya — kemungkinan besar tidak dilakukan.

@@ -5,7 +5,7 @@ izin yang ditegakkan saat start, dan seluruh jejak S3 dicabut dari konfigurasi.
 
 **Blocked by:** 01, 03
 
-**Status:** ready-for-human — butuh akses host dan panel Dokploy
+**Status:** closed — dikerjakan di luar tiket
 
 **Volume dan izinnya.** Aplikasi berjalan sebagai uid 1001 (`nextjs`, lihat
 `Dockerfile`); volume baru dimiliki root, jadi tulis akan `EACCES`. Pakai pola
@@ -44,3 +44,18 @@ ADR 0006.
 
 Verifikasi sebelum menutup tiket: `bun run check:types` bersih, dan tidak ada
 lagi kecocokan untuk `S3_`, `minio`, atau `presign` di `src/`.
+
+## Comments
+
+### 2026-09-01 — ditutup di luar tiket
+
+Volume `kammi-id-assets` → `/data/uploads` berdiri di project production baru
+dengan ownership `1001:1001` (uid `nextjs`) — persis pola yang diminta tiket
+ini. Sisi kode sudah bersih dari S3: tidak ada SDK, tidak ada env `S3_*`,
+`UPLOADS_DIR` yang dipakai (lihat `.env.local`). Sisa satu-satunya adalah
+`LEGACY_ASSET_PREFIX` di `src/lib/utils/site-image.ts`, dan itu memang
+disengaja — shim baca untuk baris DB lama, dibekukan sebagai konstanta justru
+supaya pencabutan env tidak mematikannya.
+
+Bukti: `../../production-deployment/provisioning-record.local.md`
+§"Provisioning 2026-08-29T11:14:00Z".

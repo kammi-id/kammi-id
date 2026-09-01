@@ -1,6 +1,6 @@
 # Deployment production ke project Dokploy baru
 
-**Status:** ready-for-agent
+**Status:** closed 2026-09-01 — 01-03 dan 06 mendarat lewat tiket; 04, 05, 07, 09, 10 dikerjakan langsung ke host di luar tiket dan ditutup atas keputusan operator; 08 melebur. Lihat Comments per tiket untuk apa yang tidak diverifikasi.
 
 ## Keputusan operasional rilis ini (2026-08-29)
 

@@ -7,7 +7,7 @@ gambar nyata tanpa menyentuh data plane production lama.
 **Blocked by:** 02 — One-shot preflight dan migrasi; 04 — Provision project
 production baru; 06 — Sahkan digest kandidat di staging.
 
-**Status:** ready-for-human
+**Status:** closed — melebur ke eksekusi langsung
 
 **Wizard:** `wizard-07-precopy-data-dan-aset.sh` (12 stage). Jalur tunggal —
 bukan rehearsal terpisah lagi; lihat "Keputusan operasional" di `spec.md`.
@@ -34,3 +34,18 @@ Stack lama hanya dibaca, trafik tidak disentuh.
       menyisakan waktu untuk smoke/abort dalam RTO 60 menit.
 - [ ] Project lama tetap utuh, menerima trafik seperti sebelumnya, dan tidak
       berubah akibat rehearsal.
+
+## Comments
+
+### 2026-09-01 — ditutup di luar tiket
+
+Rehearsal terpisah tidak pernah dijalankan. Database kandidat sudah berisi data
+precopy production (516 baris `organization`); migrasi dijalankan lewat one-shot
+container (`RUN_MIGRATIONS=1 MIGRATIONS_ONLY=1 DB_GUARD_ACK=1`), preflight
+duplikat 0 `code` / 0 `slug`, exit 0. `wizard-07` sengaja **tidak** dipakai —
+12-stage penuh termasuk `pg_dump`/restore dari production lama, berisiko
+menimpa data precopy yang sudah ada.
+
+Bukti: `provisioning-record.local.md` §"Update kandidat 2026-08-30".
+
+**Tidak diverifikasi:** verifikasi "sampai byte gambar nyata" tidak dilakukan.
