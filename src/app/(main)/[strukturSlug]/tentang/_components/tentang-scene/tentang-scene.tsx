@@ -623,12 +623,31 @@ export const TentangScene = ({ settings }: { settings: TentangSettings }) => {
                   <span className='bg-primary/40 h-px w-20' />
                 </div>
               )}
-              <p
-                className='text-[clamp(1.1rem,2.2vw,1.5rem)] leading-[1.6] text-[oklch(0.26_0.02_30)]'
-                style={{ fontFamily: 'var(--font-handwriting)' }}
-              >
-                {para}
-              </p>
+              <div className='relative'>
+                {/* Numeral watermark — decorative only, so aria-hidden and
+                    out of the DOM's selectable text flow. -z-10 (with the
+                    sibling <p> left at the default z-index:auto stacking
+                    level) keeps it painted behind the paragraph regardless
+                    of source order. Color is DARK (rgb(31,24,26), see the
+                    sRGB note above) at 8% alpha — legible as a faint
+                    watermark against PARCHMENT without competing with the
+                    text; the dead kredo-section's text-white/[0.03] would
+                    be invisible here since white doesn't read against a
+                    light parchment background. */}
+                <span
+                  aria-hidden='true'
+                  className='font-heading pointer-events-none absolute -top-6 left-0 -z-10 text-[clamp(4.5rem,12vw,8rem)] leading-none font-bold select-none sm:-top-8 sm:-left-4'
+                  style={{ color: 'rgba(31, 24, 26, 0.08)' }}
+                >
+                  {i + 1}
+                </span>
+                <p
+                  className='relative text-[clamp(1.1rem,2.2vw,1.5rem)] leading-[1.6] text-[oklch(0.26_0.02_30)]'
+                  style={{ fontFamily: 'var(--font-handwriting)' }}
+                >
+                  {para}
+                </p>
+              </div>
             </div>
           ))}
         </div>
