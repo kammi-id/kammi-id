@@ -1,5 +1,6 @@
 import { db } from '../db'
 import { organization } from '../schema/organization.sql'
+import { member } from '../schema/member.sql'
 import { user } from '../schema/user.sql'
 import { article } from '../schema/article.sql'
 import { articleCategory } from '../schema/article-category.sql'
@@ -412,6 +413,169 @@ export const readOrganization = async (
   }
 
   return await query
+}
+
+/**
+ * The cursor a keyset page hands back so the caller can ask for the next one:
+ * the sort key's value on the last row it returned, paired with that row's
+ * `id` as the tie-break.
+ */
+export type OrganizationKeysetCursor = {
+  total: number
+  id: string
+}
+
+/**
+ * Filters `readOrganizationsByMemberTotal` accepts — a narrower set than
+ * `OrganizationFilters`, on purpose: this read has exactly one caller shape
+ * (Daftar Struktur, tiket 06), a single `parentId` rather than a list, and no
+ * `limit`/`offset`/`orderBy` — those are replaced by `pagination` below.
+ */
+export type OrganizationMemberTotalFilters = {
+  parentId: string
+  name?: string
+  type?: Organization['type'][]
+  /** Same three flags `readMemberAggregates` takes — kept identical on
+   * purpose, so a card's displayed `total` and the order it appears in are
+   * counting the same members. */
+  isAlumn?: boolean
+  isCertifiedMentor?: boolean
+  isCertifiedInstructor?: boolean
+}
+
+export type OrganizationWithMemberTotal = Organization & {
+  ab1: number
+  ab2: number
+  ab3: number
+  ikhwan: number
+  akhwat: number
+  total: number
+}
+
+/**
+ * Daftar Struktur, satu jenjang di bawah `parentId`, diurut `total DESC, id
+ * ASC` lewat keyset — bukan `LIMIT/OFFSET` (tiket 06).
+ *
+ * **Kenapa keyset, bukan offset.** Daftar ini diurut oleh angka yang berubah
+ * tiap ada Kader baru masuk. `OFFSET N` menghitung baris dari nol tiap
+ * dipanggil; kalau satu Struktur melompat naik peringkat di antara dua
+ * panggilan, baris di sekitar potongan itu bisa terlewat atau muncul dua
+ * kali — diam-diam, tanpa error. Keyset tidak menghitung posisi sama sekali:
+ * `pagination.cursor` menyimpan **nilai** baris terakhir yang sudah dikirim
+ * (`total`, `id`), dan baris berikutnya disaring dengan bandingan nilai
+ * (`total < cursor.total OR (total = cursor.total AND id > cursor.id)`).
+ * Baris yang sudah lewat tidak bisa terhitung ulang oleh baris yang baru
+ * masuk, sebab predikatnya tidak pernah menghitung — ia membandingkan.
+ *
+ * **`total` bukan kolom** — ia agregat rekursif: jumlah Kader (tersaring
+ * lewat tiga flag di atas) di seluruh sub-pohon tiap anak langsung, persis
+ * cara `readMemberAggregates` menggulungnya dari bawah ke atas, hanya saja di
+ * sini satu query SQL per jenjang lewat CTE rekursif `org_tree`, bukan
+ * rekursi + gulung di JavaScript — sebab tiap baris di sini butuh angkanya
+ * sebelum baris itu bisa diurut atau disaring oleh `cursor`, dan tidak ada
+ * cara mengurutkan lewat SQL dengan angka yang baru dihitung setelah SQL
+ * selesai.
+ *
+ * `pagination.limit` diambil apa adanya — pemanggil yang ingin tahu apakah
+ * masih ada baris berikutnya (untuk "Muat lagi") meminta `limit + 1` dan
+ * memotong sendiri, sama seperti pola di `action.ts` `members-grid`.
+ */
+export const readOrganizationsByMemberTotal = async (
+  filters: OrganizationMemberTotalFilters,
+  pagination: { limit: number; cursor?: OrganizationKeysetCursor }
+): Promise<OrganizationWithMemberTotal[]> => {
+  const { parentId, name, type, isAlumn, isCertifiedMentor, isCertifiedInstructor } =
+    filters
+  const { limit, cursor } = pagination
+
+  const rows = await db.execute(sql`
+    WITH RECURSIVE org_tree AS (
+      SELECT id, parent_id, id AS root_id
+      FROM ${organization}
+      WHERE parent_id = ${parentId} AND deleted_at IS NULL
+      UNION ALL
+      SELECT o.id, o.parent_id, ot.root_id
+      FROM ${organization} o
+      JOIN org_tree ot ON o.parent_id = ot.id
+      WHERE o.deleted_at IS NULL
+    ),
+    aggregates AS (
+      SELECT
+        ot.root_id AS organization_id,
+        count(*) FILTER (WHERE m.status = 'ab1')::int AS ab1,
+        count(*) FILTER (WHERE m.status = 'ab2')::int AS ab2,
+        count(*) FILTER (WHERE m.status = 'ab3')::int AS ab3,
+        count(*) FILTER (WHERE m.gender = 'ikhwan')::int AS ikhwan,
+        count(*) FILTER (WHERE m.gender = 'akhwat')::int AS akhwat,
+        count(m.id)::int AS total
+      FROM org_tree ot
+      LEFT JOIN ${member} m ON m.organization_id = ot.id
+        AND m.deleted_at IS NULL
+        AND m.is_suspended = false
+        ${isAlumn !== undefined ? sql`AND m.is_alumn = ${isAlumn}` : sql``}
+        ${isCertifiedMentor !== undefined ? sql`AND m.is_certified_mentor = ${isCertifiedMentor}` : sql``}
+        ${isCertifiedInstructor !== undefined ? sql`AND m.is_certified_instructor = ${isCertifiedInstructor}` : sql``}
+        ${isAlumn === false ? sql`AND m.is_non_active = false` : sql``}
+      GROUP BY ot.root_id
+    )
+    SELECT
+      o.id,
+      o.name,
+      o.code,
+      o.slug,
+      o.code_slug AS "codeSlug",
+      o.type,
+      o.level,
+      o.logo,
+      o.is_site_active AS "isSiteActive",
+      o.parent_id AS "parentId",
+      o.is_non_active AS "isNonActive",
+      o.non_active_at AS "nonActiveAt",
+      o.non_active_by AS "nonActiveBy",
+      o.deleted_at AS "deletedAt",
+      o.deleted_by AS "deletedBy",
+      o.state,
+      (SELECT count(*) FROM ${organization} child
+       WHERE child.parent_id = o.id AND child.deleted_at IS NULL)::int AS "childrenCount",
+      COALESCE(a.ab1, 0) AS ab1,
+      COALESCE(a.ab2, 0) AS ab2,
+      COALESCE(a.ab3, 0) AS ab3,
+      COALESCE(a.ikhwan, 0) AS ikhwan,
+      COALESCE(a.akhwat, 0) AS akhwat,
+      COALESCE(a.total, 0) AS total
+    FROM ${organization} o
+    LEFT JOIN aggregates a ON a.organization_id = o.id
+    WHERE o.parent_id = ${parentId}
+      AND o.deleted_at IS NULL
+      ${name ? sql`AND o.name ILIKE ${`%${name}%`}` : sql``}
+      ${
+        type && type.length > 0
+          ? sql`AND o.type IN (${sql.join(
+              type.map((t) => sql`${t}`),
+              sql`, `
+            )})`
+          : sql``
+      }
+      ${
+        cursor
+          ? sql`AND (COALESCE(a.total, 0) < ${cursor.total}
+                OR (COALESCE(a.total, 0) = ${cursor.total} AND o.id > ${cursor.id}))`
+          : sql``
+      }
+    ORDER BY COALESCE(a.total, 0) DESC, o.id ASC
+    LIMIT ${limit}
+  `)
+
+  const result = rows as unknown as OrganizationWithMemberTotal[]
+  return result.map((row) => ({
+    ...row,
+    ab1: Number(row.ab1),
+    ab2: Number(row.ab2),
+    ab3: Number(row.ab3),
+    ikhwan: Number(row.ikhwan),
+    akhwat: Number(row.akhwat),
+    total: Number(row.total)
+  }))
 }
 
 /**
