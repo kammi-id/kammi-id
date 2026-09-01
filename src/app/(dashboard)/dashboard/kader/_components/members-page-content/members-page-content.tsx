@@ -8,7 +8,9 @@ import { requireKekaderanAccess } from '~/lib/auth/kekaderan'
 import {
   getCachedOrganization,
   getCachedOrganizations,
-  getCachedOrganizationCount
+  getCachedOrganizationCount,
+  getCachedOrganizationsByMemberTotal,
+  type OrganizationKeysetCursor
 } from '~/app/(dashboard)/dashboard/_data/organizations'
 import { fetchAllowedOrgIds } from '~/db/query/organization'
 import {
@@ -18,7 +20,7 @@ import {
 import { MembersTable } from '../members-table'
 import { IndividualMemberTable } from '../individual-table'
 import { MemberSectionCards } from '../member-section-cards'
-import { MembersGrid } from '../members-grid'
+import { MembersGrid, deriveMemberTotalFilters } from '../members-grid'
 import { type Organization } from '~/app/(dashboard)/dashboard/_data/organizations'
 import { AccessGuard } from '~/components/access-guard'
 
@@ -141,12 +143,19 @@ export const MembersPageContent = async ({
           ? 'Ringkasan per Komisariat'
           : 'Ringkasan'
 
-  const orgFilters = {
+  // Satu sumber untuk "Kader mana yang dihitung `total`" — dipakai baik oleh
+  // batch pertama di sini maupun tiap "Muat lagi" lewat action.ts, supaya
+  // urutan keyset dan agregat currentOrg sendiri (di bawah) tidak pernah
+  // menghitung himpunan Kader yang berbeda.
+  const memberTotalFilters = deriveMemberTotalFilters(activeType)
+
+  // "Menampilkan X dari Y organisasi" tidak butuh urutan — cuma jumlah baris
+  // yang cocok dengan pencarian/filter, jadi tetap lewat countOrganization
+  // biasa, terpisah dari keyset yang mengurus urutan + cursor di bawah.
+  const orgCountFilters = {
     parentId: [currentOrg.id],
     name: summary.query,
-    type: summary.orgType,
-    limit: summary.limit,
-    offset: summary.offset
+    type: summary.orgType
   }
 
   const mFilters = {
@@ -173,24 +182,33 @@ export const MembersPageContent = async ({
           : undefined
   }
 
-  const summaryPromise: Promise<[Organization[], number]> = showSummary
+  // Keyset (tiket 06): `limit + 1` supaya batch pertama sudah tahu apakah
+  // "Muat lagi" punya sesuatu untuk dimuat, tanpa query hitung terpisah —
+  // pola yang sama dipakai action.ts untuk tiap batch sesudahnya.
+  const summaryPromise: Promise<
+    [Awaited<ReturnType<typeof getCachedOrganizationsByMemberTotal>>, number]
+  > = showSummary
     ? Promise.all([
-        getCachedOrganizations(orgFilters),
-        getCachedOrganizationCount(orgFilters)
+        getCachedOrganizationsByMemberTotal(
+          {
+            parentId: currentOrg.id,
+            name: summary.query,
+            type: summary.orgType,
+            ...memberTotalFilters
+          },
+          { limit: summary.limit + 1 }
+        ),
+        getCachedOrganizationCount(orgCountFilters)
       ])
-    : Promise.resolve([[], 0] as [Organization[], number])
+    : Promise.resolve([[], 0] as [
+        Awaited<ReturnType<typeof getCachedOrganizationsByMemberTotal>>,
+        number
+      ])
 
   const aggregatesPromise = getCachedMemberAggregates({
     user: userForScope,
     organizationId: currentOrg.id,
-    isCertifiedMentor: activeType === 'pemandu' ? true : undefined,
-    isCertifiedInstructor: activeType === 'instruktur' ? true : undefined,
-    isAlumn:
-      activeType === 'alumni'
-        ? true
-        : activeType === 'pemandu' || activeType === 'instruktur' || !activeType
-          ? false
-          : undefined
+    ...memberTotalFilters
   })
 
   const individualsPromise: Promise<
@@ -200,18 +218,29 @@ export const MembersPageContent = async ({
     : Promise.resolve([[], 0] as [import('~/db/query/member').Member[], number])
 
   const [
-    [organizations, totalCount],
+    [orgRowsWithProbe, totalCount],
     [mMembers, mTotalCount],
     memberAggregates
   ] = await Promise.all([summaryPromise, individualsPromise, aggregatesPromise])
 
-  // Calculate tier summaries
+  // Batch pertama Daftar Struktur — keyset, bukan offset (tiket 06). Baris
+  // ke-(limit+1), kalau ada, cuma penanda "masih ada lagi"; ia dibuang, tak
+  // pernah dirender.
+  const initialHasMore = orgRowsWithProbe.length > summary.limit
+  const organizations = initialHasMore
+    ? orgRowsWithProbe.slice(0, summary.limit)
+    : orgRowsWithProbe
+  const lastOrgRow = organizations[organizations.length - 1]
+  const initialCursor: OrganizationKeysetCursor | null = lastOrgRow
+    ? { total: lastOrgRow.total, id: lastOrgRow.id }
+    : null
+
+  // Calculate tier summaries. `org.total` datang langsung dari keyset di
+  // atas — sudah agregat rekursif yang sama persis yang menentukan
+  // urutannya, jadi tidak perlu dicari lagi lewat memberAggregates.
   const tierSummaries = ['pp', 'pw', 'pd', 'pdln', 'pk'].map((type) => {
     const orgsOfType = organizations.filter((o) => o.type === type)
-    const totalMembers = orgsOfType.reduce((acc, org) => {
-      const agg = memberAggregates.find((a) => a.organizationId === org.id)
-      return acc + (agg?.total || 0)
-    }, 0)
+    const totalMembers = orgsOfType.reduce((acc, org) => acc + org.total, 0)
     return {
       type,
       count: orgsOfType.length,
@@ -248,21 +277,15 @@ export const MembersPageContent = async ({
       ? `/dashboard/${typePath}/${slug.join('/')}`
       : `/dashboard/${typePath}`
 
-  const memberData = organizations.map((org) => {
-    const agg = memberAggregates.find((a) => a.organizationId === org.id)
-    return {
-      ...org,
-      organizationId: org.id,
-      ab1: agg?.ab1 || 0,
-      ab2: agg?.ab2 || 0,
-      ab3: agg?.ab3 || 0,
-      ikhwan: agg?.ikhwan || 0,
-      akhwat: agg?.akhwat || 0,
-      total: agg?.total || 0,
-      pemandu: 0,
-      instruktur: 0
-    }
-  })
+  // ab1/ab2/ab3/ikhwan/akhwat/total sudah melekat di tiap baris lewat
+  // keyset di atas — dihitung dengan `memberTotalFilters` yang sama, jadi
+  // tidak perlu dicocokkan lagi lewat memberAggregates seperti sebelumnya.
+  const memberData = organizations.map((org) => ({
+    ...org,
+    organizationId: org.id,
+    pemandu: 0,
+    instruktur: 0
+  }))
 
   const renderSummary = () => (
     <div className='bg-card rounded-xl border p-6 shadow-xs'>
@@ -352,10 +375,23 @@ export const MembersPageContent = async ({
                 {summaryHeading}
               </h2>
               <MembersGrid
+                // Kunci diturunkan dari identitas query (Struktur, rute, kata
+                // kunci, filter jenis) — bukan sekadar `currentOrg.id`. Grid
+                // menyimpan batch yang sudah dimuat di state internal
+                // (`useState`), yang menurut React tidak otomatis mengikuti
+                // prop `data` baru saat searchParams berubah pada rute yang
+                // sama. Kunci yang berubah memaksa remount bersih persis saat
+                // pencarian/filter berubah; kunci yang tetap sama (navigasi
+                // ke detail Kader lalu kembali) membiarkan Activity Next.js
+                // memulihkan state + posisi gulir apa adanya (tiket 06).
+                key={`${currentOrg.id}-${activeType ?? ''}-${summary.query ?? ''}-${(summary.orgType ?? []).join(',')}`}
                 data={memberData}
                 basePath={basePath}
-                pageCount={pageCount}
+                organizationId={currentOrg.id}
                 totalCount={totalCount}
+                batchSize={summary.limit}
+                initialCursor={initialCursor}
+                initialHasMore={initialHasMore}
                 type={activeType}
                 currentSearch={summary.query ?? ''}
                 currentOrgTypes={summary.orgType ?? []}
