@@ -82,14 +82,38 @@ describe('readOrganizationsByMemberTotal — keyset', () => {
   const memberIds: string[] = []
 
   beforeAll(async () => {
-    pw = await insertOrg({ name: `PW Keyset ${suffix}`, type: 'pw', parentId: null })
+    pw = await insertOrg({
+      name: `PW Keyset ${suffix}`,
+      type: 'pw',
+      parentId: null
+    })
     orgIds.push(pw.id)
 
-    orgA = await insertOrg({ name: `PD A ${suffix}`, type: 'pd', parentId: pw.id })
-    orgB = await insertOrg({ name: `PD B ${suffix}`, type: 'pd', parentId: pw.id })
-    orgC = await insertOrg({ name: `PD C ${suffix}`, type: 'pd', parentId: pw.id })
-    orgD = await insertOrg({ name: `PD D ${suffix}`, type: 'pd', parentId: pw.id })
-    orgE = await insertOrg({ name: `PD E ${suffix}`, type: 'pd', parentId: pw.id })
+    orgA = await insertOrg({
+      name: `PD A ${suffix}`,
+      type: 'pd',
+      parentId: pw.id
+    })
+    orgB = await insertOrg({
+      name: `PD B ${suffix}`,
+      type: 'pd',
+      parentId: pw.id
+    })
+    orgC = await insertOrg({
+      name: `PD C ${suffix}`,
+      type: 'pd',
+      parentId: pw.id
+    })
+    orgD = await insertOrg({
+      name: `PD D ${suffix}`,
+      type: 'pd',
+      parentId: pw.id
+    })
+    orgE = await insertOrg({
+      name: `PD E ${suffix}`,
+      type: 'pd',
+      parentId: pw.id
+    })
     orgIds.push(orgA.id, orgB.id, orgC.id, orgD.id, orgE.id)
 
     pdRollup = await insertOrg({
@@ -137,7 +161,14 @@ describe('readOrganizationsByMemberTotal — keyset', () => {
     expect(byId[pdRollup.id].total).toBe(3)
 
     const ids = rows.map((r) => r.id)
-    const expectedOrder = [orgB.id, orgA.id, orgC.id, pdRollup.id, orgD.id, orgE.id]
+    const expectedOrder = [
+      orgB.id,
+      orgA.id,
+      orgC.id,
+      pdRollup.id,
+      orgD.id,
+      orgE.id
+    ]
     // pdRollup dan orgD sama-sama total 3 — tie-break id ASC menentukan
     // urutan keduanya; yang pasti keduanya harus terurut berdampingan tepat
     // setelah orgC (total 4) dan sebelum orgE (total 2).

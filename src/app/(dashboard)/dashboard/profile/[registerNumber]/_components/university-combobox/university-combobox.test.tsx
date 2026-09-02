@@ -40,7 +40,10 @@ describe('UniversityCombobox', () => {
   it('tidak menembak upstream saat baru mengetik 3 karakter (di bawah ambang)', async () => {
     const user = userEvent.setup()
     render(
-      <UniversityCombobox nameField='institutionName' dataField='institutionData' />
+      <UniversityCombobox
+        nameField='institutionName'
+        dataField='institutionData'
+      />
     )
 
     const input = screen.getByPlaceholderText('Cari nama institusi...')
@@ -55,7 +58,10 @@ describe('UniversityCombobox', () => {
   it('menembak upstream setelah mencapai 4 karakter', async () => {
     const user = userEvent.setup()
     render(
-      <UniversityCombobox nameField='institutionName' dataField='institutionData' />
+      <UniversityCombobox
+        nameField='institutionName'
+        dataField='institutionData'
+      />
     )
 
     const input = screen.getByPlaceholderText('Cari nama institusi...')
@@ -70,7 +76,10 @@ describe('UniversityCombobox', () => {
   it('mengetik teks bebas tanpa memilih tetap mengisi nameField; dataField berisi objek kosong', async () => {
     const user = userEvent.setup()
     const { container } = render(
-      <UniversityCombobox nameField='institutionName' dataField='institutionData' />
+      <UniversityCombobox
+        nameField='institutionName'
+        dataField='institutionData'
+      />
     )
 
     const input = screen.getByPlaceholderText('Cari nama institusi...')
@@ -96,7 +105,10 @@ describe('UniversityCombobox', () => {
     })
     const user = userEvent.setup()
     const { container } = render(
-      <UniversityCombobox nameField='institutionName' dataField='institutionData' />
+      <UniversityCombobox
+        nameField='institutionName'
+        dataField='institutionData'
+      />
     )
 
     const input = screen.getByPlaceholderText('Cari nama institusi...')

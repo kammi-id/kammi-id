@@ -13,9 +13,8 @@ mock.module('./action', () => ({
   searchTrainingAttendantsAction: searchTrainingAttendantsActionMock
 }))
 
-const { TrainingAttendantCombobox } = await import(
-  './training-attendant-combobox'
-)
+const { TrainingAttendantCombobox } =
+  await import('./training-attendant-combobox')
 
 afterEach(() => {
   cleanup()
@@ -65,9 +64,13 @@ describe('TrainingAttendantCombobox — label Pemandu/Instruktur/PW', () => {
       buildMember({ isCertifiedMentor: true, isCertifiedInstructor: true })
     )
 
-    const option = await screen.findByText(/Pemandu · Instruktur/, {}, {
-      timeout: 1500
-    })
+    const option = await screen.findByText(
+      /Pemandu · Instruktur/,
+      {},
+      {
+        timeout: 1500
+      }
+    )
     expect(option).toBeInTheDocument()
   })
 

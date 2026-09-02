@@ -2,7 +2,10 @@ import { notFound } from 'next/navigation'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Delete02Icon } from '@hugeicons/core-free-icons'
 import { readDeletedMembers } from '~/db/query/member'
-import { requireMemberTrashAccess, requireMemberHardDeleteAccess } from '~/lib/auth/kekaderan'
+import {
+  requireMemberTrashAccess,
+  requireMemberHardDeleteAccess
+} from '~/lib/auth/kekaderan'
 import {
   KaderTerhapusList,
   type DeletedKaderRow

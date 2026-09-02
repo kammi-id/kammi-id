@@ -9,9 +9,8 @@ mock.module('~/lib/auth/cookies', () => ({
   readActiveSession: async () => mockSession
 }))
 
-const { requireKekaderanAccess, requireMemberMutationAccess } = await import(
-  './kekaderan'
-)
+const { requireKekaderanAccess, requireMemberMutationAccess } =
+  await import('./kekaderan')
 
 // Bentuknya mengikuti `withSessionCTE` (`db/query/cte/session.ts`): Struktur
 // terhubung datang sebagai objek, dan `readAccessScope` yang memerasnya jadi

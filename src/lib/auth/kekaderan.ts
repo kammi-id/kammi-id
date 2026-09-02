@@ -75,9 +75,8 @@ const MUTATION_DENIAL = 'Antum tidak memiliki hak akses untuk mutasi kader.'
  * question is only ever who may open the Mutasi surface at all, not whether
  * one particular org is in reach — the surface itself picks both ends.
  */
-export const requireMemberMutationAccess = async (): Promise<
-  string | null
-> => requireNationalBpkAccess(MUTATION_DENIAL)
+export const requireMemberMutationAccess = async (): Promise<string | null> =>
+  requireNationalBpkAccess(MUTATION_DENIAL)
 
 const HARD_DELETE_DENIAL =
   'Antum tidak memiliki hak akses untuk menghapus Kader selamanya.'
@@ -98,9 +97,8 @@ const HARD_DELETE_DENIAL =
  * `requireMemberMutationAccess` has none: the question is only ever who may
  * press this button at all.
  */
-export const requireMemberHardDeleteAccess = async (): Promise<
-  string | null
-> => requireNationalBpkAccess(HARD_DELETE_DENIAL)
+export const requireMemberHardDeleteAccess = async (): Promise<string | null> =>
+  requireNationalBpkAccess(HARD_DELETE_DENIAL)
 
 /**
  * Grants the privilege of opening `/dashboard/kader/terhapus` and restoring
@@ -115,9 +113,10 @@ export const requireMemberHardDeleteAccess = async (): Promise<
  * though it reads ordinary Kekaderan data — this surface restores, and BPH
  * holds no write privilege anywhere in Kekaderan.
  */
-export const requireMemberTrashAccess = async (): Promise<AccessScope | null> => {
-  const scope = await readAccessScope()
-  if (!scope) return null
-  if (!['root', 'bpk'].includes(scope.role)) return null
-  return scope
-}
+export const requireMemberTrashAccess =
+  async (): Promise<AccessScope | null> => {
+    const scope = await readAccessScope()
+    if (!scope) return null
+    if (!['root', 'bpk'].includes(scope.role)) return null
+    return scope
+  }

@@ -126,7 +126,11 @@ describe('updateMemberAction — mutasi gating on organizationId (ADR 0020)', ()
 
   it('lets a plain bpk edit fields without touching organizationId', async () => {
     mockSession = {
-      user: { id: ACTOR_ID, role: 'bpk', connectedOrganization: { id: pkItbId } }
+      user: {
+        id: ACTOR_ID,
+        role: 'bpk',
+        connectedOrganization: { id: pkItbId }
+      }
     }
     const member = await createTestMember(pkItbId)
 
@@ -141,7 +145,11 @@ describe('updateMemberAction — mutasi gating on organizationId (ADR 0020)', ()
 
   it('rejects an organizationId change from a bpk pk — not root/bpk-pp', async () => {
     mockSession = {
-      user: { id: ACTOR_ID, role: 'bpk', connectedOrganization: { id: pkItbId } }
+      user: {
+        id: ACTOR_ID,
+        role: 'bpk',
+        connectedOrganization: { id: pkItbId }
+      }
     }
     const member = await createTestMember(pkItbId)
 
@@ -161,7 +169,11 @@ describe('updateMemberAction — mutasi gating on organizationId (ADR 0020)', ()
 
   it('rejects an organizationId change from a bpk pd, even to a destination inside its own cakupan', async () => {
     mockSession = {
-      user: { id: ACTOR_ID, role: 'bpk', connectedOrganization: { id: pwJabarId } }
+      user: {
+        id: ACTOR_ID,
+        role: 'bpk',
+        connectedOrganization: { id: pwJabarId }
+      }
     }
     const member = await createTestMember(pkItbId)
 

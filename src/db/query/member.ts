@@ -497,9 +497,10 @@ export type DeletedMember = {
  * `readDeletedOrganizations` hanya dipanggil di belakang
  * `requireStrukturRestoreAccess`.
  */
-export const readDeletedMembers = async (
-  filters: { user: AccessScope; id?: string[] }
-): Promise<DeletedMember[]> => {
+export const readDeletedMembers = async (filters: {
+  user: AccessScope
+  id?: string[]
+}): Promise<DeletedMember[]> => {
   const allowedOrgIds = await fetchAllowedOrgIds(filters.user)
   if (allowedOrgIds.length === 0) return []
 

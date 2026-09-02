@@ -211,14 +211,8 @@ describe('add-training-modal actions', () => {
         isCertifiedInstructor: false
       })
 
-      const dm1Result = await searchMasterCandidatesAction(
-        'Instruktur',
-        'dm1'
-      )
-      const dm3Result = await searchMasterCandidatesAction(
-        'Instruktur',
-        'dm3'
-      )
+      const dm1Result = await searchMasterCandidatesAction('Instruktur', 'dm1')
+      const dm3Result = await searchMasterCandidatesAction('Instruktur', 'dm3')
 
       expect(dm1Result.data).toEqual([])
       expect(dm3Result.data).toEqual([])
@@ -269,10 +263,7 @@ describe('add-training-modal actions', () => {
         isCertifiedInstructor: true
       })
 
-      const results = await searchEligibleInstructors(
-        training.id,
-        'Instruktur'
-      )
+      const results = await searchEligibleInstructors(training.id, 'Instruktur')
 
       expect(results).toEqual([])
     })
@@ -284,10 +275,7 @@ describe('add-training-modal actions', () => {
         isCertifiedInstructor: true
       })
 
-      const results = await searchEligibleInstructors(
-        training.id,
-        'Instruktur'
-      )
+      const results = await searchEligibleInstructors(training.id, 'Instruktur')
 
       expect(results.map((m) => m.id)).toEqual([candidate.id])
     })

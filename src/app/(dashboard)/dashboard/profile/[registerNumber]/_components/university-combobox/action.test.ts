@@ -42,9 +42,7 @@ describe('fetchUniversitiesAction', () => {
       throw new Error('University API error: 429 quota_exceeded')
     })
 
-    const result = await fetchUniversitiesAction(
-      'Institut Kuota Habis Unik 2'
-    )
+    const result = await fetchUniversitiesAction('Institut Kuota Habis Unik 2')
 
     expect(result).toEqual({ success: false, data: [] })
     expect(searchMock).toHaveBeenCalledTimes(1)

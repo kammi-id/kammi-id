@@ -36,7 +36,11 @@ describe('formatAge', () => {
   test('tepat N tahun, tanpa sisa bulan (bulan & tanggal lahir sama dengan hari ini)', () => {
     const now = new Date()
     const years = 20
-    const birthDate = toIsoDate(now.getFullYear() - years, now.getMonth(), now.getDate())
+    const birthDate = toIsoDate(
+      now.getFullYear() - years,
+      now.getMonth(),
+      now.getDate()
+    )
 
     expect(formatAge(birthDate)).toBe(`${years} tahun, 0 bulan`)
   })

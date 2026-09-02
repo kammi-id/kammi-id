@@ -7,7 +7,10 @@ import { pgTable } from 'drizzle-orm/pg-core'
  * read-then-write `MAX()+1`. Deleting the Kader holding the highest number on
  * a prefix does not lower this row, so the number never gets reissued.
  */
-export const registerNumberSequence = pgTable('register_number_sequence', (t) => ({
-  prefix: t.text('prefix').primaryKey(),
-  lastSeq: t.integer('last_seq').notNull()
-}))
+export const registerNumberSequence = pgTable(
+  'register_number_sequence',
+  (t) => ({
+    prefix: t.text('prefix').primaryKey(),
+    lastSeq: t.integer('last_seq').notNull()
+  })
+)

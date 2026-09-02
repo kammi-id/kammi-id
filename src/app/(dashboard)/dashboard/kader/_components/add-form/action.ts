@@ -1,7 +1,12 @@
 'use server'
 
 import { revalidatePath, updateTag } from 'next/cache'
-import { createMember, updateMember, readMember, mutateMember } from '~/db/query/member'
+import {
+  createMember,
+  updateMember,
+  readMember,
+  mutateMember
+} from '~/db/query/member'
 import { generateRegisterNumber } from '~/lib/utils/member'
 import { readActiveSession } from '~/lib/auth/cookies'
 import { requireMemberMutationAccess } from '~/lib/auth/kekaderan'

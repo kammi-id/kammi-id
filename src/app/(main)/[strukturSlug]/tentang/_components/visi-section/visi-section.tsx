@@ -66,8 +66,8 @@ export const VisiSection = () => {
             id='visi-heading'
             className='font-heading text-primary-foreground text-[clamp(1.75rem,4vw,3.25rem)] leading-snug font-bold'
           >
-            Wadah perjuangan permanen yang melahirkan kader-kader Pemimpin
-            dalam upaya mewujudkan Bangsa dan Negara Indonesia yang Islami.
+            Wadah perjuangan permanen yang melahirkan kader-kader Pemimpin dalam
+            upaya mewujudkan Bangsa dan Negara Indonesia yang Islami.
           </h2>
         </div>
       </div>

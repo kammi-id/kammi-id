@@ -1,5 +1,8 @@
 import { describe, it, expect } from 'bun:test'
-import { checkHardDeletionMember, type MemberHardDeletionCounts } from './keadaan'
+import {
+  checkHardDeletionMember,
+  type MemberHardDeletionCounts
+} from './keadaan'
 
 const zeroCounts: MemberHardDeletionCounts = {
   trainingAttendant: 0,

@@ -484,8 +484,14 @@ export const readOrganizationsByMemberTotal = async (
   filters: OrganizationMemberTotalFilters,
   pagination: { limit: number; cursor?: OrganizationKeysetCursor }
 ): Promise<OrganizationWithMemberTotal[]> => {
-  const { parentId, name, type, isAlumn, isCertifiedMentor, isCertifiedInstructor } =
-    filters
+  const {
+    parentId,
+    name,
+    type,
+    isAlumn,
+    isCertifiedMentor,
+    isCertifiedInstructor
+  } = filters
   const { limit, cursor } = pagination
 
   const rows = await db.execute(sql`

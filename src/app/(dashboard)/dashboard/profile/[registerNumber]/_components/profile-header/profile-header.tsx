@@ -124,9 +124,7 @@ export const ProfileHeader = ({
               )}
             </div>
 
-            {age && (
-              <p className='text-muted-foreground mt-1 text-sm'>{age}</p>
-            )}
+            {age && <p className='text-muted-foreground mt-1 text-sm'>{age}</p>}
           </div>
         </div>
       </div>
