@@ -94,27 +94,38 @@ describe('training-detail-view actions', () => {
 
   const createTraining = async (
     organizationId: string,
-    overrides: { startDate: string; endDate: string }
+    overrides: {
+      startDate: string
+      endDate: string
+      type?: 'dm1' | 'dm2' | 'dpmk' | 'tfi' | 'dm3' | 'other'
+    }
   ) => {
     const created = await trainingQuery.create({
       organizationId,
       name: 'DM1 Test',
       startDate: overrides.startDate,
       endDate: overrides.endDate,
-      type: 'dm1'
+      type: overrides.type ?? 'dm1'
     })
     return created
   }
 
-  const createTestInstructor = async (organizationId: string) => {
+  const createTestInstructor = async (
+    organizationId: string,
+    overrides: {
+      status?: 'ab1' | 'ab2' | 'ab3'
+      isCertifiedInstructor?: boolean
+      registerNumber?: string
+    } = {}
+  ) => {
     const [created] = await createMember({
       name: 'Instruktur Test',
-      registerNumber: 'PK01-0002',
+      registerNumber: overrides.registerNumber ?? 'PK01-0002',
       organizationId,
-      status: 'ab3',
+      status: overrides.status ?? 'ab3',
       gender: 'ikhwan',
       yearOfEntry: 2015,
-      isCertifiedInstructor: true
+      isCertifiedInstructor: overrides.isCertifiedInstructor ?? true
     })
     return created
   }
@@ -627,6 +638,93 @@ describe('training-detail-view actions', () => {
 
       expect(result.success).toBe(false)
       expect(result.message).toBe('Sesi tidak ditemukan.')
+    })
+
+    // ADR 0022: jenjang minimum perangkat bergantung jenis Daurah yang
+    // sedang dikelola, bukan satu angka global. Jalur Master calon (tiket
+    // 03, add-training-modal) sudah diuji; ini jalur kedua — menambah
+    // Instruktur ke Daurah yang SUDAH ada, dari halaman detailnya.
+    it('accepts an AB2 certified instructor for DM1', async () => {
+      mockSession = {
+        user: { id: 'u1', role: 'bpk', connectedOrganizationId: pkItbId }
+      }
+      const training = await createTraining(pkItbId, {
+        startDate: daysFromNow(5),
+        endDate: daysFromNow(7),
+        type: 'dm1'
+      })
+      const instructor = await createTestInstructor(pkItbId, { status: 'ab2' })
+
+      const result = await searchTrainingInstructorsAction(
+        training.id,
+        'Instruktur'
+      )
+
+      expect(result.success).toBe(true)
+      expect(result.data.map((m) => m.id)).toContain(instructor.id)
+    })
+
+    it('rejects an AB2 certified instructor for DM3', async () => {
+      mockSession = {
+        user: { id: 'u1', role: 'bpk', connectedOrganizationId: pkItbId }
+      }
+      const training = await createTraining(pkItbId, {
+        startDate: daysFromNow(5),
+        endDate: daysFromNow(7),
+        type: 'dm3'
+      })
+      const instructor = await createTestInstructor(pkItbId, { status: 'ab2' })
+
+      const result = await searchTrainingInstructorsAction(
+        training.id,
+        'Instruktur'
+      )
+
+      expect(result.success).toBe(true)
+      expect(result.data.map((m) => m.id)).not.toContain(instructor.id)
+    })
+
+    it('still accepts an AB3 certified instructor for DM3', async () => {
+      mockSession = {
+        user: { id: 'u1', role: 'bpk', connectedOrganizationId: pkItbId }
+      }
+      const training = await createTraining(pkItbId, {
+        startDate: daysFromNow(5),
+        endDate: daysFromNow(7),
+        type: 'dm3'
+      })
+      const instructor = await createTestInstructor(pkItbId, { status: 'ab3' })
+
+      const result = await searchTrainingInstructorsAction(
+        training.id,
+        'Instruktur'
+      )
+
+      expect(result.success).toBe(true)
+      expect(result.data.map((m) => m.id)).toContain(instructor.id)
+    })
+
+    it('never returns an AB2 without Instruktur certification, in any Daurah type', async () => {
+      mockSession = {
+        user: { id: 'u1', role: 'bpk', connectedOrganizationId: pkItbId }
+      }
+      const training = await createTraining(pkItbId, {
+        startDate: daysFromNow(5),
+        endDate: daysFromNow(7),
+        type: 'dm1'
+      })
+      const uncertified = await createTestInstructor(pkItbId, {
+        status: 'ab2',
+        isCertifiedInstructor: false
+      })
+
+      const result = await searchTrainingInstructorsAction(
+        training.id,
+        'Instruktur'
+      )
+
+      expect(result.success).toBe(true)
+      expect(result.data.map((m) => m.id)).not.toContain(uncertified.id)
     })
   })
 })
