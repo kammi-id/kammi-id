@@ -1,5 +1,6 @@
 import { db } from '../db'
 import { member } from '../schema/member.sql'
+import { memberMutation } from '../schema/member-mutation.sql'
 import { withMemberCTE, type Member } from './cte/member'
 export { withMemberCTE, type Member }
 import {
@@ -440,17 +441,71 @@ export const deleteMember = async (id: string): Promise<void> => {
 
 export const updateMember = async (
   values: Partial<MemberInsertValues>,
-  id: string
+  id: string,
+  tx?: DBExecutor
 ): Promise<Array<Member>> => {
-  return await db.transaction(async (tx) => {
-    await tx.update(member).set(values).where(eq(member.id, id))
+  const run = async (executor: DBExecutor) => {
+    await executor.update(member).set(values).where(eq(member.id, id))
 
-    return await tx
+    return await executor
       .with(withMemberCTE)
       .select()
       .from(withMemberCTE)
       .where(eq(withMemberCTE.id, id))
-  })
+  }
+
+  return tx ? await run(tx) : await db.transaction(run)
+}
+
+/**
+ * Mutasi (ADR 0020): moves a Kader across a Cakupan boundary. Touches
+ * `member.organization_id` and nothing else on that row — NIA, Akun, and
+ * Daurah history are untouched — and always leaves exactly one
+ * `member_mutation` row behind recording where it came from, where it went,
+ * and who moved it. The two writes share one transaction so a mutation is
+ * never recorded without having happened, or vice versa.
+ *
+ * Takes an optional `tx` so a caller that also edits other fields on the
+ * same member in the same request (`updateMemberAction`) can fold both
+ * writes into one transaction — an org change and its `member_mutation` row
+ * must not end up committed while an unrelated field edit in the same save
+ * rolls back, or vice versa.
+ */
+export const mutateMember = async (
+  memberId: string,
+  toOrganizationId: string,
+  movedBy: string,
+  tx?: DBExecutor
+): Promise<Array<Member>> => {
+  const run = async (executor: DBExecutor) => {
+    const [current] = await executor
+      .select({ organizationId: member.organizationId })
+      .from(member)
+      .where(eq(member.id, memberId))
+      .limit(1)
+
+    if (!current) throw new Error('Kader tidak ditemukan')
+
+    await executor
+      .update(member)
+      .set({ organizationId: toOrganizationId })
+      .where(eq(member.id, memberId))
+
+    await executor.insert(memberMutation).values({
+      memberId,
+      fromOrganizationId: current.organizationId,
+      toOrganizationId,
+      movedBy
+    })
+
+    return await executor
+      .with(withMemberCTE)
+      .select()
+      .from(withMemberCTE)
+      .where(eq(withMemberCTE.id, memberId))
+  }
+
+  return tx ? await run(tx) : await db.transaction(run)
 }
 
 type OrgRef = {

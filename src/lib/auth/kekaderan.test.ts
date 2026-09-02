@@ -9,7 +9,9 @@ mock.module('~/lib/auth/cookies', () => ({
   readActiveSession: async () => mockSession
 }))
 
-const { requireKekaderanAccess } = await import('./kekaderan')
+const { requireKekaderanAccess, requireMemberMutationAccess } = await import(
+  './kekaderan'
+)
 
 // Bentuknya mengikuti `withSessionCTE` (`db/query/cte/session.ts`): Struktur
 // terhubung datang sebagai objek, dan `readAccessScope` yang memerasnya jadi
@@ -169,5 +171,99 @@ describe('requireKekaderanAccess', () => {
     mockSession = sessionWith('bpk', null)
 
     expect(await requireKekaderanAccess(pkItbId)).toBeNull()
+  })
+})
+
+describe('requireMemberMutationAccess', () => {
+  let ppId: string
+  let pwJabarId: string
+  let pkItbId: string
+
+  beforeEach(() => {
+    mockSession = undefined
+  })
+
+  beforeAll(async () => {
+    await db.execute(sql`TRUNCATE TABLE "user", "member", organization CASCADE`)
+
+    const [pp] = await createOrganization({
+      name: 'PP KAMMI',
+      slug: 'pp-kammi-mutasi',
+      code: 'PP-00',
+      type: 'pp',
+      parentId: null,
+      isNonActive: false
+    })
+    ppId = pp.id
+
+    const [pwJabar] = await createOrganization({
+      name: 'PW Jabar',
+      slug: 'pw-jabar-mutasi',
+      code: 'PW-01',
+      type: 'pw',
+      parentId: pp.id,
+      isNonActive: false
+    })
+    pwJabarId = pwJabar.id
+
+    const [pkItb] = await createOrganization({
+      name: 'PK ITB',
+      slug: 'pk-itb-mutasi',
+      code: 'PK-01',
+      type: 'pk',
+      parentId: pwJabar.id,
+      isNonActive: false
+    })
+    pkItbId = pkItb.id
+  })
+
+  it('refuses when there is no active session', async () => {
+    mockSession = undefined
+
+    expect(await requireMemberMutationAccess()).not.toBeNull()
+  })
+
+  it('lets root mutate, regardless of its connected struktur', async () => {
+    mockSession = sessionWith('root', pkItbId)
+
+    expect(await requireMemberMutationAccess()).toBeNull()
+  })
+
+  it('lets root mutate with no connected struktur at all', async () => {
+    mockSession = sessionWith('root', null)
+
+    expect(await requireMemberMutationAccess()).toBeNull()
+  })
+
+  it('lets bpk pp mutate', async () => {
+    mockSession = sessionWith('bpk', ppId)
+
+    expect(await requireMemberMutationAccess()).toBeNull()
+  })
+
+  // The one this gate exists to get right — copying `role === 'bpk'` from
+  // elsewhere would open mutasi to every BPK PD in the country.
+  it('refuses bpk below pp, even directly under it', async () => {
+    mockSession = sessionWith('bpk', pwJabarId)
+
+    expect(await requireMemberMutationAccess()).not.toBeNull()
+  })
+
+  it('refuses bpk deep below pp', async () => {
+    mockSession = sessionWith('bpk', pkItbId)
+
+    expect(await requireMemberMutationAccess()).not.toBeNull()
+  })
+
+  it('refuses bpk with no connected struktur', async () => {
+    mockSession = sessionWith('bpk', null)
+
+    expect(await requireMemberMutationAccess()).not.toBeNull()
+  })
+
+  it('refuses every other role, pp included', async () => {
+    mockSession = sessionWith('bpw', ppId)
+
+    expect(await requireMemberMutationAccess()).not.toBeNull()
   })
 })

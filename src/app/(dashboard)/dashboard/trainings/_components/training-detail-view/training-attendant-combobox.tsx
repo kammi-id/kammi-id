@@ -95,11 +95,8 @@ export const TrainingAttendantCombobox = ({
                       {[
                         m.registerNumber,
                         statusLabel[m.status] ?? m.status,
-                        m.isCertifiedInstructor
-                          ? 'Instruktur'
-                          : m.isCertifiedMentor
-                            ? 'Pemandu'
-                            : null,
+                        m.isCertifiedMentor ? 'Pemandu' : null,
+                        m.isCertifiedInstructor ? 'Instruktur' : null,
                         m.pw
                       ]
                         .filter(Boolean)

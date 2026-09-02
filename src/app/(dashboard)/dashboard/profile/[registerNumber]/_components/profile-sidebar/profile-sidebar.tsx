@@ -203,25 +203,27 @@ export const ProfileSidebar = ({ orgHierarchySlot }: ProfileSidebarProps) => {
           </div>
         </div>
 
-        <div>
-          <h2 className='text-muted-foreground font-geist-mono mb-3 text-[11px] font-medium tracking-widest uppercase'>
-            Perangkat Pengkaderan
-          </h2>
-          <div className='divide-border/60 divide-y rounded-lg border px-3'>
-            <Toggle
-              name='isCertifiedMentor'
-              label='Pemandu'
-              description='Lulus DPMK dan bersertifikat pemandu'
-              defaultChecked={member.isCertifiedMentor}
-            />
-            <Toggle
-              name='isCertifiedInstructor'
-              label='Instruktur'
-              description='Lulus TFI dan bersertifikat instruktur'
-              defaultChecked={member.isCertifiedInstructor}
-            />
+        {selectedStatus !== 'ab1' && (
+          <div>
+            <h2 className='text-muted-foreground font-geist-mono mb-3 text-[11px] font-medium tracking-widest uppercase'>
+              Perangkat Pengkaderan
+            </h2>
+            <div className='divide-border/60 divide-y rounded-lg border px-3'>
+              <Toggle
+                name='isCertifiedMentor'
+                label='Pemandu'
+                description='Lulus DPMK dan bersertifikat pemandu'
+                defaultChecked={member.isCertifiedMentor}
+              />
+              <Toggle
+                name='isCertifiedInstructor'
+                label='Instruktur'
+                description='Lulus TFI dan bersertifikat instruktur'
+                defaultChecked={member.isCertifiedInstructor}
+              />
+            </div>
           </div>
-        </div>
+        )}
 
         {orgHierarchySlot}
       </aside>

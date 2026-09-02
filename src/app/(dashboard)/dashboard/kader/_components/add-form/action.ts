@@ -1,9 +1,10 @@
 'use server'
 
 import { revalidatePath, updateTag } from 'next/cache'
-import { createMember, updateMember } from '~/db/query/member'
+import { createMember, updateMember, readMember, mutateMember } from '~/db/query/member'
 import { generateRegisterNumber } from '~/lib/utils/member'
 import { readActiveSession } from '~/lib/auth/cookies'
+import { requireMemberMutationAccess } from '~/lib/auth/kekaderan'
 import { regionApi } from '~/lib/api/region'
 import { fetchAllowedOrgIds } from '~/db/query/organization'
 import { db } from '~/db/db'
@@ -150,19 +151,43 @@ export const updateMemberAction = async (
   // ... existing code ...
 
   try {
-    await updateMember(data, id)
+    const [existing] = await readMember({ id: [id] })
+    if (!existing) return { success: false, message: 'Kader tidak ditemukan.' }
+
+    // Struktur crosses a Cakupan boundary — a stricter, Root/BPK-PP-only gate
+    // than the general field-edit check above (ADR 0020 §4). Everything else
+    // in this same save still only needs the looser `mutationRoles` check.
+    const isMutation = existing.organizationId !== data.organizationId
+    if (isMutation) {
+      const denial = await requireMemberMutationAccess()
+      if (denial) return { success: false, message: denial }
+    }
+
+    const { organizationId: _organizationId, ...fieldsWithoutOrg } = data
+
+    // One transaction, not two sequential calls: an unrelated field edit in
+    // this same save and its organizationId change must commit — or roll
+    // back — together, never one without the other.
+    await db.transaction(async (tx) => {
+      await updateMember(fieldsWithoutOrg, id, tx)
+      if (isMutation) {
+        await mutateMember(id, data.organizationId, user.id, tx)
+      }
+    })
 
     updateTag('kader')
     revalidatePath('/dashboard/kader')
     revalidatePath('/dashboard/alumni')
     revalidatePath('/dashboard/pemandu')
     revalidatePath('/dashboard/instruktur')
+    revalidatePath('/dashboard/profile')
 
     logger.info('Data kader diperbarui', {
       actorId: user.id,
       actorRole: user.role,
       memberId: id,
-      organizationId: data.organizationId
+      organizationId: data.organizationId,
+      mutated: isMutation
     })
 
     return { success: true, message: 'Data kader berhasil diperbarui!' }

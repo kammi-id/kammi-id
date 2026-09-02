@@ -1,10 +1,22 @@
-import { describe, it, expect } from 'bun:test'
+import { describe, it, expect, beforeEach } from 'bun:test'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { needsParentCodes, resolveRegisterNumberCodes } from './member'
+import { sql } from 'drizzle-orm'
+import { db } from '~/db/db'
+import { createOrganization } from '~/db/query/organization'
+import { createMember, deleteMember } from '~/db/query/member'
+import {
+  needsParentCodes,
+  resolveRegisterNumberCodes,
+  generateRegisterNumber
+} from './member'
 
 // Pure, database-free table tests for the NIA (register number) code derivation.
 // NIA shape: [PW 2][PD 2][year 4][seq 3] — the PW/PD half is what these decide.
+//
+// The `generateRegisterNumber` describe block near the bottom is the one
+// exception that does touch the database — it is what proves the high-water
+// mark allocation itself (ADR 0020), which the pure tests above cannot.
 
 type OrgRow = { type: string; code: string }
 
@@ -155,11 +167,7 @@ describe('both register-number call sites share the one decision', () => {
 
   const HOME = 'src/lib/utils/member.ts'
 
-  const CALL_SITES = [
-    HOME,
-    'src/app/(dashboard)/dashboard/kader/_components/bulk-upload/action.ts',
-    'src/scripts/seed-members.ts'
-  ]
+  const CALL_SITES = [HOME, 'src/scripts/seed-members.ts']
 
   for (const path of CALL_SITES) {
     it(`${path} decides via resolveRegisterNumberCodes`, () => {
@@ -181,5 +189,70 @@ describe('both register-number call sites share the one decision', () => {
       read(file).includes('resolveOrgCodes(')
     )
     expect(copies).toEqual([])
+  })
+})
+
+describe('generateRegisterNumber — atomic high-water mark (ADR 0020)', () => {
+  let pdId: string
+
+  beforeEach(async () => {
+    await db.execute(
+      sql`TRUNCATE TABLE "user", "member", "member_mutation", "register_number_sequence", organization CASCADE`
+    )
+
+    const [pd] = await createOrganization({
+      name: 'PD Test',
+      slug: 'pd-test',
+      code: '77.PD-9',
+      type: 'pd',
+      parentId: null,
+      isNonActive: false
+    })
+    pdId = pd.id
+  })
+
+  it('allocates sequential numbers for repeated calls on the same prefix', async () => {
+    const first = await generateRegisterNumber(pdId, 2024)
+    const second = await generateRegisterNumber(pdId, 2024)
+    const third = await generateRegisterNumber(pdId, 2024)
+
+    expect(first).toBe('77092024001')
+    expect(second).toBe('77092024002')
+    expect(third).toBe('77092024003')
+  })
+
+  it('gives two concurrent registrations on the same prefix different numbers', async () => {
+    const results = await Promise.all(
+      Array.from({ length: 10 }, () => generateRegisterNumber(pdId, 2024))
+    )
+
+    expect(new Set(results).size).toBe(10)
+  })
+
+  it('never reissues a number after the row holding it is deleted', async () => {
+    const first = await generateRegisterNumber(pdId, 2024)
+    const [created] = await createMember({
+      name: 'Kader Test',
+      registerNumber: first,
+      organizationId: pdId,
+      status: 'ab1',
+      gender: 'ikhwan',
+      yearOfEntry: 2024
+    })
+
+    await deleteMember(created.id)
+
+    const next = await generateRegisterNumber(pdId, 2024)
+
+    expect(next).not.toBe(first)
+    expect(next).toBe('77092024002')
+  })
+
+  it('keeps prefixes independent of each other', async () => {
+    const year1 = await generateRegisterNumber(pdId, 2024)
+    const year2 = await generateRegisterNumber(pdId, 2025)
+
+    expect(year1).toBe('77092024001')
+    expect(year2).toBe('77092025001')
   })
 })

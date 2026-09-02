@@ -12,6 +12,7 @@ import {
 import { ProfileAvatar } from '../profile-avatar'
 import { WarningTooltip } from '../warning-tooltip'
 import { useProfileEdit } from '../profile-edit-context'
+import { formatAge } from './utils'
 
 const statusLabel: Record<string, string> = {
   ab1: 'Anggota Biasa I — jenjang kader pertama',
@@ -60,6 +61,8 @@ export const ProfileHeader = ({
   const hasDm = requiredDm
     ? (trainingHistory?.asAttendant.some((r) => r.type === requiredDm) ?? false)
     : true
+
+  const age = formatAge(member.birthDate)
 
   return (
     <header className='border-border bg-background border-b'>
@@ -120,6 +123,10 @@ export const ProfileHeader = ({
                 />
               )}
             </div>
+
+            {age && (
+              <p className='text-muted-foreground mt-1 text-sm'>{age}</p>
+            )}
           </div>
         </div>
       </div>

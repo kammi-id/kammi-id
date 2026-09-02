@@ -23,7 +23,13 @@ describe('bulkCreateMembersAction', () => {
   let pkOtherId: string
 
   beforeEach(async () => {
-    await db.execute(sql`TRUNCATE TABLE "user", "member", organization CASCADE`)
+    // `register_number_sequence` is keyed by prefix, not by org id or member
+    // row (ADR 0020 — the high-water mark is deliberately independent of
+    // both), so truncating `member`/`organization` alone leaves an earlier
+    // test's allocations in place for the same `19012024` prefix.
+    await db.execute(
+      sql`TRUNCATE TABLE "user", "member", "register_number_sequence", organization CASCADE`
+    )
     mockSession = undefined
 
     const [pkItb] = await createOrganization({

@@ -2,18 +2,13 @@
 
 import { z } from 'zod'
 import { db } from '~/db/db'
-import { and, eq, ilike, desc, isNull } from 'drizzle-orm'
 import { revalidatePath, updateTag } from 'next/cache'
 import { readActiveSession } from '~/lib/auth/cookies'
 import { isOrgInScope } from '~/db/query/organization'
 import { generatePassword, hashPassword } from '~/lib/utils/user'
-import {
-  needsParentCodes,
-  resolveRegisterNumberCodes
-} from '~/lib/utils/member'
+import { generateRegisterNumber } from '~/lib/utils/member'
 import { member as memberTable } from '~/db/schema/member.sql'
 import { user as userTable } from '~/db/schema/user.sql'
-import { organization } from '~/db/schema/organization.sql'
 import { trainingAttendants } from '~/db/schema/training.sql'
 import { getLogger, redact } from '~/lib/logger'
 
@@ -101,62 +96,16 @@ export const bulkCreateMembersAction = async (
     const credentials = await db.transaction(async (tx) => {
       const results: CredentialResult[] = []
 
-      // Resolve organization codes once — same for all members in this batch
-      // Terhapus reads as absent here too — the batch path must not number
-      // Kader into a Struktur the single-member path refuses (spec §7).
-      const [org] = await tx
-        .select()
-        .from(organization)
-        .where(
-          and(
-            eq(organization.id, organizationId),
-            isNull(organization.deletedAt)
-          )
-        )
-        .limit(1)
-
-      if (!org) throw new Error('Organization not found')
-      if (org.type === 'pp') throw new Error('Cannot register members under PP')
-
-      // Only the row reads are local to this transaction; the decision itself
-      // is the shared pure one, so this batch cannot number differently from
-      // the single-member path.
-      let parent: { type: string; code: string } | null = null
-      if (org.parentId && needsParentCodes(org)) {
-        const [parentRow] = await tx
-          .select()
-          .from(organization)
-          .where(eq(organization.id, org.parentId))
-          .limit(1)
-        parent = parentRow ?? null
-      }
-
-      const codes = resolveRegisterNumberCodes(org, parent)
-
-      if (!codes) throw new Error('Failed to parse organization codes')
-
-      const { pwCode, pdCode } = codes
-
       for (const memberInput of members) {
-        const prefix = `${pwCode}${pdCode}${memberInput.yearOfEntry}`
-
-        // tx-aware: reads the latest register number visible within this transaction,
-        // so members in the same batch don't collide on sequential numbers.
-        const [lastMember] = await tx
-          .select({ registerNumber: memberTable.registerNumber })
-          .from(memberTable)
-          .where(ilike(memberTable.registerNumber, `${prefix}%`))
-          .orderBy(desc(memberTable.registerNumber))
-          .limit(1)
-
-        let nextSeq = 1
-        if (lastMember) {
-          const seqStr = lastMember.registerNumber.slice(prefix.length)
-          const lastSeq = parseInt(seqStr)
-          if (!isNaN(lastSeq)) nextSeq = lastSeq + 1
-        }
-
-        const registerNumber = `${prefix}${nextSeq.toString().padStart(3, '0')}`
+        // Same atomic high-water mark allocation as every other registration
+        // path (ADR 0020) — `tx`-aware so a member later in this batch can't
+        // collide with one earlier in it, and so this doesn't reach for a
+        // second connection out of the single-connection pool mid-transaction.
+        const registerNumber = await generateRegisterNumber(
+          organizationId,
+          memberInput.yearOfEntry,
+          tx
+        )
 
         const [newMember] = await tx
           .insert(memberTable)

@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 import { readActiveSession } from '~/lib/auth/cookies'
-import { isOrgInScope } from '~/db/query/organization'
+import { isOrgInScope, fetchAllowedOrgIds } from '~/db/query/organization'
+import { requireMemberMutationAccess } from '~/lib/auth/kekaderan'
 import {
   getCachedMemberByRegisterNumber,
   getCachedMemberTrainingHistory,
@@ -8,11 +9,15 @@ import {
   getCachedMemberCareer,
   getCachedMemberOrganizationHistory
 } from '../../_data/members'
-import { getCachedOrgHierarchyChain } from '../../_data/organizations'
+import {
+  getCachedOrgHierarchyChain,
+  getCachedOrganizations
+} from '../../_data/organizations'
 import { ProfileInlineEditForm } from './_components/profile-inline-edit-form'
 import { ProfileOrgHierarchy } from './_components/profile-org-hierarchy'
 import { ResetPasswordButton } from './_components/reset-password'
 import { DeleteMemberButton } from './_components/delete-member-button'
+import { MutateMemberButton } from './_components/mutate-member-button'
 
 const canEdit = (
   session: Awaited<ReturnType<typeof readActiveSession>>,
@@ -61,7 +66,7 @@ const ProfilePage = async ({
 
   const userCanEdit = canEdit(session, member.id)
 
-  const adminActionsSlot =
+  const resetPasswordSlot =
     userCanEdit &&
     session?.user.role === 'bpk' &&
     session.user.connectedOrganization ? (
@@ -69,6 +74,38 @@ const ProfilePage = async ({
         memberId={member.id}
         organizationId={session.user.connectedOrganization.id}
       />
+    ) : null
+
+  const canMutate = session ? !(await requireMemberMutationAccess()) : false
+
+  let mutationSlot = null
+  if (canMutate && session && member.organization) {
+    const allowedOrgIds = await fetchAllowedOrgIds(session.user)
+    const destinationOrgs = await getCachedOrganizations({
+      id: allowedOrgIds,
+      type: ['pd', 'pdln', 'pk']
+    })
+
+    mutationSlot = (
+      <MutateMemberButton
+        memberId={member.id}
+        name={member.name}
+        currentOrganizationId={member.organization.id}
+        currentOrganizationName={member.organization.name}
+        organizations={destinationOrgs.map((org) => ({
+          id: org.id,
+          name: org.name
+        }))}
+      />
+    )
+  }
+
+  const adminActionsSlot =
+    resetPasswordSlot || mutationSlot ? (
+      <>
+        {mutationSlot}
+        {resetPasswordSlot}
+      </>
     ) : null
 
   let canDelete = false

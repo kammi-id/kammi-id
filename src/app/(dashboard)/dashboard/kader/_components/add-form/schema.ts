@@ -1,12 +1,8 @@
 import { z } from 'zod'
-
-const booleanSchema = z.preprocess((val) => {
-  if (typeof val === 'string') {
-    if (val.toLowerCase() === 'true') return true
-    if (val.toLowerCase() === 'false') return false
-  }
-  return val
-}, z.boolean())
+import {
+  refineAb1Certification,
+  booleanFormField as booleanSchema
+} from '~/lib/validation/member'
 
 /**
  * Ketiga boolean di bawah bukan tiga sumbu bebas — ADR-0001 menetapkan seorang
@@ -58,3 +54,4 @@ export const memberSchema = z
       })
     }
   })
+  .superRefine(refineAb1Certification)

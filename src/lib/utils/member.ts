@@ -1,7 +1,8 @@
 import { db } from '~/db/db'
-import { member } from '~/db/schema/member.sql'
 import { organization } from '~/db/schema/organization.sql'
-import { eq, and, sql, desc, ilike, isNull } from 'drizzle-orm'
+import { registerNumberSequence } from '~/db/schema/register-number-sequence.sql'
+import { eq, and, sql, isNull } from 'drizzle-orm'
+import { type DBExecutor } from '~/db/types'
 
 type OrgCodeRow = { type: string; code: string }
 
@@ -77,12 +78,15 @@ export const resolveRegisterNumberCodes = (
 
 export const generateRegisterNumber = async (
   organizationId: string,
-  year: number
+  year: number,
+  tx?: DBExecutor
 ) => {
+  const executor = tx ?? db
+
   // 1. Get organization details including parent. A Terhapus Struktur reads as
   //    absent (spec §7), so numbering a Kader into one fails the same way as
   //    numbering into an id that was never issued.
-  const [org] = await db
+  const [org] = await executor
     .select()
     .from(organization)
     .where(
@@ -95,7 +99,7 @@ export const generateRegisterNumber = async (
 
   let parent: OrgCodeRow | null = null
   if (org.parentId && needsParentCodes(org)) {
-    const [parentRow] = await db
+    const [parentRow] = await executor
       .select()
       .from(organization)
       .where(eq(organization.id, org.parentId))
@@ -111,23 +115,24 @@ export const generateRegisterNumber = async (
 
   const prefix = `${pwCode}${pdCode}${year}`
 
-  // 2. Find max sequential number for this prefix
-  const [lastMember] = await db
-    .select({ registerNumber: member.registerNumber })
-    .from(member)
-    .where(ilike(member.registerNumber, `${prefix}%`))
-    .orderBy(desc(member.registerNumber))
-    .limit(1)
+  // 2. Atomic high-water mark allocation (ADR 0020). One statement, not a
+  //    read then a write: two concurrent registrations on the same prefix
+  //    must receive two different numbers, and Postgres is what serializes
+  //    that here, not application code. The row only ever counts up, so
+  //    deleting the Kader holding the top number never frees it back up.
+  //
+  //    Takes the same `tx` as the org reads above when one is given — this
+  //    repo's DB pool holds a single connection (see `src/db/db.ts`), so a
+  //    bare `db.insert(...)` called from inside an open transaction would
+  //    wait forever for a connection the enclosing transaction already holds.
+  const [{ lastSeq }] = await executor
+    .insert(registerNumberSequence)
+    .values({ prefix, lastSeq: 1 })
+    .onConflictDoUpdate({
+      target: registerNumberSequence.prefix,
+      set: { lastSeq: sql`${registerNumberSequence.lastSeq} + 1` }
+    })
+    .returning({ lastSeq: registerNumberSequence.lastSeq })
 
-  let nextSeq = 1
-  if (lastMember) {
-    // Extract everything after the prefix as the sequence
-    const seqStr = lastMember.registerNumber.slice(prefix.length)
-    const lastSeq = parseInt(seqStr)
-    if (!isNaN(lastSeq)) {
-      nextSeq = lastSeq + 1
-    }
-  }
-
-  return `${prefix}${nextSeq.toString().padStart(3, '0')}`
+  return `${prefix}${lastSeq.toString().padStart(3, '0')}`
 }
