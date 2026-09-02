@@ -178,6 +178,30 @@ export const countTrainingsByOrganization = async (
   return Number(row?.total ?? 0)
 }
 
+/** Separuh prasyarat Hapus Selamanya Kader (ADR 0021). */
+export const countTrainingAttendancesByMember = async (
+  memberId: string
+): Promise<number> => {
+  const [row] = await db
+    .select({ total: count() })
+    .from(trainingAttendants)
+    .where(eq(trainingAttendants.memberId, memberId))
+
+  return Number(row?.total ?? 0)
+}
+
+/** Separuh prasyarat Hapus Selamanya Kader (ADR 0021). */
+export const countTrainingInstructionsByMember = async (
+  memberId: string
+): Promise<number> => {
+  const [row] = await db
+    .select({ total: count() })
+    .from(trainingInstructors)
+    .where(eq(trainingInstructors.memberId, memberId))
+
+  return Number(row?.total ?? 0)
+}
+
 export const trainingQuery = {
   getAll: async (filters: TrainingFilters = {}) => {
     const { organizationId, year, search, types, page = 1, pageSize } = filters

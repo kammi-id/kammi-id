@@ -2,7 +2,7 @@ import { db } from '../db'
 import { user } from '../schema/user.sql'
 import { withUserCTE, type User } from './cte/user'
 import { organization } from '../schema/organization.sql'
-import { inArray, eq, and, ilike, type SQL } from 'drizzle-orm'
+import { inArray, eq, and, ilike, isNull, type SQL } from 'drizzle-orm'
 import { type DBExecutor } from '../types'
 
 type UserInsertValues = typeof user.$inferInsert
@@ -76,6 +76,12 @@ export const readUser = async (
  * for the same reason and with the same argument as `withUserCTE` — see the
  * docblock in `./cte/user.ts`. A Terhapus Struktur must arrive here as
  * `'terhapus'`, not as absent.
+ *
+ * `deleted_at IS NULL` is the one filter this reader does carry (ADR 0021).
+ * Unlike Keadaan Struktur, a soft-deleted Akun Kader has no state worth
+ * distinguishing from "tidak ditemukan" at the login door — the caller
+ * already treats an empty result as a wrong-username failure, and that is
+ * exactly the message a deleted Akun should get too.
  */
 export const readUserCredential = async (name: string) => {
   return await db
@@ -89,7 +95,7 @@ export const readUserCredential = async (name: string) => {
     })
     .from(user)
     .leftJoin(organization, eq(user.connectedOrganizationId, organization.id))
-    .where(eq(user.name, name))
+    .where(and(eq(user.name, name), isNull(user.deletedAt)))
     .limit(1)
 }
 

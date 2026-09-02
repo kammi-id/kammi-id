@@ -1,8 +1,10 @@
 import { describe, it, expect, beforeEach, mock } from 'bun:test'
 import { db } from '~/db/db'
-import { sql } from 'drizzle-orm'
+import { eq, sql } from 'drizzle-orm'
+import { user as userTable } from '~/db/schema/user.sql'
 import { createOrganization } from '~/db/query/organization'
-import { createMember, readMember } from '~/db/query/member'
+import { createMember, readMember, restoreMember } from '~/db/query/member'
+import { readUserCredential } from '~/db/query/user'
 
 let mockSession: unknown = undefined
 
@@ -141,6 +143,36 @@ describe('deleteMemberAction', () => {
 
     const afterDelete = await readMember({ id: [member.id] })
     expect(afterDelete).toHaveLength(0)
+  })
+
+  it('soft-deletes the Akun rather than discarding it — ADR 0021, the bug this ticket closes', async () => {
+    mockSession = {
+      user: { id: 'u1', role: 'bpk', connectedOrganizationId: pkItbId }
+    }
+    const member = await createTestMember(pkItbId)
+
+    const [before] = await readUserCredential(member.registerNumber)
+    expect(before).toBeDefined()
+
+    const result = await deleteMemberAction(member.id, member.registerNumber)
+    expect(result.success).toBe(true)
+
+    // The Akun still exists as a row — login is refused by `deleted_at`,
+    // not by the row being gone.
+    const [account] = await db
+      .select({ deletedAt: userTable.deletedAt })
+      .from(userTable)
+      .where(eq(userTable.connectedMemberId, member.id))
+    expect(account).toBeDefined()
+    expect(account.deletedAt).not.toBeNull()
+
+    const loginAttempt = await readUserCredential(member.registerNumber)
+    expect(loginAttempt).toHaveLength(0)
+
+    // Restoring brings login back — the exact round trip ADR 0021 exists for.
+    await restoreMember(member.id)
+    const [afterRestore] = await readUserCredential(member.registerNumber)
+    expect(afterRestore?.id).toBe(before.id)
   })
 
   it('allows root to delete a member in any org', async () => {

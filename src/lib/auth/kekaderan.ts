@@ -30,8 +30,32 @@ export const requireKekaderanAccess = async (
   return inScope ? scope : null
 }
 
+const NO_SESSION = 'Sesi tidak ditemukan.'
+
+/**
+ * The privilege one rung above every Cakupan: Root, or a BPK whose Struktur
+ * is PP. Shared by `requireMemberMutationAccess` and
+ * `requireMemberHardDeleteAccess` — both are actions ADR 0020/0021 place
+ * above every Cakupan rather than inside one, for their own separate
+ * reasons, and the role+Jenjang test that answers "does the caller sit
+ * there" is one test, not two.
+ */
+const requireNationalBpkAccess = async (
+  denialMessage: string
+): Promise<string | null> => {
+  const scope = await readAccessScope()
+  if (!scope) return NO_SESSION
+
+  if (scope.role === 'root') return null
+  if (scope.role !== 'bpk') return denialMessage
+
+  if (!scope.connectedOrganizationId) return denialMessage
+  const [org] = await readOrganization({ id: [scope.connectedOrganizationId] })
+
+  return org?.type === 'pp' ? null : denialMessage
+}
+
 const MUTATION_DENIAL = 'Antum tidak memiliki hak akses untuk mutasi kader.'
-const MUTATION_NO_SESSION = 'Sesi tidak ditemukan.'
 
 /**
  * Grants the privilege of mutating a Kader — moving `member.organization_id`
@@ -53,15 +77,47 @@ const MUTATION_NO_SESSION = 'Sesi tidak ditemukan.'
  */
 export const requireMemberMutationAccess = async (): Promise<
   string | null
-> => {
+> => requireNationalBpkAccess(MUTATION_DENIAL)
+
+const HARD_DELETE_DENIAL =
+  'Antum tidak memiliki hak akses untuk menghapus Kader selamanya.'
+
+/**
+ * Grants the privilege of Hapus Selamanya atas satu Kader Terhapus (ADR
+ * 0021). Returns a denial message, or null when the caller holds it.
+ *
+ * **Root and BPK PP only**, same shape as `requireMemberMutationAccess` but
+ * for an unrelated reason: mutasi is barred from every Cakupan because it
+ * crosses one, while Hapus Selamanya is barred from every Cakupan because a
+ * BPK PD's Kewenangan already ends at soft delete (Lapis 1) and restore
+ * (Lapis 2) — the two are decentralised on purpose (ADR 0021), and stop
+ * there. Erasing a row for good is a narrower privilege than either, held
+ * by fewer hands than the tong sampah itself is visible to.
+ *
+ * No target-organization argument, for the same reason
+ * `requireMemberMutationAccess` has none: the question is only ever who may
+ * press this button at all.
+ */
+export const requireMemberHardDeleteAccess = async (): Promise<
+  string | null
+> => requireNationalBpkAccess(HARD_DELETE_DENIAL)
+
+/**
+ * Grants the privilege of opening `/dashboard/kader/terhapus` and restoring
+ * what is there — Root and BPK, **inside their own Cakupan** (ADR 0021).
+ *
+ * Unlike Struktur Terhapus (`requireStrukturRestoreAccess`, centralised
+ * because Struktur creation/deletion always was), Kader deletion is
+ * decentralised — a BPK PD deletes its own Kader today, so it recovers its
+ * own mistakes too, without an escalation to PP. `readDeletedMembers`
+ * intersects with the caller's Cakupan on its own; this gate only decides
+ * who may reach the surface at all. BPH is deliberately excluded even
+ * though it reads ordinary Kekaderan data — this surface restores, and BPH
+ * holds no write privilege anywhere in Kekaderan.
+ */
+export const requireMemberTrashAccess = async (): Promise<AccessScope | null> => {
   const scope = await readAccessScope()
-  if (!scope) return MUTATION_NO_SESSION
-
-  if (scope.role === 'root') return null
-  if (scope.role !== 'bpk') return MUTATION_DENIAL
-
-  if (!scope.connectedOrganizationId) return MUTATION_DENIAL
-  const [org] = await readOrganization({ id: [scope.connectedOrganizationId] })
-
-  return org?.type === 'pp' ? null : MUTATION_DENIAL
+  if (!scope) return null
+  if (!['root', 'bpk'].includes(scope.role)) return null
+  return scope
 }

@@ -19,5 +19,12 @@ export const user = pgTable('user', (t) => ({
     .references(() => organization.id),
   connectedMemberId: t
     .uuid('connected_member_id')
-    .references(() => member.id, { onDelete: 'cascade' })
+    .references(() => member.id, { onDelete: 'cascade' }),
+  /**
+   * Lapis 1 (ADR 0021): mengikuti soft delete Member-nya, bukan lagi terhapus
+   * permanen — pemulihan yang mengembalikan orangnya tapi bukan loginnya
+   * adalah bug yang membuat kolom ini ada. `readUserCredential` menyaringnya
+   * di pintu login; baris yang lain tidak mengasumsikan ketiadaannya.
+   */
+  deletedAt: t.timestamp('deleted_at')
 }))

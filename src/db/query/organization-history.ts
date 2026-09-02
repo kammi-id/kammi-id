@@ -1,6 +1,6 @@
 import { db } from '../db'
 import { memberOrganizationHistory } from '../schema/organization-history.sql'
-import { and, eq, desc } from 'drizzle-orm'
+import { and, eq, desc, count } from 'drizzle-orm'
 
 export type MemberOrganizationHistory =
   typeof memberOrganizationHistory.$inferSelect
@@ -43,6 +43,18 @@ export const updateMemberOrganizationHistory = async (
         eq(memberOrganizationHistory.memberId, memberId)
       )
     )
+}
+
+/** Separuh prasyarat Hapus Selamanya Kader (ADR 0021). */
+export const countMemberOrganizationHistoryByMember = async (
+  memberId: string
+): Promise<number> => {
+  const [row] = await db
+    .select({ total: count() })
+    .from(memberOrganizationHistory)
+    .where(eq(memberOrganizationHistory.memberId, memberId))
+
+  return Number(row?.total ?? 0)
 }
 
 export const deleteMemberOrganizationHistory = async (

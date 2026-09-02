@@ -153,6 +153,28 @@ describe('Keadaan Akun di seam sesi', () => {
     expect(await validateSession(token)).toBeDefined()
   })
 
+  it('menutup sesi yang sudah di tangan begitu Akun Kader-nya sendiri di-soft-delete (ADR 0021)', async () => {
+    await setState('aktif')
+    const token = await tokenOf(kaderAkunId)
+    expect(await validateSession(token)).toBeDefined()
+
+    await db
+      .update(userTable)
+      .set({ deletedAt: new Date() })
+      .where(eq(userTable.id, kaderAkunId))
+
+    expect(await validateSession(token)).toBeUndefined()
+
+    // Memulihkan mengembalikan sesi yang sama — persis seperti Struktur yang
+    // diaktifkan kembali, tanpa login ulang.
+    await db
+      .update(userTable)
+      .set({ deletedAt: null })
+      .where(eq(userTable.id, kaderAkunId))
+
+    expect(await validateSession(token)).toBeDefined()
+  })
+
   it('membiarkan Root masuk meski Strukturnya mati', async () => {
     await setState('terhapus')
     const token = await tokenOf(rootId)
@@ -160,7 +182,7 @@ describe('Keadaan Akun di seam sesi', () => {
     expect(await validateSession(token)).toBeDefined()
   })
 
-  it('tidak menambah satu pun kolom Keadaan di user', async () => {
+  it('tidak menambah satu pun kolom Keadaan Struktur di user', async () => {
     const rows = (await db.execute(sql`
       SELECT column_name
       FROM information_schema.columns
@@ -177,13 +199,13 @@ describe('Keadaan Akun di seam sesi', () => {
         'connected_member_id'
       ])
     )
+    // 'state'/'non_active' menjaga persis apa yang tiket ini uji: Keadaan
+    // Struktur tidak pernah disalin ke `user`. `deleted_at` sengaja
+    // dikecualikan sejak ADR 0021 — ia bukan salinan Keadaan Struktur, ia
+    // Keadaan Akun itu sendiri (Lapis 1: soft delete Kader ikut men-soft-
+    // delete Akun-nya), sesuatu yang sebelum ADR 0021 tidak ada sama sekali.
     expect(
-      columns.filter(
-        (c) =>
-          c.includes('state') ||
-          c.includes('non_active') ||
-          c.includes('deleted')
-      )
+      columns.filter((c) => c.includes('state') || c.includes('non_active'))
     ).toEqual([])
   })
 })

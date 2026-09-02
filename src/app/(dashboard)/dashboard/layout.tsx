@@ -6,6 +6,7 @@ import { LogoutDialog } from './_components/logout'
 import { SidebarInset, SidebarProvider } from '~/components/shadcn/ui/sidebar'
 import { readActiveSession } from '~/lib/auth/cookies'
 import { requireStrukturRestoreAccess } from '~/lib/auth/kestrukturan'
+import { requireMemberTrashAccess } from '~/lib/auth/kekaderan'
 import { redirect } from 'next/navigation'
 
 const DashboardLayout = async ({
@@ -24,6 +25,9 @@ const DashboardLayout = async ({
   // sampah untuk seluruh BPW se-Indonesia. Layout ini Server Component, jadi
   // tidak ada alasan menanyakan matriks langsung dengan sasaran karangan.
   const canRestoreStruktur = (await requireStrukturRestoreAccess()) === null
+  // Root dan BPK saja (ADR 0021) — BPH, meski membaca Kekaderan biasa, tidak
+  // menyimpan wewenang tulis apa pun di sana, restore Kader termasuk.
+  const canRestoreMemberTrash = (await requireMemberTrashAccess()) !== null
 
   return (
     <SidebarProvider
@@ -38,6 +42,7 @@ const DashboardLayout = async ({
         variant='inset'
         user={session.user}
         canRestoreStruktur={canRestoreStruktur}
+        canRestoreMemberTrash={canRestoreMemberTrash}
       />
       <SidebarInset>
         <SiteHeader rightSlot={<CredentialPanelServer />} />

@@ -54,6 +54,7 @@ import { NavUser } from '../nav-user'
 export const AppSidebar = ({
   user,
   canRestoreStruktur = false,
+  canRestoreMemberTrash = false,
   ...props
 }: {
   user: {
@@ -72,6 +73,13 @@ export const AppSidebar = ({
    * `role === 'bpw'` is the single easiest mistake to make in this feature.
    */
   canRestoreStruktur?: boolean
+  /**
+   * `requireMemberTrashAccess` answered server-side (ADR 0021) — Root and
+   * BPK, not the wider `menuPembinaan` allowlist (`bph`, `bpk`, `root`):
+   * BPH reads Kekaderan but holds no write privilege there, restore Kader
+   * included.
+   */
+  canRestoreMemberTrash?: boolean
 } & React.ComponentProps<typeof Sidebar>) => {
   const orgType = user.connectedOrganization?.type ?? 'pd'
   const allowedRolesOrg = ['root', 'bph', 'bpw']
@@ -129,7 +137,17 @@ export const AppSidebar = ({
       url: '/dashboard/alumni',
       icon: <HugeiconsIcon icon={Mortarboard01Icon} strokeWidth={2} />,
       roles: ['bph', 'bpk', 'root']
-    }
+    },
+    ...(canRestoreMemberTrash
+      ? [
+          {
+            title: 'Kader Terhapus',
+            url: '/dashboard/kader/terhapus',
+            icon: <HugeiconsIcon icon={Delete02Icon} strokeWidth={2} />,
+            roles: ['bpk', 'root']
+          }
+        ]
+      : [])
   ].filter((item) => item.roles.includes(user.role))
 
   const menuOrganisasi = [

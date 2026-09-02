@@ -39,22 +39,27 @@ describe('deleteMember', () => {
     return created
   }
 
-  it('marks the member as deleted and removes their login account', async () => {
+  it('marks the member as deleted and soft-deletes their login account (ADR 0021)', async () => {
     const created = await createTestMember('PK99-0001')
 
     const [userBefore] = await db
-      .select({ id: userTable.id })
+      .select({ id: userTable.id, deletedAt: userTable.deletedAt })
       .from(userTable)
       .where(eq(userTable.connectedMemberId, created.id))
     expect(userBefore).toBeDefined()
+    expect(userBefore.deletedAt).toBeNull()
 
     await deleteMember(created.id)
 
+    // The Akun row survives — restoring it is what Lapis 2 depends on.
+    // Only `deleted_at` moves; discarding the row is the bug ADR 0021
+    // fixes (the person came back, but never their login).
     const [userAfter] = await db
-      .select({ id: userTable.id })
+      .select({ id: userTable.id, deletedAt: userTable.deletedAt })
       .from(userTable)
       .where(eq(userTable.connectedMemberId, created.id))
-    expect(userAfter).toBeUndefined()
+    expect(userAfter).toBeDefined()
+    expect(userAfter.deletedAt).not.toBeNull()
   })
 
   it('excludes deleted members from readMember', async () => {

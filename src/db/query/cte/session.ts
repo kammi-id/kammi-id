@@ -14,7 +14,8 @@ export const withSessionCTE = db.$with('with_session_cte').as(
         'displayName', ${withUserCTE.displayName},
         'role', ${withUserCTE.role},
         'connectedOrganization', ${withUserCTE.connectedOrganization},
-        'connectedMember', ${withUserCTE.connectedMember}
+        'connectedMember', ${withUserCTE.connectedMember},
+        'deletedAt', ${withUserCTE.deletedAt}
       )`.as('user')
     })
     .from(session)

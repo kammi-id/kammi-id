@@ -11,6 +11,8 @@ import {
   sql,
   desc,
   isNull,
+  isNotNull,
+  count,
   type SQL
 } from 'drizzle-orm'
 import { type DBExecutor } from '../types'
@@ -428,15 +430,121 @@ export const readMemberByRegisterNumber = async (
   return found ?? null
 }
 
+/**
+ * Lapis 1 (ADR 0021) — soft delete, Akun Kader ikut. **Tidak lagi membuang
+ * baris `user`**: itu adalah bug yang membuat lapis 2 setengah bekerja
+ * (orangnya kembali, loginnya tidak). `user.connected_member_id` tetap utuh
+ * sehingga `restoreMember` tahu Akun mana yang harus dipulihkan bersamanya.
+ */
 export const deleteMember = async (id: string): Promise<void> => {
+  const deletedAt = new Date()
   await db.transaction(async (tx) => {
-    await tx
-      .update(member)
-      .set({ deletedAt: new Date() })
-      .where(eq(member.id, id))
+    await tx.update(member).set({ deletedAt }).where(eq(member.id, id))
 
-    await tx.delete(userTable).where(eq(userTable.connectedMemberId, id))
+    await tx
+      .update(userTable)
+      .set({ deletedAt })
+      .where(eq(userTable.connectedMemberId, id))
   })
+}
+
+/**
+ * Lapis 2 (ADR 0021) — mengembalikan Kader dan Akun-nya sekaligus, satu-satunya
+ * arah yang ada: Terhapus selalu pulang sebagai hidup, sama seperti
+ * `restoreOrganization` selalu mendarat di Aktif.
+ */
+export const restoreMember = async (id: string): Promise<void> => {
+  await db.transaction(async (tx) => {
+    await tx.update(member).set({ deletedAt: null }).where(eq(member.id, id))
+
+    await tx
+      .update(userTable)
+      .set({ deletedAt: null })
+      .where(eq(userTable.connectedMemberId, id))
+  })
+}
+
+/**
+ * Lapis 3 (ADR 0021) — menghapus baris Kader dari basis data sungguhan.
+ * Akun-nya ikut lewat `ON DELETE CASCADE` pada `user.connected_member_id`
+ * (satu-satunya cascade skema yang disengaja di seluruh basis data), jadi
+ * tidak ada langkah kedua di sini seperti `hardDeleteOrganization` perlukan
+ * untuk Akun kepengurusan.
+ *
+ * Pemanggil wajib memeriksa `checkHardDeletionMember` **sebelum** memanggil
+ * ini — fungsi ini sendiri tidak mengulang pemeriksaan.
+ */
+export const hardDeleteMember = async (id: string): Promise<void> => {
+  await db.delete(member).where(eq(member.id, id)) // ADR_0021_SANCTIONED_HARD_DELETE
+}
+
+export type DeletedMember = {
+  id: string
+  name: string
+  registerNumber: string
+  organizationId: string
+  organizationName: string
+  deletedAt: Date
+}
+
+/**
+ * Kader Terhapus, **mengikuti Cakupan** — sengaja berbeda dari
+ * `readDeletedOrganizations`, yang terpusat karena penghapusan Struktur
+ * memang tersentralisasi. Penghapusan Kader terdesentralisasi (BPK PD boleh
+ * melakukannya), jadi pemulihannya ikut terdesentralisasi (ADR 0021).
+ *
+ * Dipanggil hanya di belakang `requireMemberTrashAccess`, sama seperti
+ * `readDeletedOrganizations` hanya dipanggil di belakang
+ * `requireStrukturRestoreAccess`.
+ */
+export const readDeletedMembers = async (
+  filters: { user: AccessScope; id?: string[] }
+): Promise<DeletedMember[]> => {
+  const allowedOrgIds = await fetchAllowedOrgIds(filters.user)
+  if (allowedOrgIds.length === 0) return []
+
+  const where: SQL[] = [
+    isNotNull(member.deletedAt),
+    inArray(member.organizationId, allowedOrgIds)
+  ]
+  if (filters.id) {
+    if (filters.id.length === 0) return []
+    where.push(inArray(member.id, filters.id))
+  }
+
+  const rows = await db
+    .select({
+      id: member.id,
+      name: member.name,
+      registerNumber: member.registerNumber,
+      organizationId: member.organizationId,
+      organizationName: organization.name,
+      deletedAt: member.deletedAt
+    })
+    .from(member)
+    .innerJoin(organization, eq(member.organizationId, organization.id))
+    .where(and(...where))
+    .orderBy(desc(member.deletedAt))
+
+  return rows.map((row) => ({ ...row, deletedAt: row.deletedAt as Date }))
+}
+
+/**
+ * Separuh prasyarat Hapus Selamanya Kader (ADR 0021) yang tinggal di berkas
+ * ini karena baris yang dihitung adalah `member_mutation` — lima yang lain
+ * (Daurah peserta/instruktur, akademik, karier, riwayat organisasi) tinggal
+ * di berkas domain masing-masing, sama seperti `checkHardDeletion` Struktur
+ * menyusun prasyaratnya dari empat count terpisah.
+ */
+export const countMutationsByMember = async (
+  memberId: string
+): Promise<number> => {
+  const [row] = await db
+    .select({ total: count() })
+    .from(memberMutation)
+    .where(eq(memberMutation.memberId, memberId))
+
+  return Number(row?.total ?? 0)
 }
 
 export const updateMember = async (

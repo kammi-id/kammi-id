@@ -49,6 +49,15 @@ const hasIdledOut = (session: { lastVerifiedAt: Date }, now: Date) =>
 
 const ifAkunMayHoldIt = (session: Session | undefined) => {
   if (!session) return undefined
+
+  // Lapis 1 (ADR 0021): `deleteMember` now soft-deletes the connected `user`
+  // row instead of discarding it, so the `session` row this Akun already
+  // holds no longer dies with it by cascade. Checked here, not folded into
+  // `mayHoldSession`, because it is a fact about the Akun's own row — not a
+  // Keadaan derived from its Struktur, which is the only thing that pure
+  // function answers.
+  if (session.user.deletedAt) return undefined
+
   return mayHoldSession(
     session.user.role,
     session.user.connectedOrganization?.state ?? null
