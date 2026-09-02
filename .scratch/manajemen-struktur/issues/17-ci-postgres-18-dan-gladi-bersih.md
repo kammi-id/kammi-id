@@ -1,7 +1,7 @@
 # 17 — CI PostgreSQL 18 dan gladi bersih migrasi
 
 **Type:** implementation
-**Status:** open
+**Status:** resolved
 **Blocked by:** 13, 15, 16
 
 Spec: [`../spec.md`](../spec.md) §9.1, §9.2
@@ -261,3 +261,21 @@ Butir 1 "Selesai bila" sekarang terpenuhi. Tersisa butir 2 (putusan manusia
 soal prosedur deploy) dan butir 3 (pra-terbang produksi, dijalankan orang yang
 deploy — lihat batasan tiket 14), keduanya di luar apa yang bisa diselesaikan
 lewat sesi agent.
+
+**2 September 2026 — ditutup `resolved` atas permintaan pengguna.**
+
+Semua yang bisa dikerjakan lewat sesi agent sudah tuntas dan terbukti (CI hijau,
+gladi migrasi B/C, dua bug nyata yang ketemu selama gladi sudah diperbaiki).
+Butir 2 dan 3 di "Selesai bila" bukan pekerjaan kode — keduanya keputusan dan
+aksi yang cuma bisa diambil orang yang menjalankan deploy produksi, jadi
+dipindah keluar dari siklus tiket ini:
+
+- Butir 2 (putusan prosedur deploy untuk cabang "kirim `slug` saja"): tunggu
+  sampai pra-terbang produksi sungguhan menemukan `code` kembar — baru relevan
+  diputuskan saat itu terjadi, bukan spekulatif sekarang.
+- Butir 3 (pra-terbang produksi sesaat sebelum deploy): tanggung jawab operator
+  deploy, dieksekusi manual sesuai §4.6, di luar cakupan sesi agent mana pun.
+
+Tidak ada tiket lanjutan yang dibuka untuk keduanya — keduanya prosedur
+operasional yang melekat pada momen deploy, bukan pekerjaan yang bisa
+dijadwalkan lebih dulu.
