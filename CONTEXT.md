@@ -338,6 +338,13 @@ pada satu waktu; alamat lain yang pernah menunjuk padanya tetap mengantar ke
 situ, tidak melayaninya sendiri.
 _Avoid_: URL (sebagai istilah domain), Link berita
 
+**Salinan Markdown**:
+Bentuk kedua sebuah Berita atau Halaman: isi yang sama tanpa perancah
+tampilan, ditujukan untuk agen AI yang membacanya. Ia bukan alamat tandingan —
+**Permalink** tetap yang berkuasa, dan Salinan Markdown selalu menunjuk balik
+ke sana.
+_Avoid_: Versi AI, Plain text, Raw
+
 **Penulis**:
 Nama orang yang menulis sebuah Berita, dicatat sebagai teks. Bukan Kader dan
 bukan Akun — penulis Berita sering bukan pemegang Akun, dan namanya tetap
