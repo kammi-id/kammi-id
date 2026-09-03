@@ -32,7 +32,10 @@ import { resolvePermalinkHalaman } from './_components/_permalink-halaman'
 // sudah menyatakannya untuk seluruh subtree (satu titik menutup semua rute
 // turunannya, lihat komentar di sana).
 
-type HalamanDetailParams = Promise<{ strukturSlug: string; slug: string }>
+export type HalamanDetailParams = Promise<{
+  strukturSlug: string
+  slug: string
+}>
 
 type HalamanDetailPageProps = {
   params: HalamanDetailParams
@@ -50,7 +53,12 @@ type ResolvedOutcome = {
   outcome: ReturnType<typeof resolvePermalinkHalaman> | null
 }
 
-const resolveOutcome = async (
+// Exported juga untuk `src/app/salinan-markdown/[strukturSlug]/[slug]/route.ts`
+// (tiket 06, ADR 0024, Salinan Markdown) — mengikuti pola yang sama dengan
+// `resolveOutcome` di halaman Permalink Berita (exported untuk
+// `opengraph-image.tsx`): satu tempat menentukan gerbang publikasi, bukan
+// diimplementasikan ulang per pemanggil.
+export const resolveOutcome = async (
   params: HalamanDetailParams
 ): Promise<ResolvedOutcome> => {
   const { slug } = await params
@@ -107,7 +115,11 @@ export const generateMetadata = async ({
   return {
     title: articleRow.title,
     description,
-    alternates: { canonical: `/${slug}` },
+    alternates: {
+      canonical: `/${slug}`,
+      // Tiket 06 (ADR 0024, Salinan Markdown).
+      types: { 'text/markdown': `/${slug}.md` }
+    },
     openGraph: { title: articleRow.title, description },
     robots: outcome.noindex
       ? { index: false, follow: true }
