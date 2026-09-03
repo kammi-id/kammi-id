@@ -58,6 +58,12 @@ tahu Google bahwa subdomain Struktur baru ada.
 bertulisan. Berita bergambar tetap membagikan kotak biru bertuliskan judul,
 padahal Gambar Utama-nya ada.
 
+**Tidak ada cara memulai berbagi.** Halaman Permalink Berita sendiri tidak
+punya satu pun tombol bagikan — pembaca yang ingin menyebarkannya harus
+menyalin URL dari address bar secara manual. Kartu bagikan yang diperbaiki di
+atas cuma memoles pratinjau setelah tautan sudah dibagikan orang lain; belum
+ada yang memoles momen memulainya.
+
 **Tidak ada permukaan untuk agen.** Isi hanya tersedia sebagai HTML, padahal
 `article.body` sudah berupa dokumen ProseMirror ber-daftar-izin yang murah
 diserialisasi menjadi Markdown.
@@ -69,9 +75,11 @@ satu-satunya alat first-party gratis yang menghitung sitasi AI.
 
 ## Solution
 
-Delapan tiket berurutan. Yang lebih dulu bukan yang paling mudah, melainkan
-yang tanpanya sisanya tak berarti: selama 403 masih berdiri dan tidak ada alat
-ukur, tujuh tiket sesudahnya adalah pekerjaan yang tak bisa dinilai.
+Sembilan tiket. Urutan 1–8 berurutan secara sengaja — yang lebih dulu bukan
+yang paling mudah, melainkan yang tanpanya sisanya tak berarti: selama 403
+masih berdiri dan tidak ada alat ukur, tujuh tiket sesudahnya adalah pekerjaan
+yang tak bisa dinilai. Tiket 9 lahir belakangan dan berdiri sendiri — paralel
+dengan yang lain, senasib dengan tiket 4.
 
 **Arah yang membedakan spec ini dari daftar periksa SEO biasa:** KAMMI.id
 adalah situs organisasi, bukan ruang redaksi. Kita tidak mengejar Top Stories,
@@ -109,6 +117,9 @@ bahwa tidak ada bukti vendor mana pun membacanya.
    content negotiation, header canonical.
 7. **`llms.txt` per Struktur.**
 8. **Salinan Markdown untuk `tentang` dan `tentang/pengurus`.**
+9. **Tombol bagikan** — baris tombol WhatsApp/X/Facebook/Telegram/Threads/
+   Salin Tautan di halaman Permalink Berita, dengan Web Share API di
+   perangkat yang mendukungnya.
 
 ## Out of Scope
 
