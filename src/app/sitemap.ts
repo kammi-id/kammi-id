@@ -28,12 +28,17 @@ const BERANDA_SETTINGS_KEYS = [
   'leadership',
   'home-extra-items'
 ]
-const TENTANG_SETTINGS_KEYS = [
+// Diekspor untuk `salinan-markdown/[strukturSlug]/tentang/route.ts` dan
+// `.../tentang/pengurus/route.ts` (tiket 08) — `date` front-matter Salinan
+// Markdown memakai kunci Pengaturan Situs yang sama dengan `lastModified` di
+// sini, supaya keduanya tidak pernah menjawab beda soal "kapan terakhir
+// diperbarui".
+export const TENTANG_SETTINGS_KEYS = [
   'tentang-hero',
   'tentang-prinsip',
   'tentang-paradigma'
 ]
-const PENGURUS_SETTINGS_KEYS = ['leadership']
+export const PENGURUS_SETTINGS_KEYS = ['leadership']
 
 type StaticRouteLastModified = {
   beranda?: Date

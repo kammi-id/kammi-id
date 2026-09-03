@@ -17,6 +17,10 @@ export const config = {
   //   - `/:slug.md`                    → `/halaman-slug.md`, and also
   //                                       `/berita.md` (the index, ticket 06)
   //   - `/berita/:tahun/:bulan/:slug.md` → `/berita/2026/09/judul.md`
+  //   - `/tentang/:slug.md`            → `/tentang/pengurus.md` (ticket 08).
+  //                                       `/tentang.md` itself already matches
+  //                                       `/:slug.md` above — this entry only
+  //                                       covers the one two-segment address.
   // Content negotiation (`Accept: text/markdown` on the plain address, no
   // suffix) needs no new entry — that request has no dot, so it already
   // matches the catch-all above.
@@ -24,7 +28,8 @@ export const config = {
     '/berita/feed.xml',
     '/((?!_next|api|.*\\..*).*)',
     '/:slug.md',
-    '/berita/:tahun/:bulan/:slug.md'
+    '/berita/:tahun/:bulan/:slug.md',
+    '/tentang/:slug.md'
   ]
 }
 

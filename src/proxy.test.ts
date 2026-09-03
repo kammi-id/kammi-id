@@ -187,4 +187,16 @@ describe('proxy — tenant routing', () => {
       'https://pw-jabar.kammi.id/pw-jabar/berita/feed.xml'
     )
   })
+
+  it('rewrites the two-segment `/tentang/pengurus.md` Salinan Markdown address (tiket 08)', async () => {
+    expect(config.matcher).toContain('/tentang/:slug.md')
+
+    const res = await proxy(
+      new NextRequest('https://pw-jabar.kammi.id/tentang/pengurus.md')
+    )
+
+    expect(res?.headers.get('x-middleware-rewrite')).toBe(
+      'https://pw-jabar.kammi.id/salinan-markdown/pw-jabar/tentang/pengurus'
+    )
+  })
 })

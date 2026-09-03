@@ -4,6 +4,7 @@ import { useCallback, useRef } from 'react'
 import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
 import { useSectionReveal } from '~/hooks/use-section-reveal'
+import { VISI_TEXT } from '~/lib/publikasi/tentang-content'
 
 export const VisiSection = () => {
   const sectionRef = useRef<HTMLElement>(null)
@@ -66,8 +67,7 @@ export const VisiSection = () => {
             id='visi-heading'
             className='font-heading text-primary-foreground text-[clamp(1.75rem,4vw,3.25rem)] leading-snug font-bold'
           >
-            Wadah perjuangan permanen yang melahirkan kader-kader Pemimpin dalam
-            upaya mewujudkan Bangsa dan Negara Indonesia yang Islami.
+            {VISI_TEXT}
           </h2>
         </div>
       </div>
