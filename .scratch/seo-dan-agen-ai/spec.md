@@ -4,7 +4,7 @@
 
 Keputusan domain yang berlaku: `CONTEXT.md` mendefinisikan **Berita**,
 **Halaman**, **Permalink**, **Penulis**, **Gambar Utama**, **Situs Struktur**,
-dan — baru dari spec ini — **Salinan Markdown**. ADR 0012 menetapkan Situs
+dan — baru dari spec ini — **Salinan Markdown** serta **Kartu Bagikan**. ADR 0012 menetapkan Situs
 Struktur hidup di bawah satu segmen tenant. ADR 0013 menetapkan Situs
 Non-Aktif mati sementara arsipnya hidup. ADR 0014 menetapkan Permalink sebagai
 alamat yang berkuasa. ADR 0018 menempatkan PP di `www`, bukan apex. ADR 0023
@@ -75,11 +75,13 @@ satu-satunya alat first-party gratis yang menghitung sitasi AI.
 
 ## Solution
 
-Sembilan tiket. Urutan 1–8 berurutan secara sengaja — yang lebih dulu bukan
+Sepuluh tiket. Urutan 1–8 berurutan secara sengaja — yang lebih dulu bukan
 yang paling mudah, melainkan yang tanpanya sisanya tak berarti: selama 403
 masih berdiri dan tidak ada alat ukur, tujuh tiket sesudahnya adalah pekerjaan
 yang tak bisa dinilai. Tiket 9 lahir belakangan dan berdiri sendiri — paralel
-dengan yang lain, senasib dengan tiket 4.
+dengan yang lain, senasib dengan tiket 4. Tiket 10 lahir paling belakangan,
+setelah tiket 4 merged dan kartunya dilihat berdampingan dengan kartu
+penerbit lain: ia menggantikan keputusan visual tiket 4, bukan menambahinya.
 
 **Arah yang membedakan spec ini dari daftar periksa SEO biasa:** KAMMI.id
 adalah situs organisasi, bukan ruang redaksi. Kita tidak mengejar Top Stories,
@@ -110,7 +112,8 @@ bahwa tidak ada bukti vendor mana pun membacanya.
 3. **Metadata dan JSON-LD Berita** — ringkasan turunan, tanggal, penulis,
    `Article`, breadcrumb.
 4. **Kartu bagikan** — Gambar Utama sebagai latar penuh dengan scrim, logo,
-   dua mode.
+   dua mode. **Keputusan visualnya dicabut tiket 10** — scrim diganti plakat
+   opak; tiket ini tetap `done` sebagai catatan sejarahnya.
 5. **Sitemap, robots, dan feed yang jujur** — buang sinyal yang diabaikan,
    `lastmod` yang benar, sitemap index lintas subdomain, RSS diperkaya.
 6. **Salinan Markdown untuk Berita dan Halaman** — serializer, suffix `.md`,
@@ -120,6 +123,9 @@ bahwa tidak ada bukti vendor mana pun membacanya.
 9. **Tombol bagikan** — baris tombol WhatsApp/X/Facebook/Telegram/Threads/
    Salin Tautan di halaman Permalink Berita, dengan Web Share API di
    perangkat yang mendukungnya.
+10. **Kartu bagikan gaya plakat** — scrim dicabut, keterbacaan dijamin plakat
+    putih opak: chip identitas, plakat judul, pil tanggal. Lahir setelah
+    tiket 4 merged dan menggantikan keputusan visualnya.
 
 ## Out of Scope
 

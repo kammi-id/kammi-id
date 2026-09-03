@@ -362,11 +362,19 @@ basis data — semuanya sengaja tidak ikut di-rename. Yang berubah adalah
 istilah domain dan apa yang dibaca pembaca.
 _Avoid_: Berita Jaringan (nama lama), Feed nasional, Agregat berita
 
+**Kartu Bagikan**:
+Wajah sebuah halaman saat tautannya dibagikan ke ruang milik orang lain —
+percakapan WhatsApp, lini masa X, kanal Telegram. Ia bukan halaman itu
+sendiri melainkan janji ringkas tentang isinya: siapa yang menerbitkan, apa
+judulnya, dan kapan. Setiap halaman publik punya satu, dan penerbitnya selalu
+Struktur yang bersangkutan — tidak pernah PP mewakili Struktur lain.
+_Avoid_: OG image, Preview card, Social card, Thumbnail
+
 **Gambar Utama**:
 Satu gambar yang mewakili sebuah Artikel di luar halamannya sendiri — di
 kartu arsip, di kartu Berita KAMMI se-Indonesia, dan sebagai gambar yang
-muncul saat Permalink-nya dibagikan. Tepat satu, dan selalu ditunjuk
-eksplisit: ia tidak disimpulkan dari urutan **Galeri**.
+dipakai **Kartu Bagikan**-nya. Tepat satu, dan selalu ditunjuk eksplisit: ia
+tidak disimpulkan dari urutan **Galeri**.
 _Avoid_: Thumbnail, Cover, Featured image
 
 **Galeri**:
