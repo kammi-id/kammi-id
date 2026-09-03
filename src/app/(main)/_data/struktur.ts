@@ -1,5 +1,8 @@
 import { cacheLife, cacheTag } from 'next/cache'
 import { readOrganization, type Organization } from '~/db/query/organization'
+import { resolveStrukturHost } from '~/lib/struktur/tenant-host'
+import { resolveSiteImage } from '~/lib/utils/site-image'
+import type { StrukturJsonLdOrganization } from '~/lib/seo/json-ld'
 
 // Shared shape for every page/layout under `[strukturSlug]`.
 export type StrukturRouteParams = Promise<{ strukturSlug: string }>
@@ -108,6 +111,78 @@ export const getStrukturIdentity = async (
   try {
     const [org] = await readOrganization({ id: [organizationId] })
     return org ?? null
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Everything JSON-LD (ticket 02) needs to describe a Struktur as itself,
+ * rather than the hardcoded PP identity `src/lib/seo/json-ld.ts` used to
+ * carry: the direct induk's `{type, slug}` (just enough to build its `@id`
+ * via `resolveStrukturHost`), the direct anak's `{type, slug}` — filtered to
+ * exclude Terhapus (already excluded by `withOrganizationCTE`), Non-Aktif,
+ * and Situs-not-yet-active children (ADR 0013, spec "Anak yang Terhapus,
+ * Non-Aktif, atau Situsnya belum Aktif tidak ikut di subOrganization") — and
+ * the logo, resolved via `resolveSiteImage` into an absolute URL the same
+ * way the Permalink Berita page's `generateMetadata` resolves a featured
+ * image (`berita/[tahun]/[bulan]/[slug]/page.tsx`).
+ *
+ * Never the full descendant tree — PP can have hundreds of turunan, and the
+ * caller only ever needs direct anak/induk to assemble a stable `@id`.
+ *
+ * Tagged the same way as `getStrukturIdentity` above: a broad `organizations`
+ * tag (already busted by every Struktur-state action — `struktur-keadaan`,
+ * `site-active-toggle`, `delete-struktur`, `move-parent` — so a child
+ * flipping Non-Aktif or a Situs Aktif toggling busts this too) plus a
+ * per-id tag. Skipping the per-Struktur tag is exactly the mistake ADR 0012
+ * warns about: it looks correct against a single tenant and only breaks in
+ * production once more than one Struktur exists.
+ */
+export const getStrukturJsonLdOrganization = async (
+  organizationId: string | null
+): Promise<StrukturJsonLdOrganization | null> => {
+  'use cache'
+  if (!organizationId) return null
+  cacheLife('days')
+  cacheTag('organizations', `struktur-identity-${organizationId}`)
+
+  try {
+    const [self] = await readOrganization({ id: [organizationId] })
+    if (!self) return null
+
+    const [parentRows, childRows] = await Promise.all([
+      self.parentId
+        ? readOrganization({ id: [self.parentId] })
+        : Promise.resolve([]),
+      readOrganization({
+        parentId: [organizationId],
+        isNonActive: false,
+        isSiteActive: true
+      })
+    ])
+
+    const parent = parentRows[0]
+    const host = resolveStrukturHost(self)
+
+    let logo: string | undefined
+    if (self.logo) {
+      const resolved = await resolveSiteImage(self.logo)
+      if (resolved) {
+        logo = resolved.startsWith('http')
+          ? resolved
+          : `https://${host}${resolved}`
+      }
+    }
+
+    return {
+      type: self.type,
+      slug: self.slug,
+      name: self.name,
+      ...(logo ? { logo } : {}),
+      parent: parent ? { type: parent.type, slug: parent.slug } : null,
+      children: childRows.map(({ type, slug }) => ({ type, slug }))
+    }
   } catch {
     return null
   }

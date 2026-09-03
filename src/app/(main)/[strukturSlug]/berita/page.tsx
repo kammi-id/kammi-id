@@ -17,6 +17,7 @@ export const metadata: Metadata = {
   title: 'Berita',
   description:
     'Kabar terkini dan informasi resmi dari Kesatuan Aksi Mahasiswa Muslim Indonesia.',
+  alternates: { canonical: '/berita' },
   openGraph: {
     title: 'Berita',
     description:

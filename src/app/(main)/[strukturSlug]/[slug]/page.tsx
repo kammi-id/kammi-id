@@ -62,12 +62,14 @@ export const generateMetadata = async ({
   params
 }: HalamanDetailPageProps): Promise<Metadata> => {
   await connection()
+  const { slug } = await params
   const { organizationId, articleRow, outcome } = await resolveOutcome(params)
 
   if (!organizationId || !articleRow || outcome?.kind !== 'ok') return {}
 
   return {
     title: articleRow.title,
+    alternates: { canonical: `/${slug}` },
     robots: outcome.noindex
       ? { index: false, follow: true }
       : { index: true, follow: true }

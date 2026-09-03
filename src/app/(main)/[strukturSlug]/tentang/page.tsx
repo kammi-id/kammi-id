@@ -14,6 +14,7 @@ export const metadata: Metadata = {
   title: 'Tentang',
   description:
     'Mengenal KAMMI — sejarah, visi, misi, karakteristik, prinsip, paradigma, dan kredo gerakan.',
+  alternates: { canonical: '/tentang' },
   openGraph: {
     title: 'Tentang',
     description:

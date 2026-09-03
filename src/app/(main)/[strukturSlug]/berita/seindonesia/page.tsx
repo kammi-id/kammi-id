@@ -20,6 +20,7 @@ const DESKRIPSI =
 export const metadata: Metadata = {
   title: 'Berita KAMMI se-Indonesia',
   description: DESKRIPSI,
+  alternates: { canonical: '/berita/seindonesia' },
   openGraph: {
     title: 'Berita KAMMI se-Indonesia',
     description: DESKRIPSI

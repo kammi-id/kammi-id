@@ -33,6 +33,7 @@ export const generateMetadata = async ({
   return {
     title: { absolute: meta.pageTitle },
     description: meta.metaDescription,
+    alternates: { canonical: '/' },
     openGraph: {
       title: meta.pageTitle,
       description: meta.metaDescription,
