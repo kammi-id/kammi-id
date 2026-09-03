@@ -1,3 +1,5 @@
+import { resolveStrukturHost } from '~/lib/struktur/tenant-host'
+
 /**
  * Prefix milik object storage lama. Sebagian baris DB menyimpan URL penuh
  * `https://assets.kammi.id/kammiid/<key>`, dan hanya baris lama itu yang perlu
@@ -32,3 +34,25 @@ export const resolveSiteImage = async (path: string): Promise<string> => {
 export const resolveGalleryImages = async (
   paths: string[]
 ): Promise<string[]> => Promise.all(paths.map((path) => resolveSiteImage(path)))
+
+/**
+ * Same as `resolveSiteImage`, but on the Struktur's own absolute host —
+ * `https://<slug>.kammi.id/api/images/<key>` rather than the root-relative
+ * `/api/images/<key>`. `next/image` accepts a relative `src`, but a `fetch()`
+ * (OG image generation, ADR 0006/0007 — satori can't load a remote `<img>`
+ * itself, bytes must be fetched by hand) or a `<meta>` tag needs an absolute
+ * URL. Mirrors the idiom the Permalink Berita `generateMetadata` already used
+ * for its Open Graph image before ticket 04 (og-image kartu bagikan) folded
+ * it in here for reuse across every OG image caller.
+ */
+export const resolveAbsoluteSiteImage = async (
+  path: string | null | undefined,
+  org: { type: string; slug: string }
+): Promise<string | undefined> => {
+  if (!path) return undefined
+  const resolved = await resolveSiteImage(path)
+  if (!resolved) return undefined
+  return resolved.startsWith('http')
+    ? resolved
+    : `https://${resolveStrukturHost(org)}${resolved}`
+}
