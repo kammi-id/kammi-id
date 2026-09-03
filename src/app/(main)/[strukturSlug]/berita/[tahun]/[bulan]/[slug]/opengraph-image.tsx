@@ -15,7 +15,8 @@ type ImageProps = { params: BeritaDetailParams }
 // menerima `params` dan bisa mengembalikan `alt` per-request.
 export const generateImageMetadata = async ({ params }: ImageProps) => {
   const { articleRow, outcome } = await resolveOutcome(params)
-  const alt = outcome?.kind === 'ok' && articleRow ? articleRow.title : 'KAMMI.id'
+  const alt =
+    outcome?.kind === 'ok' && articleRow ? articleRow.title : 'KAMMI.id'
 
   return [
     {
