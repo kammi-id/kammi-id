@@ -29,33 +29,33 @@ tanpa gambar tanpa melempar; font tetap dari CDN.
 
 Empat elemen, urutan dari atas:
 
-- [ ] **Chip identitas, kiri atas.** Plakat putih membulat berisi logo
+- [x] **Chip identitas, kiri atas.** Plakat putih membulat berisi logo
       Struktur dan **nama Struktur** sebagai teks. Struktur tanpa logo
       menampilkan **nama Struktur saja** — tidak pernah emblem PP dan tidak
       pernah wordmark "KAMMI.id". Emblem PP di sebelah nama PW adalah bug
       tiket 02 dalam bentuk gambar: atribusi yang salah alamat.
-- [ ] **Plakat judul, bawah.** Putih opak, teks gelap, **tinggi mengikuti
+- [x] **Plakat judul, bawah.** Putih opak, teks gelap, **tinggi mengikuti
       isi** — judul satu kata mendapat plakat pendek, bukan kotak besar
       berisi teks yang mengambang. Maksimal 3 baris.
-- [ ] **Baris kedua di dalam plakat** untuk `subtitle`, teks abu, hanya pada
+- [x] **Baris kedua di dalam plakat** untuk `subtitle`, teks abu, hanya pada
       kartu seksi (`/berita`, `/event`, `/tentang`). `subtitle` **tidak
       pernah** masuk ke pil.
-- [ ] **Pil merah, di bawah plakat.** Isinya **hanya tanggal terbit**, jadi
+- [x] **Pil merah, di bawah plakat.** Isinya **hanya tanggal terbit**, jadi
       hanya kartu Berita yang punya pil. Pil menjawab satu pertanyaan —
       *kapan* — dan tidak dipakai menampung teks lain yang kebetulan tersisa.
 
 ## Mode tanpa gambar
 
-- [ ] Tata letak **identik**, di atas gradien navy yang sudah ada. Gradiennya
+- [x] Tata letak **identik**, di atas gradien navy yang sudah ada. Gradiennya
       tidak diganti merah: pil merah butuh latar yang bukan merah untuk tetap
       terbaca sebagai aksen.
 
 ## Warna
 
-- [ ] Merah pil diambil dari `--primary` (`oklch(0.52 0.2 17)` di
+- [x] Merah pil diambil dari `--primary` (`oklch(0.52 0.2 17)` di
       `src/app/globals.css`). satori tidak membaca CSS custom property, jadi
       nilainya wajib jadi hex literal.
-- [ ] Hex-nya hidup sebagai **konstanta bernama** di `src/components/og-image/`
+- [x] Hex-nya hidup sebagai **konstanta bernama** di `src/components/og-image/`
       dengan komentar yang menyebut token asalnya. Navy `#0c2340` hari ini
       ditulis inline tanpa keterangan dan karena itu tidak ada yang tahu dari
       mana ia berasal — jangan diulang untuk warna baru, dan beri navy
@@ -63,22 +63,22 @@ Empat elemen, urutan dari atas:
 
 ## Judul dan pemotongan
 
-- [ ] `TITLE_MAX_CHARS_BY_FONT_SIZE` di `src/components/og-image/utils.ts`
+- [x] `TITLE_MAX_CHARS_BY_FONT_SIZE` di `src/components/og-image/utils.ts`
       **dikalibrasi ulang**, tidak diwarisi mentah: teks gelap di dalam plakat
       dengan padding dalam punya lebar efektif yang berbeda dari teks putih
       selebar kanvas.
-- [ ] `utils.test.ts` diperbarui mengikuti angka baru. `truncateTitle` tetap
+- [x] `utils.test.ts` diperbarui mengikuti angka baru. `truncateTitle` tetap
       pagar terakhir terhadap luber — `-webkit-line-clamp` sudah dicoba dan
       ditolak di tiket 04 karena diterima tanpa error lalu tidak mengklip apa
       pun.
 
 ## Empat pemanggil, semuanya
 
-- [ ] Permalink Berita — chip nama Struktur, plakat judul, pil tanggal, foto
+- [x] Permalink Berita — chip nama Struktur, plakat judul, pil tanggal, foto
       penuh bila ada Gambar Utama.
-- [ ] `/berita`, `/event`, `/tentang` — chip nama Struktur, plakat judul,
+- [x] `/berita`, `/event`, `/tentang` — chip nama Struktur, plakat judul,
       `subtitle` sebagai baris kedua, tanpa pil, mode tanpa gambar.
-- [ ] Root `/` (`src/app/opengraph-image.tsx`) — chip "KAMMI.id", plakat
+- [x] Root `/` (`src/app/opengraph-image.tsx`) — chip "KAMMI.id", plakat
       **"Kesatuan Aksi Mahasiswa Muslim Indonesia"**, `subtitle` dibuang.
       Tanpa perubahan ini kartunya menulis "KAMMI.id" dua kali: sekali di chip,
       sekali di plakat. Rute ini hidup di luar `[strukturSlug]` dan memang
@@ -87,10 +87,10 @@ Empat elemen, urutan dari atas:
 
 ## Verifikasi
 
-- [ ] `check:types`, `check:lint`, `check:structure` hijau — **tetapi tidak
+- [x] `check:types`, `check:lint`, `check:structure` hijau — **tetapi tidak
       dianggap cukup.** Ketiganya hijau sepenuhnya saat `-webkit-line-clamp`
       diam-diam tidak bekerja; properti CSS yang no-op lolos ketiganya.
-- [ ] **Render manual** lewat `next dev`, screenshot untuk empat kasus,
+- [x] **Render manual** lewat `next dev`, screenshot untuk empat kasus,
       dilampirkan ke `## Comments` di berkas ini:
       1. judul satu kata,
       2. judul 140 karakter,
@@ -103,3 +103,28 @@ Empat elemen, urutan dari atas:
 - Tidak ada ADR. Keputusan ini murah dibatalkan (satu berkas); yang mahal
   hanya kalau alasannya hilang, dan itu dijaga oleh tiket ini.
 - Tidak ada perubahan pada `OgImageInput` selain yang dituntut di atas.
+
+## Comments
+
+Dirender lewat harness lokal sekali-pakai yang memanggil `ogImage(...)`
+langsung dengan `OgImageInput` buatan tangan (tidak ada `DATABASE_URL` di
+worktree ini) — bukan lewat rute asli, karena tiket ini peduli pada empat
+kasus visualnya, bukan dari mana datanya. Keempatnya 1200×630, PNG.
+
+![Judul satu kata](./verifikasi-tiket-10/01-judul-satu-kata.png)
+Chip "KAMMI Kota Bandung" (logo + nama), plakat pendek mengikuti isi satu
+kata "Kongres", pil tanggal merah di bawahnya.
+
+![Judul 140 karakter](./verifikasi-tiket-10/02-judul-140-karakter.png)
+Judul panjang dipotong `truncateTitle` ke tepat 3 baris dan diberi elipsis —
+sebelum kalibrasi ulang `TITLE_MAX_CHARS_BY_FONT_SIZE` kasus ini sempat luber
+ke 4 baris, sekarang terjaga.
+
+![Berita tanpa Gambar Utama](./verifikasi-tiket-10/03-tanpa-gambar-utama.png)
+Mode tanpa gambar: gradien navy yang sudah ada (bukan merah), `subtitle`
+tampil sebagai baris kedua abu di dalam plakat, tanpa pil karena tidak ada
+`publishedAt`.
+
+![Struktur tanpa logo](./verifikasi-tiket-10/04-struktur-tanpa-logo.png)
+Chip hanya teks nama Struktur ("KAMMI Wilayah Jawa Barat") — tidak jatuh ke
+emblem PP maupun wordmark "KAMMI.id" — karena `logoUrl` tidak diberikan.

@@ -17,8 +17,13 @@ export type OgImageMode = 'bergambar' | 'tanpa-gambar'
 export const resolveOgImageMode = (imageBytes: unknown): OgImageMode =>
   imageBytes ? 'bergambar' : 'tanpa-gambar'
 
-/** Titles longer than this drop to the smaller tier (see below). */
-export const TITLE_LONG_THRESHOLD = 60
+/**
+ * Titles longer than this drop to the smaller tier (see below). Deliberately
+ * equal to the default tier's character budget below it (ticket 10 — see the
+ * comment on `TITLE_MAX_CHARS_BY_FONT_SIZE`) so a title that stays in the
+ * default tier is, by construction, always short enough to skip truncation.
+ */
+export const TITLE_LONG_THRESHOLD = 50
 
 export const TITLE_FONT_SIZE_DEFAULT = 80
 export const TITLE_FONT_SIZE_LONG = 56
@@ -35,21 +40,33 @@ export const resolveTitleFontSize = (title: string): number =>
     : TITLE_FONT_SIZE_DEFAULT
 
 /**
- * Character budget for each title tier, calibrated (manual render check,
- * ticket 04 item 4) so the title never exceeds ~3 lines within the
- * 1072px-wide content area (1200px canvas minus 64px side padding) at that
- * tier's font size.
+ * Character budget for each title tier, calibrated (manual render loop,
+ * ticket 10 — `next dev` + real `ogImage()` calls, not guessed) so the title
+ * never exceeds 3 lines within the plakat's effective text width (992px:
+ * 1200px canvas minus 64px side padding minus 40px horizontal padding on
+ * each side of the plakat itself). Narrower budgets than ticket 04's, and
+ * for a different reason than just the narrower width: ticket 04 calibrated
+ * against an average title, but a title made entirely of long words (fewer
+ * break points, e.g. "Konsolidasi Kepemimpinan Kelembagaan Kemahasiswaan
+ * Nasional") wraps far less efficiently than a mixed-length one of the same
+ * character count — at the default tier's 80px font, a worst-case 59-char
+ * title overflowed to 4 lines and clipped the plakat against the chip above
+ * it. Both numbers below are calibrated against that worst case, not the
+ * average case, with a safety margin below the actual observed breakpoint
+ * (default tier broke at 59 chars, budgeted to 50; long tier broke at 100
+ * chars, budgeted to 90).
  *
- * `-webkit-line-clamp` was tried first and rejected: this satori/`ImageResponse`
- * build accepts the property without error but does not actually clip —
- * a 193-character title rendered all 6 wrapped lines instead of 3. A CSS
- * property that silently no-ops is worse than no truncation at all (it reads
- * as "handled" in the JSX while doing nothing), so the guarantee against
- * overflowing the canvas has to come from cutting the string itself.
+ * `-webkit-line-clamp` was tried first and rejected (ticket 04): this
+ * satori/`ImageResponse` build accepts the property without error but does
+ * not actually clip — a 193-character title rendered all 6 wrapped lines
+ * instead of 3. A CSS property that silently no-ops is worse than no
+ * truncation at all (it reads as "handled" in the JSX while doing nothing),
+ * so the guarantee against overflowing the canvas has to come from cutting
+ * the string itself.
  */
 const TITLE_MAX_CHARS_BY_FONT_SIZE: Record<number, number> = {
-  [TITLE_FONT_SIZE_DEFAULT]: 72,
-  [TITLE_FONT_SIZE_LONG]: 120
+  [TITLE_FONT_SIZE_DEFAULT]: 50,
+  [TITLE_FONT_SIZE_LONG]: 90
 }
 
 /**
@@ -63,13 +80,3 @@ export const truncateTitle = (title: string): string => {
   if (title.length <= maxChars) return title
   return `${title.slice(0, maxChars - 1).trimEnd()}…`
 }
-
-/**
- * The "Struktur name + tanggal terbit" line under the title. `publishedAt`
- * is expected already formatted for display (`formatTanggalTerbit`), not a
- * raw ISO string — this stays a pure string-join, no date parsing here.
- */
-export const buildStrukturMetaLine = (
-  strukturName: string,
-  publishedAt: string | undefined
-): string => (publishedAt ? `${strukturName} · ${publishedAt}` : strukturName)

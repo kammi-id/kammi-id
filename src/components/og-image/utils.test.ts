@@ -1,6 +1,5 @@
 import { describe, expect, test } from 'bun:test'
 import {
-  buildStrukturMetaLine,
   resolveOgImageMode,
   resolveTitleFontSize,
   truncateTitle,
@@ -46,7 +45,7 @@ describe('truncateTitle', () => {
   })
 
   test('a title within budget for its tier passes through unchanged', () => {
-    const title = 'a'.repeat(72)
+    const title = 'a'.repeat(50)
     expect(truncateTitle(title)).toBe(title)
   })
 
@@ -60,29 +59,20 @@ describe('truncateTitle', () => {
   test('truncation never produces a string longer than the long tier budget', () => {
     // Long enough to select the "long" font-size tier (> threshold chars).
     const title = 'a'.repeat(TITLE_LONG_THRESHOLD + 200)
-    expect(truncateTitle(title).length).toBeLessThanOrEqual(120)
+    expect(truncateTitle(title).length).toBeLessThanOrEqual(90)
   })
 
   test('a title at the tier threshold is never truncated (fits within budget by construction)', () => {
-    // `TITLE_LONG_THRESHOLD` (60) is chosen below `TITLE_MAX_CHARS_DEFAULT`
-    // (72) deliberately — a title short enough to stay in the "default"
+    // `TITLE_LONG_THRESHOLD` (50, ticket 10) is chosen equal to
+    // `TITLE_MAX_CHARS_BY_FONT_SIZE`'s default-tier budget (also 50)
+    // deliberately — a title short enough to stay in the "default"
     // font-size tier is, by that same length, always short enough to skip
-    // truncation entirely.
+    // truncation entirely. Both numbers are narrower than ticket 04's: the
+    // title now sits in a padded plakat rather than spanning the full
+    // canvas, and the budget is calibrated against a worst-case title made
+    // of long, hard-to-break words rather than an average one (see the
+    // comment on `TITLE_MAX_CHARS_BY_FONT_SIZE` in `utils.ts`).
     const title = 'a'.repeat(TITLE_LONG_THRESHOLD)
     expect(truncateTitle(title)).toBe(title)
-  })
-})
-
-describe('buildStrukturMetaLine', () => {
-  test('struktur name alone when there is no published date', () => {
-    expect(buildStrukturMetaLine('KAMMI Kota Bandung', undefined)).toBe(
-      'KAMMI Kota Bandung'
-    )
-  })
-
-  test('struktur name joined with the published date when present', () => {
-    expect(
-      buildStrukturMetaLine('KAMMI Kota Bandung', '3 September 2026')
-    ).toBe('KAMMI Kota Bandung · 3 September 2026')
   })
 })
