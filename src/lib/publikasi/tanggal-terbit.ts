@@ -166,3 +166,17 @@ export const toWibIsoString = (publishedAt: Date): string => {
     publishedAt.getUTCMinutes()
   )}:${pad(publishedAt.getUTCSeconds())}+07:00`
 }
+
+/**
+ * Tanggal "terakhir diubah" sebuah Berita untuk sinyal yang jujur ke mesin
+ * pencari (ticket 05, dan `dateModified` JSON-LD ticket 03): sebuah artikel
+ * yang disunting harus memberi tanggal segar, tapi `updatedAt` yang lebih
+ * AWAL dari `publishedAt` tidak berarti apa-apa selain jam tulis baris
+ * pertama kali disimpan (draft yang lama mengendap sebelum diterbitkan) —
+ * kasus itu jatuh balik ke `publishedAt`, bukan tanggal draft yang membuat
+ * artikel yang baru saja terbit tampak basi.
+ */
+export const resolveDateModified = (
+  updatedAt: Date,
+  publishedAt: Date
+): Date => (updatedAt.getTime() < publishedAt.getTime() ? publishedAt : updatedAt)

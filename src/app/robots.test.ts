@@ -14,8 +14,10 @@ import { organization } from '~/db/schema/organization.sql'
 
 let host = 'pw-jabar.kammi.id'
 let useFakeHeaders = true
+let forceDbFailure = false
 
 const actualNextHeaders = await import('next/headers')
+const actualOrganizationQuery = await import('~/db/query/organization')
 let pwJabarId: string
 
 mock.module('next/headers', () => ({
@@ -24,6 +26,21 @@ mock.module('next/headers', () => ({
     useFakeHeaders
       ? Promise.resolve(new Headers({ host }))
       : actualNextHeaders.headers(...args)
+}))
+
+// Reference captured BEFORE `mock.module` runs below — see the identical
+// note in sitemap.test.ts for why this can't call
+// `actualOrganizationQuery.readOrganization` directly from the factory.
+const realReadOrganization = actualOrganizationQuery.readOrganization
+
+mock.module('~/db/query/organization', () => ({
+  ...actualOrganizationQuery,
+  readOrganization: (
+    ...args: Parameters<typeof actualOrganizationQuery.readOrganization>
+  ) => {
+    if (forceDbFailure) throw new Error('db down')
+    return realReadOrganization(...args)
+  }
 }))
 
 const { default: robots } = await import('./robots')
@@ -61,10 +78,44 @@ beforeAll(async () => {
 
 beforeEach(() => {
   host = 'pw-jabar.kammi.id'
+  forceDbFailure = false
 })
 
 describe('robots', () => {
   it('menyebut sitemap pada host permintaan untuk Situs aktif', async () => {
+    expect(await robots()).toEqual({
+      rules: [
+        {
+          userAgent: '*',
+          allow: '/',
+          disallow: ['/dashboard', '/login', '/api/']
+        }
+      ],
+      sitemap: 'https://pw-jabar.kammi.id/sitemap.xml'
+    })
+  })
+
+  it('menambahkan sitemap-index.xml hanya pada Situs PP', async () => {
+    host = 'kammi.id'
+
+    expect(await robots()).toEqual({
+      rules: [
+        {
+          userAgent: '*',
+          allow: '/',
+          disallow: ['/dashboard', '/login', '/api/']
+        }
+      ],
+      sitemap: [
+        'https://kammi.id/sitemap.xml',
+        'https://kammi.id/sitemap-index.xml'
+      ]
+    })
+  })
+
+  it('menjawab permisif dengan 200, bukan larangan penuh, ketika basis data tidak terjangkau (RFC 9309: 5xx dibaca sebagai larangan seluruh situs)', async () => {
+    forceDbFailure = true
+
     expect(await robots()).toEqual({
       rules: [
         {

@@ -1,84 +1,126 @@
 import type { MetadataRoute } from 'next'
 import { headers } from 'next/headers'
 import { listSitemapArticlesForOrg } from '~/db/query/sitemap'
-import { resolveStrukturForRequestHost } from '~/lib/struktur/request-host'
+import { readLatestSettingsUpdate } from '~/db/query/site-settings'
+import {
+  resolveStrukturForRequestHost,
+  type RequestStruktur
+} from '~/lib/struktur/request-host'
 import { requestOriginFromHost } from '~/lib/struktur/request-origin'
-import { deriveTahunBulanTerbit } from '~/lib/publikasi/tanggal-terbit'
+import {
+  deriveTahunBulanTerbit,
+  resolveDateModified
+} from '~/lib/publikasi/tanggal-terbit'
 
 type SitemapEntry = MetadataRoute.Sitemap[number]
 
-const publicRoutes = (origin: string, isPP: boolean): SitemapEntry[] => [
+// Kunci Pengaturan Situs yang benar-benar dibaca setiap rute statis di
+// bawah — dipakai sebagai `lastModified` (Google menuntutnya akurat dan
+// bisa diverifikasi; `lastModified: new Date()` yang lama membuat setiap
+// rute tampak baru diubah tiap kali sitemap diambil). Sengaja TIDAK
+// termasuk 'nav'/'footer': keduanya chrome global tiap halaman, dan
+// menyertakannya akan membuat setiap rute bergerak bersamaan — meniadakan
+// gunanya membedakan rute mana yang sungguh berubah.
+const BERANDA_SETTINGS_KEYS = [
+  'metadata',
+  'home-hero-items',
+  'about',
+  'leadership',
+  'home-extra-items'
+]
+const TENTANG_SETTINGS_KEYS = [
+  'tentang-hero',
+  'tentang-prinsip',
+  'tentang-paradigma'
+]
+const PENGURUS_SETTINGS_KEYS = ['leadership']
+
+type StaticRouteLastModified = {
+  beranda?: Date
+  tentang?: Date
+  pengurus?: Date
+}
+
+const publicRoutes = (
+  origin: string,
+  isPP: boolean,
+  lastModified: StaticRouteLastModified
+): SitemapEntry[] => [
   {
     url: origin,
-    lastModified: new Date(),
-    changeFrequency: 'weekly',
-    priority: 1.0
+    ...(lastModified.beranda ? { lastModified: lastModified.beranda } : {})
   },
-  {
-    url: `${origin}/berita`,
-    lastModified: new Date(),
-    changeFrequency: 'daily',
-    priority: 0.8
-  },
+  // `/berita` (arsip) dan `/event` tidak dirender dari Pengaturan Situs:
+  // yang pertama daftar Berita dinamis tanpa satu tanggal ubah tunggal yang
+  // representatif, yang kedua benar-benar statis. Keduanya tanpa
+  // `lastModified` daripada mengarang — bukan bug, ADR-nya ada di ticket 05.
+  { url: `${origin}/berita` },
   ...(isPP
     ? [
         {
           // Alamat lama `/berita/jaringan` sengaja TIDAK ikut didaftarkan:
           // ia hidup hanya sebagai redirect permanen (ADR 0016), dan sitemap
           // yang memuat dua alamat untuk satu isi adalah sinyal duplikat.
-          url: `${origin}/berita/seindonesia`,
-          lastModified: new Date(),
-          changeFrequency: 'daily' as const,
-          priority: 0.8
+          url: `${origin}/berita/seindonesia`
         }
       ]
     : []),
-  {
-    url: `${origin}/event`,
-    lastModified: new Date(),
-    changeFrequency: 'weekly',
-    priority: 0.8
-  },
+  { url: `${origin}/event` },
   {
     url: `${origin}/tentang`,
-    lastModified: new Date(),
-    changeFrequency: 'monthly',
-    priority: 0.7
+    ...(lastModified.tentang ? { lastModified: lastModified.tentang } : {})
   },
   {
     url: `${origin}/tentang/pengurus`,
-    lastModified: new Date(),
-    changeFrequency: 'monthly',
-    priority: 0.6
+    ...(lastModified.pengurus ? { lastModified: lastModified.pengurus } : {})
   }
 ]
 
+const resolveStaticRouteLastModified = async (
+  struktur: RequestStruktur
+): Promise<StaticRouteLastModified> => {
+  const [beranda, tentang, pengurus] = await Promise.all([
+    readLatestSettingsUpdate(BERANDA_SETTINGS_KEYS, struktur.id),
+    readLatestSettingsUpdate(TENTANG_SETTINGS_KEYS, struktur.id),
+    readLatestSettingsUpdate(PENGURUS_SETTINGS_KEYS, struktur.id)
+  ])
+  return { beranda, tentang, pengurus }
+}
+
 const sitemap = async (): Promise<MetadataRoute.Sitemap> => {
   const requestHost = (await headers()).get('host') ?? 'kammi.id'
-  const struktur = await resolveStrukturForRequestHost(requestHost)
   const origin = requestOriginFromHost(requestHost)
+  if (!origin) return []
 
-  if (!origin || !struktur || !struktur.isSiteActive || struktur.isNonActive)
+  let struktur: RequestStruktur | null
+  try {
+    struktur = await resolveStrukturForRequestHost(requestHost)
+  } catch {
+    // Basis data tidak terjangkau — sitemap kosong (200, tidak 500)
+    // daripada meledak; halaman tetap terlayani, hanya sitemap-nya yang
+    // kosong pada satu pengambilan itu.
     return []
+  }
 
-  const articles = await listSitemapArticlesForOrg(struktur.id)
+  if (!struktur || !struktur.isSiteActive || struktur.isNonActive) return []
+
+  const [articles, staticLastModified] = await Promise.all([
+    listSitemapArticlesForOrg(struktur.id),
+    resolveStaticRouteLastModified(struktur)
+  ])
 
   return [
-    ...publicRoutes(origin, struktur.type === 'pp'),
+    ...publicRoutes(origin, struktur.type === 'pp', staticLastModified),
     ...articles.halaman.map((halaman) => ({
       url: `${origin}/${halaman.slug}`,
-      lastModified: halaman.updatedAt,
-      changeFrequency: 'monthly' as const,
-      priority: 0.7
+      lastModified: halaman.updatedAt
     })),
     ...articles.berita.map((berita) => {
       const { tahun, bulan } = deriveTahunBulanTerbit(berita.publishedAt)
 
       return {
         url: `${origin}/berita/${tahun}/${bulan}/${berita.slug}`,
-        lastModified: berita.publishedAt,
-        changeFrequency: 'weekly' as const,
-        priority: 0.7
+        lastModified: resolveDateModified(berita.updatedAt, berita.publishedAt)
       }
     })
   ]

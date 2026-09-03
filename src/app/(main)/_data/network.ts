@@ -13,6 +13,10 @@ export type PWOrg = {
   id: string
   name: string
   code: string
+  slug: string
+  type: 'pw'
+  isSiteActive: boolean
+  isNonActive: boolean
 }
 
 // ── Private query helpers ─────────────────────────────────────────────────────
@@ -46,16 +50,22 @@ const _fetchNetworkStats = async (): Promise<NetworkStats> => {
   }
 }
 
-const _fetchPWOrganizations = async (): Promise<PWOrg[]> =>
-  db
+const _fetchPWOrganizations = async (): Promise<PWOrg[]> => {
+  const rows = await db
     .select({
       id: organization.id,
       name: organization.name,
-      code: organization.code
+      code: organization.code,
+      slug: organization.slug,
+      isSiteActive: organization.isSiteActive,
+      isNonActive: organization.isNonActive
     })
     .from(organization)
     .where(and(eq(organization.type, 'pw'), isNull(organization.deletedAt)))
     .orderBy(organization.code)
+
+  return rows.map((row) => ({ ...row, type: 'pw' as const }))
+}
 
 // ── Public cached exports ─────────────────────────────────────────────────────
 // Only call the helper functions above — never reference `db` directly.

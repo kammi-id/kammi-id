@@ -191,6 +191,57 @@ export const listBeritaArsipForOrg = async (
   return { items, totalCount, totalPages }
 }
 
+export type BeritaFeedItem = {
+  id: string
+  title: string
+  slug: string
+  publishedAt: Date
+  updatedAt: Date
+  body: unknown
+  penulis: string | null
+}
+
+/**
+ * Baris untuk `berita/feed.xml` (ticket 05) — sengaja terpisah dari
+ * `listBeritaArsipForOrg` di atas, bukan menambah kolom di sana: `body`
+ * (jsonb, dipakai `deriveArticleExcerpt` untuk `<description>`) berat untuk
+ * ditarik di setiap render halaman arsip yang tidak membutuhkannya sama
+ * sekali. Identitas Struktur (nama, logo) TIDAK ikut di sini — pemanggil
+ * sudah punya `organizationId` dan membacanya lewat `getStrukturIdentity`
+ * yang di-cache, bukan lewat JOIN yang diulang di setiap baris.
+ */
+export const listBeritaFeedForOrg = async (
+  organizationId: string,
+  limit: number = BERITA_ARSIP_PAGE_SIZE
+): Promise<BeritaFeedItem[]> => {
+  const rows = await db
+    .select({
+      id: article.id,
+      title: article.title,
+      slug: article.slug,
+      publishedAt: article.publishedAt,
+      updatedAt: article.updatedAt,
+      body: article.body,
+      penulis: article.penulis
+    })
+    .from(article)
+    .where(
+      and(
+        eq(article.organizationId, organizationId),
+        eq(article.type, 'blog'),
+        eq(article.status, 'published'),
+        lte(article.publishedAt, terbitCutoffForQuery()),
+        organizationNotDeleted(article.organizationId)
+      )
+    )
+    .orderBy(desc(article.publishedAt), desc(article.id))
+    .limit(limit)
+
+  return rows.filter(
+    (r): r is typeof r & { publishedAt: Date } => r.publishedAt !== null
+  )
+}
+
 // ── Ticket 08 — Berita Jaringan (arsip nasional lintas Struktur) ────────────
 //
 // Sengaja DUA fungsi terpisah (top-N beranda dan arsip berpaginasi), sama

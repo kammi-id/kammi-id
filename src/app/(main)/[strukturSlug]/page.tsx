@@ -20,6 +20,7 @@ import { ExtraSection } from './_components/extra-section'
 import { LeanHomeScene } from './_components/lean-home-scene'
 import { BeritaPreviewSection } from './_components/berita-preview-section'
 import { BeritaJaringanSection } from './_components/berita-jaringan-section'
+import { JaringanLinksSection } from './_components/jaringan-links-section'
 
 type PageProps = {
   params: StrukturRouteParams
@@ -199,6 +200,7 @@ const Page = async ({ params }: PageProps) => {
         strukturName={identity?.name ?? null}
       />
       <BeritaJaringanSection />
+      <JaringanLinksSection pwOrgs={pwOrgs} />
       <ExtraSection organizationId={orgId} />
     </>
   )

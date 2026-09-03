@@ -1,7 +1,7 @@
 import { db } from '../db'
 import { siteSettings } from '../schema/site-settings.sql'
 import { organizationNotDeleted } from './organization'
-import { eq, sql } from 'drizzle-orm'
+import { and, desc, eq, inArray, sql } from 'drizzle-orm'
 
 export type HeroSettings = {
   badgeText: string
@@ -276,6 +276,46 @@ export const readSiteSettings = async <T>(
     return rows[0].data as T
   } catch {
     return fallback
+  }
+}
+
+/**
+ * Tanggal perubahan Pengaturan Situs terbaru di antara `keys` yang diberikan
+ * — dipakai `sitemap.ts` (ticket 05) sebagai `lastModified` rute yang
+ * dirender dari Pengaturan Situs, bukan `new Date()` yang mengarang setiap
+ * rute tampak baru diubah tiap kali sitemap diambil. `undefined` (bukan
+ * tanggal yang dikarang) kalau Struktur ini belum pernah menyimpan satu pun
+ * dari `keys` tersebut — pemanggil menghilangkan `lastModified` sama sekali
+ * pada kasus itu.
+ *
+ * Kegagalan basis data ditelan menjadi `undefined` (sama seperti
+ * `readSiteSettings` di atas) — beda dari `resolveStrukturForRequestHost`
+ * yang sengaja melempar (ticket 05, lihat komentarnya): di sana pemanggil
+ * (`robots.ts`) butuh membedakan dua kegagalan untuk menjawab beda. Di sini
+ * tidak ada beda perilaku yang perlu dibedakan — `lastModified` yang hilang
+ * pada satu rute bukan kegagalan yang perlu mengosongkan seluruh sitemap.
+ */
+export const readLatestSettingsUpdate = async (
+  keys: string[],
+  organizationId: string
+): Promise<Date | undefined> => {
+  try {
+    const [row] = await db
+      .select({ updatedAt: siteSettings.updatedAt })
+      .from(siteSettings)
+      .where(
+        and(
+          inArray(siteSettings.key, keys),
+          eq(siteSettings.organizationId, organizationId),
+          organizationNotDeleted(siteSettings.organizationId)
+        )
+      )
+      .orderBy(desc(siteSettings.updatedAt))
+      .limit(1)
+
+    return row?.updatedAt
+  } catch {
+    return undefined
   }
 }
 

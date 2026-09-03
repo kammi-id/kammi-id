@@ -6,7 +6,7 @@ import { terbitCutoffForQuery } from '~/lib/publikasi/tanggal-terbit'
 
 export type SitemapArticlesForOrg = {
   halaman: Array<{ slug: string; updatedAt: Date }>
-  berita: Array<{ slug: string; publishedAt: Date }>
+  berita: Array<{ slug: string; publishedAt: Date; updatedAt: Date }>
 }
 
 /**
@@ -30,7 +30,11 @@ export const listSitemapArticlesForOrg = async (
         )
       ),
     db
-      .select({ slug: article.slug, publishedAt: article.publishedAt })
+      .select({
+        slug: article.slug,
+        publishedAt: article.publishedAt,
+        updatedAt: article.updatedAt
+      })
       .from(article)
       .where(
         and(
