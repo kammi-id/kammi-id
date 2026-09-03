@@ -29,7 +29,10 @@ export const generateMetadata = async ({
   params
 }: PageProps): Promise<Metadata> => {
   const orgId = await resolveStrukturIdFromParams(params)
-  const meta = await getMetadataSettings(orgId)
+  const [meta, identity] = await Promise.all([
+    getMetadataSettings(orgId),
+    getStrukturIdentity(orgId)
+  ])
   return {
     title: { absolute: meta.pageTitle },
     description: meta.metaDescription,
@@ -42,7 +45,9 @@ export const generateMetadata = async ({
           url: meta.ogImageUrl,
           width: 1200,
           height: 630,
-          alt: 'KAMMI.id'
+          // Dulu dikeraskan 'KAMMI.id' untuk setiap Struktur — pola bug yang
+          // sama dengan ticket 02. Sekarang nama Struktur sungguhan.
+          alt: identity?.name ?? 'KAMMI.id'
         }
       ]
     },

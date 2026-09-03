@@ -7,7 +7,6 @@ import { articleQuery } from '~/db/query/article'
 import { articleCategoryQuery } from '~/db/query/article-category'
 import { articlePermalinkHistoryQuery } from '~/db/query/article-permalink-history'
 import { readOrganization } from '~/db/query/organization'
-import { resolveStrukturHost } from '~/lib/struktur/tenant-host'
 import { resolveGalleryImages, resolveSiteImage } from '~/lib/utils/site-image'
 import {
   formatTanggalTerbit,
@@ -33,7 +32,7 @@ import { InactiveStrukturPermalinkFrame } from './_components/inactive-struktur-
 // sudah menyatakannya untuk seluruh subtree (satu titik menutup semua rute
 // turunannya, lihat komentar di sana).
 
-type BeritaDetailParams = Promise<{
+export type BeritaDetailParams = Promise<{
   strukturSlug: string
   tahun: string
   bulan: string
@@ -65,7 +64,10 @@ type ResolvedOutcome = {
   outcome: ReturnType<typeof resolvePermalinkBerita> | null
 }
 
-const resolveOutcome = async (
+// Exported juga untuk `opengraph-image.tsx` (ticket 04, kartu bagikan) —
+// keduanya butuh persis Artikel + Struktur yang sama, jadi dipanggil dari
+// satu tempat alih-alih menduplikasi query DB-nya di berkas metadata rute.
+export const resolveOutcome = async (
   params: BeritaDetailParams
 ): Promise<ResolvedOutcome> => {
   const { tahun, bulan, slug } = await params
@@ -124,17 +126,13 @@ export const generateMetadata = async ({
   if (!organizationId || !articleRow || !org || outcome?.kind !== 'ok')
     return {}
 
-  const host = resolveStrukturHost(org)
-  let absoluteImageUrl: string | undefined
-  if (articleRow.featuredImage) {
-    const imagePath = await resolveSiteImage(articleRow.featuredImage)
-    if (imagePath) {
-      absoluteImageUrl = imagePath.startsWith('http')
-        ? imagePath
-        : `https://${host}${imagePath}`
-    }
-  }
-
+  // `openGraph.images` sengaja TIDAK diisi di sini (beda dari sebelum ticket
+  // 04): begitu kuncinya ada di objek ini — walau nilainya `undefined` —
+  // Next tidak lagi menimpanya dengan output `opengraph-image.tsx` (lihat
+  // `mergeStaticMetadata` di `next/dist/lib/metadata/resolve-metadata.js`,
+  // yang mengecek `hasOwnProperty('images')`, bukan truthiness). Membiarkan
+  // kunci ini kosong sepenuhnya membuat file convention di folder yang sama
+  // yang menang — kartu bagimu bergambar penuh, bukan foto mentah.
   return {
     title: articleRow.title,
     description: `Berita dari ${org.name}`,
@@ -145,8 +143,7 @@ export const generateMetadata = async ({
     openGraph: {
       title: articleRow.title,
       description: `Berita dari ${org.name}`,
-      type: 'article',
-      images: absoluteImageUrl ? [{ url: absoluteImageUrl }] : undefined
+      type: 'article'
     },
     robots: outcome.noindex
       ? { index: false, follow: true }
