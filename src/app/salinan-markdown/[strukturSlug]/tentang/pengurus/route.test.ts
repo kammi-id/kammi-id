@@ -30,7 +30,9 @@ let leadershipSettings: {
     {
       id: 'b1',
       title: 'Bidang Kaderisasi',
-      members: [{ id: 'm1', name: 'Rudi Hartono', role: 'Ketua Bidang', photoUrl: '' }]
+      members: [
+        { id: 'm1', name: 'Rudi Hartono', role: 'Ketua Bidang', photoUrl: '' }
+      ]
     }
   ]
 }

@@ -179,4 +179,5 @@ export const toWibIsoString = (publishedAt: Date): string => {
 export const resolveDateModified = (
   updatedAt: Date,
   publishedAt: Date
-): Date => (updatedAt.getTime() < publishedAt.getTime() ? publishedAt : updatedAt)
+): Date =>
+  updatedAt.getTime() < publishedAt.getTime() ? publishedAt : updatedAt

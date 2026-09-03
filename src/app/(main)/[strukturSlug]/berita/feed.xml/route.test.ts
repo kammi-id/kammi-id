@@ -105,9 +105,7 @@ describe('GET /berita/feed.xml', () => {
     )
     const body = await response.text()
 
-    expect(body).toContain(
-      '<description>Ringkasan berita ini.</description>'
-    )
+    expect(body).toContain('<description>Ringkasan berita ini.</description>')
   })
 
   it('mengisi dc:creator ketika Berita punya Penulis', async () => {

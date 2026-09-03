@@ -1,5 +1,9 @@
 import { ImageResponse } from 'next/og'
-import { resolveOgImageMode, resolveTitleFontSize, truncateTitle } from './utils'
+import {
+  resolveOgImageMode,
+  resolveTitleFontSize,
+  truncateTitle
+} from './utils'
 
 export const ogImageConfig = {
   size: { width: 1200, height: 630 },
@@ -184,7 +188,9 @@ export const ogImage = async ({
         </div>
 
         {/* Plakat judul + pil tanggal, keduanya di bawah. */}
-        <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
+        <div
+          style={{ display: 'flex', flexDirection: 'column', width: '100%' }}
+        >
           <div
             style={{
               display: 'flex',

@@ -32,7 +32,11 @@ const findFirstParagraphWithText = (
     const text = flattenText(node).replace(/\s+/g, ' ').trim()
     return text.length > 0 ? text : null
   }
-  if (node.type === 'image' || node.type === 'hardBreak' || node.type === 'text')
+  if (
+    node.type === 'image' ||
+    node.type === 'hardBreak' ||
+    node.type === 'text'
+  )
     return null
 
   for (const child of node.content) {

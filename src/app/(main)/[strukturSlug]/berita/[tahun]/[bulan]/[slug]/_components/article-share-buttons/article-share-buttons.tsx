@@ -116,8 +116,17 @@ export const ArticleShareButtons = ({ title }: ArticleShareButtonsProps) => {
       className='mt-4 flex flex-wrap items-center gap-2'
     >
       {canUseWebShare ? (
-        <Button type='button' variant='outline' size='sm' onClick={handleWebShare}>
-          <HugeiconsIcon icon={Share01Icon} strokeWidth={2} data-icon='inline-start' />
+        <Button
+          type='button'
+          variant='outline'
+          size='sm'
+          onClick={handleWebShare}
+        >
+          <HugeiconsIcon
+            icon={Share01Icon}
+            strokeWidth={2}
+            data-icon='inline-start'
+          />
           Bagikan
         </Button>
       ) : (

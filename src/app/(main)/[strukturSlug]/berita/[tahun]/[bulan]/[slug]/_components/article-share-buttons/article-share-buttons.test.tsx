@@ -1,5 +1,13 @@
 import '@testing-library/jest-dom'
-import { afterEach, beforeEach, describe, expect, mock, spyOn, test } from 'bun:test'
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  mock,
+  spyOn,
+  test
+} from 'bun:test'
 import { cleanup, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { toast } from 'sonner'
@@ -103,7 +111,9 @@ describe('ArticleShareButtons — Web Share tidak tersedia', () => {
     const user = userEvent.setup()
 
     render(<ArticleShareButtons title={TITLE} />)
-    await user.click(screen.getByRole('button', { name: 'Bagikan ke WhatsApp' }))
+    await user.click(
+      screen.getByRole('button', { name: 'Bagikan ke WhatsApp' })
+    )
 
     expect(open).toHaveBeenCalledWith(
       `https://wa.me/?text=${encodeURIComponent(`${TITLE} ${URL}`)}`,
@@ -133,7 +143,9 @@ describe('ArticleShareButtons — Web Share tidak tersedia', () => {
     const user = userEvent.setup()
 
     render(<ArticleShareButtons title={TITLE} />)
-    await user.click(screen.getByRole('button', { name: 'Bagikan ke Facebook' }))
+    await user.click(
+      screen.getByRole('button', { name: 'Bagikan ke Facebook' })
+    )
 
     expect(open).toHaveBeenCalledWith(
       `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(URL)}`,
@@ -148,7 +160,9 @@ describe('ArticleShareButtons — Web Share tidak tersedia', () => {
     const user = userEvent.setup()
 
     render(<ArticleShareButtons title={TITLE} />)
-    await user.click(screen.getByRole('button', { name: 'Bagikan ke Telegram' }))
+    await user.click(
+      screen.getByRole('button', { name: 'Bagikan ke Telegram' })
+    )
 
     expect(open).toHaveBeenCalledWith(
       `https://t.me/share/url?url=${encodeURIComponent(URL)}&text=${encodeURIComponent(TITLE)}`,

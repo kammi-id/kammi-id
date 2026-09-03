@@ -30,7 +30,10 @@ export const GET = async () => {
   }
 
   const entries = hosts
-    .map((host) => `  <sitemap>\n    <loc>https://${host}/sitemap.xml</loc>\n  </sitemap>`)
+    .map(
+      (host) =>
+        `  <sitemap>\n    <loc>https://${host}/sitemap.xml</loc>\n  </sitemap>`
+    )
     .join('\n')
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${entries}\n</sitemapindex>`

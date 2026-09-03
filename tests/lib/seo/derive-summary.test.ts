@@ -3,9 +3,7 @@ import { deriveSummary } from '~/lib/seo/derive-summary'
 
 const paragraph = (text: string) => ({
   type: 'doc',
-  content: [
-    { type: 'paragraph', content: [{ type: 'text', text }] }
-  ]
+  content: [{ type: 'paragraph', content: [{ type: 'text', text }] }]
 })
 
 const fallback = {

@@ -166,15 +166,14 @@ describe('sitemap', () => {
       e.url.endsWith('/berita/2026/8/kabar-terbaru')
     )
 
-    expect(berita?.lastModified).toEqual(
-      new Date('2026-08-02T00:00:00.000Z')
-    )
+    expect(berita?.lastModified).toEqual(new Date('2026-08-02T00:00:00.000Z'))
   })
 
   it('beranda memasang lastModified dari Pengaturan Situs begitu Struktur pernah menyimpannya', async () => {
     const before = await sitemap()
-    expect(before.find((e) => e.url === 'https://pw-jabar.kammi.id')).not
-      .toHaveProperty('lastModified')
+    expect(
+      before.find((e) => e.url === 'https://pw-jabar.kammi.id')
+    ).not.toHaveProperty('lastModified')
 
     await upsertSiteSettings('about', { paragraph1: 'x' }, pwJabarId)
 

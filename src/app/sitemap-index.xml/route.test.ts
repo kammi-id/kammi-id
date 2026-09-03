@@ -24,12 +24,8 @@ describe('GET /sitemap-index.xml', () => {
     expect(response.headers.get('content-type')).toContain('application/xml')
 
     const body = await response.text()
-    expect(body).toContain(
-      '<loc>https://www.kammi.id/sitemap.xml</loc>'
-    )
-    expect(body).toContain(
-      '<loc>https://pw-jabar.kammi.id/sitemap.xml</loc>'
-    )
+    expect(body).toContain('<loc>https://www.kammi.id/sitemap.xml</loc>')
+    expect(body).toContain('<loc>https://pw-jabar.kammi.id/sitemap.xml</loc>')
     expect(body.startsWith('<?xml')).toBe(true)
     expect(body).toContain('<sitemapindex')
   })
