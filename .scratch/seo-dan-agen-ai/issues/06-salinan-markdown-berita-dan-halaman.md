@@ -5,7 +5,7 @@ Markdown bersih, lewat dua jalan, tanpa pernah menggeser Permalink HTML-nya.
 
 **Blocked by:** 03 — front-matter memakai ringkasan turunan yang dibuat di sana.
 
-**Status:** ready-for-agent
+**Status:** done — merged (956caf2), integrated into `dev-20260104` at 066b8e0, 2026-09-03
 
 Keputusan bentuknya ada di ADR 0024. Istilah **Salinan Markdown** ada di
 `CONTEXT.md`.

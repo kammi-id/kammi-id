@@ -6,7 +6,7 @@ chip identitas di kiri atas, plakat judul di bawah, pil merah tanggal.
 
 **Blocked by:** None. Tiket 06–08 tidak menunggu tiket ini dan sebaliknya.
 
-**Status:** ready-for-agent
+**Status:** done — merged (486ef98), integrated into `dev-20260104` at 066b8e0, 2026-09-03
 
 **Mencabut keputusan visual tiket 04.** Tiket 04 memasang scrim gelap penuh
 kanvas (75% di bawah menuju 35% di atas) dan membenarkannya panjang lebar:
