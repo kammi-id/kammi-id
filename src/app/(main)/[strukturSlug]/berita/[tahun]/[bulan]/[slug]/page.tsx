@@ -69,8 +69,8 @@ const loadStrukturOrg = cache(async (organizationId: string) => {
 // butuh kategori untuk `Ringkasan turunan` dan `articleSection` (tiket 03),
 // dan berbagi satu lookup DB ketimbang menduplikasinya, sama seperti
 // `loadBeritaBySlug`/`loadStrukturOrg` di atas.
-const loadArticleCategory = cache(async (categoryId: string) =>
-  await articleCategoryQuery.getById(categoryId)
+const loadArticleCategory = cache(
+  async (categoryId: string) => await articleCategoryQuery.getById(categoryId)
 )
 
 /**
@@ -192,7 +192,15 @@ export const generateMetadata = async ({
     // `outcome.kind === 'ok'` only when the requested tahun/bulan/slug are
     // already canonical (`resolvePermalinkBerita` redirects otherwise) — the
     // URL params themselves are the canonical path here.
-    alternates: { canonical: `/berita/${tahun}/${bulan}/${slug}` },
+    alternates: {
+      canonical: `/berita/${tahun}/${bulan}/${slug}`,
+      // Tiket 06 (ADR 0024, Salinan Markdown) — Next.js 16 menerima MIME
+      // arbitrer di `alternates.types` tanpa kode kustom (sama seperti
+      // `'application/rss+xml'` pada `/berita/page.tsx`).
+      types: {
+        'text/markdown': `/berita/${tahun}/${bulan}/${slug}.md`
+      }
+    },
     openGraph: {
       title: articleRow.title,
       description,
@@ -237,11 +245,7 @@ const BeritaDetailPage = async ({ params }: BeritaDetailPageProps) => {
 
   const galleryImageUrls = await resolveGalleryImages(articleRow.galleryImages)
 
-  const permalinkPath = buildPermalinkBerita(
-    Number(tahun),
-    Number(bulan),
-    slug
-  )
+  const permalinkPath = buildPermalinkBerita(Number(tahun), Number(bulan), slug)
   const permalinkUrl = `https://${resolveStrukturHost(org)}${permalinkPath}`
 
   // Ticket 03: Berita ber-`noindex` (Struktur Non-Aktif, ADR 0013) tetap
