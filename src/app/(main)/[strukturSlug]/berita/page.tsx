@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import { buildBreadcrumb } from '~/lib/seo'
 import {
   resolveStrukturIdFromParams,
+  getStrukturIdentity,
   type StrukturRouteParams
 } from '~/app/(main)/_data/struktur'
 import { BeritaArchive } from './_components/berita-archive'
@@ -49,6 +50,8 @@ const BeritaPage = async ({ params, searchParams }: BeritaPageProps) => {
   if (!organizationId) notFound()
 
   const page = parsePage(rawPage)
+  const identity = await getStrukturIdentity(organizationId)
+  if (!identity) notFound()
 
   return (
     <section className='bg-background min-h-[70vh] pb-24'>
@@ -56,10 +59,13 @@ const BeritaPage = async ({ params, searchParams }: BeritaPageProps) => {
         type='application/ld+json'
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(
-            buildBreadcrumb([
-              { name: 'Beranda', url: '/' },
-              { name: 'Berita', url: '/berita' }
-            ])
+            buildBreadcrumb(
+              [
+                { name: 'Beranda', url: '/' },
+                { name: 'Berita', url: '/berita' }
+              ],
+              identity
+            )
           )
         }}
       />

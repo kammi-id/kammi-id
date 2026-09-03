@@ -95,13 +95,81 @@ export const buildWebSite = (
   publisher: { '@id': strukturOrganizationId(struktur) }
 })
 
-export const buildBreadcrumb = (items: BreadcrumbItem[]) => ({
+/**
+ * `struktur` menentukan host absolut tiap `item` (tiket 03 — bug yang sama
+ * dengan tiket 02: sebelumnya SELALU `https://www.kammi.id`, membuat
+ * breadcrumb Situs Struktur mana pun mengaku sebagai PP).
+ */
+export const buildBreadcrumb = (
+  items: BreadcrumbItem[],
+  struktur: StrukturJsonLdRef
+) => ({
   '@context': 'https://schema.org',
   '@type': 'BreadcrumbList',
   itemListElement: items.map((item, index) => ({
     '@type': 'ListItem',
     position: index + 1,
     name: item.name,
-    item: `https://www.kammi.id${item.url}`
+    item: `https://${resolveStrukturHost(struktur)}${item.url}`
   }))
+})
+
+/**
+ * Berita: `Article`, bukan `NewsArticle` — KAMMI.id situs organisasi, bukan
+ * ruang redaksi (spec §"Solution"). `publisher` dan jatuhan `author` sama-
+ * sama merujuk `@id` Struktur lewat `strukturOrganizationId`, bukan
+ * menyalin objek `Organization` — itulah yang menyatukan Berita dengan
+ * simpul entitas Struktur penerbitnya di graf.
+ */
+export type ArticleJsonLdInput = {
+  headline: string
+  description: string
+  /** Absolut, Gambar Utama — dilewati sama sekali kalau tidak ada. */
+  image?: string
+  datePublished: string
+  dateModified: string
+  articleSection?: string
+  keywords: string[]
+  /** Permalink absolut — dipakai untuk `mainEntityOfPage`. */
+  url: string
+  publisher: StrukturJsonLdRef
+  /** `Person.name` dari `article.penulis`, kalau terisi. */
+  authorName?: string | null
+}
+
+export const buildArticle = (input: ArticleJsonLdInput) => ({
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: input.headline,
+  description: input.description,
+  ...(input.image ? { image: input.image } : {}),
+  datePublished: input.datePublished,
+  dateModified: input.dateModified,
+  inLanguage: 'id-ID',
+  ...(input.articleSection ? { articleSection: input.articleSection } : {}),
+  ...(input.keywords.length > 0 ? { keywords: input.keywords } : {}),
+  mainEntityOfPage: { '@type': 'WebPage', '@id': input.url },
+  publisher: { '@id': strukturOrganizationId(input.publisher) },
+  author: input.authorName
+    ? { '@type': 'Person', name: input.authorName }
+    : { '@id': strukturOrganizationId(input.publisher) }
+})
+
+/**
+ * Halaman (`article.type === 'page'`): tak bertanggal (`CONTEXT.md`), jadi
+ * `WebPage`, bukan `Article` — tiket 03.
+ */
+export type WebPageJsonLdInput = {
+  name: string
+  description: string
+  url: string
+}
+
+export const buildWebPage = (input: WebPageJsonLdInput) => ({
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  name: input.name,
+  description: input.description,
+  url: input.url,
+  inLanguage: 'id-ID'
 })

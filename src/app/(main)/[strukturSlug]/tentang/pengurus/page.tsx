@@ -7,6 +7,7 @@ import { LeadersDirectory } from './_components/leaders-directory'
 import { ScrollProgress } from './_components/scroll-progress'
 import {
   resolveStrukturIdFromParams,
+  getStrukturIdentity,
   type StrukturRouteParams
 } from '~/app/(main)/_data/struktur'
 import { buildBreadcrumb } from '~/lib/seo'
@@ -80,17 +81,23 @@ const PengurusPage = async ({ params }: PengurusPageProps) => {
   const orgId = await resolveStrukturIdFromParams(params)
   if (!orgId) notFound()
 
+  const identity = await getStrukturIdentity(orgId)
+  if (!identity) notFound()
+
   return (
     <>
       <script
         type='application/ld+json'
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(
-            buildBreadcrumb([
-              { name: 'Beranda', url: '/' },
-              { name: 'Tentang', url: '/tentang' },
-              { name: 'Pengurus Pusat', url: '/tentang/pengurus' }
-            ])
+            buildBreadcrumb(
+              [
+                { name: 'Beranda', url: '/' },
+                { name: 'Tentang', url: '/tentang' },
+                { name: 'Pengurus Pusat', url: '/tentang/pengurus' }
+              ],
+              identity
+            )
           )
         }}
       />

@@ -6,6 +6,7 @@ import { SectionNav } from './_components/section-nav'
 import { getTentangSettings } from '~/app/(main)/_data/site-settings'
 import {
   resolveStrukturIdFromParams,
+  getStrukturIdentity,
   type StrukturRouteParams
 } from '~/app/(main)/_data/struktur'
 import { buildBreadcrumb } from '~/lib/seo'
@@ -29,7 +30,11 @@ type TentangPageProps = {
 const TentangPage = async ({ params }: TentangPageProps) => {
   const orgId = await resolveStrukturIdFromParams(params)
   if (!orgId) notFound()
-  const settings = await getTentangSettings(orgId)
+  const [settings, identity] = await Promise.all([
+    getTentangSettings(orgId),
+    getStrukturIdentity(orgId)
+  ])
+  if (!identity) notFound()
 
   return (
     <>
@@ -37,10 +42,13 @@ const TentangPage = async ({ params }: TentangPageProps) => {
         type='application/ld+json'
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(
-            buildBreadcrumb([
-              { name: 'Beranda', url: '/' },
-              { name: 'Tentang', url: '/tentang' }
-            ])
+            buildBreadcrumb(
+              [
+                { name: 'Beranda', url: '/' },
+                { name: 'Tentang', url: '/tentang' }
+              ],
+              identity
+            )
           )
         }}
       />

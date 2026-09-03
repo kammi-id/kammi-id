@@ -62,13 +62,16 @@ const BeritaJaringanPage = async ({
         type='application/ld+json'
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(
-            buildBreadcrumb([
-              { name: 'Beranda', url: '/' },
-              {
-                name: 'Berita KAMMI se-Indonesia',
-                url: '/berita/seindonesia'
-              }
-            ])
+            buildBreadcrumb(
+              [
+                { name: 'Beranda', url: '/' },
+                {
+                  name: 'Berita KAMMI se-Indonesia',
+                  url: '/berita/seindonesia'
+                }
+              ],
+              identity
+            )
           )
         }}
       />

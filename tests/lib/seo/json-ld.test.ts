@@ -3,6 +3,8 @@ import {
   buildWebSite,
   buildOrganization,
   buildBreadcrumb,
+  buildArticle,
+  buildWebPage,
   strukturOrganizationId,
   type StrukturJsonLdOrganization
 } from '~/lib/seo/json-ld'
@@ -136,11 +138,14 @@ describe('buildOrganization', () => {
 })
 
 describe('buildBreadcrumb', () => {
-  it('builds BreadcrumbList with correct positions and absolute item URLs', () => {
-    const result = buildBreadcrumb([
-      { name: 'Beranda', url: '/' },
-      { name: 'Tentang', url: '/tentang' }
-    ])
+  it('builds BreadcrumbList with correct positions and absolute item URLs off the given Struktur host', () => {
+    const result = buildBreadcrumb(
+      [
+        { name: 'Beranda', url: '/' },
+        { name: 'Tentang', url: '/tentang' }
+      ],
+      { type: 'pp', slug: 'pp' }
+    )
     expect(result['@type']).toBe('BreadcrumbList')
     expect(result.itemListElement).toHaveLength(2)
     expect(result.itemListElement[0].position).toBe(1)
@@ -150,9 +155,94 @@ describe('buildBreadcrumb', () => {
     expect(result.itemListElement[1].item).toBe('https://www.kammi.id/tentang')
   })
 
+  it('uses the subdomain host for a non-PP Struktur — not PP, the bug ticket 03 fixes', () => {
+    const result = buildBreadcrumb([{ name: 'Beranda', url: '/' }], {
+      type: 'pw',
+      slug: 'aceh'
+    })
+    expect(result.itemListElement[0].item).toBe('https://aceh.kammi.id/')
+  })
+
   it('handles a single-item breadcrumb', () => {
-    const result = buildBreadcrumb([{ name: 'Beranda', url: '/' }])
+    const result = buildBreadcrumb([{ name: 'Beranda', url: '/' }], {
+      type: 'pp',
+      slug: 'pp'
+    })
     expect(result.itemListElement).toHaveLength(1)
     expect(result.itemListElement[0].position).toBe(1)
+  })
+})
+
+describe('buildArticle', () => {
+  const base = {
+    headline: 'Judul Berita',
+    description: 'Ringkasan Berita.',
+    datePublished: '2026-01-01T00:00:00.000Z',
+    dateModified: '2026-01-02T00:00:00.000Z',
+    keywords: ['kaderisasi', 'aceh'],
+    url: 'https://aceh.kammi.id/berita/2026/01/judul-berita',
+    publisher: { type: 'pw', slug: 'aceh' } as const
+  }
+
+  it('returns Article (not NewsArticle) with mainEntityOfPage pointing at the permalink', () => {
+    const result = buildArticle(base)
+    expect(result['@type']).toBe('Article')
+    expect(result.headline).toBe('Judul Berita')
+    expect(result.inLanguage).toBe('id-ID')
+    expect(result.mainEntityOfPage).toEqual({
+      '@type': 'WebPage',
+      '@id': base.url
+    })
+  })
+
+  it("publisher references the Struktur's @id, not a copied Organization object", () => {
+    const result = buildArticle(base)
+    expect(result.publisher).toEqual({
+      '@id': 'https://aceh.kammi.id/#organization'
+    })
+  })
+
+  it('author is a Person when authorName is present', () => {
+    const result = buildArticle({ ...base, authorName: 'Budi Santoso' })
+    expect(result.author).toEqual({ '@type': 'Person', name: 'Budi Santoso' })
+  })
+
+  it("author falls back to the Struktur's @id when authorName is absent", () => {
+    const result = buildArticle(base)
+    expect(result.author).toEqual({
+      '@id': 'https://aceh.kammi.id/#organization'
+    })
+  })
+
+  it('omits image, articleSection, and keywords when not provided', () => {
+    const result = buildArticle({ ...base, keywords: [] })
+    expect('image' in result).toBe(false)
+    expect('articleSection' in result).toBe(false)
+    expect('keywords' in result).toBe(false)
+  })
+
+  it('includes image and articleSection when provided', () => {
+    const result = buildArticle({
+      ...base,
+      image: 'https://aceh.kammi.id/api/images/x.png',
+      articleSection: 'Kaderisasi'
+    })
+    expect(result.image).toBe('https://aceh.kammi.id/api/images/x.png')
+    expect(result.articleSection).toBe('Kaderisasi')
+  })
+})
+
+describe('buildWebPage', () => {
+  it('returns WebPage (not Article) with the given fields', () => {
+    const result = buildWebPage({
+      name: 'Tentang Kami',
+      description: 'Ringkasan Halaman.',
+      url: 'https://aceh.kammi.id/tentang-kami'
+    })
+    expect(result['@type']).toBe('WebPage')
+    expect(result.name).toBe('Tentang Kami')
+    expect(result.description).toBe('Ringkasan Halaman.')
+    expect(result.url).toBe('https://aceh.kammi.id/tentang-kami')
+    expect(result.inLanguage).toBe('id-ID')
   })
 })

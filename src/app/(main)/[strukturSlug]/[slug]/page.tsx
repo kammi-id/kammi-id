@@ -2,11 +2,17 @@ import { cache } from 'react'
 import type { Metadata } from 'next'
 import { connection } from 'next/server'
 import { notFound } from 'next/navigation'
-import { resolveStrukturIdFromParams } from '~/app/(main)/_data/struktur'
+import {
+  resolveStrukturIdFromParams,
+  getStrukturIdentity
+} from '~/app/(main)/_data/struktur'
+import { getMetadataSettings } from '~/app/(main)/_data/site-settings'
 import { articleQuery } from '~/db/query/article'
 import { ArticleBodyRenderer } from '~/components/article-body-renderer'
 import { ImageGalleryGrid } from '~/components/image-gallery-grid'
 import { resolveGalleryImages } from '~/lib/utils/site-image'
+import { resolveStrukturHost } from '~/lib/struktur/tenant-host'
+import { deriveSummary, buildBreadcrumb, buildWebPage } from '~/lib/seo'
 import { resolvePermalinkHalaman } from './_components/_permalink-halaman'
 
 // Tiket 09 (Halaman beralamat akar). Mengikuti pola halaman Permalink
@@ -40,6 +46,7 @@ const loadHalamanBySlug = cache(
 type ResolvedOutcome = {
   organizationId: string | null
   articleRow: Awaited<ReturnType<typeof loadHalamanBySlug>> | undefined
+  identity: Awaited<ReturnType<typeof getStrukturIdentity>>
   outcome: ReturnType<typeof resolvePermalinkHalaman> | null
 }
 
@@ -49,13 +56,35 @@ const resolveOutcome = async (
   const { slug } = await params
   const organizationId = await resolveStrukturIdFromParams(params)
   if (!organizationId) {
-    return { organizationId: null, articleRow: undefined, outcome: null }
+    return {
+      organizationId: null,
+      articleRow: undefined,
+      identity: null,
+      outcome: null
+    }
   }
 
-  const articleRow = await loadHalamanBySlug(organizationId, slug)
+  const [articleRow, identity] = await Promise.all([
+    loadHalamanBySlug(organizationId, slug),
+    getStrukturIdentity(organizationId)
+  ])
   const outcome = resolvePermalinkHalaman({ article: articleRow ?? undefined })
 
-  return { organizationId, articleRow, outcome }
+  return { organizationId, articleRow, identity, outcome }
+}
+
+// Ringkasan turunan (tiket 03) — Halaman tidak punya kategori, jadi jatuhan
+// berlapisnya cuma dua tingkat: deskripsi Struktur, lalu nama Struktur.
+const resolveDescription = async (
+  organizationId: string,
+  articleRow: NonNullable<ResolvedOutcome['articleRow']>,
+  strukturName: string
+): Promise<string> => {
+  const metadataSettings = await getMetadataSettings(organizationId)
+  return deriveSummary(articleRow.body, {
+    strukturName,
+    strukturDescription: metadataSettings.metaDescription || null
+  })
 }
 
 export const generateMetadata = async ({
@@ -63,13 +92,23 @@ export const generateMetadata = async ({
 }: HalamanDetailPageProps): Promise<Metadata> => {
   await connection()
   const { slug } = await params
-  const { organizationId, articleRow, outcome } = await resolveOutcome(params)
+  const { organizationId, articleRow, identity, outcome } =
+    await resolveOutcome(params)
 
-  if (!organizationId || !articleRow || outcome?.kind !== 'ok') return {}
+  if (!organizationId || !articleRow || !identity || outcome?.kind !== 'ok')
+    return {}
+
+  const description = await resolveDescription(
+    organizationId,
+    articleRow,
+    identity.name
+  )
 
   return {
     title: articleRow.title,
+    description,
     alternates: { canonical: `/${slug}` },
+    openGraph: { title: articleRow.title, description },
     robots: outcome.noindex
       ? { index: false, follow: true }
       : { index: true, follow: true }
@@ -78,19 +117,54 @@ export const generateMetadata = async ({
 
 const HalamanDetailPage = async ({ params }: HalamanDetailPageProps) => {
   await connection()
-  const { organizationId, articleRow, outcome } = await resolveOutcome(params)
+  const { organizationId, articleRow, identity, outcome } =
+    await resolveOutcome(params)
 
   if (!organizationId) notFound()
   if (!outcome || outcome.kind === 'not-found') notFound()
 
   // outcome.kind === 'ok' dari sini — dan resolvePermalinkHalaman hanya
   // menjawab 'ok' ketika `articleRow` ada.
-  if (!articleRow) notFound()
+  if (!articleRow || !identity) notFound()
+
+  const description = await resolveDescription(
+    organizationId,
+    articleRow,
+    identity.name
+  )
+  const permalinkUrl = `https://${resolveStrukturHost(identity)}/${articleRow.slug}`
 
   const galleryImageUrls = await resolveGalleryImages(articleRow.galleryImages)
 
   return (
     <article className='mx-auto max-w-3xl px-6 py-16 lg:px-8'>
+      <script
+        type='application/ld+json'
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(
+            buildWebPage({
+              name: articleRow.title,
+              description,
+              url: permalinkUrl
+            })
+          )
+        }}
+      />
+      <script
+        type='application/ld+json'
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(
+            buildBreadcrumb(
+              [
+                { name: 'Beranda', url: '/' },
+                { name: articleRow.title, url: `/${articleRow.slug}` }
+              ],
+              identity
+            )
+          )
+        }}
+      />
+
       <h1 className='font-heading text-foreground text-3xl font-bold tracking-tight sm:text-4xl'>
         {articleRow.title}
       </h1>

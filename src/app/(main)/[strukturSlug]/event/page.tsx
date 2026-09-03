@@ -6,6 +6,7 @@ import { Calendar01Icon } from '@hugeicons/core-free-icons'
 import { buildBreadcrumb } from '~/lib/seo'
 import {
   resolveStrukturIdFromParams,
+  getStrukturIdentity,
   type StrukturRouteParams
 } from '~/app/(main)/_data/struktur'
 
@@ -29,16 +30,22 @@ const EventPage = async ({ params }: EventPageProps) => {
   const organizationId = await resolveStrukturIdFromParams(params)
   if (!organizationId) notFound()
 
+  const identity = await getStrukturIdentity(organizationId)
+  if (!identity) notFound()
+
   return (
     <div className='bg-background min-h-[70vh] pb-24'>
       <script
         type='application/ld+json'
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(
-            buildBreadcrumb([
-              { name: 'Beranda', url: '/' },
-              { name: 'Event & Agenda', url: '/event' }
-            ])
+            buildBreadcrumb(
+              [
+                { name: 'Beranda', url: '/' },
+                { name: 'Event & Agenda', url: '/event' }
+              ],
+              identity
+            )
           )
         }}
       />
