@@ -1,0 +1,135 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main, dev-*]
+  push:
+    branches: [main, 'dev-*']
+    tags: ['v*.*.*']
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: kammi_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    env:
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/kammi_test
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Check Formatting
+        run: bun run check:format
+
+      - name: Check Linting
+        run: bun run check:lint
+
+      - name: Check Structure
+        run: bun run check:structure
+
+      - name: Generate Next.js Types
+        run: bunx next typegen
+
+      - name: Check Types
+        run: bun run check:types
+
+      - name: Run DB Migrations
+        run: bun run db:migrate
+
+      - name: Run Unit Tests
+        run: bun test --isolate
+
+      - name: Seed Database for E2E
+        run: bun src/scripts/seed-pp-minimal.ts
+
+      - name: Install Playwright Browsers
+        run: bunx playwright install --with-deps
+
+      - name: Run E2E Tests
+        run: |
+          bun run dev &
+          npx wait-on http://localhost:3000
+          bun run test:e2e
+
+  build-push:
+    needs: test
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        uses: docker/metadata-action@v5
+        id: meta
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=sha,prefix=sha-,enable=${{ github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/dev-') }}
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy:
+    needs: build-push
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/dev-')
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Deploy to non-production
+        run: bun run deploy:nonprod
+        env:
+          DOKPLOY_NONPROD_URL: ${{ secrets.DOKPLOY_NONPROD_URL }}
+          DOKPLOY_NONPROD_API_KEY: ${{ secrets.DOKPLOY_NONPROD_API_KEY }}
+          DOKPLOY_NONPROD_APPLICATION_ID: ${{ secrets.DOKPLOY_NONPROD_APPLICATION_ID }}
+          DOKPLOY_NONPROD_GHCR_USERNAME: ${{ secrets.DOKPLOY_NONPROD_GHCR_USERNAME }}
+          DOKPLOY_NONPROD_GHCR_PAT: ${{ secrets.DOKPLOY_NONPROD_GHCR_PAT }}

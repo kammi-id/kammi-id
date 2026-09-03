@@ -1,0 +1,283 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-08-20T00:00:00Z",
+  "title": "Design System: KAMMI-ID",
+  "extensions": {
+    "colorMeta": {
+      "primary": {
+        "role": "primary",
+        "displayName": "Ledger Crimson",
+        "canonical": "oklch(0.52 0.20 17)",
+        "tonalRamp": [
+          "oklch(0.15 0.12 17)", "oklch(0.25 0.15 17)", "oklch(0.35 0.18 17)",
+          "oklch(0.45 0.20 17)", "oklch(0.55 0.20 17)", "oklch(0.65 0.17 17)",
+          "oklch(0.78 0.12 17)", "oklch(0.92 0.07 17)"
+        ]
+      },
+      "foreground": {
+        "role": "neutral",
+        "displayName": "Deep Slate",
+        "canonical": "oklch(0.141 0.005 285.823)",
+        "tonalRamp": [
+          "oklch(0.15 0.005 286)", "oklch(0.25 0.006 286)", "oklch(0.35 0.007 286)",
+          "oklch(0.45 0.008 286)", "oklch(0.55 0.008 286)", "oklch(0.65 0.007 286)",
+          "oklch(0.78 0.005 286)", "oklch(0.92 0.003 286)"
+        ]
+      },
+      "background": {
+        "role": "neutral",
+        "displayName": "Paper White",
+        "canonical": "oklch(1 0 0)",
+        "tonalRamp": [
+          "oklch(0.15 0.003 286)", "oklch(0.25 0.003 286)", "oklch(0.35 0.003 286)",
+          "oklch(0.45 0.003 286)", "oklch(0.6 0.003 286)", "oklch(0.75 0.002 286)",
+          "oklch(0.9 0.002 286)", "oklch(1 0 286)"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Soft Grey",
+        "canonical": "oklch(0.967 0.001 286.375)",
+        "tonalRamp": [
+          "oklch(0.2 0.001 286)", "oklch(0.32 0.001 286)", "oklch(0.44 0.001 286)",
+          "oklch(0.56 0.001 286)", "oklch(0.68 0.001 286)", "oklch(0.8 0.001 286)",
+          "oklch(0.9 0.001 286)", "oklch(0.967 0.001 286)"
+        ]
+      },
+      "muted-foreground": {
+        "role": "neutral",
+        "displayName": "Slate Muted",
+        "canonical": "oklch(0.552 0.016 285.938)",
+        "tonalRamp": [
+          "oklch(0.2 0.014 286)", "oklch(0.3 0.015 286)", "oklch(0.4 0.016 286)",
+          "oklch(0.552 0.016 286)", "oklch(0.6 0.014 286)", "oklch(0.7 0.012 286)",
+          "oklch(0.8 0.008 286)", "oklch(0.9 0.005 286)"
+        ]
+      },
+      "destructive": {
+        "role": "error",
+        "displayName": "Siren Red",
+        "canonical": "oklch(0.577 0.245 27.325)",
+        "tonalRamp": [
+          "oklch(0.15 0.15 27)", "oklch(0.25 0.19 27)", "oklch(0.35 0.22 27)",
+          "oklch(0.45 0.24 27)", "oklch(0.577 0.245 27)", "oklch(0.65 0.20 27)",
+          "oklch(0.78 0.14 27)", "oklch(0.92 0.08 27)"
+        ]
+      },
+      "border": {
+        "role": "neutral",
+        "displayName": "Mist Border",
+        "canonical": "oklch(0.92 0.004 286.32)",
+        "tonalRamp": [
+          "oklch(0.2 0.004 286)", "oklch(0.32 0.004 286)", "oklch(0.44 0.004 286)",
+          "oklch(0.56 0.004 286)", "oklch(0.68 0.004 286)", "oklch(0.8 0.004 286)",
+          "oklch(0.92 0.004 286)", "oklch(0.97 0.002 286)"
+        ]
+      },
+      "ring": {
+        "role": "primary",
+        "displayName": "Crimson Ring",
+        "canonical": "oklch(0.7 0.012 17)",
+        "tonalRamp": [
+          "oklch(0.2 0.01 17)", "oklch(0.32 0.011 17)", "oklch(0.44 0.012 17)",
+          "oklch(0.56 0.012 17)", "oklch(0.7 0.012 17)", "oklch(0.8 0.01 17)",
+          "oklch(0.88 0.008 17)", "oklch(0.95 0.005 17)"
+        ]
+      },
+      "status-success": {
+        "role": "success",
+        "displayName": "Ledger Green",
+        "canonical": "oklch(0.44 0.14 152)",
+        "tonalRamp": [
+          "oklch(0.15 0.08 152)", "oklch(0.25 0.10 152)", "oklch(0.35 0.12 152)",
+          "oklch(0.44 0.14 152)", "oklch(0.55 0.13 152)", "oklch(0.65 0.11 152)",
+          "oklch(0.78 0.08 152)", "oklch(0.92 0.04 152)"
+        ]
+      },
+      "status-warning": {
+        "role": "warning",
+        "displayName": "Ledger Amber",
+        "canonical": "oklch(0.48 0.12 75)",
+        "tonalRamp": [
+          "oklch(0.15 0.07 75)", "oklch(0.25 0.09 75)", "oklch(0.35 0.11 75)",
+          "oklch(0.48 0.12 75)", "oklch(0.58 0.12 75)", "oklch(0.68 0.11 75)",
+          "oklch(0.8 0.08 75)", "oklch(0.92 0.04 75)"
+        ]
+      },
+      "chart-ab1": {
+        "role": "categorical",
+        "displayName": "AB1 Green",
+        "canonical": "oklch(0.65 0.18 145)",
+        "tonalRamp": [
+          "oklch(0.15 0.10 145)", "oklch(0.25 0.13 145)", "oklch(0.35 0.16 145)",
+          "oklch(0.45 0.18 145)", "oklch(0.55 0.18 145)", "oklch(0.65 0.18 145)",
+          "oklch(0.78 0.13 145)", "oklch(0.92 0.06 145)"
+        ]
+      },
+      "chart-ab2": {
+        "role": "categorical",
+        "displayName": "AB2 Ember",
+        "canonical": "oklch(0.58 0.20 25)",
+        "tonalRamp": [
+          "oklch(0.15 0.12 25)", "oklch(0.25 0.15 25)", "oklch(0.35 0.18 25)",
+          "oklch(0.45 0.20 25)", "oklch(0.58 0.20 25)", "oklch(0.68 0.17 25)",
+          "oklch(0.8 0.12 25)", "oklch(0.92 0.06 25)"
+        ]
+      },
+      "chart-ab3": {
+        "role": "categorical",
+        "displayName": "AB3 Violet",
+        "canonical": "oklch(0.55 0.18 265)",
+        "tonalRamp": [
+          "oklch(0.15 0.10 265)", "oklch(0.25 0.13 265)", "oklch(0.35 0.16 265)",
+          "oklch(0.45 0.18 265)", "oklch(0.55 0.18 265)", "oklch(0.65 0.15 265)",
+          "oklch(0.78 0.10 265)", "oklch(0.92 0.05 265)"
+        ]
+      },
+      "chart-ikhwan": {
+        "role": "categorical",
+        "displayName": "Ikhwan Blue",
+        "canonical": "oklch(0.72 0.14 225)",
+        "tonalRamp": [
+          "oklch(0.15 0.08 225)", "oklch(0.25 0.10 225)", "oklch(0.35 0.12 225)",
+          "oklch(0.45 0.13 225)", "oklch(0.6 0.14 225)", "oklch(0.72 0.14 225)",
+          "oklch(0.82 0.10 225)", "oklch(0.92 0.05 225)"
+        ]
+      },
+      "chart-akhwat": {
+        "role": "categorical",
+        "displayName": "Akhwat Rose",
+        "canonical": "oklch(0.74 0.14 350)",
+        "tonalRamp": [
+          "oklch(0.15 0.08 350)", "oklch(0.25 0.10 350)", "oklch(0.35 0.12 350)",
+          "oklch(0.45 0.13 350)", "oklch(0.6 0.14 350)", "oklch(0.74 0.14 350)",
+          "oklch(0.84 0.10 350)", "oklch(0.93 0.05 350)"
+        ]
+      },
+      "chart-pemandu": {
+        "role": "categorical",
+        "displayName": "Pemandu Green",
+        "canonical": "oklch(0.55 0.16 150)",
+        "tonalRamp": [
+          "oklch(0.15 0.09 150)", "oklch(0.25 0.11 150)", "oklch(0.35 0.14 150)",
+          "oklch(0.45 0.16 150)", "oklch(0.55 0.16 150)", "oklch(0.65 0.13 150)",
+          "oklch(0.78 0.09 150)", "oklch(0.92 0.05 150)"
+        ]
+      },
+      "chart-instruktur": {
+        "role": "categorical",
+        "displayName": "Instruktur Violet",
+        "canonical": "oklch(0.55 0.16 280)",
+        "tonalRamp": [
+          "oklch(0.15 0.09 280)", "oklch(0.25 0.11 280)", "oklch(0.35 0.14 280)",
+          "oklch(0.45 0.16 280)", "oklch(0.55 0.16 280)", "oklch(0.65 0.13 280)",
+          "oklch(0.78 0.09 280)", "oklch(0.92 0.05 280)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "The public site's hero headline only." },
+      "headline": { "displayName": "Headline", "purpose": "Dashboard page titles." },
+      "title": { "displayName": "Title", "purpose": "Card titles." },
+      "body": { "displayName": "Body", "purpose": "Workhorse prose, form labels, table content." },
+      "label": { "displayName": "Label", "purpose": "Section eyebrows, badges, IDs, status codes — intended mono, currently unwired (see DESIGN.md Typography gap)." },
+      "accent": { "displayName": "Accent", "purpose": "One rationed handwritten flourish on the public \"tentang\" page." }
+    },
+    "shadows": [
+      { "name": "card-rest", "value": "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1), 0 0 0 1px rgb(0 0 0 / 0.05)", "purpose": "The system's only default elevation — every card, everywhere, at rest." },
+      { "name": "focus-ring", "value": "0 0 0 3px rgb(112 4 34 / 0.3)", "purpose": "Keyboard focus on buttons, inputs, and other interactive elements." },
+      { "name": "invalid-ring", "value": "0 0 0 3px rgb(147 25 21 / 0.2)", "purpose": "Form fields failing validation." }
+    ],
+    "motion": [
+      { "name": "press", "value": "transform 150ms ease", "purpose": "Buttons translate down 1px on :active — a quiet press acknowledgment, not a bounce." },
+      { "name": "scroll-reveal", "value": "linear both, animation-timeline: view(), animation-range: entry 5% cover 25%", "purpose": "Marketing sections fade/slide up as they enter the viewport; disabled entirely under prefers-reduced-motion." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "40rem" },
+      { "name": "md", "value": "48rem" },
+      { "name": "lg", "value": "64rem" },
+      { "name": "xl", "value": "80rem" },
+      { "name": "2xl", "value": "96rem" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-default",
+      "description": "The default action button — a true capsule, Ledger Crimson fill.",
+      "html": "<button class=\"ds-btn-primary\">Simpan Perubahan</button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; height: 36px; padding: 0 12px; gap: 6px; border-radius: 26px; border: none; background: oklch(0.52 0.2 17); color: oklch(0.98 0.008 17); font-family: 'Public Sans', system-ui, sans-serif; font-size: 14px; font-weight: 500; white-space: nowrap; transition: background 150ms ease, transform 150ms ease; } .ds-btn-primary:hover { background: color-mix(in oklch, oklch(0.52 0.2 17) 80%, transparent); } .ds-btn-primary:focus-visible { outline: none; box-shadow: 0 0 0 3px rgb(112 4 34 / 0.3); } .ds-btn-primary:active { transform: translateY(1px); }"
+    },
+    {
+      "name": "Outline Button",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "The one button variant that keeps a visible border at rest.",
+      "html": "<button class=\"ds-btn-outline\">Batal</button>",
+      "css": ".ds-btn-outline { display: inline-flex; align-items: center; justify-content: center; height: 36px; padding: 0 12px; border-radius: 26px; border: 1px solid oklch(0.92 0.004 286.32); background: oklch(1 0 0); color: oklch(0.141 0.005 285.823); font-family: 'Public Sans', system-ui, sans-serif; font-size: 14px; font-weight: 500; transition: background 150ms ease; } .ds-btn-outline:hover { background: oklch(0.967 0.001 286.375); } .ds-btn-outline:focus-visible { outline: none; box-shadow: 0 0 0 3px rgb(112 4 34 / 0.3); }"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Borderless at rest; the ring only appears on focus.",
+      "html": "<input class=\"ds-input\" placeholder=\"Cari nama atau NIA…\" />",
+      "css": ".ds-input { height: 36px; width: 100%; padding: 4px 12px; border-radius: 22px; border: 1px solid transparent; background: color-mix(in oklch, oklch(0.92 0.004 286.32) 50%, transparent); color: oklch(0.141 0.005 285.823); font-family: 'Public Sans', system-ui, sans-serif; font-size: 14px; outline: none; transition: border-color 150ms ease, box-shadow 150ms ease; } .ds-input::placeholder { color: oklch(0.552 0.016 285.938); } .ds-input:focus-visible { border-color: oklch(0.7 0.012 17); box-shadow: 0 0 0 3px rgb(112 4 34 / 0.3); }"
+    },
+    {
+      "name": "Default Badge",
+      "kind": "chip",
+      "refersTo": "badge-default",
+      "description": "Capsule status/category tag; swap background+text per the semantic color family in use.",
+      "html": "<span class=\"ds-badge\">AB2</span>",
+      "css": ".ds-badge { display: inline-flex; align-items: center; justify-content: center; height: 20px; padding: 2px 8px; border-radius: 22px; background: oklch(0.58 0.2 25); color: white; font-family: 'Public Sans', system-ui, sans-serif; font-size: 12px; font-weight: 500; white-space: nowrap; }"
+    },
+    {
+      "name": "Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Soft-lifted by default: shadow + faint ring, no border, generously rounded corners.",
+      "html": "<div class=\"ds-card\"><h3 class=\"ds-card-title\">Struktur PD Jakarta Selatan</h3><p class=\"ds-card-desc\">42 Kader aktif · 3 Daurah berjalan</p></div>",
+      "css": ".ds-card { display: flex; flex-direction: column; gap: 12px; padding: 24px; border-radius: 26px; background: oklch(1 0 0); box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1), 0 0 0 1px rgb(0 0 0 / 0.05); } .ds-card-title { font-family: 'Lora', Georgia, serif; font-size: 16px; font-weight: 500; color: oklch(0.141 0.005 285.823); margin: 0; } .ds-card-desc { font-family: 'Public Sans', system-ui, sans-serif; font-size: 14px; color: oklch(0.552 0.016 285.938); margin: 0; }"
+    },
+    {
+      "name": "Stat Display",
+      "kind": "custom",
+      "refersTo": "card",
+      "description": "The dashboard's signature numeric treatment — large, bold, tabular counters used in bento/stat cards.",
+      "html": "<div class=\"ds-stat\"><span class=\"ds-stat-label\">Total Kader</span><span class=\"ds-stat-number\">1.284</span></div>",
+      "css": ".ds-stat { display: flex; flex-direction: column; gap: 4px; } .ds-stat-label { font-family: 'Public Sans', system-ui, sans-serif; font-size: 11px; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; color: oklch(0.552 0.016 285.938); } .ds-stat-number { font-family: ui-monospace, 'SFMono-Regular', Menlo, monospace; font-size: 36px; font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; color: oklch(0.141 0.005 285.823); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Kindly Ledger",
+    "overview": "KAMMI ID keeps the national record of a youth organization: who its cadres are, what they've earned, which structures they belong to. A ledger has to be exact — but this one refuses to feel like an interrogation. Every surface that touches data leans on precise, monospace-coded numbers and IDs; every surface the user touches directly (buttons, inputs, badges) is soft-edged, almost capsule-shaped, with no border standing guard until the user actually needs one. The result reads as rigorous without being cold: an archive that keeps its promises about accuracy while refusing the visual language of a government form. This system explicitly rejects the \"Government App\" aesthetic — rigid rectangles, defensive borders on every field, blue-grey monotony, and interfaces that make the user prove their intentions before they're allowed to act. The Kindly Ledger trusts first: surfaces stay quiet and unbordered until interaction actually calls for structure.",
+    "keyCharacteristics": [
+      "Soft-edged, unguarded: buttons and badges round all the way to a capsule; inputs and cards carry no visible border at rest, only a whisper of shadow and ring.",
+      "Precision where it counts: IDs, dates, and counts are set in a distinct label/mono voice, separate from the conversational body text.",
+      "One human accent: a handwritten typeface appears exactly once, on the public \"tentang\" (about) page — a deliberate, rationed warmth, not a system-wide habit.",
+      "One loud color: Ledger Crimson is the system's only high-chroma accent for actions and identity; everything else is neutral or semantically coded (status, jenjang, gender)."
+    ],
+    "rules": [
+      { "name": "The Rare Accent Rule", "body": "Ledger Crimson appears on primary actions, active states, and identity marks — nowhere else. If a screen needs a second strong color, reach for the semantic system instead of a second shade of crimson.", "section": "colors" },
+      { "name": "The One Family, One Hue Rule", "body": "A given semantic family (Jenjang, gender, Struktur type, Keadaan) never reuses a hue within itself, but hues do repeat across families when the underlying meaning is genuinely related. Don't invent a new hue for a new category without checking whether an existing family already owns the meaning.", "section": "colors" },
+      { "name": "The Unguarded Rule", "body": "No interactive element (button, input, badge) carries a visible border at rest. A border or heavy ring appearing on an unfocused, valid, non-hovered element is a bug, not a style choice.", "section": "elevation" },
+      { "name": "The Capsule Rule", "body": "The radius scale is deliberately used at its top end for anything the user touches directly: buttons and badges clamp into true capsules; inputs get rounded-3xl; cards get rounded-4xl at a much larger box, reading as generously softened rather than literally round.", "section": "typography" }
+    ],
+    "dos": [
+      "Do reserve Ledger Crimson for actions and identity — semantic color (Jenjang, gender, Struktur type, Keadaan) carries everything else.",
+      "Do keep interactive elements borderless at rest; let focus/error states be the only time a border or heavy ring appears.",
+      "Do use the top of the radius scale (3xl/4xl) for anything the user directly touches (buttons, badges, inputs, cards).",
+      "Do treat the handwritten accent (Caveat) as a single, rationed flourish — not a typeface to reach for generally.",
+      "Do pick Dialog for confirmations/short actions and Sheet for a primary create/edit flow, per the observed split."
+    ],
+    "donts": [
+      "Don't use the \"Government App\" aesthetic: sharp rectangular corners, defensive borders on every field, monotonous blue-grey neutrals, or interfaces that force the user to justify an action before they can take it.",
+      "Don't introduce a second high-chroma accent color into primary UI — route it through the semantic system instead.",
+      "Don't assume font-geist-mono is rendering as monospace until the implementation gap is closed; don't design new UI that depends on it looking different from body text.",
+      "Don't invent a new hue for a new categorical badge without checking whether an existing semantic family already owns that meaning.",
+      "Don't use gradient text or fills inside the dashboard/data surfaces — gradients exist on the public marketing site's hero-adjacent sections only."
+    ]
+  }
+}

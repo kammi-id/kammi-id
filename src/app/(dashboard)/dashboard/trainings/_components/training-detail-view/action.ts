@@ -1,0 +1,605 @@
+'use server'
+
+import { z } from 'zod'
+import {
+  trainingQuery,
+  searchEligibleAttendants,
+  searchEligibleInstructors,
+  type TrainingType
+} from '~/db/query/training'
+import { member } from '~/db/schema/member.sql'
+import { training as trainingTable } from '~/db/schema/training.sql'
+import { db } from '~/db/db'
+import { eq } from 'drizzle-orm'
+import { revalidatePath, updateTag } from 'next/cache'
+import { createMember } from '~/db/query/member'
+import { generateRegisterNumber } from '~/lib/utils/member'
+import { readActiveSession } from '~/lib/auth/cookies'
+import {
+  masaPenetapanKelulusan,
+  type AlasanTertutup
+} from '~/lib/daurah/masa-penetapan-kelulusan'
+import { isOrgInScope } from '~/db/query/organization'
+import { getLogger, redact } from '~/lib/logger'
+
+const logger = getLogger(['app', 'action', 'training'])
+
+const assertCanManage = async (trainingId: string): Promise<string | null> => {
+  const session = await readActiveSession()
+  if (!session?.user) return 'Sesi tidak ditemukan.'
+  const { user } = session
+
+  const [t] = await db
+    .select({ organizationId: trainingTable.organizationId })
+    .from(trainingTable)
+    .where(eq(trainingTable.id, trainingId))
+    .limit(1)
+
+  if (!t) return 'Daurah tidak ditemukan.'
+
+  const allowed = await isOrgInScope(user, t.organizationId)
+  if (!allowed)
+    return 'Antum tidak memiliki hak akses untuk mengelola daurah ini.'
+
+  return null
+}
+
+const PESAN_TERTUTUP: Record<AlasanTertutup, string> = {
+  'belum-selesai': 'Kelulusan hanya dapat diubah setelah daurah selesai.',
+  terlampaui: 'Batas waktu 30 hari setelah daurah selesai telah terlampaui.'
+}
+
+// Separuh Masa Penetapan saja, tanpa Cakupan. Dipisah supaya pemanggil yang
+// sudah lolos `assertCanManage` tidak memanggilnya untuk kedua kalinya.
+//
+// Yang tidak ia hemat: sesi dan baris Daurah masih dibaca ulang di sini, sama
+// seperti sebelum dipecah. Menyatukannya berarti mengubah kontrak
+// `assertCanManage` yang dipakai delapan aksi lain — di luar tiket ini.
+const assertPassingWindowOpen = async (
+  trainingId: string
+): Promise<string | null> => {
+  const [t] = await db
+    .select({ endDate: trainingTable.endDate })
+    .from(trainingTable)
+    .where(eq(trainingTable.id, trainingId))
+    .limit(1)
+
+  if (!t) return 'Daurah tidak ditemukan.'
+
+  const session = await readActiveSession()
+  const masa = masaPenetapanKelulusan({
+    endDate: t.endDate,
+    role: session?.user.role ?? ''
+  })
+
+  return masa.terbuka ? null : PESAN_TERTUTUP[masa.alasan]
+}
+
+const assertCanEditPassing = async (
+  trainingId: string
+): Promise<string | null> => {
+  const manageError = await assertCanManage(trainingId)
+  if (manageError) return manageError
+
+  return assertPassingWindowOpen(trainingId)
+}
+
+/**
+ * Mengeluarkan Peserta yang memegang Kelulusan adalah pencabutan Kelulusan
+ * lewat pintu lain, jadi ia tunduk pada Masa Penetapan. Mengeluarkan Peserta
+ * yang tidak memegangnya adalah koreksi roster dan sah kapan pun — termasuk
+ * yang bernilai `false`, karena ketiadaan Kelulusan bukan keputusan yang
+ * tersimpan (`docs/adr/0003-kelulusan-hanya-punya-satu-sisi.md`).
+ */
+const assertCanRemoveAttendant = async (
+  trainingId: string,
+  memberId: string
+): Promise<string | null> => {
+  const manageError = await assertCanManage(trainingId)
+  if (manageError) return manageError
+
+  const isPassing = await trainingQuery.readAttendantPassing(
+    trainingId,
+    memberId
+  )
+  if (!isPassing) return null
+
+  return assertPassingWindowOpen(trainingId)
+}
+
+const UpdateTrainingSchema = z.object({
+  id: z.string().uuid(),
+  name: z.string().optional(),
+  startDate: z.string().optional(),
+  endDate: z.string().optional(),
+  registrationStartDate: z.string().optional(),
+  registrationDeadline: z.string().optional(),
+  type: z.enum(['dm1', 'dm2', 'dpmk', 'tfi', 'dm3', 'other']).optional()
+})
+
+const MemberAssignmentSchema = z.object({
+  trainingId: z.string().uuid(),
+  memberId: z.string().uuid()
+})
+
+const InstructorAssignmentSchema = MemberAssignmentSchema.extend({
+  role: z.enum([
+    'master',
+    'assistant_master',
+    'administrator',
+    'classroom_master',
+    'lecturer',
+    'observer',
+    'ustadz_of_training'
+  ])
+})
+
+const AttendantStatusSchema = MemberAssignmentSchema.extend({
+  isPassing: z.union([z.boolean(), z.string().transform((v) => v === 'true')])
+})
+
+type ActionResponse<T = any> = {
+  success: boolean
+  message: string
+  errors?: Record<string, string[]>
+  data?: T
+}
+
+export const updateTrainingAction = async (
+  prevState: any,
+  formData: FormData
+): Promise<ActionResponse> => {
+  let rawData: Record<string, FormDataEntryValue> | undefined
+
+  try {
+    rawData = Object.fromEntries(formData.entries())
+    const validated = UpdateTrainingSchema.safeParse(rawData)
+
+    if (!validated.success) {
+      return {
+        success: false,
+        message: 'Validation failed',
+        errors: validated.error.flatten().fieldErrors
+      }
+    }
+
+    const data = validated.data
+
+    if (
+      data.startDate &&
+      data.endDate &&
+      new Date(data.endDate) < new Date(data.startDate)
+    ) {
+      return {
+        success: false,
+        message: 'End date cannot be before start date',
+        errors: { endDate: ['End date cannot be before start date'] }
+      }
+    }
+
+    if (
+      data.registrationDeadline &&
+      data.startDate &&
+      new Date(data.registrationDeadline) > new Date(data.startDate)
+    ) {
+      return {
+        success: false,
+        message: 'Registration deadline cannot be after start date',
+        errors: {
+          registrationDeadline: [
+            'Registration deadline cannot be after start date'
+          ]
+        }
+      }
+    }
+
+    if (
+      data.registrationStartDate &&
+      data.registrationDeadline &&
+      new Date(data.registrationStartDate) > new Date(data.registrationDeadline)
+    ) {
+      return {
+        success: false,
+        message:
+          'Registration start date cannot be after registration deadline',
+        errors: {
+          registrationStartDate: [
+            'Registration start date cannot be after registration deadline'
+          ]
+        }
+      }
+    }
+
+    if (
+      data.registrationStartDate &&
+      data.startDate &&
+      new Date(data.registrationStartDate) > new Date(data.startDate)
+    ) {
+      return {
+        success: false,
+        message: 'Registration start date cannot be after start date',
+        errors: {
+          registrationStartDate: [
+            'Registration start date cannot be after start date'
+          ]
+        }
+      }
+    }
+
+    const updated = await trainingQuery.update(data.id, data)
+    updateTag('dauroh')
+    revalidatePath('/dashboard/trainings')
+
+    logger.info('Daurah diperbarui', {
+      trainingId: data.id,
+      changes: redact(data)
+    })
+
+    return {
+      success: true,
+      message: 'Training updated successfully',
+      data: updated
+    }
+  } catch (error) {
+    logger.error('Gagal memperbarui daurah: {error}', {
+      error,
+      trainingId: rawData?.id,
+      input: redact(rawData ?? {})
+    })
+    return {
+      success: false,
+      message: 'An unexpected error occurred while updating training'
+    }
+  }
+}
+
+export const deleteTrainingAction = async (
+  id: string,
+  confirmInput: string
+): Promise<ActionResponse> => {
+  try {
+    const session = await readActiveSession()
+    if (!session?.user)
+      return { success: false, message: 'Tidak terautentikasi' }
+    const { user } = session
+
+    const [t] = await db
+      .select({
+        id: trainingTable.id,
+        name: trainingTable.name,
+        organizationId: trainingTable.organizationId
+      })
+      .from(trainingTable)
+      .where(eq(trainingTable.id, id))
+      .limit(1)
+
+    if (!t) return { success: false, message: 'Daurah tidak ditemukan.' }
+
+    const allowed = await isOrgInScope(user, t.organizationId)
+    if (!allowed) {
+      return {
+        success: false,
+        message: 'Antum tidak memiliki hak akses untuk mengelola daurah ini.'
+      }
+    }
+
+    const hasDependents = await trainingQuery.hasDependents(id)
+    if (hasDependents) {
+      return {
+        success: false,
+        message:
+          'Hapus semua peserta dan instruktur terlebih dahulu sebelum menghapus daurah ini.'
+      }
+    }
+
+    if (confirmInput !== t.name) {
+      return {
+        success: false,
+        message: 'Nama daurah yang dimasukkan tidak sesuai'
+      }
+    }
+
+    await trainingQuery.delete(id)
+    updateTag('dauroh')
+    revalidatePath('/dashboard/trainings')
+
+    logger.info('Daurah dihapus', {
+      actorId: user.id,
+      actorRole: user.role,
+      trainingId: id,
+      name: t.name
+    })
+
+    return { success: true, message: 'Daurah berhasil dihapus' }
+  } catch (error) {
+    logger.error('Gagal menghapus daurah: {error}', { error, trainingId: id })
+    return {
+      success: false,
+      message: 'An unexpected error occurred while deleting training'
+    }
+  }
+}
+
+export const addAttendantAction = async (
+  prevState: any,
+  formData: FormData
+): Promise<ActionResponse> => {
+  try {
+    const rawData = Object.fromEntries(formData.entries())
+    const validated = MemberAssignmentSchema.safeParse(rawData)
+
+    if (!validated.success) {
+      return {
+        success: false,
+        message: 'Validation failed',
+        errors: validated.error.flatten().fieldErrors
+      }
+    }
+
+    const { trainingId, memberId } = validated.data
+
+    const authError = await assertCanManage(trainingId)
+    if (authError) return { success: false, message: authError }
+
+    const [memberExists] = await db
+      .select({ id: member.id })
+      .from(member)
+      .where(eq(member.id, memberId))
+      .limit(1)
+
+    if (!memberExists) {
+      return { success: false, message: 'Member not found' }
+    }
+
+    const data = await trainingQuery.addAttendant(trainingId, memberId)
+    updateTag('dauroh')
+    revalidatePath('/dashboard/trainings')
+    return { success: true, message: 'Attendant added successfully', data }
+  } catch (error) {
+    return {
+      success: false,
+      message: 'An unexpected error occurred while adding attendant'
+    }
+  }
+}
+
+export const updateAttendantStatusAction = async (
+  prevState: any,
+  formData: FormData
+): Promise<ActionResponse> => {
+  try {
+    const rawData = Object.fromEntries(formData.entries())
+    const validated = AttendantStatusSchema.safeParse(rawData)
+
+    if (!validated.success) {
+      return {
+        success: false,
+        message: 'Validation failed',
+        errors: validated.error.flatten().fieldErrors
+      }
+    }
+
+    const { trainingId, memberId, isPassing } = validated.data
+
+    const authError = await assertCanEditPassing(trainingId)
+    if (authError) return { success: false, message: authError }
+
+    const data = await trainingQuery.updateAttendantStatus(
+      trainingId,
+      memberId,
+      isPassing as boolean
+    )
+    updateTag('dauroh')
+    revalidatePath('/dashboard/trainings')
+    return {
+      success: true,
+      message: 'Attendant status updated successfully',
+      data
+    }
+  } catch (error) {
+    return {
+      success: false,
+      message: 'An unexpected error occurred while updating attendant status'
+    }
+  }
+}
+
+export const addInstructorAction = async (
+  prevState: any,
+  formData: FormData
+): Promise<ActionResponse> => {
+  try {
+    const rawData = Object.fromEntries(formData.entries())
+    const validated = InstructorAssignmentSchema.safeParse(rawData)
+
+    if (!validated.success) {
+      return {
+        success: false,
+        message: 'Validation failed',
+        errors: validated.error.flatten().fieldErrors
+      }
+    }
+
+    const { trainingId, memberId, role } = validated.data
+
+    const authError = await assertCanManage(trainingId)
+    if (authError) return { success: false, message: authError }
+
+    const [memberExists] = await db
+      .select({ id: member.id })
+      .from(member)
+      .where(eq(member.id, memberId))
+      .limit(1)
+
+    if (!memberExists) {
+      return { success: false, message: 'Member not found' }
+    }
+
+    const data = await trainingQuery.addInstructor(trainingId, memberId, role)
+    updateTag('dauroh')
+    revalidatePath('/dashboard/trainings')
+    return { success: true, message: 'Instructor added successfully', data }
+  } catch (error) {
+    return {
+      success: false,
+      message: 'An unexpected error occurred while adding instructor'
+    }
+  }
+}
+
+export const removeInstructorAction = async (
+  trainingId: string,
+  memberId: string
+): Promise<ActionResponse> => {
+  try {
+    const authError = await assertCanManage(trainingId)
+    if (authError) return { success: false, message: authError }
+
+    await trainingQuery.removeInstructor(trainingId, memberId)
+    updateTag('dauroh')
+    revalidatePath('/dashboard/trainings')
+    return { success: true, message: 'Instructor removed successfully' }
+  } catch (error) {
+    return {
+      success: false,
+      message: 'An unexpected error occurred while removing instructor'
+    }
+  }
+}
+
+export const removeAttendantAction = async (
+  trainingId: string,
+  memberId: string
+): Promise<ActionResponse> => {
+  try {
+    const authError = await assertCanRemoveAttendant(trainingId, memberId)
+    if (authError) return { success: false, message: authError }
+
+    await trainingQuery.removeAttendant(trainingId, memberId)
+    updateTag('dauroh')
+    revalidatePath('/dashboard/trainings')
+    return { success: true, message: 'Peserta berhasil dihapus' }
+  } catch (error) {
+    return {
+      success: false,
+      message: 'Gagal menghapus peserta'
+    }
+  }
+}
+
+export const searchTrainingAttendantsAction = async (
+  trainingId: string,
+  trainingType: TrainingType,
+  query: string
+) => {
+  try {
+    // Pada kedua aksi pencarian, gate mendahului pintasan panjang query: aksi
+    // ini endpoint POST tersendiri, jadi pemanggilnya belum tentu combobox yang
+    // sudah menyaring di sisi klien. Urutannya dikunci oleh tes.
+    const authError = await assertCanManage(trainingId)
+    if (authError) return { data: [], success: false, message: authError }
+
+    if (query.length < 2) return { data: [], success: true }
+    const data = await searchEligibleAttendants(trainingId, trainingType, query)
+    return { data, success: true }
+  } catch (error) {
+    return { data: [], success: false, message: 'Gagal mencari kader' }
+  }
+}
+
+export const searchTrainingInstructorsAction = async (
+  trainingId: string,
+  query: string
+) => {
+  try {
+    const authError = await assertCanManage(trainingId)
+    if (authError) return { data: [], success: false, message: authError }
+
+    if (query.length < 2) return { data: [], success: true }
+    const data = await searchEligibleInstructors(trainingId, query)
+    return { data, success: true }
+  } catch (error) {
+    return { data: [], success: false, message: 'Gagal mencari instruktur' }
+  }
+}
+
+const DM1MemberSchema = z.object({
+  name: z.string().min(1, 'Nama wajib diisi'),
+  gender: z.enum(['ikhwan', 'akhwat']),
+  yearOfEntry: z.coerce.number().min(1998).max(new Date().getFullYear()),
+  organizationId: z.string().uuid(),
+  phone: z.string().optional().nullable(),
+  addressProvince: z.string().optional().nullable(),
+  addressCity: z.string().optional().nullable(),
+  addressDistrict: z.string().optional().nullable(),
+  addressSubdistrict: z.string().optional().nullable(),
+  addressProvinceCode: z.string().optional().nullable(),
+  addressCityCode: z.string().optional().nullable(),
+  addressDistrictCode: z.string().optional().nullable(),
+  addressSubdistrictCode: z.string().optional().nullable(),
+  addressLine: z.string().optional().nullable()
+})
+
+export const addDM1AttendantAction = async (
+  prevState: any,
+  formData: FormData
+): Promise<ActionResponse> => {
+  try {
+    const trainingId = formData.get('trainingId') as string
+    if (!trainingId)
+      return { success: false, message: 'Training ID tidak ditemukan' }
+
+    const authError = await assertCanManage(trainingId)
+    if (authError) return { success: false, message: authError }
+
+    const session = await readActiveSession()
+    if (!session) return { success: false, message: 'Tidak terautentikasi' }
+
+    const rawData = Object.fromEntries(formData.entries())
+    const validated = DM1MemberSchema.safeParse(rawData)
+
+    if (!validated.success) {
+      return {
+        success: false,
+        message: 'Validasi gagal',
+        errors: validated.error.flatten().fieldErrors
+      }
+    }
+
+    const { organizationId, yearOfEntry } = validated.data
+    const registerNumber = await generateRegisterNumber(
+      organizationId,
+      yearOfEntry
+    )
+
+    const [newMember] = await createMember({
+      ...validated.data,
+      registerNumber,
+      status: 'ab1',
+      isAlumn: false,
+      isSuspended: false,
+      isNonActive: false,
+      isCertifiedMentor: false,
+      isCertifiedInstructor: false
+    })
+
+    if (!newMember)
+      return { success: false, message: 'Gagal membuat kader baru' }
+
+    await trainingQuery.addAttendant(trainingId, newMember.id)
+    updateTag('dauroh')
+    updateTag('kader')
+    revalidatePath('/dashboard/trainings')
+
+    return {
+      success: true,
+      message: `Kader baru "${validated.data.name}" berhasil ditambahkan sebagai peserta DM1`
+    }
+  } catch (error) {
+    return {
+      success: false,
+      message:
+        error instanceof Error ? error.message : 'Gagal menambahkan peserta DM1'
+    }
+  }
+}

@@ -1,0 +1,27 @@
+- generic [active] [ref=e1]:
+    - generic [ref=e4]:
+        - generic [ref=e6]:
+            - generic [ref=e7]:
+                - img "KAMMI.id" [ref=e9]
+                - heading "Selamat Datang di KAMMI.id" [level=1] [ref=e10]
+            - group [ref=e11]:
+                - generic [ref=e12]: Username
+                - textbox "Username" [ref=e13]:
+                    - /placeholder: 'Contoh: bpk-kalteng, bph-kota-jogja, bph-uny'
+            - group [ref=e14]:
+                - generic [ref=e15]:
+                    - generic [ref=e16]: Password
+                    - generic "Hubungi administrator untuk reset password." [ref=e17]: Lupa password?
+                - group [ref=e18]:
+                    - textbox "Password" [ref=e19]:
+                        - /placeholder: Masukkan password antum.
+                    - group [ref=e20]:
+                        - button "Tampilkan password" [ref=e21]:
+                            - img
+            - group [ref=e22]:
+                - button "Masuk" [ref=e23]
+        - paragraph [ref=e24]: Dengan mengeklik Masuk, Antum menyetujui Syarat dan Ketentuan serta Kebijakan Privasi KAMMI.id.
+    - region "Notifications alt+T"
+    - button "Open Next.js Dev Tools" [ref=e30] [cursor=pointer]:
+        - img [ref=e31]
+    - alert [ref=e34]

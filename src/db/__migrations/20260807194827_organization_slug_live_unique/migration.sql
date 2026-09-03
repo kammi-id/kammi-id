@@ -1,0 +1,17 @@
+--
+-- Migrasi B — satu constraint, sengaja sendirian.
+--
+-- JANGAN disatukan dengan migrasi `code` (tiket 16). Kalau digabung, satu
+-- `code` duplikat yang butuh putusan manusia ikut menyandera constraint `slug`
+-- yang perbaikannya sepele. Dua migrasi, dua nasib.
+--
+-- SEBELUM MENJALANKAN: `bun run check:duplicates` terhadap basis data sasaran.
+-- Kalau `slug` duplikat, perbaiki mekanis — ganti nama yang kalah — lalu jalan.
+-- `slug` cuma URL, nol dampak ke apa pun yang tercetak.
+--
+-- Kegagalannya aman: runner Drizzle membungkus seluruh migrasi tertunda dalam
+-- satu transaksi, jadi rollback bersih — nol baris berubah, nol indeks setengah
+-- jadi. `CONCURRENTLY` justru yang meninggalkan indeks invalid, dan ia mustahil
+-- dinyatakan di sini sama sekali karena transaksi itu.
+--
+CREATE UNIQUE INDEX "organization_slug_live_unique" ON "organization" ("slug") WHERE ("deleted_at" is null);
