@@ -1,7 +1,6 @@
 import { cacheLife, cacheTag } from 'next/cache'
 import { readOrganization, type Organization } from '~/db/query/organization'
-import { resolveStrukturHost } from '~/lib/struktur/tenant-host'
-import { resolveSiteImage } from '~/lib/utils/site-image'
+import { resolveAbsoluteSiteImage } from '~/lib/utils/site-image'
 import type { StrukturJsonLdOrganization } from '~/lib/seo/json-ld'
 
 // Shared shape for every page/layout under `[strukturSlug]`.
@@ -163,17 +162,7 @@ export const getStrukturJsonLdOrganization = async (
     ])
 
     const parent = parentRows[0]
-    const host = resolveStrukturHost(self)
-
-    let logo: string | undefined
-    if (self.logo) {
-      const resolved = await resolveSiteImage(self.logo)
-      if (resolved) {
-        logo = resolved.startsWith('http')
-          ? resolved
-          : `https://${host}${resolved}`
-      }
-    }
+    const logo = await resolveAbsoluteSiteImage(self.logo, self)
 
     return {
       type: self.type,
@@ -185,5 +174,28 @@ export const getStrukturJsonLdOrganization = async (
     }
   } catch {
     return null
+  }
+}
+
+export type StrukturOgBranding = { strukturName: string; logoUrl?: string }
+
+/**
+ * The two fields every static `opengraph-image.tsx` (ticket 04 — `/berita`,
+ * `/event`, `/tentang`) needs from a Struktur, resolved once instead of each
+ * route repeating `getStrukturIdentity` + `resolveAbsoluteSiteImage` itself.
+ * `strukturName` falls back to `'KAMMI.id'` only when the identity can't be
+ * resolved at all (deleted/unknown org) — a live Struktur always gets its own
+ * name here, never PP's (the ticket 02 bug this ticket set out not to repeat).
+ */
+export const resolveStrukturOgBranding = async (
+  organizationId: string | null
+): Promise<StrukturOgBranding> => {
+  const identity = await getStrukturIdentity(organizationId)
+  const logoUrl = identity
+    ? await resolveAbsoluteSiteImage(identity.logo, identity)
+    : undefined
+  return {
+    strukturName: identity?.name ?? 'KAMMI.id',
+    ...(logoUrl ? { logoUrl } : {})
   }
 }
