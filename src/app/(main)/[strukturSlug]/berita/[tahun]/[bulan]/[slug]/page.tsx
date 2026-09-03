@@ -117,6 +117,7 @@ export const generateMetadata = async ({
   params
 }: BeritaDetailPageProps): Promise<Metadata> => {
   await connection()
+  const { tahun, bulan, slug } = await params
   const { organizationId, articleRow, org, outcome } =
     await resolveOutcome(params)
 
@@ -137,6 +138,10 @@ export const generateMetadata = async ({
   return {
     title: articleRow.title,
     description: `Berita dari ${org.name}`,
+    // `outcome.kind === 'ok'` only when the requested tahun/bulan/slug are
+    // already canonical (`resolvePermalinkBerita` redirects otherwise) — the
+    // URL params themselves are the canonical path here.
+    alternates: { canonical: `/berita/${tahun}/${bulan}/${slug}` },
     openGraph: {
       title: articleRow.title,
       description: `Berita dari ${org.name}`,

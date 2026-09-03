@@ -4,7 +4,6 @@ import type { ReactNode } from 'react'
 import type { Metadata } from 'next'
 import { Public_Sans, Lora, Caveat } from 'next/font/google'
 import { cn } from '~/lib/shadcn/utils'
-import { buildWebSite, buildOrganization } from '~/lib/seo'
 
 const loraHeading = Lora({ subsets: ['latin'], variable: '--font-heading' })
 const publicSans = Public_Sans({ subsets: ['latin'], variable: '--font-sans' })
@@ -13,6 +12,13 @@ const caveatHand = Caveat({
   variable: '--font-handwriting'
 })
 
+// PP's host — the fallback for every route this layout serves that isn't
+// under `[strukturSlug]` (the dashboard has no Struktur segment, ADR 0012)
+// and for the brief window before `[strukturSlug]/layout.tsx`'s own
+// `generateMetadata` resolves a Struktur-scoped one. A nested segment's
+// `metadataBase` overrides this for itself and everything below it
+// (metadata fields are merged shallowly, last segment wins — see Next.js
+// docs on `generateMetadata`'s Merging/`metadataBase` sections).
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.kammi.id'),
   title: {
@@ -51,16 +57,6 @@ const RootLayout = ({
         <meta name='apple-mobile-web-app-title' content='KAMMI.id' />
       </head>
       <body className='flex min-h-full flex-col overflow-x-hidden'>
-        <script
-          type='application/ld+json'
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(buildWebSite()) }}
-        />
-        <script
-          type='application/ld+json'
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify(buildOrganization())
-          }}
-        />
         {children}
         <div id='portal-root' aria-hidden='true' />
       </body>

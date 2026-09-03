@@ -15,6 +15,7 @@ export const metadata: Metadata = {
   title: 'Pengurus Pusat',
   description:
     'Mengenal Ketua Umum, Sekretaris Jenderal, Bendahara Umum, dan seluruh jajaran Pengurus Pusat KAMMI.',
+  alternates: { canonical: '/tentang/pengurus' },
   openGraph: {
     title: 'Pengurus Pusat',
     description:

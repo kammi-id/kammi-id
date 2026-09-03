@@ -13,6 +13,7 @@ export const metadata: Metadata = {
   title: 'Event & Agenda',
   description:
     'Ikuti berbagai agenda pelatihan kaderisasi, seminar nasional, diskusi publik, dan kongres Kesatuan Aksi Mahasiswa Muslim Indonesia.',
+  alternates: { canonical: '/event' },
   openGraph: {
     title: 'Event & Agenda',
     description:
