@@ -60,6 +60,9 @@ jobs:
       - name: Run Unit Tests
         run: bun test --isolate
 
+      - name: Reset Database for E2E
+        run: bun src/scripts/clear-database.ts
+
       - name: Seed Database for E2E
         run: bun src/scripts/seed-pp-minimal.ts
 
