@@ -22,7 +22,6 @@ import {
   ComboboxInput,
   ComboboxContent,
   ComboboxItem,
-  ComboboxGroup,
   ComboboxList,
   ComboboxEmpty
 } from '~/components/shadcn/ui/combobox'
@@ -94,27 +93,25 @@ export const MutateMemberButton = ({
             berubah.
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <div className='space-y-2'>
+        <div>
           <Combobox
-            value={targetOrgId ?? undefined}
-            onValueChange={(val) => setTargetOrgId(val ?? null)}
+            items={destinations}
+            value={targetOrg ?? null}
+            onValueChange={(org) => setTargetOrgId(org?.id ?? null)}
+            itemToStringLabel={(org) => org.name}
+            itemToStringValue={(org) => org.id}
           >
             <ComboboxInput
+              aria-label='Struktur tujuan'
               placeholder='Pilih Struktur tujuan'
-              value={targetOrg?.name ?? ''}
             />
             <ComboboxContent>
+              <ComboboxEmpty>Tidak ada Struktur tujuan.</ComboboxEmpty>
               <ComboboxList>
-                {destinations.length === 0 ? (
-                  <ComboboxEmpty>Tidak ada Struktur tujuan.</ComboboxEmpty>
-                ) : (
-                  <ComboboxGroup>
-                    {destinations.map((org) => (
-                      <ComboboxItem key={org.id} value={org.id}>
-                        {org.name}
-                      </ComboboxItem>
-                    ))}
-                  </ComboboxGroup>
+                {(org: (typeof destinations)[number]) => (
+                  <ComboboxItem key={org.id} value={org}>
+                    {org.name}
+                  </ComboboxItem>
                 )}
               </ComboboxList>
             </ComboboxContent>
