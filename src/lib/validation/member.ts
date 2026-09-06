@@ -1,5 +1,12 @@
 import { z, type RefinementCtx } from 'zod'
 
+// An empty date input submits "", but PostgreSQL DATE needs NULL. Keep
+// omitted fields undefined so partial updates do not clear an existing date.
+export const birthDateFormField = z.preprocess(
+  (value) => (value === '' ? null : value),
+  z.iso.date('Tanggal lahir tidak valid. Gunakan format YYYY-MM-DD.').nullish()
+)
+
 /**
  * `FormData` entries arrive as strings, never real booleans — every checkbox
  * in the Kader forms (add-form's `memberSchema`, profile's `profileSchema`)

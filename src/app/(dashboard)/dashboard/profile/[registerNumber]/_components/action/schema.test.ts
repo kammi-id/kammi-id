@@ -8,6 +8,47 @@ const baseProfile = {
   yearOfEntry: '2020'
 }
 
+describe('profileSchema — tanggal lahir opsional', () => {
+  test('koreksi nama dengan tanggal lahir kosong menghasilkan NULL untuk database', () => {
+    const formData = new FormData()
+    for (const [key, value] of Object.entries({
+      ...baseProfile,
+      name: 'Nama Dikoreksi',
+      status: 'ab3',
+      isCertifiedMentor: 'true',
+      isCertifiedInstructor: 'true',
+      birthDate: ''
+    })) {
+      formData.set(key, value)
+    }
+
+    const result = profileSchema.parse(Object.fromEntries(formData.entries()))
+    expect(result.name).toBe('Nama Dikoreksi')
+    expect(result.birthDate).toBeNull()
+  })
+
+  test.each([null, undefined, '1998-05-12', '2000-02-29'])(
+    'mempertahankan tanggal lahir %s',
+    (birthDate) => {
+      expect(profileSchema.parse({ ...baseProfile, birthDate }).birthDate).toBe(
+        birthDate
+      )
+    }
+  )
+
+  test.each(['bukan-tanggal', '12/05/1998', '2023-02-29', '2024-04-31'])(
+    'tanggal tidak valid %s menjadi galat field',
+    (birthDate) => {
+      const result = profileSchema.safeParse({ ...baseProfile, birthDate })
+      expect(result.success).toBe(false)
+      if (result.success) return
+      expect(result.error.flatten().fieldErrors.birthDate).toEqual([
+        'Tanggal lahir tidak valid. Gunakan format YYYY-MM-DD.'
+      ])
+    }
+  )
+})
+
 describe('profileSchema — AB1 tidak pernah Pemandu maupun Instruktur', () => {
   test('AB1 + Pemandu ditolak', () => {
     const result = profileSchema.safeParse({

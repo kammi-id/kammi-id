@@ -13,6 +13,36 @@ const baseMember = {
   organizationId: '5f1d2c3b-4a59-4c8e-9f10-2b3c4d5e6f70'
 }
 
+describe('memberSchema — tanggal lahir opsional', () => {
+  test('tambah dan edit kader dengan tanggal lahir kosong menghasilkan NULL', () => {
+    for (const id of [undefined, '11111111-1111-4111-8111-111111111111']) {
+      const result = memberSchema.parse({ ...baseMember, id, birthDate: '' })
+      expect(result.birthDate).toBeNull()
+    }
+  })
+
+  test.each([null, undefined, '1998-05-12', '2000-02-29'])(
+    'mempertahankan tanggal lahir %s',
+    (birthDate) => {
+      expect(memberSchema.parse({ ...baseMember, birthDate }).birthDate).toBe(
+        birthDate
+      )
+    }
+  )
+
+  test.each(['bukan-tanggal', '12/05/1998', '2023-02-29', '2024-04-31'])(
+    'tanggal tidak valid %s menjadi galat field',
+    (birthDate) => {
+      const result = memberSchema.safeParse({ ...baseMember, birthDate })
+      expect(result.success).toBe(false)
+      if (result.success) return
+      expect(result.error.flatten().fieldErrors.birthDate).toEqual([
+        'Tanggal lahir tidak valid. Gunakan format YYYY-MM-DD.'
+      ])
+    }
+  )
+})
+
 const parseKeadaan = (keadaan: {
   isAlumn?: string
   isNonActive?: string

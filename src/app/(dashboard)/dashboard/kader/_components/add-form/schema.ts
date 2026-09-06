@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import {
+  birthDateFormField,
   refineAb1Certification,
   booleanFormField as booleanSchema
 } from '~/lib/validation/member'
@@ -22,7 +23,7 @@ export const memberSchema = z
     phone: z.string().optional().nullable(),
     photo: z.string().optional().nullable(),
     birthPlace: z.string().optional().nullable(),
-    birthDate: z.string().optional().nullable(),
+    birthDate: birthDateFormField,
     addressProvince: z.string().optional().nullable(),
     addressCity: z.string().optional().nullable(),
     addressDistrict: z.string().optional().nullable(),
