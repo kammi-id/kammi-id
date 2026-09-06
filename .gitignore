@@ -61,3 +61,4 @@ skills/npm-*
 
 # data lokal yang tidak boleh masuk git (backup DB, dsb.)
 /.data
+.codex/config.toml

@@ -1,6 +1,6 @@
 # 03 — Syarat jenjang perangkat Daurah bergantung jenis Daurah
 
-Status: ready-for-agent
+Status: done — implementasi sudah masuk dev-20260104 dan deploy non-production; status diperbarui 2026-09-06.
 ADR: [0022](../../../docs/adr/0022-ab3-hanya-syarat-dm3.md)
 
 Poin 3 dari feedback. **Ini pelonggaran**, bukan pengetatan — kode hari ini
@@ -55,3 +55,19 @@ Daurah. **Master of Training ikut longgar.**
 Seorang AB2 dapat menjadi Master of Training sebuah **TFI** — Daurah yang
 mencetak Instruktur. Keberatan diajukan saat grilling, ditolak, dijalankan.
 Bila kelak terasa salah: satu klausa pada `typeFilter`.
+
+## Comments
+
+### 2026-09-06 — sinkronisasi status setelah implementasi dan deploy
+
+Syarat Instruktur dan kandidat Master mengikuti jenis Daurah: DM3 mensyaratkan AB3, jenis lain menerima AB2 bersertifikat. Tes jalur pencarian Instruktur ditambahkan menyusul.
+
+Implementasi: [`1c2cb88`](https://github.com/kammi-id/kammi-id/commit/1c2cb88), [`c0f8b93`](https://github.com/kammi-id/kammi-id/commit/c0f8b93). Commit tersebut sudah masuk `dev-20260104`.
+[CI dan deploy non-production `d100077`](https://github.com/kammi-id/kammi-id/actions/runs/33590415712)
+lulus pada 2026-09-02, 11.30 WIB (test, build-push, deploy). Perubahan tetap
+tercakup dalam [rilis `036f467`](https://github.com/kammi-id/kammi-id/actions/runs/33781321956),
+yang lulus dan selesai deploy pada 2026-09-04, 00.06 WIB.
+
+Status lama `ready-for-agent` tertinggal setelah implementasi. Pembaruan ini
+berdasarkan riwayat commit dan hasil CI yang diperiksa pada 2026-09-06; bukan
+pengujian ulang manual seluruh alur dashboard atau verifikasi rilis production.

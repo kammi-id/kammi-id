@@ -6,7 +6,7 @@ production.
 
 **Blocked by:** 02 — Fondasi audit dan reset atomik; 03 — Tampilkan kredensial setelah menambah Struktur; 04 — Reset Akun dari detail Struktur.
 
-**Status:** ready-for-agent
+**Status:** ready-for-agent — ditinjau 2026-09-06; bukti release gate lengkap belum tercatat.
 
 - [ ] Matriks authorization, target integrity, reauthentication, atomicity,
   Non-Aktif/Terhapus, masking, copy, CSV, dan audit lulus.
@@ -23,3 +23,15 @@ production.
   tidak menghapus tabel atau event audit.
 - [ ] Type, lint, structure, test relevan, build/runtime browser, dan Next.js
   DevTools `get_errors` lulus tanpa menyerap perubahan worktree yang tidak terkait.
+
+## Comments
+
+### 2026-09-06 — tinjauan status
+
+Tiket 02, 03, dan 04 sudah berstatus `resolved`/`done`, sehingga dependensi
+tiket ini terpenuhi. [CI terbaru](https://github.com/kammi-id/kammi-id/actions/runs/33781321956)
+lulus untuk commit `036f467`, termasuk migrasi database kosong, unit test,
+E2E, build image, dan deploy non-production pada 2026-09-04, 00.06 WIB.
+Hasil tersebut belum membuktikan seluruh matriks dan gate production di atas.
+Checklist tetap terbuka sampai bukti spesifiknya dicatat; penutupan tiket
+production-deployment lewat keputusan operator tidak menutup tiket ini.

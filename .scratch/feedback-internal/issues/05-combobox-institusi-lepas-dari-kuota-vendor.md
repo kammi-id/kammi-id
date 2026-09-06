@@ -1,6 +1,6 @@
 # 05 — Combobox institusi: lepas dari kuota vendor
 
-Status: ready-for-agent
+Status: done — implementasi sudah masuk dev-20260104 dan deploy non-production; status diperbarui 2026-09-06.
 
 Poin 10 dari feedback. **Bukan bug UI.**
 
@@ -56,3 +56,19 @@ kampus — riwayat akademik tidak bisa diisi sama sekali.
 - Vendor membalas 429 → formulir tetap bisa disimpan (tes, upstream di-mock).
 - Ambang 4 karakter: mengetik 3 karakter tidak menembak upstream (tes).
 - Ketiga `check:*` hijau.
+
+## Comments
+
+### 2026-09-06 — sinkronisasi status setelah implementasi dan deploy
+
+Input institusi manual tetap tersedia saat kuota vendor habis; pencarian memakai ambang karakter, debounce, dan cache.
+
+Implementasi: [`2ec631f`](https://github.com/kammi-id/kammi-id/commit/2ec631f). Commit tersebut sudah masuk `dev-20260104`.
+[CI dan deploy non-production `d100077`](https://github.com/kammi-id/kammi-id/actions/runs/33590415712)
+lulus pada 2026-09-02, 11.30 WIB (test, build-push, deploy). Perubahan tetap
+tercakup dalam [rilis `036f467`](https://github.com/kammi-id/kammi-id/actions/runs/33781321956),
+yang lulus dan selesai deploy pada 2026-09-04, 00.06 WIB.
+
+Status lama `ready-for-agent` tertinggal setelah implementasi. Pembaruan ini
+berdasarkan riwayat commit dan hasil CI yang diperiksa pada 2026-09-06; bukan
+pengujian ulang manual seluruh alur dashboard atau verifikasi rilis production.

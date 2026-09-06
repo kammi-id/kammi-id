@@ -1,6 +1,6 @@
 # 01 — Mutasi Kader dan penomoran NIA yang tidak pernah terbit ulang
 
-Status: ready-for-agent
+Status: done — implementasi sudah masuk dev-20260104 dan deploy non-production; status diperbarui 2026-09-06.
 ADR: [0020](../../../docs/adr/0020-nia-nomor-kelahiran-bukan-alamat.md)
 
 Poin 13 dari feedback, plus perbaikan penomoran yang menjadi prasyaratnya.
@@ -60,3 +60,19 @@ yang turun kembali saat baris tertinggi dihapus.
 ## Catatan
 
 Migrasi **tidak dijalankan** tanpa konfirmasi terpisah dari pemilik repo.
+
+## Comments
+
+### 2026-09-06 — sinkronisasi status setelah implementasi dan deploy
+
+Mutasi Kader mempertahankan NIA, Akun, dan riwayat Daurah; alokasi NIA atomik mencegah nomor diterbitkan ulang.
+
+Implementasi: [`c8b9b34`](https://github.com/kammi-id/kammi-id/commit/c8b9b34). Commit tersebut sudah masuk `dev-20260104`.
+[CI dan deploy non-production `d100077`](https://github.com/kammi-id/kammi-id/actions/runs/33590415712)
+lulus pada 2026-09-02, 11.30 WIB (test, build-push, deploy). Perubahan tetap
+tercakup dalam [rilis `036f467`](https://github.com/kammi-id/kammi-id/actions/runs/33781321956),
+yang lulus dan selesai deploy pada 2026-09-04, 00.06 WIB.
+
+Status lama `ready-for-agent` tertinggal setelah implementasi. Pembaruan ini
+berdasarkan riwayat commit dan hasil CI yang diperiksa pada 2026-09-06; bukan
+pengujian ulang manual seluruh alur dashboard atau verifikasi rilis production.

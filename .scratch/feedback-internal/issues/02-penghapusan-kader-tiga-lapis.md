@@ -1,6 +1,6 @@
 # 02 — Penghapusan Kader tiga lapis
 
-Status: ready-for-agent
+Status: done — implementasi sudah masuk dev-20260104 dan deploy non-production; status diperbarui 2026-09-06.
 Blocked by: 01
 ADR: [0021](../../../docs/adr/0021-hapus-selamanya-kader.md)
 
@@ -52,3 +52,19 @@ pernah tercetak, dan pembuktian itu tidak berlaku untuk Kader.
 - Setelah Hapus Selamanya, pendaftar berikutnya **tidak** menerima NIA yang
   baru saja hangus (tes — bergantung tiket 01).
 - Ketiga `check:*` hijau.
+
+## Comments
+
+### 2026-09-06 — sinkronisasi status setelah implementasi dan deploy
+
+Soft delete dan pemulihan mencakup Akun Kader; halaman Kader Terhapus mengikuti Cakupan; Hapus Selamanya dibatasi kewenangan, konfirmasi, dan pemeriksaan riwayat.
+
+Implementasi: [`34d4787`](https://github.com/kammi-id/kammi-id/commit/34d4787). Commit tersebut sudah masuk `dev-20260104`.
+[CI dan deploy non-production `d100077`](https://github.com/kammi-id/kammi-id/actions/runs/33590415712)
+lulus pada 2026-09-02, 11.30 WIB (test, build-push, deploy). Perubahan tetap
+tercakup dalam [rilis `036f467`](https://github.com/kammi-id/kammi-id/actions/runs/33781321956),
+yang lulus dan selesai deploy pada 2026-09-04, 00.06 WIB.
+
+Status lama `ready-for-agent` tertinggal setelah implementasi. Pembaruan ini
+berdasarkan riwayat commit dan hasil CI yang diperiksa pada 2026-09-06; bukan
+pengujian ulang manual seluruh alur dashboard atau verifikasi rilis production.

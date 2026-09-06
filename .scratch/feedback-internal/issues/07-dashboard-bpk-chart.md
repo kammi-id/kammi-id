@@ -1,6 +1,6 @@
 # 07 — Dashboard BPK: bar Perangkat dan Top 10
 
-Status: ready-for-agent
+Status: done — implementasi sudah masuk dev-20260104 dan deploy non-production; status diperbarui 2026-09-06.
 
 Poin 11 dan 12 dari feedback.
 
@@ -38,3 +38,19 @@ saringannya.
 - Kader ber-`deleted_at` tidak ikut terhitung (tes).
 - Judul menyebut "Top 10".
 - Ketiga `check:*` hijau.
+
+## Comments
+
+### 2026-09-06 — sinkronisasi status setelah implementasi dan deploy
+
+Dashboard BPK menampilkan bar Perangkat dan Top 10 distribusi PW/PD; Kader Terhapus dikecualikan dari agregat.
+
+Implementasi: [`6df14ae`](https://github.com/kammi-id/kammi-id/commit/6df14ae). Commit tersebut sudah masuk `dev-20260104`.
+[CI dan deploy non-production `d100077`](https://github.com/kammi-id/kammi-id/actions/runs/33590415712)
+lulus pada 2026-09-02, 11.30 WIB (test, build-push, deploy). Perubahan tetap
+tercakup dalam [rilis `036f467`](https://github.com/kammi-id/kammi-id/actions/runs/33781321956),
+yang lulus dan selesai deploy pada 2026-09-04, 00.06 WIB.
+
+Status lama `ready-for-agent` tertinggal setelah implementasi. Pembaruan ini
+berdasarkan riwayat commit dan hasil CI yang diperiksa pada 2026-09-06; bukan
+pengujian ulang manual seluruh alur dashboard atau verifikasi rilis production.

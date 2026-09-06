@@ -1,6 +1,6 @@
 # 04 — Profil Kader: pagar AB1, agregat usia, dan baris combobox Peserta
 
-Status: ready-for-agent
+Status: done — implementasi sudah masuk dev-20260104 dan deploy non-production; status diperbarui 2026-09-06.
 
 Poin 1, 2, 8, dan 9 dari feedback. Digabung karena ketiganya menyentuh
 permukaan yang sama dan poin 2 tidak bisa diselesaikan tanpa poin 8.
@@ -61,3 +61,19 @@ memegang **kedua** sertifikasi hanya tampil sebagai "Instruktur".
 - `birthDate` null → tidak ada baris usia (tes).
 - Kader ber-dua-sertifikasi tampil dengan keduanya (tes).
 - Ketiga `check:*` hijau.
+
+## Comments
+
+### 2026-09-06 — sinkronisasi status setelah implementasi dan deploy
+
+Pagar AB1 diterapkan pada server dan profil; usia tampil bila tanggal lahir tersedia; combobox Peserta menampilkan sertifikasi Pemandu dan Instruktur bersamaan.
+
+Implementasi: [`c8b9b34`](https://github.com/kammi-id/kammi-id/commit/c8b9b34). Commit tersebut sudah masuk `dev-20260104`.
+[CI dan deploy non-production `d100077`](https://github.com/kammi-id/kammi-id/actions/runs/33590415712)
+lulus pada 2026-09-02, 11.30 WIB (test, build-push, deploy). Perubahan tetap
+tercakup dalam [rilis `036f467`](https://github.com/kammi-id/kammi-id/actions/runs/33781321956),
+yang lulus dan selesai deploy pada 2026-09-04, 00.06 WIB.
+
+Status lama `ready-for-agent` tertinggal setelah implementasi. Pembaruan ini
+berdasarkan riwayat commit dan hasil CI yang diperiksa pada 2026-09-06; bukan
+pengujian ulang manual seluruh alur dashboard atau verifikasi rilis production.

@@ -10,10 +10,9 @@ seluruh pekerjaan ini sudah terpecahkan.
 
 **Blocked by:** 02 (image untuk `dev-*`), 03 (lingkungan non-production)
 
-**Status:** done — kode lengkap dan terverifikasi lewat panggilan asli ke
-Dokploy dari mesin lokal (lihat Comments). Dua item checklist paling bawah
-menunggu push sungguhan ke `dev-20260104` untuk konfirmasi jalur CI-nya —
-itu langkah manusia berikutnya, bukan pekerjaan yang tersisa untuk agen.
+**Status:** done — jalur push → test → build-push → deploy non-production
+terverifikasi; status diperbarui 2026-09-06. Satu checklist simulasi kegagalan
+build Dokploy nyata tetap belum diverifikasi, sebagaimana dicatat di bawah.
 
 Deploy disetel dengan **sha-pinning**: job menyetel tag image ke sha commit-nya
 sebelum memicu deploy. Tag mengambang ditolak — dengan sha-pinning, kode yang
@@ -93,3 +92,17 @@ Job `deploy` baru di `ci.yml` `needs: build-push` dan digerbangi
 `if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/dev-')`.
 Timeout polling 5 menit, interval 5 detik — sama dengan yang dipakai wizard
 tiket 03.
+
+### 2026-09-06 — pembaruan bukti CI
+
+Keterangan lama bahwa push sungguhan masih ditunggu sudah tidak berlaku.
+[Run `33590415712`](https://github.com/kammi-id/kammi-id/actions/runs/33590415712)
+untuk `d100077` dan [run `33781321956`](https://github.com/kammi-id/kammi-id/actions/runs/33781321956)
+untuk `036f467` sama-sama lulus test, build-push, dan deploy. Deploy terbaru
+selesai 2026-09-04, 00.06 WIB. Pada 2026-09-06, homepage staging serta
+`/api/health/live` dan `/api/health/ready` merespons HTTP 200; kedua health
+endpoint mengembalikan `{"status":"ok"}`. Header staging tetap
+`X-Robots-Tag: noindex, nofollow`.
+
+Kegagalan build Dokploy nyata belum sengaja dipicu. Checklist tersebut tetap
+tidak dicentang; keberhasilan jalur deploy tidak membuktikan skenario gagal.
