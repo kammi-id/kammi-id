@@ -29,9 +29,7 @@ describe('isMasterConflict', () => {
   })
 
   it('menolak SQLSTATE lain pada indeks yang sama', () => {
-    expect(isMasterConflict(pgError('23503', MASTER_UNIQUE_INDEX))).toBe(
-      false
-    )
+    expect(isMasterConflict(pgError('23503', MASTER_UNIQUE_INDEX))).toBe(false)
   })
 
   it('menolak galat yang bentuknya bukan galat basis data sama sekali', () => {

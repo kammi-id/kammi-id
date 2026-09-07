@@ -264,7 +264,7 @@ const MotWhatsappButton = ({
       target='_blank'
       rel='noopener noreferrer'
       aria-label={`Hubungi ${name} via WhatsApp`}
-      className='text-(--status-pass-text) hover:bg-muted flex size-7 shrink-0 items-center justify-center rounded-4xl transition-colors hover:opacity-80'
+      className='hover:bg-muted flex size-7 shrink-0 items-center justify-center rounded-4xl text-(--status-pass-text) transition-colors hover:opacity-80'
     >
       <HugeiconsIcon icon={WhatsappIcon} className='size-3.5' />
     </a>

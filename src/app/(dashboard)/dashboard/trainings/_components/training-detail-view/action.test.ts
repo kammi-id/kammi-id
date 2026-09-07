@@ -878,9 +878,7 @@ describe('training-detail-view actions', () => {
       )
 
       expect(result.success).toBe(true)
-      expect(await readInstructorRole(training.id, candidate.id)).toBe(
-        'master'
-      )
+      expect(await readInstructorRole(training.id, candidate.id)).toBe('master')
     })
 
     // Inti tiket 03: pilihan MoT kedua ditolak, bukan menggantikan yang
@@ -916,9 +914,9 @@ describe('training-detail-view actions', () => {
       expect(result.message).toContain(sittingMaster.name)
       expect(await readInstructorRole(training.id, challenger.id)).toBeNull()
       // Yang lama tetap menjabat — bukan diam-diam tergantikan.
-      expect(
-        await readInstructorRole(training.id, sittingMaster.id)
-      ).toBe('master')
+      expect(await readInstructorRole(training.id, sittingMaster.id)).toBe(
+        'master'
+      )
     })
 
     // Peran lain tetap boleh diisi lebih dari satu orang — hanya `master`
@@ -950,9 +948,7 @@ describe('training-detail-view actions', () => {
       )
 
       expect(result.success).toBe(true)
-      expect(await readInstructorRole(training.id, second.id)).toBe(
-        'lecturer'
-      )
+      expect(await readInstructorRole(training.id, second.id)).toBe('lecturer')
     })
 
     // Melepas MoT lalu menunjuk yang baru tetap berhasil — penggantian
@@ -990,9 +986,7 @@ describe('training-detail-view actions', () => {
       )
 
       expect(addResult.success).toBe(true)
-      expect(await readInstructorRole(training.id, newMaster.id)).toBe(
-        'master'
-      )
+      expect(await readInstructorRole(training.id, newMaster.id)).toBe('master')
     })
   })
 })

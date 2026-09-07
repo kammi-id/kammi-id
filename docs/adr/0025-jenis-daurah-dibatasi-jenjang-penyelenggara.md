@@ -7,12 +7,12 @@ sebuah Komisariat bisa mencatat dirinya menyelenggarakan DM3.
 
 ## Decision
 
-| Jenjang | DM1 | DM2 | DM3 | DPMK | TFI | Lainnya |
-| --- | --- | --- | --- | --- | --- | --- |
-| PP | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| PW | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| PD / PDLN | ✓ | ✓ | — | ✓ | ✓ | ✓ |
-| PK | ✓ | — | — | — | — | ✓ |
+| Jenjang   | DM1 | DM2 | DM3 | DPMK | TFI | Lainnya |
+| --------- | --- | --- | --- | ---- | --- | ------- |
+| PP        | ✓   | ✓   | ✓   | ✓    | ✓   | ✓       |
+| PW        | ✓   | ✓   | ✓   | ✓    | ✓   | ✓       |
+| PD / PDLN | ✓   | ✓   | —   | ✓    | ✓   | ✓       |
+| PK        | ✓   | —   | —   | —    | —   | ✓       |
 
 Tanda ✓ berarti **boleh**, bukan berarti lazim. DM3 umumnya digelar di
 tingkat Wilayah dan DM2 di tingkat Daerah, tetapi kelaziman itu tidak ikut

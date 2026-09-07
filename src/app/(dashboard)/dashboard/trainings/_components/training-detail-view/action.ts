@@ -498,7 +498,8 @@ export const addInstructorAction = async (
     // pesan yang menyebut siapa yang sedang menjabat, bukan cuma "gagal"
     // generik dari `catch` di bawah.
     if (role === 'master') {
-      const existingMaster = await trainingQuery.readMasterInstructor(trainingId)
+      const existingMaster =
+        await trainingQuery.readMasterInstructor(trainingId)
       if (existingMaster && existingMaster.memberId !== memberId) {
         return {
           success: false,

@@ -553,7 +553,10 @@ export const trainingQuery = {
     trainingId: string
   ): Promise<{ memberId: string; memberName: string | null } | null> => {
     const [row] = await db
-      .select({ memberId: trainingInstructors.memberId, memberName: member.name })
+      .select({
+        memberId: trainingInstructors.memberId,
+        memberName: member.name
+      })
       .from(trainingInstructors)
       .leftJoin(member, eq(trainingInstructors.memberId, member.id))
       .where(
@@ -564,7 +567,9 @@ export const trainingQuery = {
       )
       .limit(1)
 
-    return row ? { memberId: row.memberId, memberName: row.memberName ?? null } : null
+    return row
+      ? { memberId: row.memberId, memberName: row.memberName ?? null }
+      : null
   },
 
   removeInstructor: async (trainingId: string, memberId: string) => {
