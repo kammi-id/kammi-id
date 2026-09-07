@@ -289,6 +289,11 @@ _Avoid_: Grading window, Masa penilaian
 Peran yang dipegang seorang Instruktur dalam sebuah Daurah: Master of
 Training, Assistant Master of Training, Master of Classroom, Instruktur
 Materi, Admin Daurah, Ustadz Daurah, dan Observer.
+
+**Master of Training tunggal.** Satu Daurah memegang paling banyak satu Master
+of Training; peran lainnya boleh diisi lebih dari satu orang. Menunjuk Master
+of Training kedua bukan penggantian — yang menjabat dilepas lebih dulu, secara
+sadar.
 _Avoid_: Panitia, Pemateri
 
 ### Publikasi
