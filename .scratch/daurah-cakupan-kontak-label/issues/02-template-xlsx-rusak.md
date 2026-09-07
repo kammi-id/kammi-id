@@ -5,7 +5,7 @@ pecah fungsinya supaya bisa dites.
 
 **Blocked by:** None — can start immediately.
 
-**Status:** ready-for-agent
+**Status:** done — dikerjakan 2026-09-07, lihat Comments
 
 ## Sebabnya
 
@@ -54,3 +54,14 @@ merombak alur unggah.
 - [ ] Tes membongkar zip dan memastikan `dataValidations` mendahului
       `pageMargins`, serta `bookViews` menyusul `workbookPr`
 - [ ] Berkas hasilnya masih terbaca oleh parser impor yang sudah ada
+
+## Comments
+
+Dikerjakan 2026-09-07. `generateTemplate` dipecah jadi `generateTemplateBuffer`
+(murni, dites) dan pembungkus unduhan. `dataValidations` kini disisip sebelum
+`pageMargins`/`pageSetup`/`hyperlinks`/`ignoredErrors` (bukan cuma
+`pageMargins`), `bookViews` sesudah `workbookPr` (kedua bentuk tag). Kolom No
+HP dipaksa teks lewat style kolom. Tes membongkar zip dan mengecek urutan
+elemen plus round-trip lewat parser impor asli. Belum sempat dites buka
+langsung di Excel/LibreOffice/Google Sheets sungguhan — hanya lewat
+penalaran skema OOXML dan sumber writer SheetJS. Lihat commit `5558f82`.

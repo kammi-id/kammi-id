@@ -6,7 +6,7 @@ pembuatan dan penggantian jenis.
 
 **Blocked by:** None — can start immediately.
 
-**Status:** ready-for-agent
+**Status:** done — dikerjakan 2026-09-07, lihat Comments
 
 ## Lubangnya
 
@@ -66,3 +66,14 @@ sumber kebenaran.
 - [ ] Pilihan jenis di form menyempit mengikuti penyelenggara terpilih
 - [ ] Ada tes untuk tiap jalur penolakan, mengikuti pola `action.test.ts`
 - [ ] `bun run check:types`, `check:lint`, `check:structure` lolos
+
+## Comments
+
+Dikerjakan 2026-09-07. `requireDaurahAccess(organizationId)` baru di
+`src/lib/auth/daurah.ts` menegakkan Cakupan (self + turunan, `root` tembus).
+Matriks ADR 0025 di `src/lib/daurah/matriks-jenis-daurah.ts`, dipakai di
+`createTrainingAction`, `updateTrainingAction` (hanya saat `type` berubah),
+dan `searchMasterCandidatesAction`. `training-form.tsx` menyempit mengikuti
+Jenjang penyelenggara. Catatan: `updateTrainingAction` masih tanpa gerbang
+Cakupan sendiri (celah pra-ada, di luar acceptance tiket ini) — lihat commit
+`6762234`.

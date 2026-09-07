@@ -5,7 +5,7 @@ pakai di sembilan permukaan yang masih menampilkan enum mentah.
 
 **Blocked by:** None — can start immediately.
 
-**Status:** ready-for-agent
+**Status:** done — dikerjakan 2026-09-07, lihat Comments
 
 ## Temuannya
 
@@ -64,3 +64,14 @@ tidak diimpor dari luar foldernya. Laporkan; jangan hapus dalam tiket ini.
 - [ ] `AB1` seragam di seluruh permukaan
 - [ ] `dashboard-columns/` terhapus beserta barrel-nya
 - [ ] `bun run check:types`, `check:lint`, `check:structure` lolos
+
+## Comments
+
+Dikerjakan 2026-09-07. Dua modul baru: `src/lib/daurah/labels.ts` dan
+`src/lib/kader/jenjang.ts`. Sembilan permukaan plus tiga RadioGroup memakainya,
+`dashboard-columns/` terhapus. Catatan: ejaan `AB1` seragam hanya di
+permukaan yang disentuh tiket ini — beberapa berkas lain (`kader-stats.tsx`,
+`member-section-cards.tsx`, `kader-bento-stats.tsx`,
+`inline-quick-add-row.tsx`, `member-branch-card.tsx`,
+`bulk-upload-preview.tsx`) masih memakai `AB 2`/`AB 3` berspasi dan tidak ada
+di daftar temuan tiket ini — kandidat tiket lanjutan. Lihat commit `ed4679e`.
