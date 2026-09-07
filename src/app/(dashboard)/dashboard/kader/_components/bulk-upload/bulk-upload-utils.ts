@@ -160,6 +160,44 @@ const w32 = (b: Uint8Array, v: number, o: number) => {
   b[o + 3] = (v >> 24) & 0xff
 }
 
+/** Reads one entry's decoded text out of a STORED (uncompressed) ZIP buffer. */
+export const readZipEntryText = (
+  buf: Uint8Array,
+  targetName: string
+): string => {
+  const dec = new TextDecoder()
+  let pos = 0
+
+  while (pos < buf.length - 4) {
+    if (
+      buf[pos] === 0x50 &&
+      buf[pos + 1] === 0x4b &&
+      buf[pos + 2] === 0x03 &&
+      buf[pos + 3] === 0x04
+    ) {
+      const nameLen = r16(buf, pos + 26)
+      const extraLen = r16(buf, pos + 28)
+      const compSize = r32(buf, pos + 18)
+      const name = dec.decode(buf.slice(pos + 30, pos + 30 + nameLen))
+      const dataStart = pos + 30 + nameLen + extraLen
+      if (name === targetName) {
+        return dec.decode(buf.slice(dataStart, dataStart + compSize))
+      }
+      pos = dataStart + compSize
+    } else if (
+      buf[pos] === 0x50 &&
+      buf[pos + 1] === 0x4b &&
+      buf[pos + 2] === 0x01
+    ) {
+      break
+    } else {
+      pos++
+    }
+  }
+
+  throw new Error(`Zip entry not found: ${targetName}`)
+}
+
 /** Patches XML files inside a STORED (uncompressed) XLSX ZIP buffer. */
 const patchXLSXBuffer = (
   orig: Uint8Array,
@@ -253,7 +291,107 @@ const patchXLSXBuffer = (
 
 // ─── Template Generator ───────────────────────────────────────────────────────
 
-export const generateTemplate = () => {
+/**
+ * OOXML tail elements of `CT_Worksheet` that must all come *after*
+ * `dataValidations` (18.3.1.99, ECMA-376). SheetJS always writes
+ * `ignoredErrors` (unless the `ignoreEC` write option is set, which we don't
+ * set), and can write `pageMargins`/`pageSetup`/`hyperlinks` depending on
+ * sheet options — so we anchor on whichever of these appears earliest in the
+ * generated XML, rather than assuming only one of them is present.
+ */
+const WORKSHEET_TAIL_ANCHORS = [
+  'pageMargins',
+  'pageSetup',
+  'hyperlinks',
+  'ignoredErrors'
+]
+
+/** Inserts `injected` XML right before the earliest CT_Worksheet tail
+ * element present in `xml`, falling back to right before `</worksheet>`. */
+const insertBeforeWorksheetTail = (xml: string, injected: string): string => {
+  let earliest = -1
+  for (const tag of WORKSHEET_TAIL_ANCHORS) {
+    const idx = xml.indexOf(`<${tag}`)
+    if (idx !== -1 && (earliest === -1 || idx < earliest)) earliest = idx
+  }
+  if (earliest === -1) {
+    return xml.replace('</worksheet>', injected + '</worksheet>')
+  }
+  return xml.slice(0, earliest) + injected + xml.slice(earliest)
+}
+
+/** Inserts `bookViews` XML right after `workbookPr` closes, whether it was
+ * written as a self-closing tag (`<workbookPr .../>`) or an open/close pair
+ * (`<workbookPr>...</workbookPr>`) — CT_Workbook requires `bookViews` to
+ * follow `workbookPr` and precede `sheets`. */
+const insertBookViewsAfterWorkbookPr = (
+  xml: string,
+  bookViewsXml: string
+): string => {
+  const selfClosing = /<workbookPr\b[^>]*\/>/
+  const match = xml.match(selfClosing)
+  if (match) {
+    return xml.replace(selfClosing, match[0] + bookViewsXml)
+  }
+  if (xml.includes('</workbookPr>')) {
+    return xml.replace('</workbookPr>', '</workbookPr>' + bookViewsXml)
+  }
+  return xml
+}
+
+/** Built-in OOXML number format id 49 = "@" (Text) — no `<numFmt>`
+ * declaration required since it's a built-in id. */
+const TEXT_NUM_FMT_ID = 49
+
+/**
+ * Finds the `cellXfs` index that a new "Text"-formatted style entry would
+ * get if appended to `styles.xml` — i.e. the current `cellXfs count`, since
+ * indices are 0-based and contiguous.
+ */
+const nextCellXfsIndex = (rawBuf: Uint8Array): number => {
+  const stylesXml = readZipEntryText(rawBuf, 'xl/styles.xml')
+  const cellXfsMatch = stylesXml.match(/<cellXfs count="(\d+)">/)
+  if (!cellXfsMatch) {
+    throw new Error('xl/styles.xml has no <cellXfs> section to extend')
+  }
+  return Number(cellXfsMatch[1])
+}
+
+/** Appends one `cellXfs` entry (built-in "Text" format) to `styles.xml`. */
+const appendTextCellXf = (xml: string): string => {
+  const bumped = xml.replace(
+    /<cellXfs count="(\d+)">/,
+    (_m, count: string) => `<cellXfs count="${Number(count) + 1}">`
+  )
+  const newXf = `<xf numFmtId="${TEXT_NUM_FMT_ID}" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>`
+  return bumped.replace('</cellXfs>', newXf + '</cellXfs>')
+}
+
+/**
+ * Forces the "No HP" column (5th column, `E`) of the Template sheet to the
+ * "Text" number format at the column level, so Excel treats future keystrokes
+ * in that column as literal text — without it, Excel eats leading `0`s and
+ * treats `+62…` as a formula the moment someone types a phone number in.
+ *
+ * SheetJS Community Edition has no `!cols[i].style` API, so — same as the
+ * data-validation dropdowns above — we hand-patch the raw XML: one new
+ * `cellXfs` entry in `styles.xml` (built via `appendTextCellXf`), referenced
+ * from the Template sheet's `<col>` definition for column 5. A column-level
+ * `style` is the same mechanism Excel's own "Format Cells" applied to an
+ * entire column uses, and it applies to cells that don't carry their own
+ * explicit style — including both the header/example rows already in the
+ * sheet and any row a user fills in later.
+ */
+const setNoHpColumnStyle = (xml: string, xfIndex: number): string =>
+  xml.replace('<col min="5" max="5"', `<col min="5" max="5" style="${xfIndex}"`)
+
+/**
+ * Pure XML/ZIP-generation logic for the bulk-upload XLSX template. Returns
+ * the finished workbook as a `Uint8Array` so it can be tested without a DOM
+ * (no `document`/`URL.createObjectURL`). Use `generateTemplate` for the
+ * browser download.
+ */
+export const generateTemplateBuffer = (): Uint8Array => {
   const currentYear = new Date().getFullYear()
 
   // ── Sheet 1: Instruksi (default/active sheet) ──────────────────────────────
@@ -395,6 +533,18 @@ export const generateTemplate = () => {
     { hpt: 16 } //  example row
   ]
 
+  // Default print margins — also gives us a real `<pageMargins>` element to
+  // anchor the `dataValidations` insertion before (see WORKSHEET_TAIL_ANCHORS
+  // above); without `!margins` set, SheetJS omits the tag entirely.
+  wsTemplate['!margins'] = {
+    left: 0.7,
+    right: 0.7,
+    top: 0.75,
+    bottom: 0.75,
+    header: 0.3,
+    footer: 0.3
+  }
+
   // ── Workbook ───────────────────────────────────────────────────────────────
   // Instruksi first → index 0 → active sheet by default (OOXML activeTab=0)
   const wb = XLSX.utils.book_new()
@@ -437,18 +587,34 @@ export const generateTemplate = () => {
     '<formula1>&quot;ya,tidak&quot;</formula1></dataValidation>' +
     '</dataValidations>'
 
+  // "No HP" (column 5, E) forced to Text format — computed against the
+  // unpatched buffer since it reads the current `cellXfs` count from
+  // `styles.xml` before we add a new entry to it.
+  const noHpXfIndex = nextCellXfsIndex(new Uint8Array(rawBuf))
+
   const patched = patchXLSXBuffer(new Uint8Array(rawBuf), {
     'xl/worksheets/sheet2.xml': (xml) =>
-      xml.replace('</worksheet>', dvXml + '</worksheet>'),
+      setNoHpColumnStyle(insertBeforeWorksheetTail(xml, dvXml), noHpXfIndex),
+    'xl/styles.xml': appendTextCellXf,
     // Explicitly set activeTab=0 so Instruksi is shown on open
     'xl/workbook.xml': (xml) =>
-      xml.replace(
-        '<workbookPr',
-        '<bookViews><workbookView activeTab="0"/></bookViews><workbookPr'
+      insertBookViewsAfterWorkbookPr(
+        xml,
+        '<bookViews><workbookView activeTab="0"/></bookViews>'
       )
   })
 
-  // ── Trigger download ───────────────────────────────────────────────────────
+  return patched
+}
+
+/**
+ * Generates the bulk-upload XLSX template and triggers a browser download.
+ * Thin wrapper around `generateTemplateBuffer` — keep all XML-generation
+ * logic in that pure function so it stays testable without a DOM.
+ */
+export const generateTemplate = () => {
+  const patched = generateTemplateBuffer()
+
   const blob = new Blob([new Uint8Array(patched)], {
     type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
   })
