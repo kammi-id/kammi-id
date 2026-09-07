@@ -6,6 +6,7 @@ import {
 } from '~/components/shadcn/ui/avatar'
 import { requireOwnStrukturEditAccess } from '~/lib/auth/kestrukturan'
 import { readParentOrganization } from '~/db/query/organization'
+import { jenjangLabel } from '~/lib/struktur/jenjang'
 import { OrganizationProfileForm } from './_components/organization-profile-form'
 
 /**
@@ -65,7 +66,7 @@ const OrganizationProfilePage = async () => {
               {org.name}
             </p>
             <p className='text-muted-foreground text-sm'>
-              {org.type.toUpperCase()}
+              {jenjangLabel(org.type)}
               {' · '}
               <span className='font-geist-mono text-foreground'>
                 {org.code}

@@ -41,6 +41,7 @@ import {
 } from '~/components/shadcn/ui/combobox'
 import { setRowEdit } from '../add-form/store'
 import { getDescendantIds } from '../add-form/utils'
+import { kaderJenjangLabel, jenisKelaminLabel } from '~/lib/kader/jenjang'
 
 type OrgRef = { id: string; name: string; slug: string } | null
 
@@ -265,7 +266,7 @@ export const getColumns = (
             <TooltipTrigger>
               <span className='cursor-help'>Jenjang</span>
             </TooltipTrigger>
-            <TooltipContent>Jenjang Pengkaderan (AB 1, 2, 3)</TooltipContent>
+            <TooltipContent>Jenjang Pengkaderan (AB1, AB2, AB3)</TooltipContent>
           </Tooltip>
         </TooltipProvider>
       ),
@@ -301,15 +302,13 @@ export const getColumns = (
             >
               <SelectTrigger className='h-8 text-xs'>
                 <SelectValue placeholder='Jenjang'>
-                  {status === 'ab1' && 'AB 1'}
-                  {status === 'ab2' && 'AB 2'}
-                  {status === 'ab3' && 'AB 3'}
+                  {kaderJenjangLabel(status)}
                 </SelectValue>
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value='ab1'>AB 1</SelectItem>
-                <SelectItem value='ab2'>AB 2</SelectItem>
-                <SelectItem value='ab3'>AB 3</SelectItem>
+                <SelectItem value='ab1'>{kaderJenjangLabel('ab1')}</SelectItem>
+                <SelectItem value='ab2'>{kaderJenjangLabel('ab2')}</SelectItem>
+                <SelectItem value='ab3'>{kaderJenjangLabel('ab3')}</SelectItem>
               </SelectContent>
             </Select>
           )
@@ -319,7 +318,7 @@ export const getColumns = (
           <button
             type='button'
             onClick={() => onFilterChange?.('status', status)}
-            aria-label={`Filter jenjang: ${status.toUpperCase()}`}
+            aria-label={`Filter jenjang: ${kaderJenjangLabel(status)}`}
             className='cursor-pointer transition-opacity hover:opacity-80'
           >
             <Badge
@@ -327,7 +326,7 @@ export const getColumns = (
               className={cn('pointer-events-none font-bold')}
               style={badgeStyles[status]}
             >
-              {status.toUpperCase()}
+              {kaderJenjangLabel(status)}
             </Badge>
           </button>
         )
@@ -374,13 +373,16 @@ export const getColumns = (
             >
               <SelectTrigger className='h-8 text-xs'>
                 <SelectValue placeholder='Jenis Kelamin'>
-                  {gender === 'ikhwan' && 'Ikhwan'}
-                  {gender === 'akhwat' && 'Akhwat'}
+                  {jenisKelaminLabel(gender)}
                 </SelectValue>
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value='ikhwan'>Ikhwan</SelectItem>
-                <SelectItem value='akhwat'>Akhwat</SelectItem>
+                <SelectItem value='ikhwan'>
+                  {jenisKelaminLabel('ikhwan')}
+                </SelectItem>
+                <SelectItem value='akhwat'>
+                  {jenisKelaminLabel('akhwat')}
+                </SelectItem>
               </SelectContent>
             </Select>
           )
@@ -390,15 +392,15 @@ export const getColumns = (
           <button
             type='button'
             onClick={() => onFilterChange?.('gender', gender)}
-            aria-label={`Filter jenis kelamin: ${gender}`}
+            aria-label={`Filter jenis kelamin: ${jenisKelaminLabel(gender)}`}
             className='cursor-pointer transition-opacity hover:opacity-80'
           >
             <Badge
               variant='outline'
-              className={cn('pointer-events-none font-bold capitalize')}
+              className={cn('pointer-events-none font-bold')}
               style={badgeStyles[gender]}
             >
-              {gender}
+              {jenisKelaminLabel(gender)}
             </Badge>
           </button>
         )

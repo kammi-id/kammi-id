@@ -13,6 +13,8 @@ import { ProfileAvatar } from '../profile-avatar'
 import { WarningTooltip } from '../warning-tooltip'
 import { useProfileEdit } from '../profile-edit-context'
 import { formatAge } from './utils'
+import { kaderJenjangLabel } from '~/lib/kader/jenjang'
+import { trainingTypeLabel } from '~/lib/daurah/labels'
 
 const statusLabel: Record<string, string> = {
   ab1: 'Anggota Biasa I — jenjang kader pertama',
@@ -109,17 +111,18 @@ export const ProfileHeader = ({
                       className='cursor-default font-bold'
                       style={statusStyles[member.status]}
                     >
-                      {member.status.toUpperCase()}
+                      {kaderJenjangLabel(member.status)}
                     </Badge>
                   </TooltipTrigger>
                   <TooltipContent>
-                    {statusLabel[member.status] ?? member.status.toUpperCase()}
+                    {statusLabel[member.status] ??
+                      kaderJenjangLabel(member.status)}
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
               {!hasDm && requiredDm && (
                 <WarningTooltip
-                  message={`Status ${member.status.toUpperCase()} memerlukan ${requiredDm.toUpperCase()}, tapi belum ada di riwayat daurah. Tambahkan melalui menu Daurah.`}
+                  message={`Status ${kaderJenjangLabel(member.status)} memerlukan ${trainingTypeLabel(requiredDm)}, tapi belum ada di riwayat daurah. Tambahkan melalui menu Daurah.`}
                 />
               )}
             </div>

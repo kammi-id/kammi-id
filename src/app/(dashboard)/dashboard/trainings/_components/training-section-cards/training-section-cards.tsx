@@ -1,6 +1,7 @@
 'use client'
 
 import { fmt } from '~/lib/utils/format'
+import { trainingTypeLabel } from '~/lib/daurah/labels'
 
 const StatSplit = ({ label, value }: { label: string; value: number }) => (
   <div>
@@ -66,13 +67,13 @@ export const TrainingSectionCards = ({ data }: TrainingSectionCardsProps) => {
             {sortedTypes.map(([type, count]) => (
               <div key={type} className='flex items-center gap-3'>
                 <span className='text-muted-foreground font-geist-mono w-12 text-xs font-medium uppercase'>
-                  {type}
+                  {trainingTypeLabel(type)}
                 </span>
                 <div
                   role='progressbar'
                   aria-valuenow={Number(count)}
                   aria-valuemax={Number(maxCount)}
-                  aria-label={`${type}: ${count}`}
+                  aria-label={`${trainingTypeLabel(type)}: ${count}`}
                   className='bg-muted flex h-1.5 flex-1 overflow-hidden rounded-full'
                 >
                   <div

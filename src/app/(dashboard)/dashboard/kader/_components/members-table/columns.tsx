@@ -7,6 +7,12 @@ import Link from 'next/link'
 import { Badge } from '~/components/shadcn/ui/badge'
 import { cn } from '~/lib/shadcn/utils'
 import { buttonVariants } from '~/components/shadcn/ui/button'
+import { kaderJenjangLabel, jenisKelaminLabel } from '~/lib/kader/jenjang'
+
+const memberColumnLabel = (key: string): string =>
+  key === 'ikhwan' || key === 'akhwat'
+    ? jenisKelaminLabel(key)
+    : kaderJenjangLabel(key)
 
 export interface MemberOrganization {
   organizationId: string
@@ -80,7 +86,7 @@ export const getColumns = (
   },
   ...['ab1', 'ab2', 'ab3', 'ikhwan', 'akhwat'].map((key) => ({
     accessorKey: key,
-    header: key.toUpperCase(),
+    header: memberColumnLabel(key),
     cell: ({ row }: CellContext<MemberOrganization, unknown>) => {
       const value = row.original[key as keyof MemberOrganization] as number
       const total = row.original.total
