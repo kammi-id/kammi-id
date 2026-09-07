@@ -12,6 +12,7 @@ import {
 import { Badge } from '~/components/shadcn/ui/badge'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Database01Icon } from '@hugeicons/core-free-icons'
+import { jenjangLabelOrCode } from '~/lib/struktur/jenjang'
 
 interface Organization {
   id: string
@@ -62,8 +63,8 @@ export const OrganizationTable = ({ data }: OrganizationTableProps) => {
                   </div>
                 </TableCell>
                 <TableCell>
-                  <Badge variant='outline' className='capitalize'>
-                    {org.type}
+                  <Badge variant='outline'>
+                    {jenjangLabelOrCode(org.type)}
                   </Badge>
                 </TableCell>
                 <TableCell>Level {org.level}</TableCell>

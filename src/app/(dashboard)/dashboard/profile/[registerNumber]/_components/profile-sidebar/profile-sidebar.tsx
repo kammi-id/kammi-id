@@ -7,6 +7,7 @@ import { RadioGroup, RadioGroupItem } from '~/components/shadcn/ui/radio-group'
 import { Field, FieldLabel } from '~/components/shadcn/ui/field'
 import { WarningTooltip } from '../warning-tooltip'
 import { useProfileEdit } from '../profile-edit-context'
+import { kaderJenjangLabel } from '~/lib/kader/jenjang'
 import {
   RiwayatDaurehSection,
   RiwayatKeinstrukturanSection
@@ -148,16 +149,16 @@ export const ProfileSidebar = ({ orgHierarchySlot }: ProfileSidebarProps) => {
                   <div>
                     <p
                       className={cn(
-                        'font-geist-mono text-xs font-semibold uppercase',
+                        'text-sm font-semibold',
                         selectedStatus === val
                           ? 'text-primary'
                           : 'text-foreground'
                       )}
                     >
-                      {val.toUpperCase()}
-                    </p>
-                    <p className='text-muted-foreground text-xs'>
                       {statusLabel[val]}
+                    </p>
+                    <p className='text-muted-foreground font-geist-mono text-xs uppercase'>
+                      {kaderJenjangLabel(val)}
                     </p>
                   </div>
                   <RadioGroupItem

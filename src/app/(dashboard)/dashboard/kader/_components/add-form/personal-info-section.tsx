@@ -28,6 +28,7 @@ import { UserIcon, Award01Icon } from '@hugeicons/core-free-icons'
 import { getGenderLabel, getStatusLabel, getDescendantIds } from './utils'
 import type { MemberFormState } from './action'
 import type { IndividualMember } from '../individual-table/types'
+import { kaderJenjangLabel, jenisKelaminLabel } from '~/lib/kader/jenjang'
 
 interface PersonalInfoSectionProps {
   editData?: Partial<IndividualMember>
@@ -164,16 +165,16 @@ export const PersonalInfoSection = ({
               >
                 <Field orientation='horizontal'>
                   <FieldContent className='flex-1'>
-                    <FieldTitle className='flex items-center justify-center gap-2 text-center font-semibold capitalize'>
+                    <FieldTitle className='flex items-center justify-center gap-2 text-center font-semibold'>
                       <HugeiconsIcon
                         icon={UserIcon}
                         strokeWidth={2}
                         className='size-4'
                       />
-                      {val}
+                      {getGenderLabel(val)}
                     </FieldTitle>
                     <FieldDescription className='text-center text-xs'>
-                      {getGenderLabel(val)}
+                      {jenisKelaminLabel(val)}
                     </FieldDescription>
                   </FieldContent>
                   <RadioGroupItem
@@ -211,16 +212,16 @@ export const PersonalInfoSection = ({
               >
                 <Field orientation='horizontal'>
                   <FieldContent className='flex-1'>
-                    <FieldTitle className='flex items-center justify-center gap-2 text-center text-xs font-semibold uppercase'>
+                    <FieldTitle className='flex items-center justify-center gap-2 text-center text-xs font-semibold'>
                       <HugeiconsIcon
                         icon={Award01Icon}
                         strokeWidth={2}
                         className='size-3'
                       />
-                      {val}
-                    </FieldTitle>
-                    <FieldDescription className='text-center text-[10px] leading-tight'>
                       {getStatusLabel(val)}
+                    </FieldTitle>
+                    <FieldDescription className='text-center text-[10px] leading-tight uppercase'>
+                      {kaderJenjangLabel(val)}
                     </FieldDescription>
                   </FieldContent>
                   <RadioGroupItem

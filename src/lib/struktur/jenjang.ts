@@ -54,3 +54,15 @@ const JENJANG_LABELS: Record<StrukturJenjang, string> = {
 
 export const jenjangLabel = (jenjang: StrukturJenjang): string =>
   JENJANG_LABELS[jenjang]
+
+const isStrukturJenjang = (value: string): value is StrukturJenjang =>
+  value in CHILD_TYPES
+
+/**
+ * Fallback-safe form of `jenjangLabel`, for a caller holding a loosely-typed
+ * `string` (a DB column, a route param) rather than the narrowed
+ * `StrukturJenjang`. Unmapped values fall back to the raw code, uppercased —
+ * a safety net, not a translation.
+ */
+export const jenjangLabelOrCode = (jenjang: string): string =>
+  isStrukturJenjang(jenjang) ? jenjangLabel(jenjang) : jenjang.toUpperCase()

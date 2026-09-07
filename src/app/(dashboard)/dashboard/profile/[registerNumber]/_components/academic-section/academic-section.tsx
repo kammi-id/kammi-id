@@ -373,7 +373,7 @@ export const AcademicSection = () => {
                     className='hover:bg-muted/30 transition-colors'
                   >
                     <td className='text-muted-foreground font-geist-mono px-4 py-3 text-xs'>
-                      {entry.degree.toUpperCase()}
+                      {degreeLabels[entry.degree] ?? entry.degree.toUpperCase()}
                     </td>
                     <td className='text-foreground px-4 py-3 font-medium'>
                       {entry.studyProgram}
