@@ -20,7 +20,7 @@ import {
 } from '~/app/(dashboard)/dashboard/kader/_components/add-form'
 import type { RegionItem } from '~/lib/api/region'
 import type { Member } from '~/db/query/member'
-import { toWaMeDigits } from '~/lib/validation/phone'
+import { toValidWaMeDigits } from '~/lib/validation/phone'
 import { useProfileEdit } from '../profile-edit-context'
 
 const InfoRow = ({
@@ -168,11 +168,10 @@ export const ProfileInfo = () => {
   const getRegionName = (options: RegionItem[], code: string) =>
     options.find((o) => o.code === code)?.name ?? ''
 
-  // New/edited rows are already stored as E.164, but rows the backfill left
-  // untouched still aren't — running them through the same shared normalizer
-  // here (rather than re-guessing ad hoc) fixes the WhatsApp link on read
-  // without waiting for someone to re-save the row.
-  const cleanPhone = member.phone ? toWaMeDigits(member.phone) : undefined
+  // Baris lama yang backfill sengaja lewati (mis. prefiks dobel `0628…`)
+  // bukan E.164 sama sekali — `toValidWaMeDigits` memeriksa bentuk mentahnya
+  // dulu, jadi baris begitu tidak pernah jadi tautan wa.me yang salah bentuk.
+  const cleanPhone = toValidWaMeDigits(member.phone)
 
   const addressParts = [
     member.addressLine,
@@ -568,16 +567,18 @@ export const ProfileInfo = () => {
                 >
                   {member.phone}
                 </a>
-                <a
-                  href={`https://wa.me/${cleanPhone}`}
-                  target='_blank'
-                  rel='noopener noreferrer'
-                  aria-label='Hubungi via WhatsApp'
-                  className='flex items-center gap-1 [color:var(--status-pass-text)] transition-opacity hover:opacity-80'
-                >
-                  <HugeiconsIcon icon={WhatsappIcon} className='size-3.5' />
-                  <span className='text-xs'>WhatsApp</span>
-                </a>
+                {cleanPhone && (
+                  <a
+                    href={`https://wa.me/${cleanPhone}`}
+                    target='_blank'
+                    rel='noopener noreferrer'
+                    aria-label='Hubungi via WhatsApp'
+                    className='flex items-center gap-1 [color:var(--status-pass-text)] transition-opacity hover:opacity-80'
+                  >
+                    <HugeiconsIcon icon={WhatsappIcon} className='size-3.5' />
+                    <span className='text-xs'>WhatsApp</span>
+                  </a>
+                )}
               </span>
             ) : (
               <Placeholder />

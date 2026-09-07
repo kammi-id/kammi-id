@@ -51,6 +51,19 @@ const FOREIGN_MESSAGE =
   'Nomor tidak sesuai format internasional E.164 — total 8–15 digit setelah tanda +.'
 
 /**
+ * Memeriksa apakah `phone` sudah berbentuk E.164 yang sah (ADR-0026) — TANPA
+ * menormalisasi dulu. Baris lama yang backfill sengaja lewati (mis. prefiks
+ * dobel `0628…`) tidak diawali `+`, jadi gagal di sini apa adanya alih-alih
+ * ditebak jadi sesuatu yang salah bentuk. Dipakai `phoneFormField` di bawah
+ * dan `MotWhatsappButton` (`training-detail-view.tsx`) untuk mematikan
+ * tombol WhatsApp pada nomor yang belum sah.
+ */
+export const isValidE164 = (phone: string): boolean => {
+  if (phone.startsWith('+62')) return INDONESIA_E164_RE.test(phone)
+  return FOREIGN_E164_RE.test(phone)
+}
+
+/**
  * Field Zod untuk `phone` — dipakai kelima pintu masuk (ADR-0026):
  * `kader/_components/add-form`, `trainings/_components/training-detail-view`,
  * `profile/[registerNumber]/_components/action`, dan
@@ -66,17 +79,12 @@ export const phoneFormField = z
   }, z.string().optional().nullable())
   .superRefine((value, ctx) => {
     if (!value) return
+    if (isValidE164(value)) return
 
-    if (value.startsWith('+62')) {
-      if (!INDONESIA_E164_RE.test(value)) {
-        ctx.addIssue({ code: 'custom', message: INDONESIA_MESSAGE })
-      }
-      return
-    }
-
-    if (!FOREIGN_E164_RE.test(value)) {
-      ctx.addIssue({ code: 'custom', message: FOREIGN_MESSAGE })
-    }
+    ctx.addIssue({
+      code: 'custom',
+      message: value.startsWith('+62') ? INDONESIA_MESSAGE : FOREIGN_MESSAGE
+    })
   })
 
 // Nomor lama yang aman dikonversi tanpa menebak (ADR-0026 — Backfill): sudah
@@ -108,3 +116,21 @@ export const decideBackfillPhone = (rawPhone: string): string | null => {
  */
 export const toWaMeDigits = (phone: string): string =>
   normalizePhoneToE164(phone).replace(/^\+/, '')
+
+/**
+ * `wa.me` digits for a stored `member.phone`, or `undefined` when there's
+ * nothing safe to link to — empty, or a legacy row the backfill left
+ * un-normalized (ADR-0026 Backfill). Checks the RAW value with `isValidE164`
+ * before calling `toWaMeDigits`, so a doubled-prefix row like `0628123456789`
+ * never turns into a malformed `wa.me` link. The one call site for turning a
+ * `member.phone` into a WhatsApp link — `profile-info.tsx` and
+ * `MotWhatsappButton` (`training-detail-view.tsx`) both go through here
+ * instead of repeating the trim/validate/normalize shape.
+ */
+export const toValidWaMeDigits = (
+  phone: string | null | undefined
+): string | undefined => {
+  const trimmed = phone?.trim()
+  if (!trimmed || !isValidE164(trimmed)) return undefined
+  return toWaMeDigits(trimmed)
+}

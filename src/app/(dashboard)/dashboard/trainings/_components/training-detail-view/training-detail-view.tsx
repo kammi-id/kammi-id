@@ -15,7 +15,8 @@ import {
   Clock01Icon,
   ArrowRight01Icon,
   Globe02Icon,
-  Loading03Icon
+  Loading03Icon,
+  WhatsappIcon
 } from '@hugeicons/core-free-icons'
 import { Button } from '~/components/shadcn/ui/button'
 import { Checkbox } from '~/components/shadcn/ui/checkbox'
@@ -56,6 +57,7 @@ import { DM1AddForm } from './dm1-add-form'
 import { DM1BulkUploadButton } from './dm1-bulk-upload-button'
 import { DeleteTrainingButton } from './delete-training-button'
 import type { EligibleMember, TrainingType } from '~/db/query/training'
+import { toValidWaMeDigits } from '~/lib/validation/phone'
 
 interface TrainingDetailViewProps {
   training: TrainingWithDetails
@@ -217,6 +219,55 @@ const ConfirmDeleteButton = ({
         </div>
       </PopoverContent>
     </Popover>
+  )
+}
+
+// Nomor MoT bisa kosong (belum diisi) atau cacat (baris lama yang tidak
+// ikut backfill E.164, mis. prefiks dobel `0628…`) — keduanya mematikan
+// tombol, bukan cuma yang kosong. `toValidWaMeDigits` menolak keduanya
+// sebelum sempat membentuk tautan yang salah.
+const MotWhatsappButton = ({
+  phone,
+  name
+}: {
+  phone?: string | null
+  name: string
+}) => {
+  const digits = toValidWaMeDigits(phone)
+
+  if (!digits) {
+    return (
+      <Tooltip>
+        <TooltipTrigger render={<span className='inline-flex' />}>
+          <Button
+            variant='ghost'
+            size='sm'
+            disabled
+            aria-label={`Hubungi ${name} via WhatsApp — nomor MoT belum tersedia`}
+            className='text-muted-foreground size-7 p-0'
+          >
+            <HugeiconsIcon icon={WhatsappIcon} className='size-3.5' />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent side='top'>
+          <p className='max-w-[20ch] text-center text-xs'>
+            Nomor MoT belum terisi atau belum berformat sah
+          </p>
+        </TooltipContent>
+      </Tooltip>
+    )
+  }
+
+  return (
+    <a
+      href={`https://wa.me/${digits}`}
+      target='_blank'
+      rel='noopener noreferrer'
+      aria-label={`Hubungi ${name} via WhatsApp`}
+      className='text-(--status-pass-text) hover:bg-muted flex size-7 shrink-0 items-center justify-center rounded-4xl transition-colors hover:opacity-80'
+    >
+      <HugeiconsIcon icon={WhatsappIcon} className='size-3.5' />
+    </a>
   )
 }
 
@@ -811,16 +862,24 @@ export const TrainingDetailView = ({
                           {instructorRoleLabels[ins.role] ?? ins.role}
                         </p>
                       </div>
-                      {canManage && (
-                        <ConfirmDeleteButton
-                          onConfirm={() =>
-                            handleRemoveInstructor(ins.memberId, name)
-                          }
-                          disabled={isPending}
-                          loading={isRowPending}
-                          label={`Hapus instruktur ${name}`}
-                        />
-                      )}
+                      <div className='flex shrink-0 items-center gap-1'>
+                        {canManage && ins.role === 'master' && (
+                          <MotWhatsappButton
+                            phone={ins.member?.phone}
+                            name={name}
+                          />
+                        )}
+                        {canManage && (
+                          <ConfirmDeleteButton
+                            onConfirm={() =>
+                              handleRemoveInstructor(ins.memberId, name)
+                            }
+                            disabled={isPending}
+                            loading={isRowPending}
+                            label={`Hapus instruktur ${name}`}
+                          />
+                        )}
+                      </div>
                     </div>
                   )
                 })}

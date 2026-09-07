@@ -2,8 +2,10 @@ import { describe, expect, test } from 'bun:test'
 import { z } from 'zod'
 import {
   decideBackfillPhone,
+  isValidE164,
   normalizePhoneToE164,
   phoneFormField,
+  toValidWaMeDigits,
   toWaMeDigits
 } from './phone'
 
@@ -139,6 +141,25 @@ describe('decideBackfillPhone — hanya baris aman yang dikonversi (ADR-0026 Bac
   })
 })
 
+describe('isValidE164 — bentuk mentah diperiksa TANPA normalisasi (ADR-0026)', () => {
+  test.each(['+628123456789', '+971501234567', '+12345678'])(
+    '%s sah',
+    (value) => {
+      expect(isValidE164(value)).toBe(true)
+    }
+  )
+
+  test.each([
+    '0628123456789', // prefiks dobel — dibiarkan utuh oleh backfill
+    '08123456789', // belum dinormalisasi, tanpa '+'
+    '', // kosong
+    '+6271234567', // +62 tanpa awalan 8
+    '-' // sisa karakter aneh
+  ])('%s tidak sah', (value) => {
+    expect(isValidE164(value)).toBe(false)
+  })
+})
+
 describe('toWaMeDigits — E.164 tanpa "+" untuk tautan wa.me (ADR-0026 Consequences)', () => {
   test.each([
     ['08123456789', '628123456789'],
@@ -146,5 +167,26 @@ describe('toWaMeDigits — E.164 tanpa "+" untuk tautan wa.me (ADR-0026 Conseque
     ['+628123456789', '628123456789']
   ])('%s -> %s', (input, expected) => {
     expect(toWaMeDigits(input)).toBe(expected)
+  })
+})
+
+describe('toValidWaMeDigits — satu pintu untuk member.phone -> digit wa.me, atau tidak ada tautan sama sekali', () => {
+  test.each([
+    ['+628123456789', '628123456789'],
+    ['+971501234567', '971501234567'],
+    ['  +628123456789  ', '628123456789'] // spasi di pinggir dibuang sebelum diperiksa
+  ])('%s -> %s', (input, expected) => {
+    expect(toValidWaMeDigits(input)).toBe(expected)
+  })
+
+  test.each([
+    undefined,
+    null,
+    '',
+    '   ',
+    '08123456789', // belum dinormalisasi ke E.164 sama sekali
+    '0628123456789' // prefiks dobel — dibiarkan utuh oleh backfill
+  ])('%s -> undefined (tidak ada tautan)', (input) => {
+    expect(toValidWaMeDigits(input)).toBeUndefined()
   })
 })
