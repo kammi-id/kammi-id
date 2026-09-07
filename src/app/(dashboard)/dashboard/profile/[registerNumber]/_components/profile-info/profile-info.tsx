@@ -20,6 +20,7 @@ import {
 } from '~/app/(dashboard)/dashboard/kader/_components/add-form'
 import type { RegionItem } from '~/lib/api/region'
 import type { Member } from '~/db/query/member'
+import { toWaMeDigits } from '~/lib/validation/phone'
 import { useProfileEdit } from '../profile-edit-context'
 
 const InfoRow = ({
@@ -167,7 +168,11 @@ export const ProfileInfo = () => {
   const getRegionName = (options: RegionItem[], code: string) =>
     options.find((o) => o.code === code)?.name ?? ''
 
-  const cleanPhone = member.phone?.replace(/\D/g, '').replace(/^0/, '62')
+  // New/edited rows are already stored as E.164, but rows the backfill left
+  // untouched still aren't — running them through the same shared normalizer
+  // here (rather than re-guessing ad hoc) fixes the WhatsApp link on read
+  // without waiting for someone to re-save the row.
+  const cleanPhone = member.phone ? toWaMeDigits(member.phone) : undefined
 
   const addressParts = [
     member.addressLine,

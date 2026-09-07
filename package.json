@@ -17,6 +17,7 @@
     "db:push": "bun src/scripts/db-guard.ts && drizzle-kit push",
     "db:reset": "bun src/scripts/reset.ts",
     "db:seed": "bun src/scripts/seed.ts",
+    "db:backfill-phone-e164": "bun src/db/scripts/backfill-phone-e164.ts",
     "db:studio": "bun src/scripts/db-guard.ts && drizzle-kit studio",
     "dev": "next dev",
     "format": "prettier --write .",

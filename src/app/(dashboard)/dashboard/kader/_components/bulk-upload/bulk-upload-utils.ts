@@ -36,6 +36,11 @@ export const BulkMemberRowSchema = z.object({
     .number()
     .min(1998, 'Minimal 1998')
     .max(new Date().getFullYear()),
+  // Sengaja TIDAK dinormalisasi di sini. Ini pratinjau di klien, bukan pintu
+  // masuk (ADR-0026) — normalisasi tinggal di `action.ts`'s
+  // `BulkMemberInputSchema`. `phone` mengalir apa adanya dari sel XLSX
+  // sampai ke server, termasuk `0` di depan yang wajib selamat lewat
+  // pratinjau ini (lihat generateTemplateBuffer's round-trip test).
   phone: z.string().optional().nullable(),
   isCertifiedMentor: booleanFromCell,
   isCertifiedInstructor: booleanFromCell

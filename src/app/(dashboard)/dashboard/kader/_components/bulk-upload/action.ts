@@ -11,6 +11,7 @@ import { member as memberTable } from '~/db/schema/member.sql'
 import { user as userTable } from '~/db/schema/user.sql'
 import { trainingAttendants } from '~/db/schema/training.sql'
 import { getLogger, redact } from '~/lib/logger'
+import { phoneFormField } from '~/lib/validation/phone'
 
 const logger = getLogger(['app', 'action', 'member'])
 
@@ -19,7 +20,7 @@ const BulkMemberInputSchema = z.object({
   gender: z.enum(['ikhwan', 'akhwat']),
   status: z.enum(['ab1', 'ab2', 'ab3']).default('ab1'),
   yearOfEntry: z.number().min(1998).max(new Date().getFullYear()),
-  phone: z.string().optional().nullable(),
+  phone: phoneFormField,
   isCertifiedMentor: z.boolean().default(false),
   isCertifiedInstructor: z.boolean().default(false)
 })

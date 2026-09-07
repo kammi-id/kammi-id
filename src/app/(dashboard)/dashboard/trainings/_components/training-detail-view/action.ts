@@ -22,6 +22,7 @@ import {
 import { isOrgInScope, readOrganization } from '~/db/query/organization'
 import { isJenisDaurahDiizinkan } from '~/lib/daurah/matriks-jenis-daurah'
 import { getLogger, redact } from '~/lib/logger'
+import { phoneFormField } from '~/lib/validation/phone'
 
 const logger = getLogger(['app', 'action', 'training'])
 
@@ -569,7 +570,7 @@ const DM1MemberSchema = z.object({
   gender: z.enum(['ikhwan', 'akhwat']),
   yearOfEntry: z.coerce.number().min(1998).max(new Date().getFullYear()),
   organizationId: z.string().uuid(),
-  phone: z.string().optional().nullable(),
+  phone: phoneFormField,
   addressProvince: z.string().optional().nullable(),
   addressCity: z.string().optional().nullable(),
   addressDistrict: z.string().optional().nullable(),
