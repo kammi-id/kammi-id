@@ -4,6 +4,7 @@ import {
   refineAb1Certification,
   booleanFormField as booleanSchema
 } from '~/lib/validation/member'
+import { phoneFormField } from '~/lib/validation/phone'
 
 /**
  * Ketiga boolean di bawah bukan tiga sumbu bebas — ADR-0001 menetapkan seorang
@@ -20,7 +21,7 @@ export const memberSchema = z
     status: z.enum(['ab1', 'ab2', 'ab3']),
     yearOfEntry: z.coerce.number().min(1998).max(new Date().getFullYear()),
     organizationId: z.string().uuid(),
-    phone: z.string().optional().nullable(),
+    phone: phoneFormField,
     photo: z.string().optional().nullable(),
     birthPlace: z.string().optional().nullable(),
     birthDate: birthDateFormField,

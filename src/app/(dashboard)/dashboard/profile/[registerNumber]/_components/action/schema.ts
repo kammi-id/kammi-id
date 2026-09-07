@@ -4,6 +4,7 @@ import {
   refineAb1Certification,
   booleanFormField as booleanField
 } from '~/lib/validation/member'
+import { phoneFormField } from '~/lib/validation/phone'
 
 export const profileSchema = z
   .object({
@@ -11,7 +12,7 @@ export const profileSchema = z
     gender: z.enum(['ikhwan', 'akhwat']),
     status: z.enum(['ab1', 'ab2', 'ab3']),
     yearOfEntry: z.coerce.number().min(1998).max(new Date().getFullYear()),
-    phone: z.string().optional().nullable(),
+    phone: phoneFormField,
     photo: z.string().optional().nullable(),
     birthPlace: z.string().optional().nullable(),
     birthDate: birthDateFormField,
