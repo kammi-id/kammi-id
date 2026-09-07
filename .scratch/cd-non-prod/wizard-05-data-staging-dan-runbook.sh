@@ -187,14 +187,20 @@ finish() {
 # juga ADR 0009. Dua artefak terpisah dipindahkan lewat mesin lokal sebagai
 # perantara: basis data (pg_dump → pg_restore) dan gambar unggahan.
 #
-# Gambar: production BELUM migrasi ke volume Docker (ADR 0006 belum
-# dijalankan di sana per sesi ini) — masih di RustFS (S3-compatible). RustFS
-# TIDAK reachable dari luar (port publik & IP internal container sama-sama
-# timeout dari mesin lokal; hidup hanya terverifikasi dari dalam docker
-# network production sendiri). Jadi 'mc' dijalankan DI HOST production lewat
-# SSH (docker run --network dokploy-network minio/mc), hasilnya ditarik ke
-# lokal lewat tar-over-SSH — sisi push (lokal → staging) juga tar-over-SSH,
-# sama seperti pola src/scripts/assets-pull.ts.
+# Gambar: production SUDAH migrasi ke volume Docker — ADR 0006 tuntas di
+# production per 1 September 2026, di project Dokploy baru 'kammi-id-prod'
+# (ADR 0015). RustFS BUKAN lagi origin gambar, dan wizard ini tidak lagi
+# meminta kredensial S3 apa pun. Kedua sisi kini named volume biasa:
+# production 'kammi-id-assets' → /data/uploads, staging 'kammi-uploads' →
+# /app/.uploads. Penyalinannya tar-over-SSH dua arah lewat mesin lokal
+# sebagai perantara, sama seperti pola src/scripts/assets-pull.ts.
+#
+# Catatan sejarah: sampai 30 Agustus 2026 stage 6 menjalankan 'mc mirror' di
+# host production lewat SSH karena RustFS tidak reachable dari luar. Seluruh
+# langkah itu sudah dihapus — kalau menemukannya lagi di salinan lama skrip
+# ini, salinan itu yang basi. Satu-satunya jejak object storage yang tersisa
+# di kode adalah LEGACY_ASSET_PREFIX di src/lib/utils/site-image.ts, sengaja
+# dibekukan karena baris DB lama masih menyimpan URL penuh.
 #
 # Kredensial PRODUCTION sengaja TIDAK PERNAH ditulis ke ENV_FILE (write_env)
 # — diketik ulang tiap kali wizard ini dijalankan, sama seperti
@@ -221,7 +227,7 @@ dokploy_post() { # BASE KEY PROC BODY
 }
 jq_err() { printf '%s' "$1" | jq -r '.message // empty' 2>/dev/null; }
 
-TOTAL_STAGES=12
+TOTAL_STAGES=13
 
 banner "Tiket 05 — Data staging & runbook"
 
@@ -361,6 +367,7 @@ else
   say "nyata di tiket ini, 3 dari 7 migrasi yang 'terlihat serupa' ternyata BEDA"
   say "status (2 sudah ada, sisanya BENAR belum ada dan bikin app crash saat"
   say "reconcile sembarangan)."
+  PENDING_APPLY=0
   for name in "${MISSING[@]}"; do
     printf '\n  %s%s%s\n' "$BOLD" "$name" "$RESET"
     cat "src/db/__migrations/${name}/migration.sql" | sed 's/^/    /'
@@ -373,11 +380,59 @@ else
         "docker exec -i '$STAGING_PG_CONTAINER' psql -U '$DOKPLOY_NONPROD_DB_USER' -d '$DOKPLOY_NONPROD_DB_NAME' -c \"insert into drizzle.__drizzle_migrations (hash, created_at, name) values ('$HASH', $MILLIS, '$name');\""
       note "dicatat sebagai sudah diterapkan (tanpa menjalankan ulang SQL-nya)"
     else
-      warn "dibiarkan TIDAK tercatat — akan benar-benar dijalankan drizzle-kit"
-      warn "saat aplikasi redeploy berikutnya (RUN_MIGRATIONS=1). Ini yang benar"
-      warn "kalau migrasinya memang belum pernah jalan."
+      warn "dibiarkan TIDAK tercatat — memang belum pernah jalan, jadi HARUS"
+      warn "benar-benar dijalankan. Stage berikutnya yang mengerjakannya."
+      PENDING_APPLY=$((PENDING_APPLY + 1))
     fi
   done
+fi
+: "${PENDING_APPLY:=0}"
+
+# ── 5b-bis. Terapkan migrasi yang memang belum pernah jalan ────────────────
+stage "Terapkan migrasi tertinggal ke staging"
+if (( PENDING_APPLY == 0 )); then
+  note "tidak ada migrasi tertinggal — skema staging sudah sepadan dengan image"
+else
+  warn "$PENDING_APPLY migrasi belum pernah dijalankan, dan efeknya juga TIDAK"
+  warn "ada di skema staging yang baru saja ditimpa production."
+  warn "Aplikasi staging yang SEDANG BERJALAN membawa kode yang mengharapkan"
+  warn "tabel/kolom itu — sampai migrasi ini dijalankan, staging error saat"
+  warn "runtime dan verifikasi mata di stage 8 akan MENYESATKAN (terlihat"
+  warn "seperti restore gagal, padahal datanya benar)."
+  say "Dijalankan lewat one-shot migration container — docker-entrypoint.sh"
+  say "dengan RUN_MIGRATIONS=1 MIGRATIONS_ONLY=1 menjalankan migrasi lalu"
+  say "exit 0 tanpa melayani HTTP (ADR 0008). Image yang dipakai adalah image"
+  say "yang PERSIS sedang berjalan di staging, dibaca dari API — bukan tebakan."
+  resp=$(dokploy_get "$DOKPLOY_NONPROD_URL" "$DOKPLOY_NONPROD_API_KEY" \
+    "application.one?applicationId=$DOKPLOY_NONPROD_APPLICATION_ID")
+  err=$(jq_err "$resp"); [[ -z "$err" ]] || { warn "application.one gagal: $err"; exit 1; }
+  STAGING_IMAGE=$(printf '%s' "$resp" | jq -r '.dockerImage // empty')
+  STAGING_DB_URL=$(printf '%s' "$resp" | jq -r '.env // ""' | grep -E '^DATABASE_URL=' | head -n1 | cut -d= -f2-)
+  [[ -n "$STAGING_IMAGE" ]] || { warn "dockerImage staging tidak terbaca dari API"; exit 1; }
+  [[ -n "$STAGING_DB_URL" ]] || { warn "DATABASE_URL tidak ada di env aplikasi staging"; exit 1; }
+  note "image staging: $STAGING_IMAGE"
+  ask STAGING_DOCKER_NETWORK "Docker network staging (Enter = dokploy-network):"
+  : "${STAGING_DOCKER_NETWORK:=dokploy-network}"
+  if confirm "Jalankan $PENDING_APPLY migrasi tertinggal terhadap DB staging sekarang?"; then
+    # DB_GUARD_ACK=1: dari dalam container DATABASE_URL bukan localhost, dan
+    # requireDatabaseConsent menuntut TTY tanpa ini (lihat src/lib/db-guard/).
+    if ssh "${STAGING_SSH_OPTS[@]}" "$DOKPLOY_NONPROD_SSH_HOST" \
+        "docker run --rm --network '$STAGING_DOCKER_NETWORK' \
+         -e DATABASE_URL='$STAGING_DB_URL' -e RUN_MIGRATIONS=1 \
+         -e MIGRATIONS_ONLY=1 -e DB_GUARD_ACK=1 '$STAGING_IMAGE'"; then
+      note "✓ migrasi tertinggal diterapkan ke staging"
+    else
+      warn "migration container exit BUKAN 0. Ingat: drizzle-kit TIDAK pernah"
+      warn "mencetak pesan untuk status 'rejected' (bug di MigrateProgress."
+      warn "render(), node_modules/drizzle-kit/bin.cjs) — spinner beku tanpa"
+      warn "penjelasan adalah gejala normalnya. Diagnosis dari skema langsung,"
+      warn "bukan dari log. JANGAN lanjut ke verifikasi mata."
+      exit 1
+    fi
+  else
+    warn "DILEWATI — staging akan error runtime sampai migrasi ini dijalankan."
+    warn "Verifikasi mata di stage 8 tidak bisa dipercaya dalam keadaan ini."
+  fi
 fi
 
 # ── 5c. Revalidate cache aplikasi ───────────────────────────────────────────
@@ -392,75 +447,93 @@ say "Endpoint /api/revalidate-cache (src/app/api/revalidate-cache/route.ts)"
 say "memaksa revalidasi tag 'site-settings' segera — pastikan CACHE_REVALIDATE_SECRET"
 say "sudah diset sebagai environment variable aplikasi staging di panel Dokploy"
 say "(bukan di $ENV_FILE — itu env aplikasi yang jalan, terpisah dari mesin lokal ini)."
-ask_secret CACHE_REVALIDATE_SECRET "CACHE_REVALIDATE_SECRET (sama seperti yang diset di panel Dokploy staging):"
-write_env CACHE_REVALIDATE_SECRET "$CACHE_REVALIDATE_SECRET"
-REVALIDATE_STATUS=$(curl -sS -o /dev/null -w '%{http_code}' -X POST \
-  "https://${DOKPLOY_NONPROD_STAGING_HOST}/api/revalidate-cache" \
-  -H "x-revalidate-secret: $CACHE_REVALIDATE_SECRET")
-if [[ "$REVALIDATE_STATUS" == "200" ]]; then
-  note "✓ cache site-settings staging di-revalidate"
+warn "Diperiksa 7 September 2026 lewat application.one: env aplikasi staging"
+warn "TIDAK punya CACHE_REVALIDATE_SECRET sama sekali (yang ada hanya"
+warn "DATABASE_URL, UPLOADS_DIR, RUN_MIGRATIONS, DB_GUARD_ACK, API_CO_ID_TOKEN)."
+warn "Selama itu belum diset di panel Dokploy staging, langkah ini akan"
+warn "mengembalikan 401 — bukan tanda restore gagal."
+say "Kosongkan untuk MELEWATI langkah ini. Ini aman: tanpa revalidasi paksa,"
+say "site-settings cuma tersaji dari cache lama sampai revalidasi latar"
+say "belakang terpicu sendiri (hitungan detik — teramati langsung di /tentang)."
+ask_secret CACHE_REVALIDATE_SECRET "CACHE_REVALIDATE_SECRET (Enter = lewati):"
+if [[ -z "$CACHE_REVALIDATE_SECRET" ]]; then
+  note "dilewati — cache site-settings akan pulih sendiri"
 else
-  warn "revalidate-cache mengembalikan HTTP $REVALIDATE_STATUS — periksa"
-  warn "CACHE_REVALIDATE_SECRET di panel Dokploy staging cocok dengan yang"
-  warn "baru saja diketik di atas."
+  write_env CACHE_REVALIDATE_SECRET "$CACHE_REVALIDATE_SECRET"
+  REVALIDATE_STATUS=$(curl -sS -o /dev/null -w '%{http_code}' -X POST \
+    "https://${DOKPLOY_NONPROD_STAGING_HOST}/api/revalidate-cache" \
+    -H "x-revalidate-secret: $CACHE_REVALIDATE_SECRET")
+  if [[ "$REVALIDATE_STATUS" == "200" ]]; then
+    note "✓ cache site-settings staging di-revalidate"
+  else
+    warn "revalidate-cache mengembalikan HTTP $REVALIDATE_STATUS — periksa"
+    warn "CACHE_REVALIDATE_SECRET di panel Dokploy staging cocok dengan yang"
+    warn "baru saja diketik di atas."
+  fi
 fi
 
-# ── 6. Salin gambar dari RustFS production → volume staging ────────────────
-stage "Salin gambar (RustFS production → volume staging)"
-say "Production BELUM migrasi ke volume (ADR 0006 belum dijalankan di sana) —"
-say "gambar masih di RustFS, S3-compatible. Kunci objek di bucket = kunci"
-say "berkas di volume apa adanya (lihat LEGACY_ASSET_PREFIX di"
-say "src/lib/utils/site-image.ts: bagian setelah 'kammiid/' di URL lama PERSIS"
-say "kunci yang dipakai /api/images/*)."
-warn "RustFS TIDAK reachable langsung dari mesin lokal — port publik"
-warn "(assets.kammi.id:443) dan IP internal container sama-sama timeout dari"
-warn "luar. Terverifikasi hidup HANYA dari dalam docker network production"
-warn "sendiri (HTTP 403 tanpa kredensial). Jadi 'mc' dijalankan DI HOST"
-warn "production lewat SSH (docker run --network dokploy-network), hasilnya"
-warn "ditarik ke lokal lewat tar-over-SSH biasa — bukan mc lokal."
-ask PROD_RUSTFS_BUCKET "Nama bucket (kemungkinan 'kammiid' — lihat ADR 0006, bukan 'kammiidz'):"
-ask PROD_RUSTFS_ACCESS_KEY "Access key RustFS:"
-ask_secret PROD_RUSTFS_SECRET_KEY "Secret key RustFS:"
-ask PROD_DOCKER_NETWORK "Nama docker network tempat RustFS hidup (default dokploy-network):"
-: "${PROD_DOCKER_NETWORK:=dokploy-network}"
+# ── 6. Salin gambar (volume production → volume staging) ───────────────
+stage "Salin gambar (volume production → volume staging)"
+say "Production sudah migrasi ke volume Docker (ADR 0006, tuntas 1 Sep 2026),"
+say "jadi kedua sisi kini named volume biasa — tidak ada RustFS, tidak ada"
+say "kredensial S3, tidak ada 'mc'. Cukup tar-over-SSH lewat mesin lokal"
+say "sebagai perantara (ADR 0009: tidak boleh ada jalur langsung dari host"
+say "non-production ke production)."
+note "Nama volume DAN mount path berbeda di tiap sisi — production"
+note "'kammi-id-assets' di /data/uploads, staging 'kammi-uploads' di"
+note "/app/.uploads. Yang disalin isi volumenya, bukan path-nya; kunci berkas"
+note "di dalamnya identik, dan itulah yang dipakai /api/images/*."
+ask PROD_UPLOADS_VOLUME "Named volume uploads production (Enter = kammi-id-assets):"
+: "${PROD_UPLOADS_VOLUME:=kammi-id-assets}"
+ask STAGING_UPLOADS_VOLUME "Named volume uploads staging (Enter = kammi-uploads):"
+: "${STAGING_UPLOADS_VOLUME:=kammi-uploads}"
+# Buktikan kedua volume benar-benar ada sebelum menghapus apa pun — salah
+# ketik nama volume di sisi production menghasilkan volume KOSONG yang baru
+# dibuat 'docker run -v', bukan galat; tanpa cek ini wizard akan dengan patuh
+# mengosongkan volume staging lalu mengisinya dengan nol berkas.
+prod_vol_ok=$(ssh "${PROD_SSH_OPTS[@]}" "$PROD_SSH_HOST" \
+  "docker volume inspect '$PROD_UPLOADS_VOLUME' --format '{{.Name}}' 2>/dev/null" || true)
+[[ -n "$prod_vol_ok" ]] || { warn "volume '$PROD_UPLOADS_VOLUME' TIDAK ADA di host production — periksa namanya"; exit 1; }
+staging_vol_ok=$(ssh "${STAGING_SSH_OPTS[@]}" "$DOKPLOY_NONPROD_SSH_HOST" \
+  "docker volume inspect '$STAGING_UPLOADS_VOLUME' --format '{{.Name}}' 2>/dev/null" || true)
+[[ -n "$staging_vol_ok" ]] || { warn "volume '$STAGING_UPLOADS_VOLUME' TIDAK ADA di host staging — periksa namanya"; exit 1; }
+note "kedua volume terverifikasi ada"
 TMP_UPLOADS=$(mktemp -d -t kammi-staging-uploads.XXXXXX)
-REMOTE_PULL_DIR="/tmp/kammi-rustfs-pull-$$"
-say "Menjalankan mc di dalam network '$PROD_DOCKER_NETWORK' di host production..."
+say "Menarik isi '$PROD_UPLOADS_VOLUME' ke $TMP_UPLOADS lewat tar-over-SSH..."
+# Mount ':ro' — production adalah sumber kebenaran dan tidak boleh tersentuh
+# tulis dari prosedur ini, bahkan tidak sengaja.
+# tar di sisi ini dibuat GNU tar di dalam alpine (Linux), jadi tidak ada
+# sidecar AppleDouble — itu murni masalah bsdtar macOS dan hanya relevan di
+# sisi push (lihat COPYFILE_DISABLE=1 di bawah).
 ssh "${PROD_SSH_OPTS[@]}" "$PROD_SSH_HOST" \
-  "mkdir -p '$REMOTE_PULL_DIR' && docker run --rm --network '$PROD_DOCKER_NETWORK' \
-   -v '$REMOTE_PULL_DIR':/out \
-   -e MC_HOST_prod='http://${PROD_RUSTFS_ACCESS_KEY}:${PROD_RUSTFS_SECRET_KEY}@rustfs:9000' \
-   minio/mc:latest mirror --quiet prod/$PROD_RUSTFS_BUCKET /out"
-say "Menarik hasilnya ke $TMP_UPLOADS lewat SSH..."
-ssh "${PROD_SSH_OPTS[@]}" "$PROD_SSH_HOST" "tar cz -C '$REMOTE_PULL_DIR' ." | tar xz -C "$TMP_UPLOADS"
-ssh "${PROD_SSH_OPTS[@]}" "$PROD_SSH_HOST" "rm -rf '$REMOTE_PULL_DIR'"
-note "berkas sementara di host production sudah dibersihkan"
+  "docker run --rm -v '$PROD_UPLOADS_VOLUME':/d:ro -w /d alpine tar cz ." | tar xz -C "$TMP_UPLOADS"
 LOCAL_COUNT=$(find "$TMP_UPLOADS" -type f | wc -l | tr -d ' ')
 LOCAL_BYTES=$(find "$TMP_UPLOADS" -type f -exec cat {} + 2>/dev/null | wc -c | tr -d ' ')
 note "tertarik: $LOCAL_COUNT berkas, $LOCAL_BYTES byte"
-confirm "Timpa volume kammi-uploads di STAGING dengan $LOCAL_COUNT berkas ini?" \
-  || { warn "dibatalkan"; exit 1; }
+[[ "$LOCAL_COUNT" -gt 0 ]] || { warn "0 berkas tertarik dari production — JANGAN lanjut; ini akan mengosongkan staging"; rm -rf "$TMP_UPLOADS"; exit 1; }
+confirm "Timpa volume '$STAGING_UPLOADS_VOLUME' di STAGING dengan $LOCAL_COUNT berkas ini?" \
+  || { warn "dibatalkan"; rm -rf "$TMP_UPLOADS"; exit 1; }
 say "Mengosongkan lalu mengisi ulang volume staging..."
-ssh "${STAGING_SSH_OPTS[@]}" "$DOKPLOY_NONPROD_SSH_HOST" "docker run --rm -v kammi-uploads:/d -w /d alpine sh -c 'rm -rf /d/* /d/.[!.]* 2>/dev/null || true'"
+ssh "${STAGING_SSH_OPTS[@]}" "$DOKPLOY_NONPROD_SSH_HOST" "docker run --rm -v '$STAGING_UPLOADS_VOLUME':/d -w /d alpine sh -c 'rm -rf /d/* /d/.[!.]* 2>/dev/null || true'"
 # COPYFILE_DISABLE=1: tanpa ini, bsdtar di macOS menyisipkan sidecar
 # AppleDouble '._namafile' untuk berkas berxattr — dua kali lipat jumlah
 # berkas di tujuan dan bikin verifikasi byte/jumlah di stage berikut gagal
 # padahal datanya sendiri utuh. Ditemukan langsung saat menjalankan ini.
 COPYFILE_DISABLE=1 tar cz -C "$TMP_UPLOADS" . | ssh "${STAGING_SSH_OPTS[@]}" "$DOKPLOY_NONPROD_SSH_HOST" \
-  "docker run --rm -i -v kammi-uploads:/d -w /d alpine tar xz"
+  "docker run --rm -i -v '$STAGING_UPLOADS_VOLUME':/d -w /d alpine tar xz"
 # Container alpine di atas jalan sebagai root, jadi isi volume yang baru
 # ditulis kembali dimiliki root — sementara aplikasi jalan sebagai uid 1001
 # (spec.md, "Izin volume"). Tanpa baris ini app dapat Permission denied
 # membaca foldernya sendiri dan /api/images/* jatuh ke placeholder walau
 # datanya benar. Ditemukan langsung: kejadian nyata di sesi yang menulis ini.
-ssh "${STAGING_SSH_OPTS[@]}" "$DOKPLOY_NONPROD_SSH_HOST" "docker run --rm -v kammi-uploads:/d alpine chown -R 1001:1001 /d"
+ssh "${STAGING_SSH_OPTS[@]}" "$DOKPLOY_NONPROD_SSH_HOST" "docker run --rm -v '$STAGING_UPLOADS_VOLUME':/d alpine chown -R 1001:1001 /d"
 note "volume staging disegarkan, ownership dikembalikan ke uid 1001"
 
 # ── 7. Verifikasi kunci gambar (jumlah objek & byte) ────────────────────────
 stage "Verifikasi salinan volume"
 say "Bukan sekilas — dihitung berkas dan total byte di kedua sisi."
 REMOTE_STATS=$(ssh "${STAGING_SSH_OPTS[@]}" "$DOKPLOY_NONPROD_SSH_HOST" \
-  "docker run --rm -v kammi-uploads:/d alpine sh -c \"find /d -type f | wc -l; find /d -type f -exec cat {} + 2>/dev/null | wc -c\"")
+  "docker run --rm -v '$STAGING_UPLOADS_VOLUME':/d alpine sh -c \"find /d -type f | wc -l; find /d -type f -exec cat {} + 2>/dev/null | wc -c\"")
 REMOTE_COUNT=$(printf '%s\n' "$REMOTE_STATS" | sed -n '1p' | tr -d ' ')
 REMOTE_BYTES=$(printf '%s\n' "$REMOTE_STATS" | sed -n '2p' | tr -d ' ')
 printf '  %-22s %10s berkas %14s byte\n' "lokal (dari production)" "$LOCAL_COUNT" "$LOCAL_BYTES"
@@ -545,14 +618,13 @@ bash .scratch/cd-non-prod/wizard-05-data-staging-dan-runbook.sh
 \`\`\`
 
 Me-restore \`pg_dump\` production ke Postgres staging (\`--clean --if-exists\`)
-dan menimpa volume \`kammi-uploads\` staging dengan gambar production, keduanya
-lewat mesin lokal sebagai perantara — tidak ada kunci SSH permanen
-non-production → production. Gambar masih di RustFS (production belum
-migrasi ke volume, ADR 0006), dan RustFS tidak reachable langsung dari luar —
-\`mc\` dijalankan DI HOST production lewat SSH (\`docker run --network
-dokploy-network minio/mc\`), hasilnya ditarik ke lokal lewat tar-over-SSH,
-persis pola \`assets-pull.ts\`. Begitu production migrasi ke volume, seluruh
-langkah \`mc\` ini bisa diganti tar-over-SSH langsung seperti sisi staging.
+dan menimpa volume uploads staging dengan gambar production, keduanya lewat
+mesin lokal sebagai perantara — tidak ada kunci SSH permanen non-production →
+production. Sejak ADR 0006 tuntas di production (1 September 2026) kedua sisi
+adalah named volume Docker biasa — production \`kammi-id-assets\` di
+\`/data/uploads\`, staging \`kammi-uploads\` di \`/app/.uploads\` — jadi
+penyalinannya tar-over-SSH langsung, persis pola \`assets-pull.ts\`. RustFS
+tidak lagi terlibat dan wizard tidak meminta kredensial S3 apa pun.
 Verifikasi objek/byte dan verifikasi mata (foto Kader, logo Struktur, Artikel
 bergambar) berjalan di dalam wizard yang sama.
 
