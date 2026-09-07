@@ -19,7 +19,8 @@ import {
   masaPenetapanKelulusan,
   type AlasanTertutup
 } from '~/lib/daurah/masa-penetapan-kelulusan'
-import { isOrgInScope } from '~/db/query/organization'
+import { isOrgInScope, readOrganization } from '~/db/query/organization'
+import { isJenisDaurahDiizinkan } from '~/lib/daurah/matriks-jenis-daurah'
 import { getLogger, redact } from '~/lib/logger'
 
 const logger = getLogger(['app', 'action', 'training'])
@@ -164,6 +165,46 @@ export const updateTrainingAction = async (
     }
 
     const data = validated.data
+
+    // ADR 0025: menyunting jenis Daurah tunduk pada matriks Jenjang ×
+    // jenis, sama seperti pembuatannya. `organizationId` sendiri tidak bisa
+    // diubah lewat skema ini, jadi Cakupan-nya sudah dijaga `assertCanManage`
+    // di setiap aksi lain pada Daurah yang sama — yang belum dijaga adalah
+    // pindah jenis ke luar matriks.
+    //
+    // Daurah lama yang sudah melanggar matriks (dicatat sebelum aturan ini
+    // ada) tetap boleh disunting selama jenisnya tidak ikut diubah — baris
+    // ini hanya berjalan saat `type` benar-benar berbeda dari yang tersimpan.
+    if (data.type) {
+      const [existing] = await db
+        .select({
+          type: trainingTable.type,
+          organizationId: trainingTable.organizationId
+        })
+        .from(trainingTable)
+        .where(eq(trainingTable.id, data.id))
+        .limit(1)
+
+      if (!existing)
+        return { success: false, message: 'Daurah tidak ditemukan.' }
+
+      if (data.type !== existing.type) {
+        const [organization] = await readOrganization({
+          id: [existing.organizationId]
+        })
+        if (
+          !organization ||
+          !isJenisDaurahDiizinkan(organization.type, data.type)
+        ) {
+          const message = 'Jenis Daurah ini tidak sesuai Jenjang penyelenggara.'
+          return {
+            success: false,
+            message,
+            errors: { type: [message] }
+          }
+        }
+      }
+    }
 
     if (
       data.startDate &&

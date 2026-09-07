@@ -1,7 +1,10 @@
 import { describe, it, expect, beforeEach, mock } from 'bun:test'
 import { db } from '~/db/db'
 import { and, eq, sql } from 'drizzle-orm'
-import { trainingAttendants } from '~/db/schema/training.sql'
+import {
+  trainingAttendants,
+  training as trainingTable
+} from '~/db/schema/training.sql'
 import { createOrganization } from '~/db/query/organization'
 import { createMember } from '~/db/query/member'
 import { trainingQuery } from '~/db/query/training'
@@ -22,7 +25,8 @@ const {
   updateAttendantStatusAction,
   removeAttendantAction,
   searchTrainingAttendantsAction,
-  searchTrainingInstructorsAction
+  searchTrainingInstructorsAction,
+  updateTrainingAction
 } = await import('./action')
 
 const toFormData = (fields: Record<string, string>): FormData => {
@@ -46,6 +50,7 @@ const daysFromNow = (days: number): string => {
 describe('training-detail-view actions', () => {
   let pkItbId: string
   let pkOtherId: string
+  let pdBandungId: string
 
   beforeEach(async () => {
     await db.execute(
@@ -90,6 +95,16 @@ describe('training-detail-view actions', () => {
       isNonActive: false
     })
     pkOtherId = pkOther.id
+
+    const [pdBandung] = await createOrganization({
+      name: 'PD Bandung',
+      slug: 'pd-bandung',
+      code: 'PD-01',
+      type: 'pd',
+      parentId: pwJabar.id,
+      isNonActive: false
+    })
+    pdBandungId = pdBandung.id
   })
 
   const createTraining = async (
@@ -197,6 +212,98 @@ describe('training-detail-view actions', () => {
       )
 
       expect(result.success).toBe(true)
+    })
+  })
+
+  // ADR 0025: menyunting jenis Daurah tunduk pada matriks Jenjang × jenis
+  // penyelenggara, sama seperti pembuatannya (tiket 01). `organizationId`
+  // sendiri tidak bisa diubah lewat `UpdateTrainingSchema`, jadi Cakupan-nya
+  // sudah dijaga `assertCanManage` di aksi-aksi lain pada Daurah yang sama —
+  // yang diuji di sini murni matriksnya.
+  describe('updateTrainingAction (matriks Jenjang × jenis)', () => {
+    it('rejects changing type to one outside the organizer Jenjang matrix', async () => {
+      const training = await createTraining(pkItbId, {
+        startDate: daysFromNow(5),
+        endDate: daysFromNow(7),
+        type: 'dm1'
+      })
+
+      const result = await updateTrainingAction(
+        undefined,
+        toFormData({ id: training.id, type: 'dm2' })
+      )
+
+      expect(result.success).toBe(false)
+      expect(result.message).toBe(
+        'Jenis Daurah ini tidak sesuai Jenjang penyelenggara.'
+      )
+      expect(result.errors?.type).toEqual([
+        'Jenis Daurah ini tidak sesuai Jenjang penyelenggara.'
+      ])
+
+      const [unchanged] = await db
+        .select({ type: trainingTable.type })
+        .from(trainingTable)
+        .where(eq(trainingTable.id, training.id))
+      expect(unchanged.type).toBe('dm1')
+    })
+
+    it('rejects changing type to DM3 for a PD organizer', async () => {
+      const training = await createTraining(pdBandungId, {
+        startDate: daysFromNow(5),
+        endDate: daysFromNow(7),
+        type: 'dm2'
+      })
+
+      const result = await updateTrainingAction(
+        undefined,
+        toFormData({ id: training.id, type: 'dm3' })
+      )
+
+      expect(result.success).toBe(false)
+      expect(result.message).toBe(
+        'Jenis Daurah ini tidak sesuai Jenjang penyelenggara.'
+      )
+    })
+
+    it('allows changing type to one the matrix permits for the organizer', async () => {
+      const training = await createTraining(pkItbId, {
+        startDate: daysFromNow(5),
+        endDate: daysFromNow(7),
+        type: 'dm1'
+      })
+
+      const result = await updateTrainingAction(
+        undefined,
+        toFormData({ id: training.id, type: 'other' })
+      )
+
+      expect(result.success).toBe(true)
+    })
+
+    // Daurah lama boleh sudah melanggar matriks ini — dicatat sebelum ADR
+    // 0025 ada, atau (di tes ini) dibuat lewat `trainingQuery.create` yang
+    // tidak lewat gate manapun. Menyunting field lain tanpa menyentuh `type`
+    // tidak boleh terhalang oleh pelanggaran lama itu.
+    it('does not block editing an old training that already violates the matrix, when type is unchanged', async () => {
+      const violating = await createTraining(pkItbId, {
+        startDate: daysFromNow(5),
+        endDate: daysFromNow(7),
+        type: 'dm3' // PK tidak boleh DM3 — dicatat di luar jalur createTrainingAction
+      })
+
+      const result = await updateTrainingAction(
+        undefined,
+        toFormData({ id: violating.id, name: 'DM3 Test (diperbarui)' })
+      )
+
+      expect(result.success).toBe(true)
+
+      const sameTypeResult = await updateTrainingAction(
+        undefined,
+        toFormData({ id: violating.id, type: 'dm3' })
+      )
+      expect(sameTypeResult.success).toBe(true)
     })
   })
 
