@@ -3,6 +3,7 @@ import { db } from '~/db/db'
 import { and, eq, sql } from 'drizzle-orm'
 import {
   trainingAttendants,
+  trainingInstructors,
   training as trainingTable
 } from '~/db/schema/training.sql'
 import { createOrganization } from '~/db/query/organization'
@@ -22,6 +23,8 @@ mock.module('next/cache', () => ({
 
 const {
   addAttendantAction,
+  addInstructorAction,
+  removeInstructorAction,
   updateAttendantStatusAction,
   removeAttendantAction,
   searchTrainingAttendantsAction,
@@ -832,6 +835,164 @@ describe('training-detail-view actions', () => {
 
       expect(result.success).toBe(true)
       expect(result.data.map((m) => m.id)).not.toContain(uncertified.id)
+    })
+  })
+
+  // Tiket 03: satu Daurah, satu Master of Training. `createTrainingAction`
+  // sudah diuji lewat jalur pembuatan (add-training-modal/action.test.ts);
+  // yang tersisa di sini adalah jalur kedua — menambah Instruktur ke Daurah
+  // yang SUDAH ada, tempat sebuah Daurah bisa sudah punya MoT.
+  describe('addInstructorAction (Master of Training tunggal)', () => {
+    const readInstructorRole = async (trainingId: string, memberId: string) => {
+      const [row] = await db
+        .select({ role: trainingInstructors.role })
+        .from(trainingInstructors)
+        .where(
+          and(
+            eq(trainingInstructors.trainingId, trainingId),
+            eq(trainingInstructors.memberId, memberId)
+          )
+        )
+      return row?.role ?? null
+    }
+
+    it('appoints the first Master of Training for a Daurah', async () => {
+      mockSession = {
+        user: { id: 'u1', role: 'bpk', connectedOrganizationId: pkItbId }
+      }
+      const training = await createTraining(pkItbId, {
+        startDate: daysFromNow(5),
+        endDate: daysFromNow(7)
+      })
+      const candidate = await createTestInstructor(pkItbId, {
+        registerNumber: 'PK01-0010'
+      })
+
+      const result = await addInstructorAction(
+        undefined,
+        toFormData({
+          trainingId: training.id,
+          memberId: candidate.id,
+          role: 'master'
+        })
+      )
+
+      expect(result.success).toBe(true)
+      expect(await readInstructorRole(training.id, candidate.id)).toBe(
+        'master'
+      )
+    })
+
+    // Inti tiket 03: pilihan MoT kedua ditolak, bukan menggantikan yang
+    // pertama — dan pesannya menyebut siapa yang sedang menjabat, supaya
+    // operator tahu siapa yang harus dilepas lebih dulu.
+    it('rejects a second Master of Training and names the sitting one', async () => {
+      mockSession = {
+        user: { id: 'u1', role: 'bpk', connectedOrganizationId: pkItbId }
+      }
+      const training = await createTraining(pkItbId, {
+        startDate: daysFromNow(5),
+        endDate: daysFromNow(7)
+      })
+      const sittingMaster = await createTestInstructor(pkItbId, {
+        registerNumber: 'PK01-0011'
+      })
+      await trainingQuery.addInstructor(training.id, sittingMaster.id, 'master')
+
+      const challenger = await createTestInstructor(pkItbId, {
+        registerNumber: 'PK01-0012'
+      })
+
+      const result = await addInstructorAction(
+        undefined,
+        toFormData({
+          trainingId: training.id,
+          memberId: challenger.id,
+          role: 'master'
+        })
+      )
+
+      expect(result.success).toBe(false)
+      expect(result.message).toContain(sittingMaster.name)
+      expect(await readInstructorRole(training.id, challenger.id)).toBeNull()
+      // Yang lama tetap menjabat — bukan diam-diam tergantikan.
+      expect(
+        await readInstructorRole(training.id, sittingMaster.id)
+      ).toBe('master')
+    })
+
+    // Peran lain tetap boleh diisi lebih dari satu orang — hanya `master`
+    // yang dibatasi tunggal.
+    it('still allows a second person in a non-master role', async () => {
+      mockSession = {
+        user: { id: 'u1', role: 'bpk', connectedOrganizationId: pkItbId }
+      }
+      const training = await createTraining(pkItbId, {
+        startDate: daysFromNow(5),
+        endDate: daysFromNow(7)
+      })
+      const first = await createTestInstructor(pkItbId, {
+        registerNumber: 'PK01-0013'
+      })
+      await trainingQuery.addInstructor(training.id, first.id, 'lecturer')
+
+      const second = await createTestInstructor(pkItbId, {
+        registerNumber: 'PK01-0014'
+      })
+
+      const result = await addInstructorAction(
+        undefined,
+        toFormData({
+          trainingId: training.id,
+          memberId: second.id,
+          role: 'lecturer'
+        })
+      )
+
+      expect(result.success).toBe(true)
+      expect(await readInstructorRole(training.id, second.id)).toBe(
+        'lecturer'
+      )
+    })
+
+    // Melepas MoT lalu menunjuk yang baru tetap berhasil — penggantian
+    // tetap mungkin, cuma tidak diam-diam.
+    it('allows appointing a new Master of Training after removing the old one', async () => {
+      mockSession = {
+        user: { id: 'u1', role: 'bpk', connectedOrganizationId: pkItbId }
+      }
+      const training = await createTraining(pkItbId, {
+        startDate: daysFromNow(5),
+        endDate: daysFromNow(7)
+      })
+      const oldMaster = await createTestInstructor(pkItbId, {
+        registerNumber: 'PK01-0015'
+      })
+      await trainingQuery.addInstructor(training.id, oldMaster.id, 'master')
+
+      const removeResult = await removeInstructorAction(
+        training.id,
+        oldMaster.id
+      )
+      expect(removeResult.success).toBe(true)
+
+      const newMaster = await createTestInstructor(pkItbId, {
+        registerNumber: 'PK01-0016'
+      })
+
+      const addResult = await addInstructorAction(
+        undefined,
+        toFormData({
+          trainingId: training.id,
+          memberId: newMaster.id,
+          role: 'master'
+        })
+      )
+
+      expect(addResult.success).toBe(true)
+      expect(await readInstructorRole(training.id, newMaster.id)).toBe(
+        'master'
+      )
     })
   })
 })

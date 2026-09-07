@@ -543,6 +543,30 @@ export const trainingQuery = {
     return inserted
   },
 
+  /**
+   * The sitting Master of Training for a Daurah, if any (tiket 03). Read
+   * ahead of the insert in `addInstructorAction` so a second MoT can be
+   * refused with a message naming who already holds the seat, instead of
+   * discovering the clash only through the partial unique index.
+   */
+  readMasterInstructor: async (
+    trainingId: string
+  ): Promise<{ memberId: string; memberName: string | null } | null> => {
+    const [row] = await db
+      .select({ memberId: trainingInstructors.memberId, memberName: member.name })
+      .from(trainingInstructors)
+      .leftJoin(member, eq(trainingInstructors.memberId, member.id))
+      .where(
+        and(
+          eq(trainingInstructors.trainingId, trainingId),
+          eq(trainingInstructors.role, 'master')
+        )
+      )
+      .limit(1)
+
+    return row ? { memberId: row.memberId, memberName: row.memberName ?? null } : null
+  },
+
   removeInstructor: async (trainingId: string, memberId: string) => {
     const [deleted] = await db
       .delete(trainingInstructors)

@@ -4,9 +4,10 @@ import {
   uuid,
   integer,
   boolean,
-  date
+  date,
+  uniqueIndex
 } from 'drizzle-orm/pg-core'
-import { sql } from 'drizzle-orm'
+import { sql, eq } from 'drizzle-orm'
 import { organization } from './organization.sql'
 import { member } from './member.sql'
 
@@ -79,6 +80,23 @@ export const trainingInstructors = pgTable(
       .notNull()
   }),
   (table) => ({
-    pk: { columns: [table.trainingId, table.memberId], primaryKey: true }
+    pk: { columns: [table.trainingId, table.memberId], primaryKey: true },
+    /**
+     * Satu Daurah, satu Master of Training — organisasi menegaskan ini di
+     * luar kode, jadi ia ditegakkan di sini juga, bukan cuma di
+     * `addInstructorAction`. `(trainingId, memberId)` di atas mencegah satu
+     * orang memegang dua peran sekaligus, tapi tidak mencegah dua orang
+     * berbeda sama-sama `master` pada Daurah yang sama.
+     *
+     * Partial unique index, bukan constraint biasa: aturannya hanya berlaku
+     * untuk baris ber-`role = 'master'` — peran lain tetap boleh diisi lebih
+     * dari satu orang. Namanya dieja tangan, mengikuti pola
+     * `organization_slug_live_unique`: penanganan `23505` di jalur tulis
+     * (`isMasterConflict`, `src/lib/daurah/master-conflict.ts`) menyebutnya
+     * langsung, dan nama turunan bergeser diam-diam kalau kolomnya berubah.
+     */
+    masterUniquePerTraining: uniqueIndex('training_instructors_master_unique')
+      .on(table.trainingId)
+      .where(eq(table.role, 'master'))
   })
 )
