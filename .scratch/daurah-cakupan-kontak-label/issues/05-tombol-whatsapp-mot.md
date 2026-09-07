@@ -6,7 +6,7 @@ Training, memakai nomor yang tersimpan di data Member-nya.
 **Blocked by:** 04 — nomor harus sudah E.164 sebelum tautannya bisa dipercaya.
 Tiket 04 sudah **done** (2026-09-07), jadi tiket ini tidak lagi terblokir.
 
-**Status:** ready-for-agent
+**Status:** done — dikerjakan 2026-09-07, lihat Comments
 
 ## Yang dibangun
 
@@ -36,14 +36,14 @@ baris cacat yang sengaja tidak ikut dikonversi.
 
 ## Acceptance
 
-- [ ] Tombol muncul di detail Daurah bagi pemegang `canManage` saja
-- [ ] Menekan tombol membuka `wa.me` dengan nomor MoT, pesan kosong
-- [ ] MoT tanpa nomor: tombol mati dengan keterangan yang jelas
-- [ ] Nomor cacat yang tidak ikut dikonversi tidak menghasilkan tautan ngawur
-- [ ] Daurah tanpa MoT tidak menampilkan tombol
-- [ ] `profile-info.tsx` memakai helper yang sama, salinannya hilang
-- [ ] Tombolnya punya nama yang terbaca pembaca layar
-- [ ] `bun run check:types` lolos
+- [x] Tombol muncul di detail Daurah bagi pemegang `canManage` saja
+- [x] Menekan tombol membuka `wa.me` dengan nomor MoT, pesan kosong
+- [x] MoT tanpa nomor: tombol mati dengan keterangan yang jelas
+- [x] Nomor cacat yang tidak ikut dikonversi tidak menghasilkan tautan ngawur
+- [x] Daurah tanpa MoT tidak menampilkan tombol
+- [x] `profile-info.tsx` memakai helper yang sama, salinannya hilang
+- [x] Tombolnya punya nama yang terbaca pembaca layar
+- [x] `bun run check:types` lolos
 
 ## Comments
 
@@ -59,3 +59,39 @@ E.164-nya dulu. Nomor lama yang masih cacat berprefiks dobel (mis.
 apa adanya jadi tautan `wa.me` yang salah bentuk. Perlu ditambah pemeriksaan
 bentuk sebelum tombol tampil aktif — bukan cuma "MoT tanpa nomor" yang harus
 mematikan tombolnya, "nomor ada tapi bukan E.164 yang sah" juga harus.
+
+### 2026-09-07 — selesai
+
+- `isValidE164` baru (`src/lib/validation/phone.ts`) memeriksa bentuk
+  E.164 pada nilai MENTAH, sebelum normalisasi — baris cacat berprefiks
+  dobel (`0628…`) tidak diawali `+`, jadi langsung gagal alih-alih ditebak
+  jadi sesuatu yang salah bentuk. `phoneFormField` direfaktor memakainya
+  juga, menghapus duplikasi regex yang sebelumnya ada di dua tempat.
+- `toValidWaMeDigits` baru menyatukan trim → `isValidE164` →
+  `toWaMeDigits` jadi satu pintu. `MotWhatsappButton`
+  (`training-detail-view.tsx`) dan `cleanPhone` di `profile-info.tsx`
+  sama-sama memanggil lewat sini — sebelumnya kedua tempat menulis ulang
+  bentuk yang sama (ditemukan review Standards), sekarang cuma satu.
+- `MotWhatsappButton` muncul di baris instruktur ber-peran `master`, hanya
+  saat `canManage`: tautan `wa.me` aktif kalau nomornya sah, tombol mati
+  dengan tooltip kalau kosong atau cacat. Daurah tanpa MoT tidak
+  merender apa pun (tidak ada baris `master` untuk dilekati).
+- `profile-info.tsx` ikut diperbaiki: tautan WhatsApp-nya sekarang
+  bersembunyi (bukan pura-pura jalan) kalau `member.phone` bukan E.164
+  yang sah — bug yang sama persis, di luar cakupan tertulis tiket ini
+  tapi memakai helper yang sama sehingga janggal dibiarkan pincang.
+  Review Spec menandai ini scope creep yang beralasan, bukan bebas
+  begitu saja — dicatat di sini supaya jelas.
+- Tes: `phone.test.ts` menambah kasus untuk `isValidE164` dan
+  `toValidWaMeDigits` (termasuk prefiks dobel, string kosong, spasi
+  pinggir); `training-detail-view.test.tsx` baru — render komponen
+  penuh dengan `next/link`/`next/navigation` di-mock, mengecek kelima
+  skenario tombol (sah, kosong, cacat, bukan `canManage`, tanpa MoT).
+- Review Standards + Spec (dua sub-agent paralel) lolos setelah satu
+  putaran perbaikan: temuan duplikasi (trim/validasi/konversi ditulis
+  dua kali) diperbaiki dengan `toValidWaMeDigits` di atas.
+- `bun run check:types`, `check:structure`, `check:lint` (0 error, warning
+  pra-ada saja) lolos. `bun test` untuk berkas yang disentuh lolos bersih;
+  full-suite gabungan menunjukkan kegagalan `db.execute is not a function`
+  pra-ada dan tidak terkait (lihat memory
+  `full-suite-db-undefined-pre-existing`).
