@@ -5,7 +5,7 @@
 
 **Blocked by:** None — can start immediately.
 
-**Status:** ready-for-agent
+**Status:** done — dikerjakan 2026-09-07, lihat Comments
 
 ## Keadaannya
 
@@ -40,11 +40,39 @@ minta izin sebelum menjalankannya.
 
 ## Acceptance
 
-- [ ] Migrasi memasang unique index parsial pada `role = 'master'`
-- [ ] `addInstructorAction` menolak MoT kedua dengan pesan yang menyebut MoT
+- [x] Migrasi memasang unique index parsial pada `role = 'master'`
+- [x] `addInstructorAction` menolak MoT kedua dengan pesan yang menyebut MoT
       yang sedang menjabat
-- [ ] Melepas MoT lalu menunjuk yang baru tetap berhasil
-- [ ] Peran lain tetap boleh diisi lebih dari satu orang
+- [x] Melepas MoT lalu menunjuk yang baru tetap berhasil
+- [x] Peran lain tetap boleh diisi lebih dari satu orang
 - [ ] Hitungan MoT ganda di production diambil dan dilaporkan sebelum migrasi
-- [ ] Ada tes untuk penolakan MoT kedua
-- [ ] `bun run check:types` lolos
+      — **belum**, butuh akses production; migrasinya sudah digenerate tapi
+      **belum dijalankan** ke database manapun selain test. Lihat Comments.
+- [x] Ada tes untuk penolakan MoT kedua
+- [x] `bun run check:types` lolos
+
+## Comments
+
+### 2026-09-07 — implementasi
+
+Dikerjakan lewat `/implement`, paralel dengan tiket 04, di worktree terpisah,
+lalu digabung dengan merge commit `b872434` ke `dev-20260104`.
+
+- Unique index parsial `training_instructors_master_unique` di
+  `src/db/schema/training.sql.ts`; migrasi digenerate di
+  `src/db/__migrations/20260907072615_stiff_rattler/` tapi **belum
+  diterapkan** ke database manapun di luar `TEST_DATABASE_URL` — menunggu
+  hitungan duplikat production dan izin operator sebelum dijalankan lewat
+  entrypoint container (ADR 0008).
+- `addInstructorAction` menolak percobaan kedua sebelum insert, dan sebagai
+  jaring pengaman menangkap pelanggaran index (`23505`) lewat
+  `isMasterConflict` (`src/lib/daurah/master-conflict.ts`, meniru pola
+  `isSlugConflict`) — keduanya memakai pesan yang sama, menyebut nama MoT
+  yang sedang menjabat.
+- Review Standards + Spec (dua sub-agent paralel) lolos bersih; satu catatan
+  gaya minor (duplikasi parsing `rawData` di catch block) sudah diperbaiki
+  mengikuti pola `updateTrainingAction` di berkas yang sama.
+- Temuan sampingan, tidak digarap (di luar cakupan): "primary key" komposit
+  `(trainingId, memberId)` di `trainingInstructors` ternyata bukan
+  constraint asli — bentuknya lolos type-check tapi tidak ada PK/unique di
+  database. Layak jadi tiket terpisah.

@@ -4,6 +4,7 @@
 Training, memakai nomor yang tersimpan di data Member-nya.
 
 **Blocked by:** 04 — nomor harus sudah E.164 sebelum tautannya bisa dipercaya.
+Tiket 04 sudah **done** (2026-09-07), jadi tiket ini tidak lagi terblokir.
 
 **Status:** ready-for-agent
 
@@ -43,3 +44,18 @@ baris cacat yang sengaja tidak ikut dikonversi.
 - [ ] `profile-info.tsx` memakai helper yang sama, salinannya hilang
 - [ ] Tombolnya punya nama yang terbaca pembaca layar
 - [ ] `bun run check:types` lolos
+
+## Comments
+
+### 2026-09-07 — status pasca tiket 04
+
+Tiket 04 sudah membuat `toWaMeDigits` di `src/lib/validation/phone.ts` dan
+memakainya di `profile-info.tsx`, menggantikan tebakan ad hoc lama — jadi
+"satu fungsi, bukan dua" di atas sudah separuh jalan. **Belum** memenuhi
+acceptance "Nomor cacat yang tidak ikut dikonversi tidak menghasilkan tautan
+ngawur": `toWaMeDigits` hari ini cuma membuang `+`, tanpa memvalidasi bentuk
+E.164-nya dulu. Nomor lama yang masih cacat berprefiks dobel (mis.
+`0628123456789`, sengaja tidak ikut dikonversi backfill tiket 04) akan lolos
+apa adanya jadi tautan `wa.me` yang salah bentuk. Perlu ditambah pemeriksaan
+bentuk sebelum tombol tampil aktif — bukan cuma "MoT tanpa nomor" yang harus
+mematikan tombolnya, "nomor ada tapi bukan E.164 yang sah" juga harus.

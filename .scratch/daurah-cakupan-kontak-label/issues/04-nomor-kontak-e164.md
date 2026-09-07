@@ -5,7 +5,7 @@ plus backfill data lama yang aman dikonversi.
 
 **Blocked by:** None — can start immediately.
 
-**Status:** ready-for-agent
+**Status:** done — dikerjakan 2026-09-07, lihat Comments
 
 ## Keadaannya
 
@@ -71,13 +71,40 @@ saat itu.
 
 ## Acceptance
 
-- [ ] Satu fungsi normalisasi dipakai kelima pintu masuk
-- [ ] Kelima baris tabel aturan di atas menghasilkan keluaran yang tepat
-- [ ] `+62` tanpa awalan `8` ditolak dengan pesan yang bisa dibaca operator
-- [ ] Nomor asing di luar 8–15 digit ditolak
-- [ ] Kolom kosong tetap sah
-- [ ] Backfill mengonversi baris yang aman dan tidak menyentuh yang cacat
-- [ ] Backfill bisa dijalankan dua kali tanpa merusak (idempoten)
-- [ ] Angka production dilaporkan sebelum migrasi dijalankan
-- [ ] Ada tes untuk tiap baris tabel aturan dan untuk penolakannya
-- [ ] `bun run check:types` lolos
+- [x] Satu fungsi normalisasi dipakai kelima pintu masuk
+- [x] Kelima baris tabel aturan di atas menghasilkan keluaran yang tepat
+- [x] `+62` tanpa awalan `8` ditolak dengan pesan yang bisa dibaca operator
+- [x] Nomor asing di luar 8–15 digit ditolak
+- [x] Kolom kosong tetap sah
+- [x] Backfill mengonversi baris yang aman dan tidak menyentuh yang cacat
+- [x] Backfill bisa dijalankan dua kali tanpa merusak (idempoten)
+- [ ] Angka production dilaporkan sebelum migrasi dijalankan — **belum**,
+      butuh akses production. Skrip backfill sudah ada tapi **belum
+      dijalankan** ke database manapun selain test. Lihat Comments.
+- [x] Ada tes untuk tiap baris tabel aturan dan untuk penolakannya
+- [x] `bun run check:types` lolos
+
+## Comments
+
+### 2026-09-07 — implementasi
+
+Dikerjakan lewat `/implement`, paralel dengan tiket 03, di worktree terpisah,
+lalu digabung dengan merge commit `0b4fdaf` ke `dev-20260104`.
+
+- Fungsi bersama di `src/lib/validation/phone.ts`: `normalizePhoneToE164`
+  (transformasi murni), `phoneFormField` (field Zod yang menggabungkan
+  normalisasi + validasi ketat-IDN/longgar-asing), `decideBackfillPhone`
+  (pemeriksaan aman-tidaknya baris lama), `toWaMeDigits` (E.164 tanpa `+`,
+  dipakai `profile-info.tsx` menggantikan tebakan ad hoc lama).
+- Kelima pintu masuk disambungkan; poin 2 (`inline-quick-add-row`) ternyata
+  memakai `memberSchema` yang sama dengan poin 1, jadi tidak perlu
+  penyambungan terpisah.
+- `src/db/scripts/backfill-phone-e164.ts` ditulis dan diuji lewat integrasi
+  terhadap `TEST_DATABASE_URL` (termasuk tes idempotensi eksplisit), tapi
+  **belum dijalankan** terhadap database manapun di luar test — menunggu
+  hitungan angka production dan izin operator.
+- Review Standards + Spec lolos bersih. Satu catatan tidak mengikat dari
+  Spec review untuk tiket 05 (tombol WhatsApp MoT): nomor lama yang masih
+  cacat berprefiks dobel (`062…`, sengaja tidak disentuh backfill) akan
+  menghasilkan tautan `wa.me` yang salah bentuk — bukan kehilangan data,
+  tapi layak jadi catatan saat mengerjakan tiket 05.
