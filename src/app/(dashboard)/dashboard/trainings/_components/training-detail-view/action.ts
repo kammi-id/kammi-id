@@ -21,6 +21,7 @@ import {
 } from '~/lib/daurah/masa-penetapan-kelulusan'
 import { isOrgInScope, readOrganization } from '~/db/query/organization'
 import { isJenisDaurahDiizinkan } from '~/lib/daurah/matriks-jenis-daurah'
+import { isMasterConflict } from '~/lib/daurah/master-conflict'
 import { getLogger, redact } from '~/lib/logger'
 
 const logger = getLogger(['app', 'action', 'training'])
@@ -138,6 +139,19 @@ const InstructorAssignmentSchema = MemberAssignmentSchema.extend({
 const AttendantStatusSchema = MemberAssignmentSchema.extend({
   isPassing: z.union([z.boolean(), z.string().transform((v) => v === 'true')])
 })
+
+/**
+ * Tiket 03: satu Daurah, satu Master of Training. Penggantian diam-diam
+ * bukan pilihannya — operator harus tahu siapa yang sedang menjabat supaya
+ * ia bisa `removeInstructorAction`-kan yang lama sebelum menunjuk yang baru
+ * (spec tiket). `memberName` bisa hilang kalau baris Kader-nya sendiri
+ * sudah tak ada; itu tidak menggagalkan penolakan, cuma melunakkan
+ * pesannya.
+ */
+const masterOccupiedMessage = (memberName: string | null): string =>
+  `Master of Training untuk daurah ini sudah dijabat oleh ${
+    memberName ?? 'instruktur lain'
+  }. Lepas MoT tersebut terlebih dahulu sebelum menunjuk yang baru.`
 
 type ActionResponse<T = any> = {
   success: boolean
@@ -449,8 +463,10 @@ export const addInstructorAction = async (
   prevState: any,
   formData: FormData
 ): Promise<ActionResponse> => {
+  let rawData: Record<string, FormDataEntryValue> | undefined
+
   try {
-    const rawData = Object.fromEntries(formData.entries())
+    rawData = Object.fromEntries(formData.entries())
     const validated = InstructorAssignmentSchema.safeParse(rawData)
 
     if (!validated.success) {
@@ -476,11 +492,41 @@ export const addInstructorAction = async (
       return { success: false, message: 'Member not found' }
     }
 
+    // Tiket 03: MoT kedua ditolak, bukan menggantikan yang pertama. Dicek
+    // di sini — sebelum insert — supaya jalur normal (bukan balapan) dapat
+    // pesan yang menyebut siapa yang sedang menjabat, bukan cuma "gagal"
+    // generik dari `catch` di bawah.
+    if (role === 'master') {
+      const existingMaster = await trainingQuery.readMasterInstructor(trainingId)
+      if (existingMaster && existingMaster.memberId !== memberId) {
+        return {
+          success: false,
+          message: masterOccupiedMessage(existingMaster.memberName)
+        }
+      }
+    }
+
     const data = await trainingQuery.addInstructor(trainingId, memberId, role)
     updateTag('dauroh')
     revalidatePath('/dashboard/trainings')
     return { success: true, message: 'Instructor added successfully', data }
   } catch (error) {
+    // Selubung balapan: dua permintaan lolos pengecekan di atas bersamaan,
+    // dan indeks unik parsial (`training_instructors_master_unique`) yang
+    // akhirnya menolak salah satunya. Dibaca ulang supaya pesannya tetap
+    // menyebut nama, bukan cuma pesan generik di bawahnya.
+    if (isMasterConflict(error)) {
+      const trainingId =
+        typeof rawData?.trainingId === 'string' ? rawData.trainingId : ''
+      const existingMaster = trainingId
+        ? await trainingQuery.readMasterInstructor(trainingId)
+        : null
+      return {
+        success: false,
+        message: masterOccupiedMessage(existingMaster?.memberName ?? null)
+      }
+    }
+
     return {
       success: false,
       message: 'An unexpected error occurred while adding instructor'
