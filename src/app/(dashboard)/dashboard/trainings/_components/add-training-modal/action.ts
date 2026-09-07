@@ -6,9 +6,11 @@ import {
   searchEligibleInstructorsByType,
   type TrainingType
 } from '~/db/query/training'
+import { readOrganization } from '~/db/query/organization'
 import { revalidatePath, updateTag } from 'next/cache'
 import { type SessionUser } from '~/lib/auth/cookies'
-import { requireDaurahCreationAccess } from '~/lib/auth/daurah'
+import { requireDaurahAccess } from '~/lib/auth/daurah'
+import { isJenisDaurahDiizinkan } from '~/lib/daurah/matriks-jenis-daurah'
 import { getLogger, redact } from '~/lib/logger'
 
 const logger = getLogger(['app', 'action', 'training'])
@@ -48,13 +50,16 @@ type ActionResponse<T = unknown> = {
 
 export const searchMasterCandidatesAction = async (
   query: string,
-  trainingType: TrainingType
+  trainingType: TrainingType,
+  organizationId: string
 ) => {
   try {
     // Gate mendahului pintasan `query.length < 2`: aksi ini endpoint POST
     // tersendiri, jadi tidak boleh mengandalkan form yang sudah menyaring di
-    // sisi klien.
-    const access = await requireDaurahCreationAccess()
+    // sisi klien. Ia menelusuri kolam Instruktur nasional, tapi tetap
+    // menghakimi lewat Cakupan Struktur yang sedang diajukan sebagai
+    // penyelenggara — persis gate yang menjaga pembuatan Daurah itu sendiri.
+    const access = await requireDaurahAccess(organizationId)
     if (!access.allowed)
       return { data: [], success: false, message: access.message }
 
@@ -75,12 +80,20 @@ export const createTrainingAction = async (
   let rawData: Record<string, FormDataEntryValue> | undefined
 
   try {
-    const access = await requireDaurahCreationAccess()
+    rawData = Object.fromEntries(formData.entries())
+
+    // `organizationId` datang dari `<input type='hidden'>` di form — sebuah
+    // POST body, bukan sesuatu yang bisa dipercaya sebelum diadu dengan
+    // Cakupan pemanggil. Gate berjalan sebelum validasi Zod supaya penolakan
+    // Kewenangan tidak bergantung pada bentuk field lain yang sah.
+    const organizationId =
+      typeof rawData.organizationId === 'string' ? rawData.organizationId : ''
+
+    const access = await requireDaurahAccess(organizationId)
     if (!access.allowed) return { success: false, message: access.message }
 
     user = access.user
 
-    rawData = Object.fromEntries(formData.entries())
     const validated = TrainingSchema.safeParse(rawData)
 
     if (!validated.success) {
@@ -95,6 +108,26 @@ export const createTrainingAction = async (
     }
 
     const data = validated.data
+
+    // ADR 0025: jenis Daurah yang boleh digelar bergantung pada Jenjang
+    // penyelenggaranya — Komisariat tidak mencatat dirinya menggelar DM3.
+    const [organization] = await readOrganization({
+      id: [data.organizationId]
+    })
+    if (
+      !organization ||
+      !isJenisDaurahDiizinkan(organization.type, data.type)
+    ) {
+      const message = 'Jenis Daurah ini tidak sesuai Jenjang penyelenggara.'
+      return {
+        success: false,
+        message,
+        errors: { type: [message] },
+        values: Object.fromEntries(
+          Object.entries(rawData).filter(([, v]) => v != null)
+        ) as Record<string, string>
+      }
+    }
 
     if (new Date(data.endDate) < new Date(data.startDate)) {
       return {

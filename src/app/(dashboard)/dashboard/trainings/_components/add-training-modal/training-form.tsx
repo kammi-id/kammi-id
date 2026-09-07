@@ -22,6 +22,7 @@ import {
 } from '~/components/shadcn/ui/field'
 import { createTrainingAction, searchMasterCandidatesAction } from './action'
 import type { EligibleMember, TrainingType } from '~/db/query/training'
+import { jenisDaurahUntukJenjang } from '~/lib/daurah/matriks-jenis-daurah'
 import { toast } from 'sonner'
 import { closeAddTrainingSheet } from './store'
 import { cn } from '~/lib/shadcn/utils'
@@ -82,7 +83,7 @@ export const TrainingForm = ({
   useEffect(() => {
     if (masterDebounceRef.current) clearTimeout(masterDebounceRef.current)
     masterDebounceRef.current = setTimeout(async () => {
-      if (masterQuery.length < 2) {
+      if (masterQuery.length < 2 || !orgId) {
         setMasterResults([])
         return
       }
@@ -90,14 +91,15 @@ export const TrainingForm = ({
       try {
         const res = await searchMasterCandidatesAction(
           masterQuery,
-          type as TrainingType
+          type as TrainingType,
+          orgId
         )
         if (res.success) setMasterResults(res.data)
       } finally {
         setMasterLoading(false)
       }
     }, 300)
-  }, [masterQuery, type])
+  }, [masterQuery, type, orgId])
 
   useEffect(() => {
     if (state.values && !state.success) {
@@ -120,17 +122,14 @@ export const TrainingForm = ({
     [organizations, orgSearchQuery]
   )
 
+  // Matriks Jenjang × jenis Daurah (ADR 0025) hidup satu-satunya di
+  // `~/lib/daurah/matriks-jenis-daurah`, dipakai server dan form ini —
+  // supaya pilihan yang tampil di sini tidak pernah berbeda dari yang
+  // ditegakkan `createTrainingAction`. Ini kemudahan UX; server tetap
+  // satu-satunya sumber kebenaran.
   const availableTypes = React.useMemo(() => {
     if (!selectedOrgType) return Object.keys(TRAINING_TYPE_LABELS)
-
-    if (selectedOrgType === 'pk') {
-      return ['dm1', 'other']
-    }
-    if (selectedOrgType === 'pd' || selectedOrgType === 'pdln') {
-      return ['dm1', 'dm2', 'dpmk', 'tfi', 'other']
-    }
-    // PW or PP
-    return Object.keys(TRAINING_TYPE_LABELS)
+    return jenisDaurahUntukJenjang(selectedOrgType) as string[]
   }, [selectedOrgType])
 
   useEffect(() => {

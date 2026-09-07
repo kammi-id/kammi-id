@@ -52,6 +52,8 @@ const daysFromNow = (days: number): string => {
 
 describe('add-training-modal actions', () => {
   let pkItbId: string
+  let pkOtherId: string
+  let pdBandungId: string
 
   beforeEach(async () => {
     await db.execute(
@@ -77,6 +79,37 @@ describe('add-training-modal actions', () => {
       isNonActive: false
     })
     pkItbId = pkItb.id
+
+    const [pdBandung] = await createOrganization({
+      name: 'PD Bandung',
+      slug: 'pd-bandung',
+      code: 'PD-01',
+      type: 'pd',
+      parentId: pwJabar.id,
+      isNonActive: false
+    })
+    pdBandungId = pdBandung.id
+
+    // Struktur di luar pohon pwJabar sama sekali — dipakai untuk menguji
+    // penolakan Cakupan, bukan sekadar induk-anak yang berbeda.
+    const [pwJatim] = await createOrganization({
+      name: 'PW Jatim',
+      slug: 'pw-jatim',
+      code: 'PW-02',
+      type: 'pw',
+      parentId: null,
+      isNonActive: false
+    })
+
+    const [pkOther] = await createOrganization({
+      name: 'PK Other',
+      slug: 'pk-other',
+      code: 'PK-02',
+      type: 'pk',
+      parentId: pwJatim.id,
+      isNonActive: false
+    })
+    pkOtherId = pkOther.id
   })
 
   let memberSeq = 0
@@ -105,7 +138,11 @@ describe('add-training-modal actions', () => {
       mockSession = undefined
       await createTestInstructor(pkItbId)
 
-      const result = await searchMasterCandidatesAction('Instruktur', 'dm1')
+      const result = await searchMasterCandidatesAction(
+        'Instruktur',
+        'dm1',
+        pkItbId
+      )
 
       expect(result.success).toBe(false)
       expect(result.data).toEqual([])
@@ -115,7 +152,11 @@ describe('add-training-modal actions', () => {
       mockSession = sessionOf('bpw', pkItbId)
       await createTestInstructor(pkItbId)
 
-      const result = await searchMasterCandidatesAction('Instruktur', 'dm1')
+      const result = await searchMasterCandidatesAction(
+        'Instruktur',
+        'dm1',
+        pkItbId
+      )
 
       expect(result.success).toBe(false)
       expect(result.data).toEqual([])
@@ -127,7 +168,7 @@ describe('add-training-modal actions', () => {
     it('runs the gate before the short-query shortcut', async () => {
       mockSession = undefined
 
-      const result = await searchMasterCandidatesAction('a', 'dm1')
+      const result = await searchMasterCandidatesAction('a', 'dm1', pkItbId)
 
       expect(result.success).toBe(false)
     })
@@ -135,7 +176,7 @@ describe('add-training-modal actions', () => {
     it('keeps the short-query shortcut for a caller that may hold a daurah', async () => {
       mockSession = sessionOf('bpk', pkItbId)
 
-      const result = await searchMasterCandidatesAction('a', 'dm1')
+      const result = await searchMasterCandidatesAction('a', 'dm1', pkItbId)
 
       expect(result.success).toBe(true)
       expect(result.data).toEqual([])
@@ -145,7 +186,11 @@ describe('add-training-modal actions', () => {
       mockSession = sessionOf('bpk', pkItbId)
       const instructor = await createTestInstructor(pkItbId)
 
-      const result = await searchMasterCandidatesAction('Instruktur', 'dm1')
+      const result = await searchMasterCandidatesAction(
+        'Instruktur',
+        'dm1',
+        pkItbId
+      )
 
       expect(result.success).toBe(true)
       expect(result.data.map((m) => m.id)).toEqual([instructor.id])
@@ -155,10 +200,32 @@ describe('add-training-modal actions', () => {
       mockSession = sessionOf('root', null)
       const instructor = await createTestInstructor(pkItbId)
 
-      const result = await searchMasterCandidatesAction('Instruktur', 'dm1')
+      const result = await searchMasterCandidatesAction(
+        'Instruktur',
+        'dm1',
+        pkItbId
+      )
 
       expect(result.success).toBe(true)
       expect(result.data.map((m) => m.id)).toEqual([instructor.id])
+    })
+
+    // Cakupan: sebuah BPK boleh mencari calon Master untuk Struktur di dalam
+    // jangkauannya, tapi tidak untuk Struktur lain sama sekali — pintu ini
+    // membaca kolam Instruktur nasional, jadi bocor di sini sama bahayanya
+    // dengan bocor di `createTrainingAction`.
+    it('rejects an organizationId outside the caller Cakupan', async () => {
+      mockSession = sessionOf('bpk', pkItbId)
+      await createTestInstructor(pkOtherId)
+
+      const result = await searchMasterCandidatesAction(
+        'Instruktur',
+        'dm1',
+        pkOtherId
+      )
+
+      expect(result.success).toBe(false)
+      expect(result.data).toEqual([])
     })
 
     // ADR 0022 / tiket 03: jenjang minimum perangkat bergantung jenis Daurah
@@ -172,7 +239,11 @@ describe('add-training-modal actions', () => {
         isCertifiedInstructor: true
       })
 
-      const result = await searchMasterCandidatesAction('Instruktur', 'dm1')
+      const result = await searchMasterCandidatesAction(
+        'Instruktur',
+        'dm1',
+        pkItbId
+      )
 
       expect(result.success).toBe(true)
       expect(result.data.map((m) => m.id)).toEqual([candidate.id])
@@ -185,7 +256,11 @@ describe('add-training-modal actions', () => {
         isCertifiedInstructor: true
       })
 
-      const result = await searchMasterCandidatesAction('Instruktur', 'dm3')
+      const result = await searchMasterCandidatesAction(
+        'Instruktur',
+        'dm3',
+        pkItbId
+      )
 
       expect(result.success).toBe(true)
       expect(result.data).toEqual([])
@@ -198,7 +273,11 @@ describe('add-training-modal actions', () => {
         isCertifiedInstructor: true
       })
 
-      const result = await searchMasterCandidatesAction('Instruktur', 'dm3')
+      const result = await searchMasterCandidatesAction(
+        'Instruktur',
+        'dm3',
+        pkItbId
+      )
 
       expect(result.success).toBe(true)
       expect(result.data.map((m) => m.id)).toEqual([candidate.id])
@@ -211,8 +290,16 @@ describe('add-training-modal actions', () => {
         isCertifiedInstructor: false
       })
 
-      const dm1Result = await searchMasterCandidatesAction('Instruktur', 'dm1')
-      const dm3Result = await searchMasterCandidatesAction('Instruktur', 'dm3')
+      const dm1Result = await searchMasterCandidatesAction(
+        'Instruktur',
+        'dm1',
+        pkItbId
+      )
+      const dm3Result = await searchMasterCandidatesAction(
+        'Instruktur',
+        'dm3',
+        pkItbId
+      )
 
       expect(dm1Result.data).toEqual([])
       expect(dm3Result.data).toEqual([])
@@ -302,8 +389,9 @@ describe('add-training-modal actions', () => {
     })
   })
 
-  // Jalur Kewenangan aksi ini ikut dialihkan ke `requireDaurahCreationAccess`
-  // bersama tiket 04, jadi ketiga jalurnya dikunci di sini.
+  // Jalur Kewenangan aksi ini ikut dialihkan ke `requireDaurahAccess`
+  // (tiket 01), jadi Cakupan dan matriks Jenjang × jenis Daurah dikunci di
+  // sini bersama ketiga jalur peran yang sudah ada.
   describe('createTrainingAction', () => {
     const validForm = async () => {
       const master = await createTestInstructor(pkItbId)
@@ -313,6 +401,18 @@ describe('add-training-modal actions', () => {
         startDate: daysFromNow(5),
         endDate: daysFromNow(7),
         type: 'dm1',
+        masterId: master.id
+      })
+    }
+
+    const formFor = async (organizationId: string, type: string) => {
+      const master = await createTestInstructor(organizationId)
+      return toFormData({
+        organizationId,
+        name: 'Daurah Test',
+        startDate: daysFromNow(5),
+        endDate: daysFromNow(7),
+        type,
         masterId: master.id
       })
     }
@@ -349,6 +449,78 @@ describe('add-training-modal actions', () => {
       const result = await createTrainingAction(
         { success: false, message: '' },
         await validForm()
+      )
+
+      expect(result.success).toBe(true)
+    })
+
+    // Inti tiket 01: `organizationId` datang dari input tersembunyi yang
+    // dikendalikan klien. Seorang BPK yang terhubung ke PK ITB tidak boleh
+    // mencatat Daurah atas nama PK di pohon Struktur lain sama sekali.
+    it('rejects an organizationId outside the caller Cakupan', async () => {
+      mockSession = sessionOf('bpk', pkItbId)
+
+      const result = await createTrainingAction(
+        { success: false, message: '' },
+        await formFor(pkOtherId, 'dm1')
+      )
+
+      expect(result.success).toBe(false)
+      expect(result.message).toBe(
+        'Antum tidak memiliki hak akses untuk menambah daurah.'
+      )
+    })
+
+    it('lets root create a Daurah for any Struktur, Cakupan aside', async () => {
+      mockSession = sessionOf('root', null)
+
+      const result = await createTrainingAction(
+        { success: false, message: '' },
+        await formFor(pkOtherId, 'dm1')
+      )
+
+      expect(result.success).toBe(true)
+    })
+
+    // ADR 0025: Komisariat hanya boleh menggelar DM1 dan Lainnya.
+    it('rejects a type outside the organizer Jenjang matrix (PK → DM2)', async () => {
+      mockSession = sessionOf('bpk', pkItbId)
+
+      const result = await createTrainingAction(
+        { success: false, message: '' },
+        await formFor(pkItbId, 'dm2')
+      )
+
+      expect(result.success).toBe(false)
+      expect(result.message).toBe(
+        'Jenis Daurah ini tidak sesuai Jenjang penyelenggara.'
+      )
+      expect(result.errors?.type).toEqual([
+        'Jenis Daurah ini tidak sesuai Jenjang penyelenggara.'
+      ])
+    })
+
+    // ADR 0025: PD/PDLN tidak menggelar DM3.
+    it('rejects a type outside the organizer Jenjang matrix (PD → DM3)', async () => {
+      mockSession = sessionOf('bpk', pdBandungId)
+
+      const result = await createTrainingAction(
+        { success: false, message: '' },
+        await formFor(pdBandungId, 'dm3')
+      )
+
+      expect(result.success).toBe(false)
+      expect(result.message).toBe(
+        'Jenis Daurah ini tidak sesuai Jenjang penyelenggara.'
+      )
+    })
+
+    it('allows a type the matrix does permit for the organizer (PD → DM2)', async () => {
+      mockSession = sessionOf('bpk', pdBandungId)
+
+      const result = await createTrainingAction(
+        { success: false, message: '' },
+        await formFor(pdBandungId, 'dm2')
       )
 
       expect(result.success).toBe(true)
