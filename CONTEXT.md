@@ -10,7 +10,7 @@ yang mereka terbitkan.
 
 **Kader**:
 Seorang anggota KAMMI sebagai manusia — orang yang direkrut, dibina, dan
-menjalani jenjang kekaderan.
+menjalani jenjang kaderisasi.
 _Avoid_: Anggota, User, Member (lihat di bawah — Member itu record-nya, bukan
 orangnya)
 
@@ -77,6 +77,19 @@ Daerah karena itu boleh berlubang, dan lubangnya permanen: ia penomoran, bukan
 hitungan jumlah Kader.
 _Avoid_: Register number, NIK, Nomor anggota
 
+**Kartu Tanda Anggota**:
+Wajah **Nomor Induk Anggota** seorang Kader — identitasnya sebagai satu benda
+yang bisa ia tunjukkan dan ia cetak. Ia menampilkan, bukan membuktikan: apa
+yang tertera di atasnya dibaca dari data Kader itu pada saat kartunya dibuat,
+dan tidak ada pihak ketiga yang memverifikasinya. Sebuah kartu yang bisa
+diperiksa keabsahannya oleh pemindainya adalah keputusan yang belum diambil.
+
+Tepat satu untuk tiap Kader, tidak diterbitkan dan tidak dicabut — selama
+Kader-nya ada, kartunya ada. Keadaan Kader tampil di atasnya hanya ketika ia
+bukan Aktif, supaya seorang Alumni atau Kader yang sedang kena Sanksi tidak
+memegang kartu yang terbaca sama dengan kartu Kader Aktif.
+_Avoid_: KTA (di dalam prosa), Kartu anggota, Membership card, Kartu digital
+
 **Mutasi**:
 Perpindahan seorang Kader dari satu Struktur ke Struktur lain, karena alasan
 hidup yang sah — pulang ke kampung halaman, menikah dan mengikuti pasangan,
@@ -130,7 +143,7 @@ Keadaannya; BPH juga dapat mereset Akun Kepengurusan setiap Struktur
 turunannya. Selain keduanya, BPH tidak memiliki hak ubah.
 
 **BPK**:
-Kewenangan mengelola kekaderan: Member, Daurah, dan Perangkat.
+Kewenangan mengelola kaderisasi: Member, Daurah, dan Perangkat.
 
 **BPW**:
 Kewenangan mengelola kestrukturan — Struktur **di bawah** Strukturnya sendiri,
@@ -149,6 +162,17 @@ Strukturnya sendiri.
 **Akun Kader**:
 Kewenangan paling dasar: hanya atas datanya sendiri. Dipegang oleh Kader yang
 punya Akun tanpa peran operasional.
+
+**"Datanya sendiri" bukan berarti seluruh datanya.** Seorang Kader menyunting
+apa yang ia ketahui tentang dirinya — kontak, alamat, tempat dan tanggal lahir,
+foto, serta riwayat pendidikan, karier, dan Organisasi Eksternal. Ia tidak
+menyunting apa yang **diberikan organisasi kepadanya**: Jenjang Kaderisasi,
+Keadaan Kader, dan sertifikasi Perangkat seluruhnya diputuskan lewat Kelulusan
+sebuah Daurah atau keputusan kepengurusan, dan sebuah Kewenangan yang bisa
+menaikkan jenjangnya sendiri membuat ketiga sumbu itu berhenti berarti apa pun.
+
+**Nomor Induk Anggota**-nya juga bukan miliknya untuk diubah — ia sekaligus
+identitas login, diterbitkan sekali dan tidak pernah terbit ulang (ADR 0020).
 _Avoid_: Member (sebagai nama kewenangan), Personal
 
 ### Keadaan Struktur
@@ -190,7 +214,7 @@ _Avoid_: Dihapus permanen, Diarsipkan, Dibubarkan
 
 Seorang Kader berada pada **tepat satu** Keadaan dalam satu waktu. Keadaan
 saling meniadakan: menetapkan yang satu membatalkan yang lain, dan Kader
-Terhapus mendahului semuanya. Keadaan berjalan terpisah dari Jenjang Kekaderan
+Terhapus mendahului semuanya. Keadaan berjalan terpisah dari Jenjang Kaderisasi
 dan dari sertifikasi Perangkat, yang keduanya punya sumbunya sendiri.
 
 **Aktif**:
@@ -204,11 +228,11 @@ _Avoid_: Suspended, Dibekukan
 
 **Non-Aktif**:
 Kader yang berhenti terlibat berkegiatan, namun belum menuntaskan masa
-kekaderannya. Berbeda dari Sanksi: ini keadaan, bukan hukuman.
+kaderisasinya. Berbeda dari Sanksi: ini keadaan, bukan hukuman.
 _Avoid_: Tidak aktif, Vakum, Keluar
 
 **Alumni**:
-Kader yang telah menuntaskan masa kekaderannya secara sah. Menggantikan Keadaan
+Kader yang telah menuntaskan masa kaderisasinya secara sah. Menggantikan Keadaan
 sebelumnya — seorang Alumni tidak lagi tercatat Non-Aktif maupun Sanksi.
 _Avoid_: Mantan kader, Lulusan
 
@@ -220,7 +244,7 @@ maupun Alumni. Ia tidak terbaca di permukaan mana pun kecuali satu, tempat
 kepengurusan yang menaunginya melihat dan memulihkannya. Akun-nya ikut
 tersimpan dan ikut kembali saat ia dipulihkan.
 
-Menghapus bukan mengakhiri kekaderan. Kader yang berhenti terlibat itu
+Menghapus bukan mengakhiri kaderisasi. Kader yang berhenti terlibat itu
 Non-Aktif, dan yang menuntaskannya itu Alumni; Terhapus dipakai ketika barisnya
 sendiri yang tidak seharusnya ada.
 
@@ -231,7 +255,21 @@ Organisasi Eksternal, maupun Mutasi — dan tidak mengembalikan nomor urut
 **Nomor Induk Anggota**-nya.
 _Avoid_: Dihapus permanen (untuk soft delete), Diarsipkan, Dikeluarkan
 
-**Jenjang Kekaderan**:
+**Kaderisasi**:
+Ranah pembinaan Kader secara keseluruhan — Member, Daurah, dan Perangkat —
+yakni yang dikelola BPK. Dipakai sebagai satu-satunya nama ranah ini; dua kata
+lain yang pernah dipakai untuk hal yang sama ditinggalkan, sebab tiga sinonim
+untuk satu ranah membuat setiap nama berkas dan setiap gerbang wewenang harus
+ditebak lebih dulu.
+
+Nama lama **Kekaderan** masih tertinggal di ADR yang sudah tertulis, dan itu
+disengaja — sama seperti "Berita Jaringan" di ADR 0012 & 0013. ADR adalah
+catatan apa yang diputuskan beserta kata-katanya pada saat itu; menyuntingnya
+membuat catatan itu berbohong. Yang berpindah adalah istilah domain dan kode
+yang menyandangnya.
+_Avoid_: Kekaderan (nama lama), Pengkaderan, Cadre development
+
+**Jenjang Kaderisasi**:
 Tahapan pembinaan seorang Kader: AB1, AB2, AB3. Naik jenjang lewat Kelulusan
 sebuah Daurah — lihat catatan pada **Kelulusan**: kenaikan itu belum
 disambungkan di kode, dan masih disetel dengan tangan.
@@ -245,13 +283,13 @@ boleh diselenggarakan bergantung pada Jenjang Struktur penyelenggaranya.
 _Avoid_: Training, Pelatihan, Diklat
 
 **Daurah Marhalah**:
-Daurah yang menaikkan Jenjang Kekaderan: DM1, DM2, dan DM3 (Daurah Marhalah
+Daurah yang menaikkan Jenjang Kaderisasi: DM1, DM2, dan DM3 (Daurah Marhalah
 1–3), ditempuh berurutan.
 _Avoid_: Daurah berjenjang, Daurah pokok
 
 **Daurah Sertifikasi**:
 Daurah yang berdiri di samping tangga Marhalah dan tidak menaikkan Jenjang
-Kekaderan, melainkan menjadikan seorang Kader sebagai Perangkat: DPMK (Daurah
+Kaderisasi, melainkan menjadikan seorang Kader sebagai Perangkat: DPMK (Daurah
 Pemandu Madrasah KAMMI) menghasilkan Pemandu, TFI (Training for Instructors)
 menghasilkan Instruktur.
 _Avoid_: Daurah tambahan, Daurah khusus
@@ -262,14 +300,14 @@ _Avoid_: Attendant, Partisipan
 
 **Kelulusan**:
 Penetapan bahwa seorang Peserta lulus dari sebuah Daurah — inilah yang
-menaikkan Jenjang Kekaderan atau memberi sertifikasi Perangkat. Peserta yang
+menaikkan Jenjang Kaderisasi atau memberi sertifikasi Perangkat. Peserta yang
 tidak memegang Kelulusan tidak dibedakan antara belum dinilai dan dinilai
 tidak lulus: keduanya sama-sama ketiadaan Kelulusan, bukan dua keadaan yang
 berbeda.
 
 > **Kode belum menyusul definisi ini.** Menetapkan Kelulusan hanya menulis satu
 > boolean pada baris Peserta (`updateAttendantStatus`, `db/query/training.ts`).
-> Jenjang Kekaderan, sertifikasi Pemandu, dan sertifikasi Instruktur seluruhnya
+> Jenjang Kaderisasi, sertifikasi Pemandu, dan sertifikasi Instruktur seluruhnya
 > masih disetel dengan tangan lewat permukaan lain. Jangan menulis kode baru
 > yang mengandaikan Kelulusan sudah menurunkan ketiganya — sambungan itu belum
 > ada, dan apakah ia harus ada adalah keputusan produk yang belum diambil.
