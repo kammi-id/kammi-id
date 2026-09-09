@@ -9,7 +9,7 @@ import {
 } from '~/db/query/member'
 import { generateRegisterNumber } from '~/lib/utils/member'
 import { readActiveSession } from '~/lib/auth/cookies'
-import { requireMemberMutationAccess } from '~/lib/auth/kekaderan'
+import { requireMemberMutationAccess } from '~/lib/auth/kaderisasi'
 import { regionApi } from '~/lib/api/region'
 import { fetchAllowedOrgIds } from '~/db/query/organization'
 import { db } from '~/db/db'

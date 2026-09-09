@@ -3,7 +3,7 @@
 import { revalidatePath, updateTag } from 'next/cache'
 import { updateMember } from '~/db/query/member'
 import { readActiveSession } from '~/lib/auth/cookies'
-import { profileSchema } from './schema'
+import { memberManagedSchema } from './schema'
 
 export type ProfileEditState = {
   success?: boolean
@@ -33,7 +33,7 @@ export const updateMemberProfileAction = async (
   }
 
   const raw = Object.fromEntries(formData.entries())
-  const parsed = profileSchema.safeParse(raw)
+  const parsed = memberManagedSchema.safeParse(raw)
 
   if (!parsed.success) {
     return {

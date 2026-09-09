@@ -12,7 +12,7 @@ import { getCachedOrganization } from '../../_data/organizations'
 import { getCachedMemberAggregates } from '../../_data/members'
 import { readActiveSession } from '~/lib/auth/cookies'
 import { readAccessScope } from '~/lib/auth/access-scope'
-import { requireKekaderanAccess } from '~/lib/auth/kekaderan'
+import { requireKaderisasiAccess } from '~/lib/auth/kaderisasi'
 import { notFound, redirect } from 'next/navigation'
 
 const Page = async ({
@@ -51,7 +51,7 @@ const Page = async ({
   // nama Struktur lewat remah roti atau kartu ringkasannya. Slug kosong jatuh
   // ke Struktur Akun sendiri dan tidak perlu diperiksa.
   if (slug && slug.length > 0) {
-    const allowed = await requireKekaderanAccess(currentOrg.id)
+    const allowed = await requireKaderisasiAccess(currentOrg.id)
     if (!allowed) notFound()
   }
 
@@ -103,8 +103,8 @@ const SpecialistsWrapper = ({
     <div className='space-y-10 px-4 py-6 md:px-6 md:py-8 lg:px-8'>
       <MembersPageHeader
         slug={params.slug}
-        pageTitle='Perangkat Pengkaderan'
-        subTitle='Manajemen perangkat pengkaderan untuk membantu rekrutmen dan pengembangan kader'
+        pageTitle='Perangkat'
+        subTitle='Manajemen Perangkat untuk membantu rekrutmen dan pengembangan kader'
         typePath='perangkat'
       />
 

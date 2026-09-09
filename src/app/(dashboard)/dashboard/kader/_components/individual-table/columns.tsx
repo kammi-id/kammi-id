@@ -266,7 +266,7 @@ export const getColumns = (
             <TooltipTrigger>
               <span className='cursor-help'>Jenjang</span>
             </TooltipTrigger>
-            <TooltipContent>Jenjang Pengkaderan (AB1, AB2, AB3)</TooltipContent>
+            <TooltipContent>Jenjang Kaderisasi (AB1, AB2, AB3)</TooltipContent>
           </Tooltip>
         </TooltipProvider>
       ),

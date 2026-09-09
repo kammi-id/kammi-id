@@ -11,7 +11,7 @@ const routeLabels: Record<string, string> = {
   '/dashboard/trainings': 'Daurah',
   '/dashboard/branches': 'Daftar Wilayah',
   '/dashboard/alumni': 'Data Alumni',
-  '/dashboard/perangkat': 'Perangkat Pengkaderan',
+  '/dashboard/perangkat': 'Perangkat',
   '/dashboard/user/account': 'Akun Saya',
   '/dashboard/user/notifications': 'Notifikasi',
   '/dashboard/pages/home': 'Pengaturan Halaman Utama'

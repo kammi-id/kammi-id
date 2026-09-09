@@ -153,7 +153,7 @@ export const MemberSummary = ({ data }: { data: MemberSummaryData }) => (
       </Card>
 
       <DonutPanel
-        title='Jenjang Kekaderan'
+        title='Jenjang Kaderisasi'
         description='Komposisi AB1–AB3'
         config={jenjangConfig}
         slices={[

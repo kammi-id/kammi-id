@@ -9,8 +9,8 @@ mock.module('~/lib/auth/cookies', () => ({
   readActiveSession: async () => mockSession
 }))
 
-const { requireKekaderanAccess, requireMemberMutationAccess } =
-  await import('./kekaderan')
+const { requireKaderisasiAccess, requireMemberMutationAccess } =
+  await import('./kaderisasi')
 
 // Bentuknya mengikuti `withSessionCTE` (`db/query/cte/session.ts`): Struktur
 // terhubung datang sebagai objek, dan `readAccessScope` yang memerasnya jadi
@@ -24,7 +24,7 @@ const sessionWith = (role: string, organizationId: string | null) => ({
   }
 })
 
-describe('requireKekaderanAccess', () => {
+describe('requireKaderisasiAccess', () => {
   let ppId: string
   let pwJabarId: string
   let pkItbId: string
@@ -93,13 +93,13 @@ describe('requireKekaderanAccess', () => {
   it('refuses when there is no active session', async () => {
     mockSession = undefined
 
-    expect(await requireKekaderanAccess(pkItbId)).toBeNull()
+    expect(await requireKaderisasiAccess(pkItbId)).toBeNull()
   })
 
   it('lets root reach any struktur', async () => {
     mockSession = sessionWith('root', ppId)
 
-    expect(await requireKekaderanAccess(pkOtherId)).toEqual({
+    expect(await requireKaderisasiAccess(pkOtherId)).toEqual({
       role: 'root',
       connectedOrganizationId: ppId
     })
@@ -108,13 +108,13 @@ describe('requireKekaderanAccess', () => {
   it('lets root reach any struktur even with no connected struktur', async () => {
     mockSession = sessionWith('root', null)
 
-    expect(await requireKekaderanAccess(pkOtherId)).not.toBeNull()
+    expect(await requireKaderisasiAccess(pkOtherId)).not.toBeNull()
   })
 
   it('lets bpk reach its own struktur', async () => {
     mockSession = sessionWith('bpk', pkItbId)
 
-    expect(await requireKekaderanAccess(pkItbId)).toEqual({
+    expect(await requireKaderisasiAccess(pkItbId)).toEqual({
       role: 'bpk',
       connectedOrganizationId: pkItbId
     })
@@ -123,53 +123,53 @@ describe('requireKekaderanAccess', () => {
   it('lets bpk reach a struktur below its own', async () => {
     mockSession = sessionWith('bpk', pwJabarId)
 
-    expect(await requireKekaderanAccess(pkItbId)).not.toBeNull()
+    expect(await requireKaderisasiAccess(pkItbId)).not.toBeNull()
   })
 
   it('refuses bpk a struktur outside its cakupan', async () => {
     mockSession = sessionWith('bpk', pkItbId)
 
-    expect(await requireKekaderanAccess(pkOtherId)).toBeNull()
+    expect(await requireKaderisasiAccess(pkOtherId)).toBeNull()
   })
 
   it('refuses bpk a struktur above its own', async () => {
     mockSession = sessionWith('bpk', pkItbId)
 
-    expect(await requireKekaderanAccess(pwJabarId)).toBeNull()
+    expect(await requireKaderisasiAccess(pwJabarId)).toBeNull()
   })
 
-  // BPH memantau: `CONTEXT.md` memberinya hak melihat data kekaderan tanpa
+  // BPH memantau: `CONTEXT.md` memberinya hak melihat data kaderisasi tanpa
   // boleh mengubahnya, dan `readMemberAggregates` sudah mengizinkannya. Jadi
   // gate baca ini mengikuti Cakupannya, bukan `isOrgInScope` yang mensyaratkan
   // BPK karena ia menjaga jalur tulis.
   it('lets bph reach a struktur inside its cakupan', async () => {
     mockSession = sessionWith('bph', pwJabarId)
 
-    expect(await requireKekaderanAccess(pkItbId)).not.toBeNull()
+    expect(await requireKaderisasiAccess(pkItbId)).not.toBeNull()
   })
 
   it('refuses bph a struktur outside its cakupan', async () => {
     mockSession = sessionWith('bph', pwJabarId)
 
-    expect(await requireKekaderanAccess(pkOtherId)).toBeNull()
+    expect(await requireKaderisasiAccess(pkOtherId)).toBeNull()
   })
 
-  it('refuses a role that has no kekaderan privilege at all', async () => {
+  it('refuses a role that has no kaderisasi privilege at all', async () => {
     mockSession = sessionWith('bpw', ppId)
 
-    expect(await requireKekaderanAccess(pkItbId)).toBeNull()
+    expect(await requireKaderisasiAccess(pkItbId)).toBeNull()
   })
 
   it('refuses humas even inside its own struktur', async () => {
     mockSession = sessionWith('humas', pkItbId)
 
-    expect(await requireKekaderanAccess(pkItbId)).toBeNull()
+    expect(await requireKaderisasiAccess(pkItbId)).toBeNull()
   })
 
   it('refuses a privileged role with no connected struktur', async () => {
     mockSession = sessionWith('bpk', null)
 
-    expect(await requireKekaderanAccess(pkItbId)).toBeNull()
+    expect(await requireKaderisasiAccess(pkItbId)).toBeNull()
   })
 })
 

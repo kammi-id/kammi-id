@@ -123,9 +123,9 @@ A mostly neutral, high-contrast palette that reserves saturation for two jobs: t
 
 ### Semantic system (categorical, not decorative)
 
-Each of these families exists to let a reader identify a category at a glance — Jenjang Kekaderan, gender, Struktur type, or a Kader's Keadaan — never as arbitrary decoration. All are defined with a `-bg`/`-border`/`-text`/`-solid` quartet (soft tint for badges, solid for charts/dots) and each has its own light/dark pairing in `globals.css`.
+Each of these families exists to let a reader identify a category at a glance — Jenjang Kaderisasi, gender, Struktur type, or a Kader's Keadaan — never as arbitrary decoration. All are defined with a `-bg`/`-border`/`-text`/`-solid` quartet (soft tint for badges, solid for charts/dots) and each has its own light/dark pairing in `globals.css`.
 
-- **Jenjang Kekaderan** — AB1 `--status-ab1-solid` (oklch(0.65 0.18 145), green), AB2 `--status-ab2-solid` (oklch(0.58 0.2 25), orange-red), AB3 `--status-ab3-solid` (oklch(0.55 0.18 265), purple). Three distinct hues, deliberately non-sequential in lightness so the eye can't mistake "later letter" for "later hue."
+- **Jenjang Kaderisasi** — AB1 `--status-ab1-solid` (oklch(0.65 0.18 145), green), AB2 `--status-ab2-solid` (oklch(0.58 0.2 25), orange-red), AB3 `--status-ab3-solid` (oklch(0.55 0.18 265), purple). Three distinct hues, deliberately non-sequential in lightness so the eye can't mistake "later letter" for "later hue."
 - **Gender** — Ikhwan `--gender-ikhwan-solid` (oklch(0.72 0.14 225), blue), Akhwat `--gender-akhwat-solid` (oklch(0.74 0.14 350), rose).
 - **Perangkat role** — Pemandu (oklch(0.55 0.16 150), green), Instruktur (oklch(0.55 0.16 280), purple) — distinct from the Jenjang and gender hues so the three systems never collide on-screen together.
 - **Struktur Jenjang** (org-type tags: `--org-pw-*`, `--org-pd-*`, `--org-pk-*`, `--org-pp-*`) — PW green (hue 145), PD blue (hue 240), PK crimson-tied (hue 17, shares the primary's hue), PP neutral slate (hue 285, near-foreground).

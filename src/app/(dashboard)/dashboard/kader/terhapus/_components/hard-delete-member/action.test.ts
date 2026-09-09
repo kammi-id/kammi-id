@@ -32,7 +32,7 @@ const { confirmationSentenceFor } = await import('./schema')
 
 /**
  * ADR 0021. Bukan pengulangan `checkHardDeletionMember`'s own unit tests
- * (`src/lib/kekaderan/keadaan.test.ts`) — di sini yang diuji adalah bahwa
+ * (`src/lib/kaderisasi/keadaan.test.ts`) — di sini yang diuji adalah bahwa
  * `readHardDeleteMemberRefusal`/`hardDeleteMemberAction` sungguhan
  * menyambungkannya ke enam tabel nyata, dan gerbangnya (Root + BPK PP).
  */

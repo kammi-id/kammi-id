@@ -2,10 +2,10 @@ import { readAccessScope, type AccessScope } from './access-scope'
 import { isOrgInAccessScope, readOrganization } from '~/db/query/organization'
 import { type UserRole } from '~/lib/access-control'
 
-const kekaderanRoles: string[] = ['root', 'bph', 'bpk'] satisfies UserRole[]
+const kaderisasiRoles: string[] = ['root', 'bph', 'bpk'] satisfies UserRole[]
 
 /**
- * Resolves the Cakupan of an Akun allowed to *read* Kekaderan data for one
+ * Resolves the Cakupan of an Akun allowed to *read* Kaderisasi data for one
  * Struktur, or null when that Struktur lies outside its reach. Reading is
  * held by Root, by BPH (memantau) and by BPK (mengelola).
  *
@@ -19,12 +19,12 @@ const kekaderanRoles: string[] = ['root', 'bph', 'bpk'] satisfies UserRole[]
  * Deliberately not `isOrgInScope`: that one demands BPK because it guards a
  * write path, and would lock out BPH, whose whole Kewenangan is to watch.
  */
-export const requireKekaderanAccess = async (
+export const requireKaderisasiAccess = async (
   organizationId: string
 ): Promise<AccessScope | null> => {
   const scope = await readAccessScope()
   if (!scope) return null
-  if (!kekaderanRoles.includes(scope.role)) return null
+  if (!kaderisasiRoles.includes(scope.role)) return null
 
   const inScope = await isOrgInAccessScope(scope, organizationId)
   return inScope ? scope : null
@@ -63,7 +63,7 @@ const MUTATION_DENIAL = 'Antum tidak memiliki hak akses untuk mutasi kader.'
  * when the caller holds it.
  *
  * **Root and BPK PP only** — not `role === 'bpk'` alone, and not composed
- * from `requireKekaderanAccess`'s Cakupan walk: mutasi crosses a Cakupan
+ * from `requireKaderisasiAccess`'s Cakupan walk: mutasi crosses a Cakupan
  * boundary by definition, so no BPK standing inside one Cakupan can ever be
  * the right answer here, PP included in the general case. The reason is
  * spelled out in ADR 0020 §4: mutasi moves a Kader out from under the very
@@ -110,8 +110,8 @@ export const requireMemberHardDeleteAccess = async (): Promise<string | null> =>
  * own mistakes too, without an escalation to PP. `readDeletedMembers`
  * intersects with the caller's Cakupan on its own; this gate only decides
  * who may reach the surface at all. BPH is deliberately excluded even
- * though it reads ordinary Kekaderan data — this surface restores, and BPH
- * holds no write privilege anywhere in Kekaderan.
+ * though it reads ordinary Kaderisasi data — this surface restores, and BPH
+ * holds no write privilege anywhere in Kaderisasi.
  */
 export const requireMemberTrashAccess =
   async (): Promise<AccessScope | null> => {

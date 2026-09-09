@@ -16,12 +16,12 @@ import {
 import { countMemberAcademicByMember } from '~/db/query/academic'
 import { countMemberCareerByMember } from '~/db/query/career'
 import { countMemberOrganizationHistoryByMember } from '~/db/query/organization-history'
-import { requireMemberHardDeleteAccess } from '~/lib/auth/kekaderan'
+import { requireMemberHardDeleteAccess } from '~/lib/auth/kaderisasi'
 import {
   checkHardDeletionMember,
   type MemberHardDeletionCounts,
   type MemberHardDeletionRefusal
-} from '~/lib/kekaderan/keadaan'
+} from '~/lib/kaderisasi/keadaan'
 import { getLogger } from '~/lib/logger'
 import { hardDeleteMemberSchema, confirmationSentenceFor } from './schema'
 

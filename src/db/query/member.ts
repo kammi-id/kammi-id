@@ -233,7 +233,7 @@ const readMemberAggregatesForRoles = async (
   return Object.values(accumulated)
 }
 
-/** Agregat Kader untuk permukaan Kekaderan umum. */
+/** Agregat Kader untuk permukaan Kaderisasi umum. */
 export const readMemberAggregates = async (
   filters: MemberAggregatesFilters & { user: AccessScope }
 ): Promise<Array<MemberAggregatesResult>> =>

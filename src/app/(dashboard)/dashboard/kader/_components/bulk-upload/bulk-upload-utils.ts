@@ -78,8 +78,17 @@ export const parseXLSXFile = (file: File): Promise<ParsedRow[]> => {
           const normalized = {
             name: String(row['Nama'] ?? row['name'] ?? '').trim(),
             gender: String(row['Jenis Kelamin'] ?? row['gender'] ?? '').trim(),
+            // 'Jenjang Pengkaderan' adalah judul kolom yang dipakai templat
+            // yang sudah tersebar sebelum istilahnya diganti. Ia dibaca di
+            // sini — dan hanya di sini, templat baru tidak lagi menerbitkannya
+            // — karena tanpa itu berkas lama jatuh diam-diam ke `'ab1'` dan
+            // menurunkan jenjang setiap baris yang diimpor. Pola berantainya
+            // sama dengan 'Tahun Masuk KAMMI' di bawah.
             status: String(
-              row['Jenjang Pengkaderan'] ?? row['status'] ?? 'ab1'
+              row['Jenjang Kaderisasi'] ??
+                row['Jenjang Pengkaderan'] ??
+                row['status'] ??
+                'ab1'
             ).trim(),
             yearOfEntry:
               row['Tahun Masuk KAMMI'] ??
@@ -423,7 +432,7 @@ export const generateTemplateBuffer = (): Uint8Array => {
       'ikhwan'
     ],
     [
-      'Jenjang Pengkaderan',
+      'Jenjang Kaderisasi',
       '✓  Ya',
       'ab1  atau  ab2  atau  ab3  (gunakan dropdown)',
       'ab3'
@@ -506,7 +515,7 @@ export const generateTemplateBuffer = (): Uint8Array => {
     [
       'Nama',
       'Jenis Kelamin',
-      'Jenjang Pengkaderan',
+      'Jenjang Kaderisasi',
       'Tahun Masuk KAMMI',
       'No HP',
       'Pemandu',
@@ -526,7 +535,7 @@ export const generateTemplateBuffer = (): Uint8Array => {
   wsTemplate['!cols'] = [
     { wch: 32 }, // Nama
     { wch: 16 }, // Jenis Kelamin
-    { wch: 22 }, // Jenjang Pengkaderan
+    { wch: 22 }, // Jenjang Kaderisasi
     { wch: 18 }, // Tahun Masuk KAMMI
     { wch: 18 }, // No HP
     { wch: 12 }, // Pemandu
@@ -574,7 +583,7 @@ export const generateTemplateBuffer = (): Uint8Array => {
     '<formula1>&quot;ikhwan,akhwat&quot;</formula1></dataValidation>' +
     '<dataValidation type="list" sqref="C2:C1001" showDropDown="0"' +
     ' showErrorMessage="1" showInputMessage="1"' +
-    ' promptTitle="Jenjang Pengkaderan" prompt="Pilih ab1, ab2, atau ab3."' +
+    ' promptTitle="Jenjang Kaderisasi" prompt="Pilih ab1, ab2, atau ab3."' +
     ' errorStyle="stop" errorTitle="Nilai tidak valid"' +
     ' error="Gunakan dropdown: ab1, ab2, atau ab3.">' +
     '<formula1>&quot;ab1,ab2,ab3&quot;</formula1></dataValidation>' +

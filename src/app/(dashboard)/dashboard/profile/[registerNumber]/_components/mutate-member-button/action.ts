@@ -3,7 +3,7 @@
 import { revalidatePath, updateTag } from 'next/cache'
 import { mutateMember, readMember } from '~/db/query/member'
 import { readActiveSession } from '~/lib/auth/cookies'
-import { requireMemberMutationAccess } from '~/lib/auth/kekaderan'
+import { requireMemberMutationAccess } from '~/lib/auth/kaderisasi'
 import { getLogger } from '~/lib/logger'
 
 const logger = getLogger(['app', 'action', 'member'])

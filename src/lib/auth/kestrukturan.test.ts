@@ -41,7 +41,7 @@ const KECUALI_PP: Jenjang[] = ['pw', 'pdln', 'pd', 'pk']
 const HANYA_PK: Jenjang[] = ['pk']
 const NOL: Jenjang[] = []
 
-// Bentuknya mengikuti `kekaderan.test.ts`: Struktur terhubung datang sebagai
+// Bentuknya mengikuti `kaderisasi.test.ts`: Struktur terhubung datang sebagai
 // objek, dan `readAccessScope` yang memerasnya jadi `connectedOrganizationId`.
 const sessionWith = (role: string, organizationId: string | null) => ({
   user: {
@@ -340,7 +340,7 @@ describe('gate kestrukturan', () => {
   })
 
   // Pohon Struktur ini hanya dibaca, tidak pernah diubah, jadi cukup disemai
-  // sekali — sama seperti `kekaderan.test.ts`.
+  // sekali — sama seperti `kaderisasi.test.ts`.
   beforeAll(async () => {
     await db.execute(sql`TRUNCATE TABLE "user", "member", organization CASCADE`)
 

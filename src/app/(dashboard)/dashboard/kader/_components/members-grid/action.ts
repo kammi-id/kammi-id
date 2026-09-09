@@ -1,6 +1,6 @@
 'use server'
 
-import { requireKekaderanAccess } from '~/lib/auth/kekaderan'
+import { requireKaderisasiAccess } from '~/lib/auth/kaderisasi'
 import {
   readOrganizationsByMemberTotal,
   type OrganizationKeysetCursor
@@ -28,7 +28,7 @@ export type LoadMoreOrganizationsResult = {
  * One "Muat lagi" batch of Daftar Struktur (tiket 06) — the client-driven
  * half of the keyset the server renders the first batch of. Reachable
  * directly by any signed-in client, so `organizationId` is not trusted until
- * `requireKekaderanAccess` says it is: the same Cakupan check
+ * `requireKaderisasiAccess` says it is: the same Cakupan check
  * `members-page-content.tsx` runs before the *first* batch runs again here,
  * for every batch after it. A denial returns an empty page rather than
  * throwing — the client has nothing useful to do with a rejected batch
@@ -37,7 +37,7 @@ export type LoadMoreOrganizationsResult = {
 export const loadMoreOrganizations = async (
   input: LoadMoreOrganizationsInput
 ): Promise<LoadMoreOrganizationsResult> => {
-  const scope = await requireKekaderanAccess(input.organizationId)
+  const scope = await requireKaderisasiAccess(input.organizationId)
   if (!scope) {
     return { items: [], nextCursor: null, hasMore: false }
   }

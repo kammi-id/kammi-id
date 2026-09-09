@@ -4,7 +4,7 @@ import React from 'react'
 import { notFound, redirect } from 'next/navigation'
 import { readActiveSession } from '~/lib/auth/cookies'
 import { readAccessScope } from '~/lib/auth/access-scope'
-import { requireKekaderanAccess } from '~/lib/auth/kekaderan'
+import { requireKaderisasiAccess } from '~/lib/auth/kaderisasi'
 import {
   getCachedOrganization,
   getCachedOrganizations,
@@ -99,7 +99,7 @@ export const MembersPageContent = async ({
   // jatuh ke Struktur Akun sendiri, jadi tidak ada yang bisa bocor, dan
   // penolakan perannya tetap urusan AccessGuard di bawah.
   if (slug && slug.length > 0) {
-    const allowed = await requireKekaderanAccess(currentOrg.id)
+    const allowed = await requireKaderisasiAccess(currentOrg.id)
     if (!allowed) notFound()
   }
 

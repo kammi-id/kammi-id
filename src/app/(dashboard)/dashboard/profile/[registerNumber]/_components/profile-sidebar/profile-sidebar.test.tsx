@@ -84,9 +84,9 @@ const renderSidebar = (member: Member) =>
   )
 
 describe('ProfileSidebar — AB1 tidak pernah Pemandu maupun Instruktur', () => {
-  test('AB2 dengan sertifikasi menampilkan blok Perangkat Pengkaderan', () => {
+  test('AB2 dengan sertifikasi menampilkan blok Perangkat', () => {
     renderSidebar(buildMember({ status: 'ab2' }))
-    expect(screen.getByText('Perangkat Pengkaderan')).toBeInTheDocument()
+    expect(screen.getByText('Perangkat')).toBeInTheDocument()
   })
 
   test('member berstatus AB1 sejak awal: blok tidak pernah dirender', () => {
@@ -97,7 +97,7 @@ describe('ProfileSidebar — AB1 tidak pernah Pemandu maupun Instruktur', () => 
         isCertifiedInstructor: false
       })
     )
-    expect(screen.queryByText('Perangkat Pengkaderan')).not.toBeInTheDocument()
+    expect(screen.queryByText('Perangkat')).not.toBeInTheDocument()
     expect(
       container.querySelector('input[name="isCertifiedMentor"]')
     ).not.toBeInTheDocument()
@@ -110,12 +110,12 @@ describe('ProfileSidebar — AB1 tidak pernah Pemandu maupun Instruktur', () => 
     const user = userEvent.setup()
     const { container } = renderSidebar(buildMember({ status: 'ab2' }))
 
-    expect(screen.getByText('Perangkat Pengkaderan')).toBeInTheDocument()
+    expect(screen.getByText('Perangkat')).toBeInTheDocument()
 
     const ab1Radio = screen.getByRole('radio', { name: /AB1/ })
     await user.click(ab1Radio)
 
-    expect(screen.queryByText('Perangkat Pengkaderan')).not.toBeInTheDocument()
+    expect(screen.queryByText('Perangkat')).not.toBeInTheDocument()
     expect(
       container.querySelector('input[name="isCertifiedMentor"]')
     ).not.toBeInTheDocument()
@@ -128,11 +128,11 @@ describe('ProfileSidebar — AB1 tidak pernah Pemandu maupun Instruktur', () => 
     const user = userEvent.setup()
     renderSidebar(buildMember({ status: 'ab1' }))
 
-    expect(screen.queryByText('Perangkat Pengkaderan')).not.toBeInTheDocument()
+    expect(screen.queryByText('Perangkat')).not.toBeInTheDocument()
 
     const ab2Radio = screen.getByRole('radio', { name: /AB2/ })
     await user.click(ab2Radio)
 
-    expect(screen.getByText('Perangkat Pengkaderan')).toBeInTheDocument()
+    expect(screen.getByText('Perangkat')).toBeInTheDocument()
   })
 })

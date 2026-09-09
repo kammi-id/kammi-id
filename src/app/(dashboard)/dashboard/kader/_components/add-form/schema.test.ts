@@ -89,7 +89,7 @@ describe('memberSchema — Keadaan Kader saling meniadakan', () => {
   })
 })
 
-// AB1 tidak pernah memegang Perangkat Pengkaderan — aturan bersama di
+// AB1 tidak pernah memegang Perangkat — aturan bersama di
 // `src/lib/validation/member.ts`, diuji lagi di sini sebagai titik integrasi
 // pada `memberSchema` (UI mengunci hal yang sama, tapi bukan pintu satu-satunya).
 describe('memberSchema — AB1 tidak pernah Pemandu maupun Instruktur', () => {

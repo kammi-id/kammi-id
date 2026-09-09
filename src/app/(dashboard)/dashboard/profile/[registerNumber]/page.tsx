@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 import { readActiveSession } from '~/lib/auth/cookies'
 import { isOrgInScope, fetchAllowedOrgIds } from '~/db/query/organization'
-import { requireMemberMutationAccess } from '~/lib/auth/kekaderan'
+import { requireMemberMutationAccess } from '~/lib/auth/kaderisasi'
 import {
   getCachedMemberByRegisterNumber,
   getCachedMemberTrainingHistory,

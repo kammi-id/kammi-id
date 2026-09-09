@@ -230,7 +230,7 @@ const KaderPerangkatCard = ({ data }: { data: KaderBentoStatsData }) => {
   return (
     <div className='bg-card flex h-full flex-col rounded-xl border p-5'>
       <p className='text-muted-foreground text-xs font-medium tracking-wider uppercase'>
-        Perangkat Pengkaderan
+        Perangkat
       </p>
       <div className='mt-4 flex flex-1 flex-col justify-center gap-4'>
         <div className='flex items-center gap-3'>

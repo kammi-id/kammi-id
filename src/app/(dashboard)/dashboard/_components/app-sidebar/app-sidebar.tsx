@@ -76,7 +76,7 @@ export const AppSidebar = ({
   /**
    * `requireMemberTrashAccess` answered server-side (ADR 0021) — Root and
    * BPK, not the wider `menuPembinaan` allowlist (`bph`, `bpk`, `root`):
-   * BPH reads Kekaderan but holds no write privilege there, restore Kader
+   * BPH reads Kaderisasi but holds no write privilege there, restore Kader
    * included.
    */
   canRestoreMemberTrash?: boolean
@@ -127,7 +127,7 @@ export const AppSidebar = ({
       roles: ['bph', 'bpk', 'root']
     },
     {
-      title: 'Perangkat Pengkaderan',
+      title: 'Perangkat',
       url: '/dashboard/perangkat',
       icon: <HugeiconsIcon icon={TeacherIcon} strokeWidth={2} />,
       roles: ['bpk', 'root']

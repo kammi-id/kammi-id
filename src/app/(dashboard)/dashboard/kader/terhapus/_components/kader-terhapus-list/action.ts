@@ -3,7 +3,7 @@
 import { revalidatePath, updateTag } from 'next/cache'
 import { readActiveSession } from '~/lib/auth/cookies'
 import { readDeletedMembers, restoreMember } from '~/db/query/member'
-import { requireMemberTrashAccess } from '~/lib/auth/kekaderan'
+import { requireMemberTrashAccess } from '~/lib/auth/kaderisasi'
 import { getLogger } from '~/lib/logger'
 import { restoreMemberSchema } from './schema'
 

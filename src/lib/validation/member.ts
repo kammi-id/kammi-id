@@ -9,7 +9,7 @@ export const birthDateFormField = z.preprocess(
 
 /**
  * `FormData` entries arrive as strings, never real booleans — every checkbox
- * in the Kader forms (add-form's `memberSchema`, profile's `profileSchema`)
+ * in the Kader forms (add-form's `memberSchema`, profile's `memberManagedSchema`)
  * needs this exact coercion, so it lives here once rather than as two copies
  * that can drift on case-sensitivity the way they already had.
  */
@@ -33,12 +33,12 @@ const AB1_CERTIFICATION_FIELDS = [
 ] as const
 
 const AB1_CERTIFICATION_MESSAGE =
-  'Anggota Biasa I tidak dapat memegang Perangkat Pengkaderan (Pemandu/Instruktur).'
+  'Anggota Biasa I tidak dapat memegang Perangkat (Pemandu/Instruktur).'
 
 /**
- * Aturan organisasi: AB1 tidak pernah memegang Perangkat Pengkaderan
+ * Aturan organisasi: AB1 tidak pernah memegang Perangkat
  * (Pemandu maupun Instruktur). Satu predikat dipakai lewat dua schema
- * (`memberSchema` di add-form, `profileSchema` di profil) supaya keduanya
+ * (`memberSchema` di add-form, `memberManagedSchema` di profil) supaya keduanya
  * tidak bisa diam-diam berbeda aturan.
  */
 export const isAb1WithCertification = (

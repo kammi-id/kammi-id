@@ -10,7 +10,7 @@ web
 
 Pengurus KAMMI se-Indonesia dengan berbagai role (BPH, BPK, BPW, HUMAS). Memiliki rentang kemampuan digital yang sangat luas, dari yang sangat gaptek hingga tech-savvy. Mereka membutuhkan akses cepat ke informasi akurat mengenai status kepengurusan, jumlah anggota, dan publikasi media, serta perlu melakukan operasional data organisasi dengan mudah dan nyaman.
 
-Kewenangan bertingkat per CONTEXT.md: **Root** (penuh, tanpa batas Cakupan), **BPH** (memantau seluruh Cakupan, hanya boleh menyunting identitas Strukturnya sendiri), **BPK** (mengelola kekaderan — Member, Daurah, Perangkat), **BPW** (mengelola kestrukturan di bawah Strukturnya sendiri), **Humas** (mengelola Artikel dan Pengaturan Situs, Cakupan tidak turun ke Struktur di bawahnya), dan **Akun Kader** (hanya atas datanya sendiri).
+Kewenangan bertingkat per CONTEXT.md: **Root** (penuh, tanpa batas Cakupan), **BPH** (memantau seluruh Cakupan, hanya boleh menyunting identitas Strukturnya sendiri), **BPK** (mengelola kaderisasi — Member, Daurah, Perangkat), **BPW** (mengelola kestrukturan di bawah Strukturnya sendiri), **Humas** (mengelola Artikel dan Pengaturan Situs, Cakupan tidak turun ke Struktur di bawahnya), dan **Akun Kader** (hanya atas datanya sendiri).
 
 ## Product Purpose
 
@@ -18,7 +18,7 @@ Menjadi "Single Source of Truth" bagi organisasi KAMMI. Menjamin ketersediaan in
 
 ## Positioning
 
-Satu-satunya sistem yang memodelkan struktur kepengurusan KAMMI sebagai satu pohon nasional berjenjang (PP → PW → PD/PDLN → PK), dengan kewenangan yang otomatis mengikuti Cakupan (Struktur milik sebuah Akun beserta seluruh turunannya). Ini menyatukan data kekaderan (Member, Jenjang Kekaderan, Daurah, Perangkat) dan publikasi per-Struktur dalam satu basis data — bukan spreadsheet atau sistem terpisah per wilayah yang tidak saling nyambung.
+Satu-satunya sistem yang memodelkan struktur kepengurusan KAMMI sebagai satu pohon nasional berjenjang (PP → PW → PD/PDLN → PK), dengan kewenangan yang otomatis mengikuti Cakupan (Struktur milik sebuah Akun beserta seluruh turunannya). Ini menyatukan data kaderisasi (Member, Jenjang Kaderisasi, Daurah, Perangkat) dan publikasi per-Struktur dalam satu basis data — bukan spreadsheet atau sistem terpisah per wilayah yang tidak saling nyambung.
 
 ## Operating Context
 
@@ -30,8 +30,8 @@ Dua permukaan berbeda:
 ## Capabilities and Constraints
 
 - Hierarki Struktur (PP/PW/PD/PDLN/PK) dengan kewenangan yang di-scope lewat Cakupan — lihat CONTEXT.md untuk istilah lengkap dan aturan turunnya.
-- Struktur punya tepat satu dari tiga Keadaan (Aktif/Non-Aktif/Terhapus); Kader punya tepat satu dari empat Keadaan (Aktif/Sanksi/Non-Aktif/Alumni) — berjalan independen dari Jenjang Kekaderan dan sertifikasi Perangkat.
-- **Kelulusan belum tersambung ke Jenjang Kekaderan atau sertifikasi Perangkat di kode** — menetapkan Kelulusan hanya menulis satu boolean pada baris Peserta (`updateAttendantStatus`, `db/query/training.ts`). Kenaikan Jenjang Kekaderan (AB1→AB2→AB3) dan sertifikasi Pemandu/Instruktur masih disetel manual lewat permukaan lain. Jangan mengasumsikan atau mendesain UI yang mengandaikan sambungan ini sudah ada — itu keputusan produk yang belum diambil.
+- Struktur punya tepat satu dari tiga Keadaan (Aktif/Non-Aktif/Terhapus); Kader punya tepat satu dari empat Keadaan (Aktif/Sanksi/Non-Aktif/Alumni) — berjalan independen dari Jenjang Kaderisasi dan sertifikasi Perangkat.
+- **Kelulusan belum tersambung ke Jenjang Kaderisasi atau sertifikasi Perangkat di kode** — menetapkan Kelulusan hanya menulis satu boolean pada baris Peserta (`updateAttendantStatus`, `db/query/training.ts`). Kenaikan Jenjang Kaderisasi (AB1→AB2→AB3) dan sertifikasi Pemandu/Instruktur masih disetel manual lewat permukaan lain. Jangan mengasumsikan atau mendesain UI yang mengandaikan sambungan ini sudah ada — itu keputusan produk yang belum diambil.
 - Masa Penetapan Kelulusan: terbuka sehari setelah Daurah selesai, tertutup 30 hari sesudahnya; hanya Root yang bisa menembus batas ini.
 - Unggahan gambar dikunci `uuid.ext`, dibatasi 5MB di server, disimpan lokal (S3/MinIO sudah dicabut dari infra).
 

@@ -77,5 +77,25 @@ adalah tiket 02.
 ## Selesai bila
 
 - `bun run check:types`, `check:lint`, `check:structure` hijau.
-- `grep -ri kekaderan src/` kosong; `grep -ri pengkaderan src/` kosong.
+- `grep -ri kekaderan src/` kosong.
+- `grep -ri pengkaderan src/` kosong **kecuali dua pengecualian di bawah**.
 - `docs/adr/0001` dan `0009` tidak tersentuh diff.
+
+### Dua "Pengkaderan" yang sengaja tinggal
+
+Keduanya ditemukan saat pelaksanaan; kriteria mutlak di atas ditulis sebelum
+keduanya terlihat, jadi yang diamandemen kriterianya, bukan kodenya.
+
+1. **`bulk-upload-utils.ts` — judul kolom XLSX warisan.** `'Jenjang
+   Pengkaderan'` adalah judul kolom pada templat yang sudah diunduh pengguna.
+   Templat baru menerbitkan `'Jenjang Kaderisasi'`, tetapi pembacanya tetap
+   menerima yang lama: tanpa itu setiap berkas lama kehilangan kolom status dan
+   jatuh diam-diam ke `'ab1'` — menurunkan jenjang **setiap baris** yang
+   diimpor, di sistem yang sudah tayang. Ini data, bukan prosa.
+
+2. **`karakteristik-section.tsx` — salinan doktrinal situs publik.**
+   "Harokatu Tajnid — Organisasi Pengkaderan" adalah gloss resmi KAMMI atas
+   istilah Arabnya, bukan penamaan internal. Glosarium `CONTEXT.md` mengatur
+   bagaimana tim menamai sesuatu di antara mereka sendiri; ia tidak mengarang
+   ulang bagaimana organisasi memperkenalkan dirinya kepada pengunjung.
+   Diputuskan pengambil keputusan saat pelaksanaan.

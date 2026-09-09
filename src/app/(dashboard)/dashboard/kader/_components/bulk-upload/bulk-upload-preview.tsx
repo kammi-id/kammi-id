@@ -71,7 +71,7 @@ export const BulkUploadPreview = ({
                 Jenis Kelamin *
               </th>
               <th className='px-3 py-2 text-left font-medium'>
-                Jenjang Pengkaderan *
+                Jenjang Kaderisasi *
               </th>
               <th className='px-3 py-2 text-left font-medium'>
                 Tahun Masuk KAMMI *

@@ -75,7 +75,7 @@ describe('generateTemplateBuffer — dropdowns and No HP column', () => {
 
     expect(sheetXml).toContain('<dataValidations count="4">')
     expect(sheetXml).toContain('sqref="B2:B1001"') // Jenis Kelamin
-    expect(sheetXml).toContain('sqref="C2:C1001"') // Jenjang Pengkaderan
+    expect(sheetXml).toContain('sqref="C2:C1001"') // Jenjang Kaderisasi
     expect(sheetXml).toContain('sqref="F2:F1001"') // Pemandu
     expect(sheetXml).toContain('sqref="G2:G1001"') // Instruktur
   })

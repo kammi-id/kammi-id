@@ -5,7 +5,7 @@ import { readDeletedMembers } from '~/db/query/member'
 import {
   requireMemberTrashAccess,
   requireMemberHardDeleteAccess
-} from '~/lib/auth/kekaderan'
+} from '~/lib/auth/kaderisasi'
 import {
   KaderTerhapusList,
   type DeletedKaderRow
