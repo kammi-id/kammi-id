@@ -1,0 +1,18 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "Next.js Dev",
+      "runtimeExecutable": "bun",
+      "runtimeArgs": ["dev"],
+      "port": 3000,
+      "autoPort": false
+    },
+    {
+      "name": "Drizzle Studio",
+      "runtimeExecutable": "bun",
+      "runtimeArgs": ["db:studio"],
+      "port": 4983
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+ALTER TABLE "training" ADD COLUMN "registration_start_date" date;

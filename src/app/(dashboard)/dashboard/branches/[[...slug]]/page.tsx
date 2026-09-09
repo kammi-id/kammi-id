@@ -1,0 +1,255 @@
+import { AccessGuard } from '~/components/access-guard'
+import { notFound, redirect } from 'next/navigation'
+import { connection } from 'next/server'
+import { readActiveSession } from '~/lib/auth/cookies'
+import {
+  getCachedOrganizations,
+  getCachedOrganizationCount
+} from '../../_data/organizations'
+import { Globe02Icon, ArrowLeft02Icon } from '@hugeicons/core-free-icons'
+import { HugeiconsIcon } from '@hugeicons/react'
+import { BranchesGrid } from '../_components/branches-grid'
+import {
+  type Organization,
+  type StrukturRow
+} from '../_components/struktur-row'
+import {
+  canManageKestrukturan,
+  childTypesOf,
+  requireKestrukturanReadAccess,
+  type StrukturJenjang
+} from '~/lib/auth/kestrukturan'
+import { labelJenjangAnak } from '../_components/_jenjang-anak'
+import { strukturKemampuan } from '~/lib/struktur/kemampuan'
+import Link from 'next/link'
+import { cn } from '~/lib/shadcn/utils'
+import { buttonVariants } from '~/components/shadcn/ui/button'
+import {
+  BranchDetailView,
+  readAuthorizedBranchDetail
+} from '../_components/branch-detail'
+
+// Halaman ini menegakkan sesi dan Cakupan sebelum dapat merender data Struktur.
+// Validasi shell statis tidak berlaku untuk navigasi masuk ke permukaan ini.
+export const instant = false
+
+interface PageProps {
+  params: Promise<{ slug?: string[] }>
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}
+
+const readPositiveInteger = (value: string | string[] | undefined) => {
+  if (typeof value !== 'string') return undefined
+  const parsed = Number.parseInt(value, 10)
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : undefined
+}
+
+const BranchesPage = async ({ params, searchParams }: PageProps) => {
+  await connection()
+
+  const { slug } = await params
+  const sParams = await searchParams
+
+  const session = await readActiveSession()
+  if (!session) {
+    redirect('/login')
+  }
+
+  const user = session.user
+  if (!user) {
+    return (
+      <div className='flex h-[calc(100vh-theme(spacing.24))] items-center justify-center'>
+        <p className='text-muted-foreground'>Pengguna tidak ditemukan.</p>
+      </div>
+    )
+  }
+
+  if (slug?.length) {
+    const detail = await readAuthorizedBranchDetail(slug, {
+      query:
+        typeof sParams.childrenQ === 'string' ? sParams.childrenQ : undefined,
+      page: readPositiveInteger(sParams.childrenPage)
+    })
+    if (!detail) notFound()
+
+    return (
+      <AccessGuard allowedRoles={['root', 'bph', 'bpw']}>
+        <BranchDetailView detail={detail} />
+      </AccessGuard>
+    )
+  }
+
+  const currentOrg: Organization | undefined = user.connectedOrganization
+
+  if (!currentOrg) {
+    return (
+      <div className='flex h-[calc(100vh-theme(spacing.24))] items-center justify-center'>
+        <p className='text-muted-foreground'>Wilayah tidak ditemukan.</p>
+      </div>
+    )
+  }
+  // Cakupan ditegakkan pada slug yang diterima halaman ini, lewat gate yang
+  // sudah ada — bukan gate baru. Slug di luar Cakupan dijawab persis seperti
+  // slug yang tidak pernah ada (spec §1.4), jadi jawabannya tidak bocor bahwa
+  // Struktur itu ada.
+  const scope = await requireKestrukturanReadAccess(currentOrg.id)
+  if (!scope) {
+    return (
+      <div className='flex h-[calc(100vh-theme(spacing.24))] items-center justify-center'>
+        <p className='text-muted-foreground'>Wilayah tidak ditemukan.</p>
+      </div>
+    )
+  }
+
+  // Grid ini hanya memuat Struktur Anak **langsung**, jadi judulnya menyebut
+  // satu Jenjang saja. Yang lama menulis "dan Komisariat" untuk PW, dan itu
+  // tidak pernah benar: `childTypesOf('pw')` adalah `['pd']`, dan form Tambah
+  // pun tidak pernah menawarkan PK di sana.
+  let pageTitle = 'Daftar Wilayah'
+  let subTitle = `Menampilkan wilayah di bawah ${currentOrg.name}.`
+
+  if (currentOrg.type === 'pp') {
+    pageTitle = 'Daftar Pengurus Wilayah dan Daerah LN'
+    subTitle =
+      'Menampilkan daftar wilayah dan pengurus daerah luar negeri yang berada langsung di bawah naungan pusat.'
+  } else if (currentOrg.type === 'pw') {
+    pageTitle = 'Daftar Pengurus Daerah'
+    subTitle = `Seluruh pengurus daerah yang berada di wilayah ${currentOrg.name}.`
+  } else if (currentOrg.type === 'pd' || currentOrg.type === 'pdln') {
+    pageTitle = 'Daftar Pengurus Komisariat'
+    subTitle = `Seluruh komisariat yang aktif berada di bawah naungan daerah ${currentOrg.name}.`
+  } else if (currentOrg.type === 'pk') {
+    pageTitle = 'Struktur Anak'
+    subTitle = `${currentOrg.name} tidak memiliki Struktur Anak.`
+  }
+
+  // Label tombol diturunkan dari bentuk pohon, bukan ditulis ulang per cabang —
+  // satu sumber dengan `Select` di dalam form dan dengan gate yang menolaknya.
+  const addButtonLabel = labelJenjangAnak(currentOrg.type)
+
+  // Parse searchParams for server-side fetching
+  const query = typeof sParams.q === 'string' ? sParams.q : undefined
+  const page =
+    typeof sParams.page === 'string' ? Math.max(1, parseInt(sParams.page)) : 1
+  const limit = typeof sParams.size === 'string' ? parseInt(sParams.size) : 12
+  const offset = (page - 1) * limit
+
+  let orderBy:
+    | { column: keyof Organization; direction: 'asc' | 'desc' }[]
+    | undefined
+  if (typeof sParams.sort === 'string') {
+    const [col, dir] = sParams.sort.split('.')
+    if (col && (dir === 'asc' || dir === 'desc')) {
+      if (currentOrg && Object.prototype.hasOwnProperty.call(currentOrg, col)) {
+        orderBy = [{ column: col as keyof Organization, direction: dir }]
+      }
+    }
+  }
+
+  const filters = {
+    parentId: [currentOrg.id],
+    name: query,
+    limit,
+    offset,
+    orderBy
+  }
+  const [organizations, totalCount] = await Promise.all([
+    getCachedOrganizations(filters),
+    getCachedOrganizationCount(filters)
+  ])
+  const pageCount = Math.ceil(totalCount / limit)
+
+  // **Kemampuan dihitung sekali di server, per baris** (spec §8). Kartu, kolom
+  // tabel, dan item sheet merender afordansi dari bendera ini dan tidak pernah
+  // menurunkannya sendiri dari `role` — yang persis kebocoran yang dulu membuat
+  // pensil Edit tidak di-gate sama sekali.
+  //
+  // Nol query tambahan: matriksnya fungsi murni, dan tiap baris di sini sudah
+  // pasti di dalam Cakupan karena ia anak dari Struktur yang gate di atas
+  // loloskan.
+  const jenjangAkun = (user.connectedOrganization?.type ??
+    null) as StrukturJenjang | null
+  // Peran dan Struktur terhubung dibaca dari `scope` yang gate kembalikan, bukan
+  // dirakit ulang dari sesi di sini — AGENTS.md melarang menurunkan pasangan itu
+  // di call site. Jenjang Akun bukan bagian dari `AccessScope`, jadi ia satu-
+  // satunya yang masih datang dari sesi.
+  const actor = {
+    role: scope.role,
+    jenjangAkun,
+    connectedOrganizationId: scope.connectedOrganizationId
+  }
+  const rows: StrukturRow[] = organizations.map((org) => ({
+    ...org,
+    kemampuan: strukturKemampuan(actor, org)
+  }))
+
+  const canAdd = childTypesOf(currentOrg.type).some((childType) =>
+    canManageKestrukturan(scope.role, jenjangAkun, childType, 'buat')
+  )
+
+  const basePath =
+    slug && slug.length > 0
+      ? `/dashboard/branches/${slug.join('/')}`
+      : '/dashboard/branches'
+
+  return (
+    <AccessGuard allowedRoles={['root', 'bph', 'bpw']} levelRequirement={2}>
+      <div className='space-y-8 px-4 py-4 md:py-6 lg:px-6'>
+        <div className='flex items-center gap-4'>
+          {slug && slug.length > 0 && (
+            <Link
+              href={
+                slug.length === 1
+                  ? '/dashboard/branches'
+                  : `/dashboard/branches/${slug.slice(0, -1).join('/')}`
+              }
+              className={cn(
+                buttonVariants({ variant: 'outline', size: 'icon' }),
+                'size-10 shrink-0 rounded-xl'
+              )}
+            >
+              <HugeiconsIcon
+                icon={ArrowLeft02Icon}
+                strokeWidth={2}
+                className='size-5'
+              />
+            </Link>
+          )}
+          <div className='bg-primary/10 text-primary ring-primary/5 flex size-14 shrink-0 items-center justify-center rounded-full ring-4'>
+            <HugeiconsIcon
+              icon={Globe02Icon}
+              strokeWidth={2}
+              className='size-7'
+            />
+          </div>
+          <div>
+            <h1 className='font-heading text-3xl font-bold tracking-tight'>
+              {pageTitle}
+            </h1>
+            <p className='text-muted-foreground leading-relaxed'>{subTitle}</p>
+          </div>
+        </div>
+
+        <div className='grid grid-cols-1 gap-8'>
+          <div className='bg-card border-border rounded-lg border p-6 shadow-sm md:p-8 lg:p-10'>
+            <div className='space-y-8'>
+              <div className='space-y-6'>
+                <BranchesGrid
+                  data={rows}
+                  basePath={basePath}
+                  pageCount={pageCount}
+                  totalCount={totalCount}
+                  addButtonLabel={addButtonLabel}
+                  canAdd={canAdd}
+                  parentOrg={currentOrg}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </AccessGuard>
+  )
+}
+
+export default BranchesPage

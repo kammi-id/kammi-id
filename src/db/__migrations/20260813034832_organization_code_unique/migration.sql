@@ -1,0 +1,24 @@
+--
+-- Migrasi C — satu constraint, sengaja sendirian.
+--
+-- JANGAN disatukan dengan migrasi `slug` (tiket 15). Kalau digabung, satu
+-- `code` duplikat yang butuh putusan manusia ikut menyandera constraint
+-- `slug` yang perbaikannya sepele. Dua migrasi, dua nasib.
+--
+-- SEBELUM MENJALANKAN: `bun run check:duplicates` terhadap basis data
+-- sasaran. Kalau `code` duplikat: BERHENTI. Ia insiden data yang menuntut
+-- putusan manusia — bukan sesuatu yang bisa diperbaiki mekanis, sebab ADR
+-- 0004 mengunci `code` selamanya. Migrasi ini hanya boleh berangkat kalau
+-- pra-terbang menemukan NOL duplikat `code`.
+--
+-- `code` unik lintas SEMUA baris, Terhapus termasuk — bukan partial, beda
+-- dari `slug`. Constraint biasa, bukan index: ADD CONSTRAINT UNIQUE
+-- mengambil ACCESS EXCLUSIVE (memblokir baca juga), sementara CREATE UNIQUE
+-- INDEX hanya memblokir tulis. Tabel ini ribuan baris, bukan jutaan, jadi
+-- durasi kuncinya bukan soal — tapi pilihan ini sadar, bukan default.
+--
+-- Kegagalannya aman: runner Drizzle membungkus seluruh migrasi tertunda
+-- dalam satu transaksi, jadi rollback bersih — nol baris berubah, nol
+-- constraint setengah jadi.
+--
+ALTER TABLE "organization" ADD CONSTRAINT "organization_code_unique" UNIQUE("code");

@@ -1,0 +1,221 @@
+- generic [ref=e1]:
+    - generic [ref=e2]:
+        - generic [ref=e5]:
+            - list [ref=e7]:
+                - listitem [ref=e8]:
+                    - link [ref=e214] [cursor=pointer]:
+                        - /url: /dashboard
+                        - img [ref=e215]
+                        - generic [ref=e11]: KAMMI.id
+            - generic [ref=e12]:
+                - list [ref=e15]:
+                    - listitem [ref=e16]:
+                        - link [ref=e216] [cursor=pointer]:
+                            - /url: /dashboard
+                            - img [ref=e18]
+                            - generic [ref=e23]: Dashboard
+                - generic [ref=e24]:
+                    - generic [ref=e25]: Pembinaan Kader
+                    - list [ref=e27]:
+                        - listitem [ref=e28]:
+                            - link [ref=e217] [cursor=pointer]:
+                                - /url: /dashboard/kader
+                                - img [ref=e30]
+                                - generic [ref=e33]: Data Kader
+                        - listitem [ref=e34]:
+                            - link [ref=e218] [cursor=pointer]:
+                                - /url: /dashboard/trainings
+                                - img [ref=e36]
+                                - generic [ref=e40]: Dauroh
+                        - listitem [ref=e41]:
+                            - link [ref=e219] [cursor=pointer]:
+                                - /url: /dashboard/perangkat
+                                - img [ref=e43]
+                                - generic [ref=e47]: Perangkat Kaderisasi
+                        - listitem [ref=e48]:
+                            - link [ref=e220] [cursor=pointer]:
+                                - /url: /dashboard/alumni
+                                - img [ref=e50]
+                                - generic [ref=e54]: Data Alumni
+            - list [ref=e56]:
+                - listitem [ref=e57]:
+                    - button [ref=e221]:
+                        - generic [ref=e60]: BP
+                        - generic [ref=e61]:
+                            - generic [ref=e62]: BPK PP KAMMI
+                            - generic [ref=e63]: PP KAMMI
+                        - img [ref=e64]
+        - main [ref=e68]:
+            - generic [ref=e70]:
+                - button [ref=e222]:
+                    - img
+                    - generic [ref=e72]: Toggle Sidebar
+                - separator [ref=e73]
+                - generic [ref=e74]: Ringkasan
+                - button [ref=e223]:
+                    - img
+            - generic [ref=e79]:
+                - generic [ref=e81]:
+                    - navigation [ref=e82]:
+                        - link [ref=e224] [cursor=pointer]:
+                            - /url: /dashboard/kader
+                            - text: Kader
+                        - generic [ref=e84]: /
+                        - generic [ref=e85]: Mita
+                    - generic [ref=e86]:
+                        - button [disabled] [ref=e225]:
+                            - generic [ref=e89]: MI
+                        - generic [ref=e90]:
+                            - generic [ref=e91]:
+                                - heading [level=1] [ref=e226]: Mita
+                                - generic [ref=e93]:
+                                    - button [ref=e227]:
+                                        - img
+                                        - text: Reset Password
+                                    - button [ref=e228]:
+                                        - img
+                                        - text: Edit Profil
+                            - generic [ref=e96]:
+                                - paragraph [ref=e97]: '13012026001'
+                                - generic [ref=e98]: AB3
+                                - button [ref=e229]:
+                                    - img [ref=e100]
+                - generic [ref=e105]:
+                    - main [ref=e106]:
+                        - generic [ref=e107]:
+                            - generic [ref=e108]:
+                                - heading [level=2] [ref=e230]: Data Diri
+                                - separator [ref=e110]
+                            - generic [ref=e111]:
+                                - generic [ref=e112]:
+                                    - generic [ref=e113]: Jenis Kelamin
+                                    - generic [ref=e114]: Akhwat (Perempuan)
+                                - generic [ref=e115]:
+                                    - generic [ref=e116]: Tahun Masuk
+                                    - generic [ref=e117]: '2026'
+                                - generic [ref=e118]:
+                                    - generic [ref=e119]: Jenjang
+                                    - generic [ref=e120]: Kader Aktif
+                            - generic [ref=e121]:
+                                - heading [level=2] [ref=e231]: Kontak & Alamat
+                                - separator [ref=e123]
+                            - generic [ref=e124]:
+                                - generic [ref=e125]:
+                                    - generic [ref=e126]: No. HP
+                                    - generic [ref=e128]:
+                                        - link [ref=e232] [cursor=pointer]:
+                                            - /url: tel:085211695606
+                                            - text: '085211695606'
+                                        - link [ref=e233] [cursor=pointer]:
+                                            - /url: https://wa.me/6285211695606
+                                            - img [ref=e131]
+                                            - generic [ref=e134]: WhatsApp
+                                - generic [ref=e135]:
+                                    - generic [ref=e136]: Provinsi
+                                    - generic [ref=e137]: Tidak diisi
+                                - generic [ref=e138]:
+                                    - generic [ref=e139]: Kota/Kab
+                                    - generic [ref=e140]: Tidak diisi
+                                - generic [ref=e141]:
+                                    - generic [ref=e142]: Kecamatan
+                                    - generic [ref=e143]: Tidak diisi
+                                - generic [ref=e144]:
+                                    - generic [ref=e145]: Kelurahan
+                                    - generic [ref=e146]: Tidak diisi
+                                - generic [ref=e147]:
+                                    - generic [ref=e148]: Alamat
+                                    - generic [ref=e149]: Tidak diisi
+                        - generic [ref=e151]:
+                            - generic [ref=e152]:
+                                - generic [ref=e153]:
+                                    - heading [level=2] [ref=e234]: Riwayat Akademik
+                                    - separator [ref=e156]
+                                - button [ref=e235]:
+                                    - img
+                                    - text: Tambah
+                            - paragraph [ref=e158]: Belum ada riwayat akademik.
+                        - generic [ref=e160]:
+                            - generic [ref=e161]:
+                                - generic [ref=e162]:
+                                    - heading [level=2] [ref=e236]: Riwayat Karir
+                                    - separator [ref=e165]
+                                - button [ref=e237]:
+                                    - img
+                                    - text: Tambah
+                            - paragraph [ref=e167]: Belum ada riwayat karir.
+                        - generic [ref=e169]:
+                            - generic [ref=e170]:
+                                - generic [ref=e171]:
+                                    - heading [level=2] [ref=e238]: Riwayat Organisasi
+                                    - separator [ref=e174]
+                                - button [ref=e239]:
+                                    - img
+                                    - text: Tambah
+                            - paragraph [ref=e176]: Belum ada riwayat organisasi.
+                        - generic [ref=e178]:
+                            - generic [ref=e179]:
+                                - heading [level=2] [ref=e240]: Riwayat Dauroh
+                                - separator [ref=e181]
+                            - generic [ref=e183]: Sebagai Peserta
+                            - paragraph [ref=e184]: Belum ada riwayat dauroh sebagai peserta.
+                            - generic [ref=e186]: Sebagai Instruktur
+                            - paragraph [ref=e187]: Belum ada riwayat dauroh sebagai instruktur.
+                    - complementary [ref=e188]:
+                        - complementary [ref=e189]:
+                            - generic [ref=e190]:
+                                - heading [level=2] [ref=e241]: Sertifikasi
+                                - generic [ref=e192]:
+                                    - paragraph [ref=e193]: Belum ada sertifikasi.
+                                    - paragraph [ref=e194]: Diperoleh setelah lulus DM atau TFI.
+                            - generic [ref=e195]:
+                                - heading [level=2] [ref=e242]: Struktur Organisasi
+                                - generic [ref=e197]:
+                                    - generic [ref=e198]:
+                                        - generic [ref=e199]: Wilayah
+                                        - link [ref=e243] [cursor=pointer]:
+                                            - /url: /dashboard/branches/diy
+                                            - text: PW KAMMI D.I. Yogyakarta
+                                    - generic [ref=e201]:
+                                        - generic [ref=e202]: Daerah
+                                        - generic [ref=e203]: PD KAMMI Bantul
+    - region "Notifications alt+T"
+    - button "Open Next.js Dev Tools" [ref=e209] [cursor=pointer]:
+        - img [ref=e210]
+    - alert [ref=e213]
+    - dialog "Tambah Riwayat Akademik" [ref=e247]:
+        - heading "Tambah Riwayat Akademik" [level=2] [ref=e249]
+        - generic [ref=e250]:
+            - group [ref=e251]:
+                - generic [ref=e252]: Jenjang
+                - combobox [active] [ref=e253]:
+                    - generic [ref=e254]: s1
+                    - img
+                - textbox [ref=e255]: s1
+            - group [ref=e256]:
+                - generic [ref=e257]: Program Studi
+                - textbox "Program Studi" [ref=e258]:
+                    - /placeholder: 'Contoh: Teknik Informatika'
+            - group [ref=e259]:
+                - generic [ref=e260]: Institusi
+                - group [ref=e261]:
+                    - combobox "Cari nama institusi..." [ref=e262]
+                    - group [ref=e263]:
+                        - button [ref=e264]:
+                            - img
+                - textbox [ref=e265]
+            - generic [ref=e266]:
+                - group [ref=e267]:
+                    - generic [ref=e268]: Tahun Mulai
+                    - spinbutton "Tahun Mulai" [ref=e269]
+                - group [ref=e270]:
+                    - generic [ref=e271]: Tahun Selesai
+                    - spinbutton "Tahun Selesai" [ref=e272]
+            - group [ref=e273]:
+                - generic [ref=e274] [cursor=pointer]:
+                    - checkbox "Lulus" [ref=e275]
+                    - checkbox [ref=e276]
+                    - generic [ref=e277]: Lulus
+            - button "Tambah" [ref=e279]
+        - button "Close" [ref=e280]:
+            - img
+            - generic [ref=e281]: Close

@@ -1,0 +1,360 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
+@plugin '@tailwindcss/typography';
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-heading);
+  --font-handwriting: var(--font-handwriting);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-status-success-text: var(--status-success-text);
+  --color-status-success-bg: var(--status-success-bg);
+  --color-status-success-border: var(--status-success-border);
+  --color-status-warning-text: var(--status-warning-text);
+  --color-status-warning-bg: var(--status-warning-bg);
+  --color-status-warning-border: var(--status-warning-border);
+  --color-chart-pemandu: var(--chart-pemandu);
+  --color-chart-instruktur: var(--chart-instruktur);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+:root {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.141 0.005 285.823);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.141 0.005 285.823);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.141 0.005 285.823);
+  --primary: oklch(0.52 0.2 17);
+  --primary-foreground: oklch(0.98 0.008 17);
+  --secondary: oklch(0.967 0.001 286.375);
+  --secondary-foreground: oklch(0.21 0.006 285.885);
+  --muted: oklch(0.967 0.001 286.375);
+  --muted-foreground: oklch(0.552 0.016 285.938);
+  --accent: oklch(0.967 0.001 286.375);
+  --accent-foreground: oklch(0.21 0.006 285.885);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.92 0.004 286.32);
+  --input: oklch(0.92 0.004 286.32);
+  --ring: oklch(0.7 0.012 17);
+  --chart-1: oklch(0.808 0.114 19.571);
+  --chart-2: oklch(0.637 0.237 25.331);
+  --chart-3: oklch(0.577 0.245 27.325);
+  --chart-4: oklch(0.505 0.213 27.518);
+  --chart-5: oklch(0.444 0.177 26.899);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.141 0.005 285.823);
+  --sidebar-primary: oklch(0.58 0.18 17);
+  --sidebar-primary-foreground: oklch(0.98 0.008 17);
+  --sidebar-accent: oklch(0.967 0.001 286.375);
+  --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
+  --sidebar-border: oklch(0.92 0.004 286.32);
+  --sidebar-ring: oklch(0.7 0.012 17);
+  --status-success-text: oklch(0.44 0.14 152);
+  --status-success-bg: oklch(0.97 0.03 152);
+  --status-success-border: oklch(0.88 0.07 152);
+  --status-warning-text: oklch(0.48 0.12 75);
+  --status-warning-bg: oklch(0.97 0.03 75);
+  --status-warning-border: oklch(0.88 0.07 75);
+  /* Chart / data viz tokens — aliased to status tokens for cross-page consistency */
+  --chart-ab1: var(--status-ab1-solid);
+  --chart-ab2: var(--status-ab2-solid);
+  --chart-ab3: var(--status-ab3-solid);
+  --chart-ikhwan: var(--gender-ikhwan-solid);
+  --chart-akhwat: var(--gender-akhwat-solid);
+  --chart-pemandu: oklch(0.55 0.16 150);
+  --chart-instruktur: oklch(0.55 0.16 280);
+}
+
+.dark {
+  --background: oklch(0.141 0.005 285.823);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.21 0.006 285.885);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.21 0.006 285.885);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.58 0.2 17);
+  --primary-foreground: oklch(0.98 0.008 17);
+  --secondary: oklch(0.274 0.006 286.033);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.274 0.006 286.033);
+  --muted-foreground: oklch(0.705 0.015 286.067);
+  --accent: oklch(0.274 0.006 286.033);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.55 0.014 17);
+  --chart-1: oklch(0.808 0.114 19.571);
+  --chart-2: oklch(0.637 0.237 25.331);
+  --chart-3: oklch(0.577 0.245 27.325);
+  --chart-4: oklch(0.505 0.213 27.518);
+  --chart-5: oklch(0.444 0.177 26.899);
+  --sidebar: oklch(0.21 0.006 285.885);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.65 0.18 17);
+  --sidebar-primary-foreground: oklch(0.18 0.03 17);
+  --sidebar-accent: oklch(0.274 0.006 286.033);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.55 0.014 17);
+  --status-success-text: oklch(0.72 0.16 152);
+  --status-success-bg: oklch(0.26 0.05 152);
+  --status-success-border: oklch(0.38 0.09 152);
+  --status-warning-text: oklch(0.78 0.14 75);
+  --status-warning-bg: oklch(0.26 0.04 75);
+  --status-warning-border: oklch(0.38 0.08 75);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+  /* Badan tulisan Berita rata kiri-kanan — dibatasi ke paragraf saja supaya
+     judul (h1 di luar `.prose`, dan subjudul di dalamnya) tidak ikut
+     dipaksa rata kiri-kanan, yang merenggang jelek untuk baris pendek. */
+  .prose p {
+    @apply text-justify hyphens-auto;
+  }
+}
+
+/* Org-type categorical tokens */
+:root {
+  --org-pw-bg: oklch(0.97 0.01 145);
+  --org-pw-text: oklch(0.42 0.12 145);
+  --org-pw-border: oklch(0.88 0.05 145);
+
+  --org-pd-bg: oklch(0.97 0.01 240);
+  --org-pd-text: oklch(0.42 0.1 240);
+  --org-pd-border: oklch(0.88 0.05 240);
+
+  --org-pk-bg: oklch(0.97 0.01 17);
+  --org-pk-text: oklch(0.52 0.18 17);
+  --org-pk-border: oklch(0.88 0.08 17);
+
+  --org-pp-bg: oklch(0.97 0.005 285);
+  --org-pp-text: oklch(0.42 0.01 285);
+  --org-pp-border: oklch(0.88 0.004 285);
+
+  --status-pass-text: oklch(0.45 0.13 145);
+  --status-pass-bg: oklch(0.95 0.04 145);
+
+  /* AB status semantic tokens */
+  --status-ab1-bg: oklch(0.65 0.18 145 / 0.12);
+  --status-ab1-border: oklch(0.55 0.16 145 / 0.4);
+  --status-ab1-text: oklch(0.4 0.16 145);
+  --status-ab1-solid: oklch(0.65 0.18 145);
+
+  --status-ab2-bg: oklch(0.58 0.2 25 / 0.12);
+  --status-ab2-border: oklch(0.48 0.18 25 / 0.4);
+  --status-ab2-text: oklch(0.42 0.18 25);
+  --status-ab2-solid: oklch(0.58 0.2 25);
+
+  --status-ab3-bg: oklch(0.55 0.18 265 / 0.12);
+  --status-ab3-border: oklch(0.42 0.17 265 / 0.4);
+  --status-ab3-text: oklch(0.38 0.17 265);
+  --status-ab3-solid: oklch(0.55 0.18 265);
+
+  /* Gender semantic tokens */
+  --gender-ikhwan-bg: oklch(0.72 0.14 225 / 0.12);
+  --gender-ikhwan-border: oklch(0.55 0.13 225 / 0.4);
+  --gender-ikhwan-text: oklch(0.4 0.13 225);
+  --gender-ikhwan-solid: oklch(0.72 0.14 225);
+
+  --gender-akhwat-bg: oklch(0.74 0.14 350 / 0.12);
+  --gender-akhwat-border: oklch(0.58 0.13 350 / 0.4);
+  --gender-akhwat-text: oklch(0.46 0.14 350);
+  --gender-akhwat-solid: oklch(0.74 0.14 350);
+
+  /* Member special status tokens */
+  --status-suspended-bg: oklch(0.58 0.2 17 / 0.08);
+  --status-suspended-border: oklch(0.52 0.2 17 / 0.25);
+  --status-suspended-text: oklch(0.42 0.18 17);
+  --status-suspended-subtext: oklch(0.52 0.14 17);
+
+  --status-nonactive-bg: oklch(0.55 0.01 285 / 0.08);
+  --status-nonactive-border: oklch(0.55 0.01 285 / 0.25);
+  --status-nonactive-text: oklch(0.35 0.008 285);
+  --status-nonactive-subtext: oklch(0.5 0.008 285);
+
+  --status-alumn-bg: oklch(0.55 0.18 265 / 0.08);
+  --status-alumn-border: oklch(0.42 0.17 265 / 0.25);
+  --status-alumn-text: oklch(0.38 0.17 265);
+  --status-alumn-subtext: oklch(0.48 0.14 265);
+
+  /* Member active status */
+  --status-active-text: oklch(0.45 0.16 145);
+
+  /* Training history pass/fail icons */
+  --status-training-pass: oklch(0.45 0.16 145);
+  --status-training-fail: oklch(0.55 0.18 17);
+
+  /* Warning indicator icon */
+  --status-warning-icon: oklch(0.6 0.18 75);
+
+  /* Gender radio selected state in edit mode */
+  --form-gender-selected-bg: oklch(0.52 0.2 17 / 0.08);
+  --form-gender-selected-border: oklch(0.52 0.2 17);
+  --form-gender-selected-text: oklch(0.42 0.18 17);
+  --form-gender-hover-border: oklch(0.52 0.2 17 / 0.4);
+}
+
+.dark {
+  --org-pw-bg: oklch(0.25 0.03 145);
+  --org-pw-text: oklch(0.7 0.14 145);
+  --org-pw-border: oklch(0.35 0.06 145);
+
+  --org-pd-bg: oklch(0.25 0.03 240);
+  --org-pd-text: oklch(0.7 0.1 240);
+  --org-pd-border: oklch(0.35 0.06 240);
+
+  --org-pk-bg: oklch(0.25 0.04 17);
+  --org-pk-text: oklch(0.7 0.16 17);
+  --org-pk-border: oklch(0.35 0.08 17);
+
+  --org-pp-bg: oklch(0.25 0.005 285);
+  --org-pp-text: oklch(0.7 0.01 285);
+  --org-pp-border: oklch(0.35 0.004 285);
+
+  --status-pass-text: oklch(0.7 0.14 145);
+  --status-pass-bg: oklch(0.25 0.04 145);
+
+  /* AB status semantic tokens — dark */
+  --status-ab1-bg: oklch(0.28 0.07 145 / 0.2);
+  --status-ab1-border: oklch(0.5 0.14 145 / 0.4);
+  --status-ab1-text: oklch(0.72 0.16 145);
+  --status-ab1-solid: oklch(0.6 0.18 145);
+
+  --status-ab2-bg: oklch(0.28 0.07 25 / 0.2);
+  --status-ab2-border: oklch(0.5 0.16 25 / 0.4);
+  --status-ab2-text: oklch(0.72 0.18 25);
+  --status-ab2-solid: oklch(0.6 0.2 25);
+
+  --status-ab3-bg: oklch(0.28 0.07 265 / 0.2);
+  --status-ab3-border: oklch(0.42 0.15 265 / 0.4);
+  --status-ab3-text: oklch(0.7 0.16 265);
+  --status-ab3-solid: oklch(0.58 0.18 265);
+
+  /* Gender semantic tokens — dark */
+  --gender-ikhwan-bg: oklch(0.28 0.06 225 / 0.2);
+  --gender-ikhwan-border: oklch(0.48 0.12 225 / 0.4);
+  --gender-ikhwan-text: oklch(0.7 0.14 225);
+  --gender-ikhwan-solid: oklch(0.62 0.14 225);
+
+  --gender-akhwat-bg: oklch(0.28 0.06 350 / 0.2);
+  --gender-akhwat-border: oklch(0.5 0.12 350 / 0.4);
+  --gender-akhwat-text: oklch(0.72 0.14 350);
+  --gender-akhwat-solid: oklch(0.64 0.14 350);
+
+  /* Member special status tokens — dark */
+  --status-suspended-bg: oklch(0.28 0.08 17 / 0.15);
+  --status-suspended-border: oklch(0.48 0.18 17 / 0.3);
+  --status-suspended-text: oklch(0.72 0.18 17);
+  --status-suspended-subtext: oklch(0.6 0.14 17);
+
+  --status-nonactive-bg: oklch(0.28 0.005 285 / 0.15);
+  --status-nonactive-border: oklch(0.48 0.008 285 / 0.3);
+  --status-nonactive-text: oklch(0.72 0.008 285);
+  --status-nonactive-subtext: oklch(0.6 0.006 285);
+
+  --status-alumn-bg: oklch(0.28 0.08 265 / 0.15);
+  --status-alumn-border: oklch(0.42 0.15 265 / 0.3);
+  --status-alumn-text: oklch(0.7 0.16 265);
+  --status-alumn-subtext: oklch(0.58 0.14 265);
+
+  /* Member active status */
+  --status-active-text: oklch(0.72 0.16 145);
+
+  /* Training history pass/fail icons */
+  --status-training-pass: oklch(0.7 0.16 145);
+  --status-training-fail: oklch(0.7 0.18 17);
+
+  /* Warning indicator icon */
+  --status-warning-icon: oklch(0.75 0.16 75);
+
+  /* Gender radio selected state in edit mode */
+  --form-gender-selected-bg: oklch(0.52 0.2 17 / 0.12);
+  --form-gender-selected-border: oklch(0.65 0.2 17);
+  --form-gender-selected-text: oklch(0.75 0.16 17);
+  --form-gender-hover-border: oklch(0.65 0.2 17 / 0.4);
+}
+
+/* Scroll-driven animations for cards and sections */
+@keyframes slide-up-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(40px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.scroll-reveal {
+  opacity: 1;
+}
+
+@supports ((animation-timeline: view()) and (animation-range: 0% 100%)) {
+  .scroll-reveal {
+    opacity: 0;
+    animation: slide-up-fade-in linear both;
+    animation-timeline: view();
+    animation-range: entry 5% cover 25%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-reveal {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

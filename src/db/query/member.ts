@@ -1,0 +1,988 @@
+import { db } from '../db'
+import { member } from '../schema/member.sql'
+import { memberMutation } from '../schema/member-mutation.sql'
+import { withMemberCTE, type Member } from './cte/member'
+export { withMemberCTE, type Member }
+import {
+  inArray,
+  eq,
+  and,
+  ilike,
+  sql,
+  desc,
+  isNull,
+  isNotNull,
+  count,
+  type SQL
+} from 'drizzle-orm'
+import { type DBExecutor } from '../types'
+import { user as userTable } from '../schema/user.sql'
+
+import { createUser } from './user'
+import { generatePassword, hashPassword } from '~/lib/utils/user'
+import { organization } from '../schema/organization.sql'
+import { fetchAllowedOrgIds, type AccessScope } from './organization'
+
+type MemberInsertValues = typeof member.$inferInsert
+export type MemberFilters = {
+  id?: string[]
+  name?: string
+  registerNumber?: string
+  phone?: string
+  organizationId?: string[]
+  provinceCode?: string[]
+  cityCode?: string[]
+  isAlumn?: boolean
+  isSuspended?: boolean
+  isNonActive?: boolean
+  status?: ('ab1' | 'ab2' | 'ab3')[]
+  gender?: 'ikhwan' | 'akhwat'
+  isCertifiedMentor?: boolean
+  isCertifiedInstructor?: boolean
+  sort?: string
+  order?: 'asc' | 'desc'
+}
+
+export type MemberAggregatesFilters = {
+  organizationId?: string
+  isCertifiedMentor?: boolean
+  isCertifiedInstructor?: boolean
+  isAlumn?: boolean
+}
+
+export type MemberAggregatesResult = {
+  organizationId: string
+  parentId: string | null
+  level: number
+  ab1: number
+  ab2: number
+  ab3: number
+  ikhwan: number
+  akhwat: number
+  total: number
+}
+
+type MemberAggregatesRow = {
+  organizationId: string
+  parentId: string | null
+  level: number
+  ab1: number | null
+  ab2: number | null
+  ab3: number | null
+  ikhwan: number | null
+  akhwat: number | null
+  total: number | null
+}
+
+const readMemberAggregatesForRoles = async (
+  filters: MemberAggregatesFilters & {
+    user: AccessScope
+  },
+  allowedRoles: readonly string[]
+): Promise<Array<MemberAggregatesResult>> => {
+  const {
+    organizationId,
+    isCertifiedMentor,
+    isCertifiedInstructor,
+    isAlumn,
+    user
+  } = filters
+
+  if (!allowedRoles.includes(user.role)) {
+    return []
+  }
+
+  const allowedOrgIds = await fetchAllowedOrgIds(user)
+  if (allowedOrgIds.length === 0) return []
+
+  // Determine the single anchor org for the recursive CTE.
+  // When organizationId is given, we expand from that org downward.
+  // When user-scoped (no organizationId), we find the top of the user's
+  // connected subtree (their connectedOrganizationId, or the PP root for root/bph).
+  // We NEVER use multiple anchors — that's what caused double-counting before.
+  let anchorId: string | null = organizationId || null
+
+  if (!anchorId) {
+    const connectedOrgId =
+      user.connectedOrganizationId ??
+      (await db
+        .select({ id: organization.id })
+        .from(organization)
+        .where(
+          and(
+            eq(organization.type, 'pp' as any),
+            isNull(organization.deletedAt)
+          )
+        )
+        .limit(1)
+        .then((r) => r[0]?.id ?? null))
+    anchorId = connectedOrgId
+  }
+
+  if (!anchorId) return []
+
+  // 1. Recursive CTE starting from a single anchor, expanding the entire subtree.
+  //    Each org appears exactly once.  We then LEFT JOIN member to get direct counts.
+  //
+  //    `org_tree` emits one row per Struktur regardless of how many Member hang
+  //    off it, so an unfiltered walk puts Struktur Terhapus in the result as a
+  //    zero-count entry — a Struktur that should not be visible, present in the
+  //    list. Hence `deleted_at IS NULL` on both legs (spec §7.1).
+  //
+  //    Non-Aktif is pointedly **not** filtered: its Kader must keep rolling up
+  //    into its induk's totals (spec §8.3).
+  const directRows = await db
+    .execute(
+      sql`
+    WITH RECURSIVE org_tree AS (
+      SELECT id, parent_id,
+             CASE
+               WHEN type = 'pp' THEN 1
+               WHEN type = 'pw' THEN 2
+               WHEN type IN ('pd', 'pdln') THEN 3
+               WHEN type = 'pk' THEN 4
+               ELSE 5
+             END AS level
+      FROM organization
+      WHERE id = ${anchorId} AND deleted_at IS NULL
+      UNION ALL
+      SELECT o.id, o.parent_id,
+             CASE
+               WHEN o.type = 'pp' THEN 1
+               WHEN o.type = 'pw' THEN 2
+               WHEN o.type IN ('pd', 'pdln') THEN 3
+               WHEN o.type = 'pk' THEN 4
+               ELSE 5
+             END AS level
+      FROM organization o
+      JOIN org_tree ot ON o.parent_id = ot.id
+      WHERE o.deleted_at IS NULL
+    )
+    SELECT
+      ot.id AS "organizationId",
+      ot.parent_id AS "parentId",
+      ot.level AS "level",
+      count(*) FILTER (WHERE m.status = 'ab1')::int AS "ab1",
+      count(*) FILTER (WHERE m.status = 'ab2')::int AS "ab2",
+      count(*) FILTER (WHERE m.status = 'ab3')::int AS "ab3",
+      count(*) FILTER (WHERE m.gender = 'ikhwan')::int AS "ikhwan",
+      count(*) FILTER (WHERE m.gender = 'akhwat')::int AS "akhwat",
+      count(m.id)::int AS "total"
+    FROM org_tree ot
+    LEFT JOIN member m ON m.organization_id = ot.id
+      AND m.deleted_at IS NULL
+      ${isAlumn !== undefined ? sql`AND m.is_alumn = ${isAlumn}` : sql``}
+      ${isCertifiedMentor !== undefined ? sql`AND m.is_certified_mentor = ${isCertifiedMentor}` : sql``}
+      ${isCertifiedInstructor !== undefined ? sql`AND m.is_certified_instructor = ${isCertifiedInstructor}` : sql``}
+      ${isAlumn === false ? sql`AND m.is_non_active = false` : sql``}
+      AND m.is_suspended = false
+    ${
+      allowedOrgIds.length > 0
+        ? sql`WHERE ot.id IN (${sql.join(
+            allowedOrgIds.map((id) => sql`${id}`),
+            sql`, `
+          )})`
+        : sql``
+    }
+    GROUP BY ot.id, ot.parent_id, ot.level
+  `
+    )
+    .then((res) => {
+      const rows = res as unknown as MemberAggregatesRow[]
+      return rows.map((row) => ({
+        organizationId: row.organizationId,
+        parentId: row.parentId,
+        level: row.level,
+        ab1: row.ab1 || 0,
+        ab2: row.ab2 || 0,
+        ab3: row.ab3 || 0,
+        ikhwan: row.ikhwan || 0,
+        akhwat: row.akhwat || 0,
+        total: row.total || 0
+      }))
+    })
+
+  // 2. Bottom-up aggregation in TypeScript.
+  //    Each org starts with only its direct member counts (from the JOIN above).
+  //    Then we roll up children into parents, deepest-first.
+  //    Because the CTE has a single anchor, every org appears exactly once — no
+  //    double-counting is possible.
+  const accumulated: Record<string, MemberAggregatesResult> = {}
+
+  for (const row of directRows) {
+    accumulated[row.organizationId] = { ...row }
+  }
+
+  const sortedOrgs = [...directRows].sort((a, b) => b.level - a.level)
+
+  for (const org of sortedOrgs) {
+    const current = accumulated[org.organizationId]
+    const parentId = org.parentId
+
+    if (parentId && accumulated[parentId]) {
+      const parent = accumulated[parentId]
+      parent.ab1 += current.ab1
+      parent.ab2 += current.ab2
+      parent.ab3 += current.ab3
+      parent.ikhwan += current.ikhwan
+      parent.akhwat += current.akhwat
+      parent.total += current.total
+    }
+  }
+
+  return Object.values(accumulated)
+}
+
+/** Agregat Kader untuk permukaan Kekaderan umum. */
+export const readMemberAggregates = async (
+  filters: MemberAggregatesFilters & { user: AccessScope }
+): Promise<Array<MemberAggregatesResult>> =>
+  readMemberAggregatesForRoles(filters, ['root', 'bph', 'bpk'])
+
+/**
+ * Agregat Kader yang hanya boleh muncul pada detail Struktur. BPW menerima
+ * angka tanpa memperoleh pembaca daftar atau identitas Kader umum.
+ */
+export const readBranchDetailMemberAggregates = async (
+  filters: MemberAggregatesFilters & { user: AccessScope }
+): Promise<Array<MemberAggregatesResult>> =>
+  readMemberAggregatesForRoles(filters, ['root', 'bph', 'bpw'])
+
+/**
+ * How many **living** Kader sit directly in one Struktur — the `nol Member`
+ * half of the deletion prerequisite (spec §3).
+ *
+ * Directly, not in the subtree: children are counted separately and hold the
+ * deletion up on their own, so counting theirs here would report the same
+ * obstacle twice in one sentence.
+ *
+ * A Kader who is suspended or Non-Aktif still counts. The prerequisite reads
+ * "nol Member", not "nol Member yang sedang aktif" — someone recorded there is
+ * evidence the Struktur was not a mis-entry (spec §1.3). Only a soft-deleted
+ * Kader is gone.
+ */
+export const countLiveMembersByOrganization = async (
+  organizationId: string
+): Promise<number> => {
+  const [row] = await db
+    .select({ count: sql<number>`count(*)::int` })
+    .from(member)
+    .where(
+      and(eq(member.organizationId, organizationId), isNull(member.deletedAt))
+    )
+
+  return Number(row?.count ?? 0)
+}
+
+/**
+ * Berapa Kader yang **pernah** ada di Struktur ini — tanpa filter
+ * `deleted_at` sama sekali, sengaja beda dari `countLiveMembersByOrganization`.
+ *
+ * Ini separuh gerbang Hapus Selamanya (ADR 0019), yang menutup persis lubang
+ * yang membuat ADR 0004 menolak hard delete Struktur kosong: "nol Member
+ * hidup" tidak berarti "tidak pernah punya Member" — seorang Kader yang sudah
+ * di-soft-delete tetap memegang Nomor Induk yang tercetak dari `code`
+ * Struktur ini. Hanya baris ini yang membuktikan `code`-nya tidak pernah
+ * tersusun ke Nomor Induk siapa pun.
+ */
+export const countMembersEverByOrganization = async (
+  organizationId: string
+): Promise<number> => {
+  const [row] = await db
+    .select({ count: sql<number>`count(*)::int` })
+    .from(member)
+    .where(eq(member.organizationId, organizationId))
+
+  return Number(row?.count ?? 0)
+}
+
+export const createMember = async (
+  values: MemberInsertValues,
+  tx?: DBExecutor
+): Promise<Array<Member>> => {
+  const execute = async (t: DBExecutor) => {
+    const [newMember] = await t.insert(member).values(values).returning({
+      id: member.id,
+      name: member.name,
+      registerNumber: member.registerNumber
+    })
+
+    const password = generatePassword()
+    const passwordHash = await hashPassword(password)
+
+    await createUser(
+      {
+        name: newMember.registerNumber,
+        displayName: newMember.name,
+        passwordHash,
+        role: 'member',
+        connectedMemberId: newMember.id
+      },
+      t
+    )
+
+    return await t
+      .with(withMemberCTE)
+      .select()
+      .from(withMemberCTE)
+      .where(eq(withMemberCTE.id, newMember.id))
+  }
+
+  if (tx) return await execute(tx)
+  return await db.transaction(async (t) => await execute(t))
+}
+
+export const readMember = async (
+  filters: MemberFilters & {
+    limit?: number
+    offset?: number
+    user?: { role: string; connectedOrganizationId: string | null }
+  } = {}
+): Promise<Array<Member>> => {
+  const { limit, offset, user, ...memberFilters } = filters
+  const where: SQL[] = []
+
+  if (user) {
+    const allowedRoles = ['root', 'bph', 'bpk']
+    if (!allowedRoles.includes(user.role)) {
+      return []
+    }
+
+    const allowedIds = await fetchAllowedOrgIds(user)
+    if (allowedIds.length === 0) {
+      return []
+    }
+    where.push(inArray(withMemberCTE.organizationId, allowedIds))
+  }
+
+  if (memberFilters.id) where.push(inArray(withMemberCTE.id, memberFilters.id))
+  if (memberFilters.name)
+    where.push(ilike(withMemberCTE.name, `%${memberFilters.name}%`))
+  if (memberFilters.registerNumber)
+    where.push(
+      ilike(withMemberCTE.registerNumber, `%${memberFilters.registerNumber}%`)
+    )
+  if (memberFilters.phone)
+    where.push(ilike(withMemberCTE.phone, `%${memberFilters.phone}%`))
+  if (memberFilters.organizationId)
+    where.push(
+      inArray(withMemberCTE.organizationId, memberFilters.organizationId)
+    )
+  if (memberFilters.provinceCode)
+    where.push(
+      inArray(withMemberCTE.addressProvinceCode, memberFilters.provinceCode)
+    )
+  if (memberFilters.cityCode)
+    where.push(inArray(withMemberCTE.addressCityCode, memberFilters.cityCode))
+  if (memberFilters.isAlumn !== undefined)
+    where.push(eq(withMemberCTE.isAlumn, memberFilters.isAlumn))
+  if (filters.isSuspended !== undefined)
+    where.push(eq(withMemberCTE.isSuspended, filters.isSuspended))
+  if (filters.isNonActive !== undefined)
+    where.push(eq(withMemberCTE.isNonActive, filters.isNonActive))
+  if (memberFilters.status)
+    where.push(inArray(withMemberCTE.status, memberFilters.status))
+  if (memberFilters.gender)
+    where.push(eq(withMemberCTE.gender, memberFilters.gender))
+  where.push(isNull(withMemberCTE.deletedAt))
+
+  const sortMapping: Record<string, string> = {
+    name: '"with_member_cte"."name"',
+    yearOfEntry: '"with_member_cte"."year_of_entry"',
+    registerNumber: '"with_member_cte"."register_number"',
+    phone: '"with_member_cte"."phone"'
+  }
+
+  const sortCol =
+    sortMapping[memberFilters.sort || ''] || '"with_member_cte"."year_of_entry"'
+  const sortDir = memberFilters.order === 'asc' ? 'ASC' : 'DESC'
+
+  const query = db
+    .with(withMemberCTE)
+    .select()
+    .from(withMemberCTE)
+    .where(and(...where))
+    .orderBy(
+      sql.raw(`${sortCol} ${sortDir}`),
+      sql`"with_member_cte"."name" ASC`
+    )
+
+  if (limit !== undefined) query.limit(limit)
+  if (offset !== undefined) query.offset(offset)
+
+  return await query
+}
+
+export const readMemberByRegisterNumber = async (
+  registerNumber: string
+): Promise<Member | null> => {
+  const [found] = await db
+    .with(withMemberCTE)
+    .select()
+    .from(withMemberCTE)
+    .where(
+      and(
+        eq(withMemberCTE.registerNumber, registerNumber),
+        isNull(withMemberCTE.deletedAt)
+      )
+    )
+    .limit(1)
+  return found ?? null
+}
+
+/**
+ * Lapis 1 (ADR 0021) — soft delete, Akun Kader ikut. **Tidak lagi membuang
+ * baris `user`**: itu adalah bug yang membuat lapis 2 setengah bekerja
+ * (orangnya kembali, loginnya tidak). `user.connected_member_id` tetap utuh
+ * sehingga `restoreMember` tahu Akun mana yang harus dipulihkan bersamanya.
+ */
+export const deleteMember = async (id: string): Promise<void> => {
+  const deletedAt = new Date()
+  await db.transaction(async (tx) => {
+    await tx.update(member).set({ deletedAt }).where(eq(member.id, id))
+
+    await tx
+      .update(userTable)
+      .set({ deletedAt })
+      .where(eq(userTable.connectedMemberId, id))
+  })
+}
+
+/**
+ * Lapis 2 (ADR 0021) — mengembalikan Kader dan Akun-nya sekaligus, satu-satunya
+ * arah yang ada: Terhapus selalu pulang sebagai hidup, sama seperti
+ * `restoreOrganization` selalu mendarat di Aktif.
+ */
+export const restoreMember = async (id: string): Promise<void> => {
+  await db.transaction(async (tx) => {
+    await tx.update(member).set({ deletedAt: null }).where(eq(member.id, id))
+
+    await tx
+      .update(userTable)
+      .set({ deletedAt: null })
+      .where(eq(userTable.connectedMemberId, id))
+  })
+}
+
+/**
+ * Lapis 3 (ADR 0021) — menghapus baris Kader dari basis data sungguhan.
+ * Akun-nya ikut lewat `ON DELETE CASCADE` pada `user.connected_member_id`
+ * (satu-satunya cascade skema yang disengaja di seluruh basis data), jadi
+ * tidak ada langkah kedua di sini seperti `hardDeleteOrganization` perlukan
+ * untuk Akun kepengurusan.
+ *
+ * Pemanggil wajib memeriksa `checkHardDeletionMember` **sebelum** memanggil
+ * ini — fungsi ini sendiri tidak mengulang pemeriksaan.
+ */
+export const hardDeleteMember = async (id: string): Promise<void> => {
+  await db.delete(member).where(eq(member.id, id)) // ADR_0021_SANCTIONED_HARD_DELETE
+}
+
+export type DeletedMember = {
+  id: string
+  name: string
+  registerNumber: string
+  organizationId: string
+  organizationName: string
+  deletedAt: Date
+}
+
+/**
+ * Kader Terhapus, **mengikuti Cakupan** — sengaja berbeda dari
+ * `readDeletedOrganizations`, yang terpusat karena penghapusan Struktur
+ * memang tersentralisasi. Penghapusan Kader terdesentralisasi (BPK PD boleh
+ * melakukannya), jadi pemulihannya ikut terdesentralisasi (ADR 0021).
+ *
+ * Dipanggil hanya di belakang `requireMemberTrashAccess`, sama seperti
+ * `readDeletedOrganizations` hanya dipanggil di belakang
+ * `requireStrukturRestoreAccess`.
+ */
+export const readDeletedMembers = async (filters: {
+  user: AccessScope
+  id?: string[]
+}): Promise<DeletedMember[]> => {
+  const allowedOrgIds = await fetchAllowedOrgIds(filters.user)
+  if (allowedOrgIds.length === 0) return []
+
+  const where: SQL[] = [
+    isNotNull(member.deletedAt),
+    inArray(member.organizationId, allowedOrgIds)
+  ]
+  if (filters.id) {
+    if (filters.id.length === 0) return []
+    where.push(inArray(member.id, filters.id))
+  }
+
+  const rows = await db
+    .select({
+      id: member.id,
+      name: member.name,
+      registerNumber: member.registerNumber,
+      organizationId: member.organizationId,
+      organizationName: organization.name,
+      deletedAt: member.deletedAt
+    })
+    .from(member)
+    .innerJoin(organization, eq(member.organizationId, organization.id))
+    .where(and(...where))
+    .orderBy(desc(member.deletedAt))
+
+  return rows.map((row) => ({ ...row, deletedAt: row.deletedAt as Date }))
+}
+
+/**
+ * Separuh prasyarat Hapus Selamanya Kader (ADR 0021) yang tinggal di berkas
+ * ini karena baris yang dihitung adalah `member_mutation` — lima yang lain
+ * (Daurah peserta/instruktur, akademik, karier, riwayat organisasi) tinggal
+ * di berkas domain masing-masing, sama seperti `checkHardDeletion` Struktur
+ * menyusun prasyaratnya dari empat count terpisah.
+ */
+export const countMutationsByMember = async (
+  memberId: string
+): Promise<number> => {
+  const [row] = await db
+    .select({ total: count() })
+    .from(memberMutation)
+    .where(eq(memberMutation.memberId, memberId))
+
+  return Number(row?.total ?? 0)
+}
+
+export const updateMember = async (
+  values: Partial<MemberInsertValues>,
+  id: string,
+  tx?: DBExecutor
+): Promise<Array<Member>> => {
+  const run = async (executor: DBExecutor) => {
+    await executor.update(member).set(values).where(eq(member.id, id))
+
+    return await executor
+      .with(withMemberCTE)
+      .select()
+      .from(withMemberCTE)
+      .where(eq(withMemberCTE.id, id))
+  }
+
+  return tx ? await run(tx) : await db.transaction(run)
+}
+
+/**
+ * Mutasi (ADR 0020): moves a Kader across a Cakupan boundary. Touches
+ * `member.organization_id` and nothing else on that row — NIA, Akun, and
+ * Daurah history are untouched — and always leaves exactly one
+ * `member_mutation` row behind recording where it came from, where it went,
+ * and who moved it. The two writes share one transaction so a mutation is
+ * never recorded without having happened, or vice versa.
+ *
+ * Takes an optional `tx` so a caller that also edits other fields on the
+ * same member in the same request (`updateMemberAction`) can fold both
+ * writes into one transaction — an org change and its `member_mutation` row
+ * must not end up committed while an unrelated field edit in the same save
+ * rolls back, or vice versa.
+ */
+export const mutateMember = async (
+  memberId: string,
+  toOrganizationId: string,
+  movedBy: string,
+  tx?: DBExecutor
+): Promise<Array<Member>> => {
+  const run = async (executor: DBExecutor) => {
+    const [current] = await executor
+      .select({ organizationId: member.organizationId })
+      .from(member)
+      .where(eq(member.id, memberId))
+      .limit(1)
+
+    if (!current) throw new Error('Kader tidak ditemukan')
+
+    await executor
+      .update(member)
+      .set({ organizationId: toOrganizationId })
+      .where(eq(member.id, memberId))
+
+    await executor.insert(memberMutation).values({
+      memberId,
+      fromOrganizationId: current.organizationId,
+      toOrganizationId,
+      movedBy
+    })
+
+    return await executor
+      .with(withMemberCTE)
+      .select()
+      .from(withMemberCTE)
+      .where(eq(withMemberCTE.id, memberId))
+  }
+
+  return tx ? await run(tx) : await db.transaction(run)
+}
+
+type OrgRef = {
+  id: string
+  name: string
+  slug: string
+} | null
+
+type MemberDescendantRow = {
+  id: string
+  name: string
+  phone: string | null
+  registerNumber: string | null
+  organizationId: string
+  isAlumn: boolean
+  isSuspended: boolean
+  isNonActive: boolean
+  isCertifiedMentor: boolean
+  isCertifiedInstructor: boolean
+  addressProvince: string | null
+  addressCity: string | null
+  addressDistrict: string | null
+  addressSubdistrict: string | null
+  addressProvinceCode: string | null
+  addressCityCode: string | null
+  addressDistrictCode: string | null
+  addressSubdistrictCode: string | null
+  addressLine: string | null
+  photo: string | null
+  birthPlace: string | null
+  birthDate: string | null
+  status: string
+  gender: string
+  yearOfEntry: number | null
+  organization: {
+    id: string
+    name: string
+    slug: string
+  }
+  orgHierarchy: {
+    pk: OrgRef
+    pd: OrgRef
+    pw: OrgRef
+  } | null
+}
+
+/**
+ * Its `org_tree` carries **no Keadaan filter, and adding one would be the wrong
+ * patch** (spec §7.1). This read emits Member rows, not Struktur rows: a
+ * Terhapus Struktur has zero live Member by the deletion prerequisite, and
+ * `m.deleted_at IS NULL` below already drops the dead ones, so it produces
+ * nothing to leak. What actually keeps a Terhapus subtree out is `allowedIds`,
+ * which `fetchAllowedOrgIds` has already stripped of Terhapus — the invariant
+ * arrives here through Cakupan rather than through a second filter.
+ *
+ * Non-Aktif passes, and must: Kader beneath a Non-Aktif PD are still read from
+ * its induk's list (spec §8.3).
+ *
+ * The three `orgHierarchy` subqueries walk the other way — upward, to name each
+ * Kader's PK/PD/PW — and there the filter **is** the right patch, for the same
+ * reason `readOrgHierarchyChain` carries it: a lineage naming a Terhapus induk
+ * states a lineage that does not exist (§1.4). The `allowedIds` argument does
+ * not reach them, because ancestors are never members of the descendant set it
+ * constrains. A gap yields `null` for that rung rather than stepping over it.
+ */
+export const readDescendantMembers = async (
+  parentId: string,
+  filters: MemberFilters & {
+    limit?: number
+    offset?: number
+    user: AccessScope
+  }
+): Promise<[Member[], number]> => {
+  const { limit = 10, offset = 0, user, ...memberFilters } = filters
+
+  const allowedIds = await fetchAllowedOrgIds(user)
+  if (allowedIds.length === 0) {
+    return [[], 0]
+  }
+  // We need to make sure the requested parentId is also in the allowed list,
+  // or the user is root. Root is handled by fetchAllowedOrgIds returning all.
+  // But for specific subtree queries, the user must have access to the root of that subtree.
+  if (!allowedIds.includes(parentId)) {
+    return [[], 0]
+  }
+
+  const { name, status, gender } = memberFilters
+
+  const sortMapping: Record<string, string> = {
+    name: 'm.name',
+    yearOfEntry: 'm.year_of_entry',
+    registerNumber: 'm.register_number',
+    phone: 'm.phone'
+  }
+
+  const sortCol = sortMapping[memberFilters.sort || ''] || 'm.year_of_entry'
+  const sortDir = memberFilters.order === 'asc' ? 'ASC' : 'DESC'
+
+  // 1. Fetch Members
+  const data = await db
+    .execute(
+      sql`
+    WITH RECURSIVE org_tree AS (
+      SELECT id FROM organization WHERE id = ${parentId}
+      UNION ALL
+      SELECT o.id FROM organization o JOIN org_tree ot ON o.parent_id = ot.id
+    )
+    SELECT
+      m.id, m.name, m.phone, m.register_number as "registerNumber",
+      m.organization_id as "organizationId", m.is_alumn as "isAlumn",
+      m.is_suspended as "isSuspended", m.is_non_active as "isNonActive",
+      m.is_certified_mentor as "isCertifiedMentor",
+      m.is_certified_instructor as "isCertifiedInstructor",
+      m.address_province as "addressProvince",
+      m.address_city as "addressCity",
+      m.address_district as "addressDistrict",
+      m.address_subdistrict as "addressSubdistrict",
+      m.address_province_code as "addressProvinceCode",
+      m.address_city_code as "addressCityCode",
+      m.address_district_code as "addressDistrictCode",
+      m.address_subdistrict_code as "addressSubdistrictCode",
+      m.address_line as "addressLine",
+      m.photo,
+      m.birth_place as "birthPlace",
+      m.birth_date as "birthDate",
+      m.status, m.gender, m.year_of_entry as "yearOfEntry",
+      json_build_object(
+        'id', o.id,
+        'name', o.name,
+        'slug', o.slug
+      ) as "organization",
+      json_build_object(
+        'pk', (
+          WITH RECURSIVE anc AS (
+            SELECT id, name, slug, type, parent_id FROM organization
+            WHERE id = o.id AND deleted_at IS NULL
+            UNION ALL
+            SELECT org.id, org.name, org.slug, org.type, org.parent_id
+            FROM organization org JOIN anc ON org.id = anc.parent_id
+            WHERE org.deleted_at IS NULL
+          )
+          SELECT json_build_object('id', id, 'name', name, 'slug', slug)
+          FROM anc WHERE type = 'pk' LIMIT 1
+        ),
+        'pd', (
+          WITH RECURSIVE anc AS (
+            SELECT id, name, slug, type, parent_id FROM organization
+            WHERE id = o.id AND deleted_at IS NULL
+            UNION ALL
+            SELECT org.id, org.name, org.slug, org.type, org.parent_id
+            FROM organization org JOIN anc ON org.id = anc.parent_id
+            WHERE org.deleted_at IS NULL
+          )
+          SELECT json_build_object('id', id, 'name', name, 'slug', slug)
+          FROM anc WHERE type IN ('pd', 'pdln') LIMIT 1
+        ),
+        'pw', (
+          WITH RECURSIVE anc AS (
+            SELECT id, name, slug, type, parent_id FROM organization
+            WHERE id = o.id AND deleted_at IS NULL
+            UNION ALL
+            SELECT org.id, org.name, org.slug, org.type, org.parent_id
+            FROM organization org JOIN anc ON org.id = anc.parent_id
+            WHERE org.deleted_at IS NULL
+          )
+          SELECT json_build_object('id', id, 'name', name, 'slug', slug)
+          FROM anc WHERE type = 'pw' LIMIT 1
+        )
+      ) as "orgHierarchy"
+    FROM member m
+    JOIN organization o ON m.organization_id = o.id
+    WHERE m.organization_id IN (SELECT id FROM org_tree)
+      AND m.deleted_at IS NULL
+      ${sql`AND m.organization_id IN ${allowedIds}`}
+      ${filters.isAlumn !== undefined ? sql`AND m.is_alumn = ${filters.isAlumn}` : sql``}
+      ${filters.isCertifiedMentor !== undefined ? sql`AND m.is_certified_mentor = ${filters.isCertifiedMentor}` : sql``}
+      ${filters.isCertifiedInstructor !== undefined ? sql`AND m.is_certified_instructor = ${filters.isCertifiedInstructor}` : sql``}
+      ${filters.isAlumn === false ? sql`AND m.is_non_active = false` : sql``}
+      ${sql`AND m.is_suspended = false`}
+    ${name ? sql`AND m.name ILIKE ${'%' + name + '%'}` : sql``}
+    ${status ? sql`AND m.status IN ${status}` : sql``}
+    ${gender ? sql`AND m.gender = ${gender}` : sql``}
+    ORDER BY ${sql.raw(sortCol)} ${sql.raw(sortDir)}, m.name ASC
+    LIMIT ${limit} OFFSET ${offset}
+  `
+    )
+    .then((res) => {
+      const rows = res as unknown as MemberDescendantRow[]
+      return rows.map((row) => ({
+        id: row.id,
+        name: row.name,
+        phone: row.phone,
+        registerNumber: row.registerNumber as string,
+        organizationId: row.organizationId,
+        isAlumn: row.isAlumn,
+        isSuspended: row.isSuspended,
+        isNonActive: row.isNonActive,
+        isCertifiedMentor: row.isCertifiedMentor,
+        isCertifiedInstructor: row.isCertifiedInstructor,
+        addressProvince: row.addressProvince,
+        addressCity: row.addressCity,
+        addressDistrict: row.addressDistrict,
+        addressSubdistrict: row.addressSubdistrict,
+        addressProvinceCode: row.addressProvinceCode,
+        addressCityCode: row.addressCityCode,
+        addressDistrictCode: row.addressDistrictCode,
+        addressSubdistrictCode: row.addressSubdistrictCode,
+        addressLine: row.addressLine,
+        photo: row.photo,
+        birthPlace: row.birthPlace,
+        birthDate: row.birthDate,
+        status: row.status as 'ab1' | 'ab2' | 'ab3',
+        gender: row.gender as 'ikhwan' | 'akhwat',
+        yearOfEntry: row.yearOfEntry as number,
+        organization: row.organization as any,
+        orgHierarchy: row.orgHierarchy as {
+          pk: OrgRef
+          pd: OrgRef
+          pw: OrgRef
+        } | null,
+        deletedAt: null
+      }))
+    })
+
+  // 2. Fetch Total Count
+  const countResult = await db
+    .execute(
+      sql`
+    WITH RECURSIVE org_tree AS (
+      SELECT id FROM organization WHERE id = ${parentId}
+      UNION ALL
+      SELECT o.id FROM organization o JOIN org_tree ot ON o.parent_id = ot.id
+    )
+    SELECT count(*)::int as count
+    FROM member m
+    WHERE m.organization_id IN (SELECT id FROM org_tree)
+      AND m.deleted_at IS NULL
+      ${sql`AND m.organization_id IN ${allowedIds}`}
+      ${filters.isAlumn !== undefined ? sql`AND m.is_alumn = ${filters.isAlumn}` : sql``}
+      ${filters.isCertifiedMentor !== undefined ? sql`AND m.is_certified_mentor = ${filters.isCertifiedMentor}` : sql``}
+      ${filters.isCertifiedInstructor !== undefined ? sql`AND m.is_certified_instructor = ${filters.isCertifiedInstructor}` : sql``}
+      ${filters.isAlumn === false ? sql`AND m.is_non_active = false` : sql``}
+      ${sql`AND m.is_suspended = false`}
+    ${name ? sql`AND m.name ILIKE ${'%' + name + '%'}` : sql``}
+    ${status ? sql`AND m.status IN ${status}` : sql``}
+    ${gender ? sql`AND m.gender = ${gender}` : sql``}
+  `
+    )
+    .then((res) => {
+      const row = res[0]
+      return row && typeof row === 'object' && 'count' in row
+        ? { count: Number(row.count) }
+        : { count: 0 }
+    })
+
+  return [data, countResult?.count ?? 0]
+}
+
+export type MemberYearDistributionResult = {
+  year: number
+  count: number
+}
+
+export const readMemberYearDistribution = async (
+  organizationIds?: string[]
+): Promise<MemberYearDistributionResult[]> => {
+  const conditions = [
+    eq(member.isAlumn, false),
+    eq(member.isSuspended, false),
+    eq(member.isNonActive, false),
+    ...(organizationIds?.length
+      ? [inArray(member.organizationId, organizationIds)]
+      : [])
+  ]
+
+  const results = await db
+    .select({
+      year: member.yearOfEntry,
+      count: sql<number>`count(*)::int`
+    })
+    .from(member)
+    .where(and(...conditions))
+    .groupBy(member.yearOfEntry)
+    .orderBy(member.yearOfEntry)
+
+  return results.map((row) => ({
+    year: row.year,
+    count: Number(row.count)
+  }))
+}
+
+export type MemberOrgDistributionResult = {
+  organizationId: string
+  organizationName: string
+  total: number
+  ikhwan: number
+  akhwat: number
+  ab1: number
+  ab2: number
+  ab3: number
+}
+
+export const readMemberDistributionByOrgType = async (
+  orgType: 'pw' | 'pd' | 'pdln' | 'pk',
+  allowedOrgIds: string[]
+): Promise<MemberOrgDistributionResult[]> => {
+  if (allowedOrgIds.length === 0) return []
+
+  // Recursive CTE: for each org of the target type, expand its entire subtree
+  // so members in child orgs (PD, PK under a PW) are counted toward the parent.
+  // Terhapus is excluded on both legs and Non-Aktif is not (spec §7).
+  const results = await db.execute(sql`
+    WITH RECURSIVE subtree AS (
+      SELECT id, id AS root_id
+      FROM organization
+      WHERE type = ${orgType}
+        AND deleted_at IS NULL
+        AND id IN (${sql.join(
+          allowedOrgIds.map((id) => sql`${id}`),
+          sql`, `
+        )})
+      UNION ALL
+      SELECT o.id, s.root_id
+      FROM organization o
+      JOIN subtree s ON o.parent_id = s.id
+      WHERE o.deleted_at IS NULL
+    )
+    SELECT
+      root_org.id as "organizationId",
+      root_org.name as "organizationName",
+      count(*) FILTER (WHERE m.status = 'ab1')::int as "ab1",
+      count(*) FILTER (WHERE m.status = 'ab2')::int as "ab2",
+      count(*) FILTER (WHERE m.status = 'ab3')::int as "ab3",
+      count(*) FILTER (WHERE m.gender = 'ikhwan')::int as "ikhwan",
+      count(*) FILTER (WHERE m.gender = 'akhwat')::int as "akhwat",
+      count(m.id)::int as "total"
+    FROM subtree s
+    JOIN organization root_org ON root_org.id = s.root_id
+    LEFT JOIN member m ON m.organization_id = s.id
+      AND m.is_alumn = false
+      AND m.is_suspended = false
+      AND m.is_non_active = false
+      AND m.deleted_at IS NULL
+    GROUP BY root_org.id, root_org.name
+    HAVING count(m.id) > 0
+    ORDER BY count(m.id) DESC
+    LIMIT 10
+  `)
+
+  return (
+    results as unknown as Array<{
+      organizationId: string
+      organizationName: string
+      ab1: number | null
+      ab2: number | null
+      ab3: number | null
+      ikhwan: number | null
+      akhwat: number | null
+      total: number | null
+    }>
+  ).map((row) => ({
+    organizationId: row.organizationId,
+    organizationName: row.organizationName,
+    ab1: row.ab1 || 0,
+    ab2: row.ab2 || 0,
+    ab3: row.ab3 || 0,
+    ikhwan: row.ikhwan || 0,
+    akhwat: row.akhwat || 0,
+    total: row.total || 0
+  }))
+}

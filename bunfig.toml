@@ -1,0 +1,6 @@
+[test]
+preload = ["./tests/setup.ts"]
+exclude = ["**/*.playwright.ts"]
+
+[run]
+bun = true
