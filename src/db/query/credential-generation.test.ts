@@ -69,4 +69,39 @@ describe('pembuatan Akun memakai password generator', () => {
       await Bun.password.verify(generatedPassword, account?.passwordHash ?? '')
     ).toBe(true)
   })
+
+  test('createMember mengembalikan plaintext yang cocok dengan hash tersimpan', async () => {
+    const [organization] = await createOrganization({
+      name: 'PK Test',
+      slug: 'pk-test-plaintext',
+      code: 'PK-TEST2',
+      type: 'pk',
+      parentId: null,
+      isNonActive: false
+    })
+    const [member] = await createMember({
+      name: 'Kader Test',
+      registerNumber: 'PKTEST2-001',
+      organizationId: organization.id,
+      status: 'ab1',
+      gender: 'ikhwan',
+      yearOfEntry: 2026
+    })
+
+    expect(member.credential.registerNumber).toBe(member.registerNumber)
+    expect(member.credential.displayName).toBe(member.name)
+    expect(member.credential.password).toBe(generatedPassword)
+
+    const [account] = await db
+      .select({ passwordHash: user.passwordHash })
+      .from(user)
+      .where(eq(user.connectedMemberId, member.id))
+
+    expect(
+      await Bun.password.verify(
+        member.credential.password,
+        account?.passwordHash ?? ''
+      )
+    ).toBe(true)
+  })
 })

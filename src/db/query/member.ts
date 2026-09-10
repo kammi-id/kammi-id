@@ -299,7 +299,17 @@ export const countMembersEverByOrganization = async (
 export const createMember = async (
   values: MemberInsertValues,
   tx?: DBExecutor
-): Promise<Array<Member>> => {
+): Promise<
+  Array<
+    Member & {
+      credential: {
+        displayName: string
+        registerNumber: string
+        password: string
+      }
+    }
+  >
+> => {
   const execute = async (t: DBExecutor) => {
     const [newMember] = await t.insert(member).values(values).returning({
       id: member.id,
@@ -321,11 +331,20 @@ export const createMember = async (
       t
     )
 
-    return await t
+    const rows = await t
       .with(withMemberCTE)
       .select()
       .from(withMemberCTE)
       .where(eq(withMemberCTE.id, newMember.id))
+
+    return rows.map((row) => ({
+      ...row,
+      credential: {
+        displayName: newMember.name,
+        registerNumber: newMember.registerNumber,
+        password
+      }
+    }))
   }
 
   if (tx) return await execute(tx)

@@ -5,10 +5,8 @@ import { db } from '~/db/db'
 import { revalidatePath, updateTag } from 'next/cache'
 import { readActiveSession } from '~/lib/auth/cookies'
 import { isOrgInScope } from '~/db/query/organization'
-import { generatePassword, hashPassword } from '~/lib/utils/user'
+import { createMember } from '~/db/query/member'
 import { generateRegisterNumber } from '~/lib/utils/member'
-import { member as memberTable } from '~/db/schema/member.sql'
-import { user as userTable } from '~/db/schema/user.sql'
 import { trainingAttendants } from '~/db/schema/training.sql'
 import { getLogger, redact } from '~/lib/logger'
 import { phoneFormField } from '~/lib/validation/phone'
@@ -108,9 +106,11 @@ export const bulkCreateMembersAction = async (
           tx
         )
 
-        const [newMember] = await tx
-          .insert(memberTable)
-          .values({
+        // Same path `add-form` uses (ticket 03) — one Kader-creation
+        // pipeline instead of two that happened to duplicate each other's
+        // password generation and hashing.
+        const [newMember] = await createMember(
+          {
             name: memberInput.name,
             gender: memberInput.gender,
             yearOfEntry: memberInput.yearOfEntry,
@@ -123,29 +123,15 @@ export const bulkCreateMembersAction = async (
             isNonActive: false,
             isCertifiedMentor: memberInput.isCertifiedMentor ?? false,
             isCertifiedInstructor: memberInput.isCertifiedInstructor ?? false
-          })
-          .returning({
-            id: memberTable.id,
-            name: memberTable.name,
-            registerNumber: memberTable.registerNumber
-          })
-
-        const password = generatePassword()
-        const passwordHash = await hashPassword(password)
-
-        await tx.insert(userTable).values({
-          name: newMember.registerNumber,
-          displayName: newMember.name,
-          passwordHash,
-          role: 'member',
-          connectedMemberId: newMember.id
-        })
+          },
+          tx
+        )
 
         results.push({
           memberId: newMember.id,
           name: newMember.name,
           registerNumber: newMember.registerNumber,
-          password
+          password: newMember.credential.password
         })
       }
 

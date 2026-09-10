@@ -25,6 +25,18 @@ export type MemberFormState = {
   message?: string
   errors?: Record<string, string[]>
   values?: Record<string, unknown>
+  /**
+   * Kredensial plaintext Kader yang baru dibuat — hanya pernah muncul sekali,
+   * di respons `createMemberAction` yang berhasil (ADR 0028). Tidak pernah
+   * disimpan di server; pemanggil (`add-form.tsx`) menaruhnya langsung ke
+   * `credentialStore` lewat `appendCredentials`.
+   */
+  credential?: {
+    memberId: string
+    name: string
+    registerNumber: string
+    password: string
+  }
 }
 
 export const createMemberAction = async (
@@ -76,7 +88,7 @@ export const createMemberAction = async (
       validated.data.yearOfEntry
     )
 
-    await createMember({
+    const [newMember] = await createMember({
       ...validated.data,
       registerNumber
     })
@@ -94,7 +106,16 @@ export const createMemberAction = async (
       organizationId: validated.data.organizationId
     })
 
-    return { success: true, message: 'Kader berhasil ditambahkan!' }
+    return {
+      success: true,
+      message: 'Kader berhasil ditambahkan!',
+      credential: {
+        memberId: newMember.id,
+        name: newMember.credential.displayName,
+        registerNumber: newMember.credential.registerNumber,
+        password: newMember.credential.password
+      }
+    }
   } catch (error: unknown) {
     logger.error('Gagal menambahkan kader: {error}', {
       error,
