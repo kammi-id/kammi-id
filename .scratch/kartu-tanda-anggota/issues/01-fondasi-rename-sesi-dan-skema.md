@@ -5,7 +5,7 @@ digabung dalam satu PR justru supaya sisanya bisa paralel.
 
 **Blocked by:** None — harus mendarat lebih dulu, sendirian.
 
-**Status:** ready-for-agent
+**Status:** done — dikerjakan 2026-09-09, lihat Comments
 
 ## Mengapa satu tiket, dan mengapa duluan
 
@@ -99,3 +99,35 @@ keduanya terlihat, jadi yang diamandemen kriterianya, bukan kodenya.
    bagaimana tim menamai sesuatu di antara mereka sendiri; ia tidak mengarang
    ulang bagaimana organisasi memperkenalkan dirinya kepada pengunjung.
    Diputuskan pengambil keputusan saat pelaksanaan.
+
+## Comments
+
+**2026-09-09 — selesai, commit `d074fa8` di `dev-20260104`.**
+
+Ketiga bagian mendarat. Gerbang hijau: `check:types`, `check:lint` (0 galat),
+`check:structure`, `check:format`. Suite penuh `bun run test`: 1273 lolos, 0
+gagal.
+
+Bagian A juga memindahkan `src/lib/kekaderan/` → `src/lib/kaderisasi/`, yang
+tidak disebut badan tiket tapi diwajibkan kriteria `grep`-nya. Dua
+"Pengkaderan" sengaja tinggal; alasannya dicatat di **Selesai bila** di atas.
+
+Bagian C memindahkan definisinya saja, sesuai tiket. `updateMemberProfileAction`
+**masih memakai `memberManagedSchema`** — yaitu skema penuh, perilaku lama
+persis. Artinya celah ADR 0027 masih terbuka di production sampai **tiket 02**
+menyambungkan peran ke skema. `memberSelfEditSchema` hari ini nol pemanggil.
+
+**Belum dijalankan:** migrasi indeks `session.user_id`
+(`src/db/__migrations/20260909101826_clumsy_gamora/`, satu `CREATE INDEX`).
+Menunggu konfirmasi. Ia soal performa, bukan kebenaran — tiket 06 memakai
+`deleteSessionsByUser` dan jalan tanpa indeks itu, cuma dengan seq scan.
+Catatan review: tanpa `CONCURRENTLY` ia mengunci `session` (ACCESS EXCLUSIVE)
+selama pembangunan, dan `CONCURRENTLY` tidak bisa dipakai karena drizzle
+membungkus migrasi dalam transaksi.
+
+**Tindak lanjut yang ditemukan, tidak dikerjakan di sini:** identifier
+`Specialist` masih hidup (`SpecialistsWrapper`, `SpecialistSummaryCards`,
+folder `kader/_components/specialist-summary-cards/`), melanggar _Avoid_:
+Specialist di `CONTEXT.md`. Sengaja ditunda: itu pemindahan folder komponen,
+dan 02-06 jalan paralel setelah tiket ini — persis kelas konflik yang tiket 01
+diserialkan untuk mencegahnya. Rumahnya `.scratch/domain-model-followups/`.
