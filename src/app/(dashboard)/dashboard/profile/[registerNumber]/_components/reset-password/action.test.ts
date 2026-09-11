@@ -4,6 +4,7 @@ import { eq, sql } from 'drizzle-orm'
 import { createOrganization } from '~/db/query/organization'
 import { createMember } from '~/db/query/member'
 import { user as userTable } from '~/db/schema/user.sql'
+import { session as sessionTable } from '~/db/schema/session.sql'
 
 let mockSession: unknown = undefined
 
@@ -154,5 +155,53 @@ describe('regenerateCredentialAction', () => {
 
     expect(result.success).toBe(false)
     expect(result.message).toBe('Kader tidak ditemukan')
+  })
+
+  // ADR 0027 / ADR 0028, "Sekalian" — reset password oleh pengurus memutus
+  // SELURUH sesi Akun ini, tanpa pengecualian. Tanpa ini, "reset password
+  // Kader ini" tidak berarti apa yang dikira penekannya: cookie lama tetap
+  // sah sampai tiga hari.
+  it('memutus seluruh sesi Akun yang direset', async () => {
+    mockSession = {
+      user: { id: 'u1', role: 'bpk', connectedOrganizationId: pkItbId }
+    }
+    const member = await createTestMember(pkItbId)
+
+    const [connectedUser] = await db
+      .select({ id: userTable.id })
+      .from(userTable)
+      .where(eq(userTable.connectedMemberId, member.id))
+
+    await db.insert(sessionTable).values([
+      {
+        id: Bun.randomUUIDv7(),
+        secretHash: 'irrelevant-1',
+        createdAt: new Date(),
+        lastVerifiedAt: new Date(),
+        userId: connectedUser.id
+      },
+      {
+        id: Bun.randomUUIDv7(),
+        secretHash: 'irrelevant-2',
+        createdAt: new Date(),
+        lastVerifiedAt: new Date(),
+        userId: connectedUser.id
+      }
+    ])
+
+    const before = await db
+      .select({ id: sessionTable.id })
+      .from(sessionTable)
+      .where(eq(sessionTable.userId, connectedUser.id))
+    expect(before.length).toBe(2)
+
+    const result = await regenerateCredentialAction(member.id)
+
+    expect(result.success).toBe(true)
+    const after = await db
+      .select({ id: sessionTable.id })
+      .from(sessionTable)
+      .where(eq(sessionTable.userId, connectedUser.id))
+    expect(after.length).toBe(0)
   })
 })

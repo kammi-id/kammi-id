@@ -1,9 +1,14 @@
 import { afterAll, beforeAll, describe, expect, it } from 'bun:test'
-import { inArray } from 'drizzle-orm'
+import { inArray, eq } from 'drizzle-orm'
 import { db } from '~/db/db'
 import { organization } from '~/db/schema/organization.sql'
 import { member } from '~/db/schema/member.sql'
-import { readMemberDistributionByOrgType } from './member'
+import { user as userTable } from '~/db/schema/user.sql'
+import {
+  readMemberDistributionByOrgType,
+  updateMember,
+  createMember
+} from './member'
 
 /**
  * Tiket 07 (dashboard BPK: Top 10 + deleted_at). Fixture bersufiks,
@@ -132,5 +137,90 @@ describe('readMemberDistributionByOrgType', () => {
       expect(row).toBeDefined()
       expect(row?.total).toBe(2)
     })
+  })
+})
+
+/**
+ * ADR 0027, "Sekalian" — `user.displayName` mengikuti `member.name`.
+ * `createMember` menyemainya dari sana saat Akun Kader dibuat; tanpa
+ * `updateMember` menulis ulang `displayName` setiap kali `name` berubah, ia
+ * basi selamanya di sidebar begitu Kader mengoreksi namanya sendiri.
+ *
+ * Fixture bersufiks, dibereskan sendiri di `afterAll` — berkas ini
+ * menyentuh basis data staging bersama, jadi tidak memakai TRUNCATE.
+ */
+describe('updateMember — displayName mengikuti name', () => {
+  const suffix = Date.now().toString(36) + '-dn'
+  const orgIds: string[] = []
+  const memberIds: string[] = []
+
+  afterAll(async () => {
+    if (memberIds.length > 0)
+      await db.delete(member).where(inArray(member.id, memberIds))
+    if (orgIds.length > 0)
+      await db.delete(organization).where(inArray(organization.id, orgIds))
+  })
+
+  let orgCounter = 0
+  const seedOrgForDisplayName = async () => {
+    orgCounter += 1
+    const unique = `${suffix}-${orgCounter}`
+    const [row] = await db
+      .insert(organization)
+      .values({
+        name: `Org DN ${unique}`,
+        slug: `org-dn-${unique}`,
+        code: `DN-${unique}`,
+        type: 'pk',
+        parentId: null,
+        isNonActive: false
+      })
+      .returning({ id: organization.id })
+    orgIds.unshift(row.id)
+    return row.id
+  }
+
+  it('menulis ulang displayName Akun yang terhubung saat member.name berubah', async () => {
+    const orgId = await seedOrgForDisplayName()
+    const [created] = await createMember({
+      name: `Nama Lama ${suffix}`,
+      registerNumber: `RN-DN-${suffix}`,
+      organizationId: orgId,
+      status: 'ab1',
+      gender: 'ikhwan',
+      yearOfEntry: 2026
+    })
+    memberIds.unshift(created.id)
+
+    await updateMember({ name: `Nama Baru ${suffix}` }, created.id)
+
+    const [connectedUser] = await db
+      .select({ displayName: userTable.displayName })
+      .from(userTable)
+      .where(eq(userTable.connectedMemberId, created.id))
+
+    expect(connectedUser?.displayName).toBe(`Nama Baru ${suffix}`)
+  })
+
+  it('tidak menyentuh displayName saat name tidak ikut ditulis', async () => {
+    const orgId = await seedOrgForDisplayName()
+    const [created] = await createMember({
+      name: `Nama Tetap ${suffix}`,
+      registerNumber: `RN-DN2-${suffix}`,
+      organizationId: orgId,
+      status: 'ab1',
+      gender: 'ikhwan',
+      yearOfEntry: 2026
+    })
+    memberIds.unshift(created.id)
+
+    await updateMember({ phone: '08123456789' }, created.id)
+
+    const [connectedUser] = await db
+      .select({ displayName: userTable.displayName })
+      .from(userTable)
+      .where(eq(userTable.connectedMemberId, created.id))
+
+    expect(connectedUser?.displayName).toBe(`Nama Tetap ${suffix}`)
   })
 })

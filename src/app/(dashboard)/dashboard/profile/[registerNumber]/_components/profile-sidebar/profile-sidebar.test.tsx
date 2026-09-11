@@ -65,7 +65,7 @@ const buildMember = (overrides: Partial<Member> = {}): Member => ({
   ...overrides
 })
 
-const renderSidebar = (member: Member) =>
+const renderSidebar = (member: Member, canEditManaged = true) =>
   render(
     <ProfileEditProvider
       value={{
@@ -75,6 +75,7 @@ const renderSidebar = (member: Member) =>
         careerHistory: [],
         organizationHistory: [],
         canEdit: true,
+        canEditManaged,
         isEditing: true,
         isPending: false
       }}
@@ -134,5 +135,50 @@ describe('ProfileSidebar — AB1 tidak pernah Pemandu maupun Instruktur', () => 
     await user.click(ab2Radio)
 
     expect(screen.getByText('Perangkat')).toBeInTheDocument()
+  })
+})
+
+/**
+ * ADR 0027, Celah 1 — akibat di UI. Penegakan sesungguhnya berada di skema
+ * Server Action (`memberSelfEditSchema` vs `memberManagedSchema`); ini
+ * hanya memeriksa bahwa `profile-sidebar` tidak lagi menyodorkan kontrol
+ * yang memang tidak pernah lolos parse baginya.
+ */
+describe('ProfileSidebar — canEditManaged salah menyembunyikan kontrol terkelola', () => {
+  test('isEditing benar tapi canEditManaged salah: tidak ada radio status, tidak ada toggle', () => {
+    const { container } = renderSidebar(buildMember({ status: 'ab2' }), false)
+
+    expect(screen.queryByRole('radio', { name: /AB1/ })).not.toBeInTheDocument()
+    expect(
+      container.querySelector('input[name="status"]')
+    ).not.toBeInTheDocument()
+    expect(
+      container.querySelector('input[name="isSuspended"]')
+    ).not.toBeInTheDocument()
+    expect(
+      container.querySelector('input[name="isAlumn"]')
+    ).not.toBeInTheDocument()
+    expect(
+      container.querySelector('input[name="isNonActive"]')
+    ).not.toBeInTheDocument()
+    expect(
+      container.querySelector('input[name="isCertifiedMentor"]')
+    ).not.toBeInTheDocument()
+    expect(
+      container.querySelector('input[name="isCertifiedInstructor"]')
+    ).not.toBeInTheDocument()
+  })
+
+  test('isEditing benar tapi canEditManaged salah: tetap jatuh ke tampilan baca (kartu Perangkat, bukan kontrol)', () => {
+    renderSidebar(
+      buildMember({
+        status: 'ab2',
+        isCertifiedMentor: true,
+        isCertifiedInstructor: false
+      }),
+      false
+    )
+
+    expect(screen.getByText('Pemandu')).toBeInTheDocument()
   })
 })

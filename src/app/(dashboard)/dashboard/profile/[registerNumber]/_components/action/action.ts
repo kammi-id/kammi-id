@@ -1,9 +1,10 @@
 'use server'
 
 import { revalidatePath, updateTag } from 'next/cache'
-import { updateMember } from '~/db/query/member'
+import { readMember, updateMember } from '~/db/query/member'
 import { readActiveSession } from '~/lib/auth/cookies'
-import { memberManagedSchema } from './schema'
+import { requireMemberEditAccess } from '~/lib/auth/kaderisasi'
+import { memberSelfEditSchema, memberManagedSchema } from './schema'
 
 export type ProfileEditState = {
   success?: boolean
@@ -11,15 +12,7 @@ export type ProfileEditState = {
   errors?: Record<string, string[]>
 }
 
-const canEditMember = (
-  session: { user: { role: string; connectedMember?: { id: string } | null } },
-  memberId: string
-): boolean => {
-  const { role, connectedMember } = session.user
-  if (role === 'root' || role === 'bpk') return true
-  if (role === 'member' && connectedMember?.id === memberId) return true
-  return false
-}
+const DENIED = 'Akses ditolak.'
 
 export const updateMemberProfileAction = async (
   memberId: string,
@@ -28,12 +21,23 @@ export const updateMemberProfileAction = async (
 ): Promise<ProfileEditState> => {
   const session = await readActiveSession()
   if (!session) return { success: false, message: 'Tidak terautentikasi.' }
-  if (!canEditMember(session, memberId)) {
-    return { success: false, message: 'Akses ditolak.' }
-  }
+
+  const [target] = await readMember({ id: [memberId] })
+  if (!target) return { success: false, message: DENIED }
+
+  const canEdit = await requireMemberEditAccess(memberId, target.organizationId)
+  if (!canEdit) return { success: false, message: DENIED }
+
+  // ADR 0027 — skema dipilih dari peran si pemanggil, bukan dari isi
+  // FormData: seorang `member` hanya pernah menemui `memberSelfEditSchema`,
+  // sehingga kolom Jenjang Kaderisasi, Keadaan Kader, dan sertifikasi
+  // Perangkat tidak pernah lolos parse baginya, sekalipun sebuah POST rakitan
+  // tangan membawanya.
+  const schema =
+    session.user.role === 'member' ? memberSelfEditSchema : memberManagedSchema
 
   const raw = Object.fromEntries(formData.entries())
-  const parsed = memberManagedSchema.safeParse(raw)
+  const parsed = schema.safeParse(raw)
 
   if (!parsed.success) {
     return {
@@ -55,7 +59,12 @@ export const updateMemberPhotoAction = async (
 ): Promise<void> => {
   const session = await readActiveSession()
   if (!session) throw new Error('Tidak terautentikasi.')
-  if (!canEditMember(session, memberId)) throw new Error('Akses ditolak.')
+
+  const [target] = await readMember({ id: [memberId] })
+  if (!target) throw new Error(DENIED)
+
+  const canEdit = await requireMemberEditAccess(memberId, target.organizationId)
+  if (!canEdit) throw new Error(DENIED)
 
   await updateMember({ photo: photoPath }, memberId)
   updateTag('kader')

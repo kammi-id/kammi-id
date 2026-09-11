@@ -60,6 +60,7 @@ const AccountPage = async () => {
                   name: user.name,
                   displayName: user.displayName
                 }}
+                canEditName={session.user.role !== 'member'}
               />
             </div>
           </div>

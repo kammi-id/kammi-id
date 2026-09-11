@@ -7,6 +7,7 @@ import { member as memberTable } from '~/db/schema/member.sql'
 import { readActiveSession } from '~/lib/auth/cookies'
 import { isOrgInScope } from '~/db/query/organization'
 import { generatePassword, hashPassword } from '~/lib/utils/user'
+import { deleteSessionsByUser } from '~/db/query/session'
 
 type RegenerateResult = {
   success: boolean
@@ -66,6 +67,12 @@ export const regenerateCredentialAction = async (
     .update(userTable)
     .set({ passwordHash })
     .where(eq(userTable.id, userRow.id))
+
+  // ADR 0027 / ADR 0028, "Sekalian" — reset password oleh pengurus memutus
+  // SELURUH sesi Akun ini, tanpa pengecualian: "reset password Kader ini"
+  // mesti berarti persis itu, bukan sekadar mengganti kredensial sementara
+  // cookie lama tetap sah sampai tiga hari.
+  await deleteSessionsByUser(userRow.id)
 
   return {
     success: true,

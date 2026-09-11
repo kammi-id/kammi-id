@@ -567,6 +567,13 @@ export const countMutationsByMember = async (
   return Number(row?.total ?? 0)
 }
 
+/**
+ * `user.displayName` mengikuti `member.name` — `createMember` menyemainya dari
+ * sana saat Akun Kader dibuat, dan tanpa disinkron ulang di sini ia basi
+ * selamanya di sidebar begitu Kader itu mengoreksi namanya sendiri (ADR
+ * 0027, "Sekalian"). Dijalankan di dalam transaksi yang sama dengan
+ * penulisan `member.name`, supaya keduanya tidak pernah berhenti sejalan.
+ */
 export const updateMember = async (
   values: Partial<MemberInsertValues>,
   id: string,
@@ -574,6 +581,13 @@ export const updateMember = async (
 ): Promise<Array<Member>> => {
   const run = async (executor: DBExecutor) => {
     await executor.update(member).set(values).where(eq(member.id, id))
+
+    if (values.name !== undefined) {
+      await executor
+        .update(userTable)
+        .set({ displayName: values.name })
+        .where(eq(userTable.connectedMemberId, id))
+    }
 
     return await executor
       .with(withMemberCTE)

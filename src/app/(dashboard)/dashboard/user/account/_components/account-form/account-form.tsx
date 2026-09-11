@@ -29,7 +29,11 @@ import { AccountFormProps } from './types'
  * @param props.children - Optional children to be rendered at the bottom of the form.
  * @returns A React element rendering the account update form.
  */
-export const AccountForm = ({ initialData, children }: AccountFormProps) => {
+export const AccountForm = ({
+  initialData,
+  canEditName,
+  children
+}: AccountFormProps) => {
   const [state, formAction, isPending] = useActionState(updateProfileAction, {
     success: false
   })
@@ -80,22 +84,24 @@ export const AccountForm = ({ initialData, children }: AccountFormProps) => {
           />
         </Field>
 
-        <Field>
-          <FieldLabel htmlFor='name'>Nama Pengguna</FieldLabel>
-          <FieldContent>
-            <Input
-              id='name'
-              name='name'
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder='contoh_user'
-              disabled
+        {canEditName && (
+          <Field>
+            <FieldLabel htmlFor='name'>Nama Pengguna</FieldLabel>
+            <FieldContent>
+              <Input
+                id='name'
+                name='name'
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder='contoh_user'
+                disabled
+              />
+            </FieldContent>
+            <FieldError
+              errors={state.fieldErrors?.name?.map((e) => ({ message: e }))}
             />
-          </FieldContent>
-          <FieldError
-            errors={state.fieldErrors?.name?.map((e) => ({ message: e }))}
-          />
-        </Field>
+          </Field>
+        )}
       </FieldGroup>
 
       <div className='flex justify-end'>

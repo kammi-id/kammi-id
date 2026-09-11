@@ -4,6 +4,7 @@ import { cookies } from 'next/headers'
 import { revalidatePath, updateTag } from 'next/cache'
 import { validateSession } from '~/lib/auth/api'
 import { updateUser, readUser, readUserCredential } from '~/db/query/user'
+import { deleteSessionsByUser } from '~/db/query/session'
 import { z } from 'zod'
 import { getLogger, redact } from '~/lib/logger'
 
@@ -62,14 +63,23 @@ export const updateProfileAction = async (
 
   const { name, displayName } = validatedFields.data
 
+  // ADR 0027, Celah 4 — bagi Akun Kader, `user.name` ADALAH NIA-nya:
+  // identitas permanen (ADR 0020) sekaligus identitas login. `name` dibuang
+  // dari nilai yang ditulis untuk `role === 'member'`, apa pun yang dibawa
+  // FormData-nya — sebuah POST rakitan tangan tidak menemukan celah yang
+  // disembunyikannya sendiri di `account-form`. Akun Kepengurusan tetap
+  // boleh mengganti `user.name`-nya.
+  const values =
+    session.user.role === 'member' ? { displayName } : { name, displayName }
+
   try {
-    await updateUser({ name, displayName }, session.userId)
+    await updateUser(values, session.userId)
     updateTag('user')
     revalidatePath('/dashboard/user/account')
 
     logger.info('Profil pengguna diperbarui', {
       actorId: session.userId,
-      changes: redact({ name, displayName })
+      changes: redact(values)
     })
 
     return { success: true }
@@ -77,7 +87,7 @@ export const updateProfileAction = async (
     logger.error('Gagal memperbarui profil: {error}', {
       error: e,
       actorId: session.userId,
-      input: redact({ name, displayName })
+      input: redact(values)
     })
     if (e instanceof Error && e.message?.includes('unique constraint')) {
       return { error: 'Nama pengguna sudah digunakan.' }
@@ -145,6 +155,13 @@ export const updatePasswordAction = async (
 
     const newPasswordHash = await Bun.password.hash(newPassword)
     await updateUser({ passwordHash: newPasswordHash }, session.userId)
+
+    // ADR 0027 / ADR 0028, "Sekalian" — ganti password sendiri memutus
+    // seluruh sesi LAIN milik Akun ini. `session.id` dikecualikan supaya
+    // pelaku tidak menendang dirinya sendiri di tengah aksinya; sesi lain
+    // (mis. cookie lama yang bocor) berhenti sah seketika, bukan menunggu
+    // idle timeout tiga hari.
+    await deleteSessionsByUser(session.userId, session.id)
 
     logger.info('Kata sandi pengguna diperbarui', {
       actorId: session.userId
