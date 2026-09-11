@@ -2,6 +2,7 @@ import { db } from '../db'
 import { session } from '../schema/session.sql'
 import { withSessionCTE, type Session } from './cte/session'
 import { inArray, eq, and, ne } from 'drizzle-orm'
+import { type DBExecutor } from '../types'
 
 type SessionInsertValues = typeof session.$inferInsert
 
@@ -63,14 +64,24 @@ export const deleteSession = async (id: Array<string>): Promise<void> => {
  * tanpa argumen kedua. Pengecualiannya tetap terikat `user_id`, jadi id milik
  * pengguna lain tidak menyelamatkan apa pun dan tidak pula memperluas
  * jangkauan hapusnya.
+ *
+ * `tx` ada untuk tiket 06 (regenerasi kredensial massal): ia memutus sesi
+ * puluhan akun sekaligus, satu per akun, dan setiap pemutusan itu wajib ikut
+ * batal kalau baris lain di transaksi yang sama gagal. Tanpa `tx`, pemanggil
+ * di dalam `db.transaction` akan berebut satu-satunya koneksi yang dipegang
+ * transaksi itu sendiri (`src/db/db.ts`, pool `max: 1` di tes) — bukan sekadar
+ * kehilangan atomisitas, melainkan deadlock. Default-nya tetap `db`, jadi
+ * pemanggil yang sudah ada (reset password sendiri) tidak berubah sama sekali.
  */
 export const deleteSessionsByUser = async (
   userId: string,
-  exceptSessionId?: string
+  exceptSessionId?: string,
+  tx?: DBExecutor
 ): Promise<void> => {
+  const executor = tx ?? db
   const scope = eq(session.userId, userId)
 
-  await db
+  await executor
     .delete(session)
     .where(
       exceptSessionId ? and(scope, ne(session.id, exceptSessionId)) : scope

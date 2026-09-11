@@ -30,6 +30,26 @@ export const requireKaderisasiAccess = async (
   return inScope ? scope : null
 }
 
+/**
+ * Grants the privilege of regenerating every Akun Kader's password under one
+ * target Struktur and its descendants (tiket 06) — the most consequential
+ * action in this codebase, since the old passwords are gone the moment the
+ * new ones are written. **Root and BPK only, inside their own Cakupan.**
+ *
+ * Narrows `requireKaderisasiAccess` rather than composing something new: the
+ * Cakupan walk is identical, only the roles allowed through differ. BPH
+ * reaches every Struktur `requireKaderisasiAccess` does — it memantau — but
+ * holds no write privilege in Kaderisasi at all, mass credential
+ * regeneration least of all.
+ */
+export const requireMassCredentialResetAccess = async (
+  organizationId: string
+): Promise<AccessScope | null> => {
+  const scope = await requireKaderisasiAccess(organizationId)
+  if (!scope) return null
+  return scope.role === 'bph' ? null : scope
+}
+
 const NO_SESSION = 'Sesi tidak ditemukan.'
 
 /**

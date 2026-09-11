@@ -30,6 +30,7 @@ import {
   parseMembersSearchParams
 } from '../members-page-utils'
 import { BulkUploadDialog } from '../bulk-upload'
+import { MassCredentialReset } from '../mass-credential-reset'
 
 interface MembersPageContentProps {
   params: { slug?: string[] }
@@ -335,6 +336,11 @@ export const MembersPageContent = async ({
         {user.role === 'bpk' && currentOrg && (
           <div className='flex justify-end'>
             <BulkUploadDialog organizationId={currentOrg.id} />
+          </div>
+        )}
+        {(user.role === 'bpk' || user.role === 'root') && currentOrg && (
+          <div className='flex justify-end'>
+            <MassCredentialReset organizationId={currentOrg.id} />
           </div>
         )}
 

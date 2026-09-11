@@ -132,4 +132,33 @@ describe('deleteSessionsByUser', () => {
 
     expect(await liveSessionIds(userId)).toHaveLength(0)
   })
+
+  // Tiket 06 memutus sesi sebagai bagian dari satu transaksi bersama
+  // pembaruan password massal — kalau baris lain di transaksi itu gagal,
+  // penghapusan sesi ini wajib ikut batal, bukan sudah terlanjur commit
+  // sendiri di luar transaksinya.
+  it('ikut batal saat transaksi tempat ia dipanggil di-rollback', async () => {
+    await seedSession(userId)
+    expect(await liveSessionIds(userId)).toHaveLength(1)
+
+    await expect(
+      db.transaction(async (tx) => {
+        await deleteSessionsByUser(userId, undefined, tx)
+        throw new Error('rollback sengaja')
+      })
+    ).rejects.toThrow('rollback sengaja')
+
+    expect(await liveSessionIds(userId)).toHaveLength(1)
+  })
+
+  it('ikut commit saat transaksi tempat ia dipanggil berhasil', async () => {
+    await seedSession(userId)
+    expect(await liveSessionIds(userId)).toHaveLength(1)
+
+    await db.transaction(async (tx) => {
+      await deleteSessionsByUser(userId, undefined, tx)
+    })
+
+    expect(await liveSessionIds(userId)).toHaveLength(0)
+  })
 })
