@@ -1,7 +1,16 @@
-import { describe, it, expect, beforeAll, beforeEach, mock } from 'bun:test'
+import {
+  describe,
+  it,
+  expect,
+  beforeAll,
+  beforeEach,
+  afterAll,
+  mock
+} from 'bun:test'
 import { db } from '~/db/db'
-import { sql } from 'drizzle-orm'
+import { sql, eq } from 'drizzle-orm'
 import { createOrganization } from '~/db/query/organization'
+import { organization as organizationTable } from '~/db/schema/organization.sql'
 
 let mockSession: unknown = undefined
 
@@ -9,8 +18,11 @@ mock.module('~/lib/auth/cookies', () => ({
   readActiveSession: async () => mockSession
 }))
 
-const { requireKaderisasiAccess, requireMemberMutationAccess } =
-  await import('./kaderisasi')
+const {
+  requireKaderisasiAccess,
+  requireMemberMutationAccess,
+  requireMassCredentialResetAccess
+} = await import('./kaderisasi')
 
 // Bentuknya mengikuti `withSessionCTE` (`db/query/cte/session.ts`): Struktur
 // terhubung datang sebagai objek, dan `readAccessScope` yang memerasnya jadi
@@ -264,5 +276,125 @@ describe('requireMemberMutationAccess', () => {
     mockSession = sessionWith('bpw', ppId)
 
     expect(await requireMemberMutationAccess()).not.toBeNull()
+  })
+})
+
+describe('requireMassCredentialResetAccess', () => {
+  // Tanpa `TRUNCATE`: dua describe block di atas sudah masing-masing
+  // menyapu seisi tabel `organization` di `beforeAll`-nya sendiri, dan
+  // `bun test` menjalankan `beforeAll` antar-describe secara bersamaan —
+  // TRUNCATE yang satu bisa menyusul di tengah INSERT yang lain lalu
+  // menjatuhkan foreign key-nya. Blok ini sengaja mengikuti pola
+  // `tests/member-scope.test.ts` sebagai gantinya: sufiks unik, insert
+  // mentah, beres-beres sendiri di `afterAll` — tidak pernah menyentuh baris
+  // milik describe block lain.
+  const mcrSuffix = `${Date.now().toString(36)}-mcr`
+  const orgIds: string[] = []
+
+  let ppId: string
+  let pwJabarId: string
+  let pkItbId: string
+  let pkOtherId: string
+
+  const insertOrg = async (values: {
+    name: string
+    type: 'pp' | 'pw' | 'pd' | 'pk'
+    parentId: string | null
+  }) => {
+    const [row] = await db
+      .insert(organizationTable)
+      .values({
+        name: values.name,
+        slug: `${values.name.toLowerCase().replace(/\s+/g, '-')}-${mcrSuffix}`,
+        code: `${values.name.toUpperCase().replace(/\s+/g, '-')}-${mcrSuffix}`,
+        type: values.type,
+        parentId: values.parentId,
+        isNonActive: false
+      })
+      .returning({ id: organizationTable.id })
+    orgIds.push(row.id)
+    return row.id
+  }
+
+  beforeEach(() => {
+    mockSession = undefined
+  })
+
+  beforeAll(async () => {
+    ppId = await insertOrg({ name: 'PP MCR', type: 'pp', parentId: null })
+    pwJabarId = await insertOrg({
+      name: 'PW Jabar MCR',
+      type: 'pw',
+      parentId: ppId
+    })
+    const pwJatimId = await insertOrg({
+      name: 'PW Jatim MCR',
+      type: 'pw',
+      parentId: ppId
+    })
+    pkItbId = await insertOrg({
+      name: 'PK ITB MCR',
+      type: 'pk',
+      parentId: pwJabarId
+    })
+    pkOtherId = await insertOrg({
+      name: 'PK Other MCR',
+      type: 'pk',
+      parentId: pwJatimId
+    })
+  })
+
+  afterAll(async () => {
+    for (const id of [...orgIds].reverse()) {
+      await db.delete(organizationTable).where(eq(organizationTable.id, id))
+    }
+  })
+
+  it('refuses when there is no active session', async () => {
+    mockSession = undefined
+
+    expect(await requireMassCredentialResetAccess(pkItbId)).toBeNull()
+  })
+
+  it('lets root target any struktur', async () => {
+    mockSession = sessionWith('root', ppId)
+
+    expect(await requireMassCredentialResetAccess(pkOtherId)).toEqual({
+      role: 'root',
+      connectedOrganizationId: ppId
+    })
+  })
+
+  it('lets bpk target its own struktur', async () => {
+    mockSession = sessionWith('bpk', pkItbId)
+
+    expect(await requireMassCredentialResetAccess(pkItbId)).not.toBeNull()
+  })
+
+  it('lets bpk target a struktur below its own', async () => {
+    mockSession = sessionWith('bpk', pwJabarId)
+
+    expect(await requireMassCredentialResetAccess(pkItbId)).not.toBeNull()
+  })
+
+  it('refuses bpk a struktur outside its cakupan', async () => {
+    mockSession = sessionWith('bpk', pkItbId)
+
+    expect(await requireMassCredentialResetAccess(pkOtherId)).toBeNull()
+  })
+
+  // The privilege this gate exists to narrow: `requireKaderisasiAccess` alone
+  // would let BPH through, and BPH only memantau — it holds no write right in
+  // Kaderisasi, mass credential regeneration least of all.
+  it('refuses bph even inside its own cakupan', async () => {
+    mockSession = sessionWith('bph', pwJabarId)
+
+    expect(await requireMassCredentialResetAccess(pkItbId)).toBeNull()
+  })
+
+  it('refuses a role with no kaderisasi privilege at all', async () => {
+    mockSession = sessionWith('bpw', ppId)
+
+    expect(await requireMassCredentialResetAccess(pkItbId)).toBeNull()
   })
 })

@@ -50,6 +50,7 @@ yarn-error.log*
 next-env.d.ts
 dictionary.txt
 users.csv
+regenerasi-kredensial-*.csv
 
 # antigravity v2
 .antigravitycli
