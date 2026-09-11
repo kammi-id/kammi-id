@@ -7,6 +7,10 @@ import { toast } from 'sonner'
 import { Button } from '~/components/shadcn/ui/button'
 import { cn } from '~/lib/shadcn/utils'
 import {
+  appendCredentials,
+  type CredentialEntry
+} from '~/components/credential-store'
+import {
   createMemberAction,
   updateMemberAction,
   type MemberFormState
@@ -130,12 +134,29 @@ export const AddMemberForm = ({
   // 5. Effects
   useEffect(() => {
     if (state?.success) {
-      toast.success(state.message)
+      if (state.credential) {
+        const entry: CredentialEntry = {
+          memberId: state.credential.memberId,
+          name: state.credential.name,
+          registerNumber: state.credential.registerNumber,
+          password: state.credential.password,
+          organizationId: selectedOrgId,
+          createdAt: new Date().toISOString()
+        }
+        appendCredentials(selectedOrgId, [entry])
+        toast.success(state.message, {
+          description:
+            'Kredensial tersimpan. Buka ikon kunci di header untuk melihat atau download CSV — password ini tidak bisa dibuka lagi.',
+          duration: 6000
+        })
+      } else {
+        toast.success(state.message)
+      }
       closeMemberSheet()
     } else if (state?.message) {
       toast.error(state.message)
     }
-  }, [state])
+  }, [state, selectedOrgId])
 
   useEffect(() => {
     return () => {

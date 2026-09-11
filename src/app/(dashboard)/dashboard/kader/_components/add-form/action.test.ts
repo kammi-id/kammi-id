@@ -15,7 +15,7 @@ mock.module('next/cache', () => ({
   updateTag: () => {}
 }))
 
-const { updateMemberAction } = await import('./action')
+const { updateMemberAction, createMemberAction } = await import('./action')
 
 const ACTOR_ID = '11111111-1111-1111-1111-111111111111'
 
@@ -240,5 +240,77 @@ describe('updateMemberAction — mutasi gating on organizationId (ADR 0020)', ()
       sql`SELECT id FROM member_mutation WHERE member_id = ${member.id}`
     )
     expect(rows.length).toBe(0)
+  })
+})
+
+describe('createMemberAction — meneruskan kredensial plaintext ke pemanggil (tiket 03)', () => {
+  let pkItbId: string
+
+  beforeEach(async () => {
+    await db.execute(
+      sql`TRUNCATE TABLE "user", "member", "member_mutation", organization CASCADE`
+    )
+    mockSession = undefined
+
+    const [pp] = await createOrganization({
+      name: 'PP KAMMI',
+      slug: 'pp-kammi-create-action',
+      code: 'PP-00',
+      type: 'pp',
+      parentId: null,
+      isNonActive: false
+    })
+
+    const [pwJabar] = await createOrganization({
+      name: 'PW Jabar',
+      slug: 'pw-jabar-create-action',
+      code: 'PW-01',
+      type: 'pw',
+      parentId: pp.id,
+      isNonActive: false
+    })
+
+    const [pkItb] = await createOrganization({
+      name: 'PK ITB',
+      slug: 'pk-itb-create-action',
+      code: 'PK-01',
+      type: 'pk',
+      parentId: pwJabar.id,
+      isNonActive: false
+    })
+    pkItbId = pkItb.id
+  })
+
+  const createFormData = (organizationId: string) => {
+    const fd = new FormData()
+    fd.append('name', 'Kader Baru')
+    fd.append('gender', 'ikhwan')
+    fd.append('status', 'ab1')
+    fd.append('yearOfEntry', '2026')
+    fd.append('organizationId', organizationId)
+    fd.append('isAlumn', 'false')
+    fd.append('isSuspended', 'false')
+    fd.append('isNonActive', 'false')
+    fd.append('isCertifiedMentor', 'false')
+    fd.append('isCertifiedInstructor', 'false')
+    return fd
+  }
+
+  it('returns the plaintext credential in state on success', async () => {
+    mockSession = { user: { id: ACTOR_ID, role: 'root' } }
+
+    const formData = createFormData(pkItbId)
+    const result = await createMemberAction({}, formData)
+
+    expect(result.success).toBe(true)
+    expect(result.credential).toBeDefined()
+    expect(result.credential?.password).toBeTruthy()
+    expect(result.credential?.registerNumber).toBeTruthy()
+
+    const [created] = await readMember({
+      registerNumber: result.credential?.registerNumber
+    })
+    expect(created).toBeDefined()
+    expect(result.credential?.memberId).toBe(created.id)
   })
 })
