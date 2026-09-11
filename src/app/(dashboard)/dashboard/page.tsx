@@ -4,15 +4,24 @@ import { fetchAllowedOrgIds, type AccessScope } from '~/db/query/organization'
 import type { readMemberAggregates } from '~/db/query/member'
 import {
   getCachedMemberAggregates,
-  getCachedMemberDistributionByOrgType
+  getCachedMemberDistributionByOrgType,
+  getCachedMemberByRegisterNumber,
+  getCachedMemberTrainingHistory
 } from './_data/members'
-import { getCachedOrganizationCount } from './_data/organizations'
+import {
+  getCachedOrganizationCount,
+  getCachedOrgHierarchyChain
+} from './_data/organizations'
 import { getCachedUpcomingTrainings } from './_data/trainings'
+import { getSignedUrlAction } from '~/lib/actions/storage'
+import { deriveKeadaanKader } from '~/lib/kader/keadaan-kader'
 import { DashboardHeader } from './_components/dashboard-header'
 import { DashboardStats } from './_components/dashboard-stats'
 import { KaderBentoStats } from './_components/kader-bento-stats'
 import { WilayahStats } from './_components/wilayah-stats'
 import { UpcomingTrainings } from './_components/upcoming-trainings'
+import { KartuTandaAnggota } from './_components/kartu-tanda-anggota'
+import { MemberDashboardSummary } from './_components/member-dashboard-summary'
 
 export const metadata: Metadata = {
   title: 'Dashboard',
@@ -132,6 +141,54 @@ const Page = async () => {
 
   const orgName = user.connectedOrganization?.name ?? 'KAMMI Indonesia'
 
+  const isMember = role === 'member'
+  const ownRegisterNumber = user.connectedMember?.registerNumber ?? null
+
+  let kartuSlot = null
+  if (isMember && ownRegisterNumber) {
+    const member = await getCachedMemberByRegisterNumber(ownRegisterNumber)
+    if (member) {
+      const [trainingHistory, orgChain, photoUrl] = await Promise.all([
+        getCachedMemberTrainingHistory(member.id),
+        member.organization?.id
+          ? getCachedOrgHierarchyChain(member.organization.id)
+          : Promise.resolve([]),
+        member.photo
+          ? member.photo.startsWith('http://') ||
+            member.photo.startsWith('https://') ||
+            member.photo.startsWith('/')
+            ? Promise.resolve(member.photo)
+            : getSignedUrlAction(member.photo)
+          : Promise.resolve(null)
+      ])
+      const keadaan = deriveKeadaanKader(member)
+
+      kartuSlot = (
+        <div className='flex flex-col items-start gap-6 lg:flex-row'>
+          <KartuTandaAnggota
+            name={member.name}
+            registerNumber={member.registerNumber}
+            photoUrl={photoUrl}
+            organizationName={member.organization?.name ?? ''}
+            status={member.status}
+            yearOfEntry={member.yearOfEntry}
+            keadaan={keadaan}
+          />
+          <MemberDashboardSummary
+            registerNumber={member.registerNumber}
+            orgChain={orgChain}
+            status={member.status}
+            yearOfEntry={member.yearOfEntry}
+            keadaan={keadaan}
+            trainingHistory={trainingHistory.asAttendant}
+            isCertifiedMentor={member.isCertifiedMentor}
+            isCertifiedInstructor={member.isCertifiedInstructor}
+          />
+        </div>
+      )
+    }
+  }
+
   return (
     <div className='flex flex-col gap-8 px-4 py-6 md:px-6 md:py-8 lg:px-8'>
       {/* Zona 1: Contextual Header */}
@@ -141,6 +198,9 @@ const Page = async () => {
         orgName={orgName}
         date={new Date()}
       />
+
+      {/* Zona 1.5: Kartu Tanda Anggota (khusus role='member') */}
+      {kartuSlot}
 
       {/* Zona 2: Stats (role-adaptive) */}
       {(kaderContent || wilayahContent) && (

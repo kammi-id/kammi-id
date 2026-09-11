@@ -26,7 +26,9 @@ import {
   Home01Icon,
   UserGroupIcon,
   InformationCircleIcon,
-  Delete02Icon
+  Delete02Icon,
+  IdIcon,
+  Settings02Icon
 } from '@hugeicons/core-free-icons'
 import Image from 'next/image'
 import logo from '~/assets/logo.png'
@@ -64,7 +66,10 @@ export const AppSidebar = ({
       name: string
       type: string
     } | null
-    connectedMember: { photo: string | null } | null
+    connectedMember: {
+      photo: string | null
+      registerNumber: string | null
+    } | null
   }
   /**
    * The `pulihkan` cell, answered by the matrix on the server. It is passed in
@@ -110,6 +115,27 @@ export const AppSidebar = ({
       title: 'Dashboard',
       url: '/dashboard',
       icon: <HugeiconsIcon icon={DashboardSquare01Icon} strokeWidth={2} />
+    }
+  ]
+
+  /**
+   * Akun Kader (spec: `role = 'member'`) sees exactly three entries total —
+   * `menuUtama`'s Dashboard, plus these two. Every other group below
+   * (Pembinaan, Organisasi, Publikasi, Halaman Publik) is gated to roles that
+   * don't include `member`, so they fall away on their own.
+   */
+  const menuAkunKader = [
+    {
+      title: 'Profil Saya',
+      url: user.connectedMember?.registerNumber
+        ? `/dashboard/profile/${user.connectedMember.registerNumber}`
+        : '/dashboard',
+      icon: <HugeiconsIcon icon={IdIcon} strokeWidth={2} />
+    },
+    {
+      title: 'Pengaturan Akun',
+      url: '/dashboard/user/account',
+      icon: <HugeiconsIcon icon={Settings02Icon} strokeWidth={2} />
     }
   ]
 
@@ -214,6 +240,7 @@ export const AppSidebar = ({
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={menuUtama} />
+        {user.role === 'member' && <NavMain items={menuAkunKader} />}
         {canAccessPembinaan && (
           <NavMain title='Pembinaan Kader' items={menuPembinaan} />
         )}
