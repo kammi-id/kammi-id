@@ -6,7 +6,7 @@ bawah satu Struktur sasaran, keluar sebagai CSV, dijaga tiga lapis konfirmasi.
 **Blocked by:** 01 — ia memakai `deleteSessionsByUser` dan
 `requireKaderisasiAccess`.
 
-**Status:** ready-for-agent
+**Status:** done — dikerjakan 2026-09-10/11, lihat Comments
 
 ## Mengapa ada
 
@@ -67,3 +67,38 @@ Alasan CSV plaintext ada di ADR 0028 dan tidak perlu diulang di dalam kode.
 - Password pengurus salah → ditolak, dan **tidak ada satu baris pun berubah**.
 - Berhasil → setiap `password_hash` di bawah sasaran berubah, setiap sesi Akun
   itu hilang, Akun Kepengurusan tidak tersentuh.
+
+## Comments
+
+**2026-09-11 — selesai, commit `4b2717f` (digabung `d1b3043` ke
+`dev-20260104`).**
+
+`requireMassCredentialResetAccess` menutup BPH walau ia lolos
+`requireKaderisasiAccess`. Ketiga lapis konfirmasi ditegakkan di server:
+jumlah dihitung ulang (`countMassResettableMemberAccounts`, tanpa cache), kode
+Struktur yang diketik (bukan kata umum), dan password pengurus lewat
+`readUserCredential` + `Bun.password.verify`. Atomisitas nyata, bukan
+kebetulan: pemeriksaan Cakupan sengaja dijalankan **di luar** transaksi
+(menghindari deadlock pool `max:1` — lihat memory
+`truncate-contention-in-tests.md`) sebelum transaksi dibuka sama sekali,
+jadi password salah tidak pernah menyentuh satu baris pun, diuji eksplisit.
+Hanya Akun `role = 'member'` yang tersentuh — dibuktikan lewat Akun
+Kepengurusan tanaman di dalam Struktur sasaran yang `password_hash`-nya
+identik sebelum/sesudah. CSV (`Nama, NIA, Password`) lewat `xlsx`, pola nama
+berkasnya sudah masuk `.gitignore`. `getLogger` mencatat pelaku, Struktur
+sasaran, dan jumlah baris di jalur tolak maupun berhasil.
+
+Review menandai duplikasi CTE `WITH RECURSIVE org_tree` (kelima kalinya
+pola ini muncul di basis kode, pola yang sudah ada sebelum tiket ini) sebagai
+peluang ekstraksi `descendantOrgIdsCTE` — tidak dikerjakan di sini, sengaja:
+kode yang sudah teruji berat untuk aksi paling tak-bisa-dibatalkan di sistem
+ini bukan tempat mencoba refactor tanpa alasan mendesak.
+
+Agen sesi sebelumnya sempat berhenti 600 detik di tengah menjalankan suite
+penuh berulang kali untuk mencirikan dugaan flaky — ternyata murni kontensi
+basis data dari worktree paralel lain, bukan cacat kode: diulang lima kali
+berturut-turut dalam jendela sunyi, konsisten 100% lolos setiap kali.
+
+Gerbang hijau: `check:types`, `check:lint` (0 galat), `check:structure`,
+`check:format`. Suite penuh `bun run test` (digabung dengan 02/03/04): 1341
+lolos, 0 gagal.

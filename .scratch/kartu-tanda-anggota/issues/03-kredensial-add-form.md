@@ -5,7 +5,7 @@
 
 **Blocked by:** 01
 
-**Status:** ready-for-agent
+**Status:** done — dikerjakan 2026-09-10, lihat Comments
 
 ## Lubangnya
 
@@ -46,3 +46,22 @@ membesarkan tiket, catat sebagai tindak lanjut dan jangan paksakan.
   yang ditampilkan cocok dengan hash yang tersimpan, dan itu klaim yang sama
   yang perlu dijaga di sini.
 - Tidak ada plaintext yang tersimpan di basis data.
+
+## Comments
+
+**2026-09-11 — selesai, commit `c1a182a` (digabung `1794a27` ke `dev-20260104`).**
+
+`createMember` mengembalikan `credential: { displayName, registerNumber,
+password }`; `createMemberAction` meneruskannya, dan `add-form.tsx` memakai
+panel `~/components/credential-store` yang sudah dipromosikan — bukan
+komponen baru, sesuai arahan tiket. Sekalian dikerjakan: `bulk-upload/action.ts`
+kini memanggil `createMember` alih-alih `createUser` langsung, jadi kedua
+jalur penerbitan Akun Kader kini satu.
+
+Review menemukan tabrakan nama medan sungguhan (`credential.name` berarti
+"NIA" di satu berkas dan "nama tampilan" di berkas lain) — diperbaiki,
+diganti seragam jadi `credential.registerNumber`.
+
+Gerbang hijau: `check:types`, `check:lint` (0 galat), `check:structure`,
+`check:format`. Suite penuh `bun run test` (setelah digabung ke
+`dev-20260104` bersama 02/04/06): 1341 lolos, 0 gagal.

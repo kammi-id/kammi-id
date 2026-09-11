@@ -5,7 +5,7 @@ gerbang baca untuk semua peran, Cakupan pada BPK, dan kunci NIA.
 
 **Blocked by:** 01
 
-**Status:** ready-for-agent
+**Status:** done — dikerjakan 2026-09-11, lihat Comments
 
 > **Ini bukan fitur. Ini empat cacat yang sedang tayang di production**, dan
 > yang pertama membiarkan Kader mana pun menaikkan jenjangnya sendiri.
@@ -97,3 +97,48 @@ Yang wajib ada, karena inilah klaim yang layak dijaga:
 - seorang `member` membuka NIA milik orang lain → `notFound()`;
 - BPK PK membuka dan menyunting Kader di luar Cakupan → `notFound()` / ditolak;
 - seorang `member` mengganti `user.name` → NIA tidak berubah.
+
+## Comments
+
+**2026-09-11 — selesai, commit `d9c0f91` (digabung `51e0a77` ke `dev-20260104`).**
+
+Keempat celah ditutup persis seperti dirancang: skema dipilih dari peran di
+`updateMemberProfileAction`/`updateMemberPhotoAction`, gerbang baca baru
+`requireMemberReadAccess` (`src/lib/auth/kaderisasi.ts`) komposisi di atas
+`requireKaderisasiAccess`, `requireMemberEditAccess` menutup Celah 3 dengan
+Cakupan wajib, dan `updateProfileAction` membuang `name` untuk `role ===
+'member'` menutup Celah 4. Ketiga "Sekalian" ikut: `displayName` mengikuti
+`member.name` di `updateMember`, ganti password sendiri memutus sesi lain
+(`deleteSessionsByUser(userId, session.id)`), reset oleh pengurus memutus
+semua sesi.
+
+Review dua-sumbu (`code-review`) menemukan satu pelanggaran nyata:
+gerbang baca Celah 2 awalnya ditulis inline di `page.tsx` alih-alih lewat
+gerbang bernama di `src/lib/auth/`, melanggar AGENTS.md "Shared authorization
+logic ... never duplicated across route-level action files." Diperbaiki
+dengan mengekstrak `requireMemberReadAccess` sebelum commit — sekarang baca
+dan tulis benar-benar tidak bisa berpisah, gerbang yang sama alasannya dengan
+`requireMemberEditAccess`.
+
+Review Spec mencatat satu nuansa (bukan cacat): uji "member mengirim
+`status: 'ab3'` → ditolak" pada kenyataannya lolos lewat Zod yang diam-diam
+membuang kolom tak dikenal (`success: true`), bukan pesan penolakan eksplisit
+— properti keamanannya tetap terjaga (baris tidak berubah, teruji), tapi kata
+"ditolak" di tiket tidak menggambarkan persis apa yang terjadi. Diterima
+sebagaimana adanya, tidak diubah.
+
+**Temuan sampingan, tidak dikerjakan di sini:** urutan prioritas Keadaan
+Kader (`isAlumn` vs `isSuspended` vs `isNonActive`) di `profile-sidebar.tsx`,
+`profile-info.tsx`, dan `status-section.tsx` **tidak sama** dengan
+`deriveKeadaanKader` baru (tiket 04) maupun dengan `CONTEXT.md` ("Alumni
+menggantikan Keadaan sebelumnya"). Ketiganya lebih dulu memeriksa
+`isSuspended`, `deriveKeadaanKader` lebih dulu memeriksa `isAlumn`, dan tidak
+ada constraint di skema atau basis data yang menjamin ketiga bendera itu
+saling meniadakan (`memberManagedSchema` mengizinkan ketiganya `true`
+bersamaan). Bukan regresi tiket ini — sudah ada sejak sebelumnya — tapi kini
+empat implementasi berbeda hidup berdampingan. Layak jadi tiket konsolidasi
+tersendiri: satukan keempatnya di atas `deriveKeadaanKader`.
+
+Gerbang hijau: `check:types`, `check:lint` (0 galat), `check:structure`,
+`check:format`. Suite penuh `bun run test` (setelah digabung ke
+`dev-20260104` bersama 03/04/06): 1341 lolos, 0 gagal.
