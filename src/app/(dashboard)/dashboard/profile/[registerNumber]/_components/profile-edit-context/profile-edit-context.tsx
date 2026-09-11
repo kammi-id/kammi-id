@@ -14,6 +14,7 @@ interface ProfileEditContextValue {
   careerHistory: MemberCareer[]
   organizationHistory: MemberOrganizationHistory[]
   canEdit: boolean
+  canEditManaged: boolean
   isEditing: boolean
   isPending: boolean
   fieldErrors?: Record<string, string[]>

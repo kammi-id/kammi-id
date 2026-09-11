@@ -1,6 +1,7 @@
 import { readAccessScope, type AccessScope } from './access-scope'
 import { isOrgInAccessScope, readOrganization } from '~/db/query/organization'
 import { type UserRole } from '~/lib/access-control'
+import { readActiveSession } from './cookies'
 
 const kaderisasiRoles: string[] = ['root', 'bph', 'bpk'] satisfies UserRole[]
 
@@ -28,6 +29,68 @@ export const requireKaderisasiAccess = async (
 
   const inScope = await isOrgInAccessScope(scope, organizationId)
   return inScope ? scope : null
+}
+
+/**
+ * Grants the privilege of **reading** one Member's profile row (ADR 0027,
+ * Celah 2) — a Kader over their own row, or anyone `requireKaderisasiAccess`
+ * admits inside its Cakupan (Root everywhere, BPH/BPK inside their own).
+ *
+ * Composed on `requireKaderisasiAccess` for the same reason
+ * `requireMemberEditAccess` below is: "self" versus "in scope" must never be
+ * answered by two separately-maintained Cakupan walks. Unlike the write
+ * gate, BPH is included here — BPH *memantau* Kaderisasi, which is exactly
+ * reading it.
+ *
+ * Shared by the profile page's read gate and any caller deciding between
+ * `notFound()` and real content — never call this to decide anything about
+ * editing; `requireMemberEditAccess` is the narrower gate for that.
+ */
+export const requireMemberReadAccess = async (
+  memberId: string,
+  organizationId: string
+): Promise<boolean> => {
+  const session = await readActiveSession()
+  if (!session) return false
+
+  const { role, connectedMember } = session.user
+  if (role === 'member') return connectedMember?.id === memberId
+
+  const scope = await requireKaderisasiAccess(organizationId)
+  return scope !== null
+}
+
+/**
+ * Grants the privilege of **writing** one Member's profile row (ADR 0027,
+ * Celah 1 & 3) — a Kader over their own row, or Root/BPK inside
+ * `requireKaderisasiAccess`'s Cakupan. BPH is excluded even though it passes
+ * that read gate: BPH *memantau* Kaderisasi, it never writes it.
+ *
+ * Deliberately composed on top of `requireKaderisasiAccess` rather than
+ * repeating its Cakupan walk: Celah 3 was exactly this divergence — the
+ * write path never checked Cakupan at all while the delete and
+ * reset-password paths already did. Folding the write gate through the same
+ * function the read gate uses makes that divergence impossible to
+ * reintroduce by accident.
+ *
+ * Shared by the write action (`updateMemberProfileAction`,
+ * `updateMemberPhotoAction`) and by the page that decides whether to render
+ * the managed-fields controls at all — the two must not be able to answer
+ * this question differently.
+ */
+export const requireMemberEditAccess = async (
+  memberId: string,
+  organizationId: string
+): Promise<boolean> => {
+  const session = await readActiveSession()
+  if (!session) return false
+
+  const { role, connectedMember } = session.user
+  if (role === 'member') return connectedMember?.id === memberId
+  if (role !== 'root' && role !== 'bpk') return false
+
+  const scope = await requireKaderisasiAccess(organizationId)
+  return scope !== null
 }
 
 const NO_SESSION = 'Sesi tidak ditemukan.'

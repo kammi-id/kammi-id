@@ -91,7 +91,8 @@ const Toggle = ({
 }
 
 export const ProfileSidebar = ({ orgHierarchySlot }: ProfileSidebarProps) => {
-  const { member, trainingHistory, isEditing } = useProfileEdit()
+  const { member, trainingHistory, isEditing, canEditManaged } =
+    useProfileEdit()
 
   const hasCertifications =
     member.isCertifiedMentor || member.isCertifiedInstructor
@@ -121,7 +122,14 @@ export const ProfileSidebar = ({ orgHierarchySlot }: ProfileSidebarProps) => {
     setMembershipStatus((prev) => (prev === key ? null : key))
   }
 
-  if (isEditing) {
+  // Celah 1, akibat di UI (ADR 0027) — kontrol Jenjang Kaderisasi, Keadaan
+  // Kader, dan sertifikasi Perangkat hanya muncul bagi Root/BPK. Seorang
+  // `member` yang sedang mengedit profilnya sendiri (`isEditing` benar tapi
+  // `canEditManaged` salah) jatuh ke tampilan baca di bawah — kolom yang
+  // memang bukan haknya tidak pernah tersaji sebagai kontrol yang bisa
+  // ditekan. Penegakan sesungguhnya ada di skema Server Action
+  // (`memberSelfEditSchema` vs `memberManagedSchema`); ini semata akibatnya.
+  if (isEditing && canEditManaged) {
     return (
       <aside className='flex flex-col gap-6'>
         <div>

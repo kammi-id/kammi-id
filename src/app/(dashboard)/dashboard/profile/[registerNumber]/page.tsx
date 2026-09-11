@@ -1,7 +1,11 @@
 import { notFound } from 'next/navigation'
 import { readActiveSession } from '~/lib/auth/cookies'
 import { isOrgInScope, fetchAllowedOrgIds } from '~/db/query/organization'
-import { requireMemberMutationAccess } from '~/lib/auth/kaderisasi'
+import {
+  requireMemberMutationAccess,
+  requireMemberReadAccess,
+  requireMemberEditAccess
+} from '~/lib/auth/kaderisasi'
 import {
   getCachedMemberByRegisterNumber,
   getCachedMemberTrainingHistory,
@@ -19,21 +23,6 @@ import { ResetPasswordButton } from './_components/reset-password'
 import { DeleteMemberButton } from './_components/delete-member-button'
 import { MutateMemberButton } from './_components/mutate-member-button'
 
-const canEdit = (
-  session: Awaited<ReturnType<typeof readActiveSession>>,
-  memberId: string
-): boolean => {
-  if (!session) return false
-  const { role, connectedMember } = session.user
-  if (role === 'root' || role === 'bpk') return true
-  if (
-    role === 'member' &&
-    (connectedMember as { id: string } | null)?.id === memberId
-  )
-    return true
-  return false
-}
-
 const ProfilePage = async ({
   params
 }: {
@@ -47,6 +36,18 @@ const ProfilePage = async ({
   ])
 
   if (!member) notFound()
+
+  // Celah 2 (ADR 0027) — gerbang baca. `member` menyelesaikan lebih dulu,
+  // supaya "tidak berhak" dan "tidak ada" keduanya berakhir di `notFound()`
+  // yang sama — halaman ini tidak boleh jadi alat pemeriksa keberadaan NIA.
+  // Digabung lewat gerbang yang sama dengan jalur sunting di bawah
+  // (`requireMemberEditAccess`), supaya "boleh baca" tidak pernah dihitung
+  // ulang secara terpisah di sini.
+  const canRead = await requireMemberReadAccess(
+    member.id,
+    member.organizationId
+  )
+  if (!canRead) notFound()
 
   const [
     trainingHistory,
@@ -64,7 +65,19 @@ const ProfilePage = async ({
     getCachedMemberOrganizationHistory(member.id)
   ])
 
-  const userCanEdit = canEdit(session, member.id)
+  // Celah 3 — jalur sunting dikomposisikan lewat gerbang yang sama dengan
+  // jalur baca di atas, supaya keduanya tidak bisa berpisah: BPK hanya lolos
+  // di dalam Cakupannya.
+  const userCanEdit = await requireMemberEditAccess(
+    member.id,
+    member.organizationId
+  )
+  // Celah 1, akibat di UI — kontrol Jenjang Kaderisasi/Keadaan
+  // Kader/sertifikasi Perangkat di `profile-sidebar` hanya tampil bagi
+  // Root/BPK; seorang `member` yang mengedit dirinya sendiri tidak pernah
+  // melihatnya. Penegakan sesungguhnya ada di skema Server Action, ini
+  // semata konsekuensinya.
+  const canEditManaged = userCanEdit && session?.user.role !== 'member'
 
   const resetPasswordSlot =
     userCanEdit &&
@@ -127,6 +140,7 @@ const ProfilePage = async ({
     <ProfileInlineEditForm
       member={member}
       canEdit={userCanEdit}
+      canEditManaged={canEditManaged}
       trainingHistory={trainingHistory}
       academicHistory={academicHistory}
       careerHistory={careerHistory}

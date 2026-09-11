@@ -27,6 +27,7 @@ import type { MemberOrganizationHistory } from '~/db/query/organization-history'
 interface ProfileInlineEditFormProps {
   member: Member
   canEdit: boolean
+  canEditManaged: boolean
   trainingHistory: MemberTrainingHistory
   academicHistory: MemberAcademic[]
   careerHistory: MemberCareer[]
@@ -39,6 +40,7 @@ interface ProfileInlineEditFormProps {
 export const ProfileInlineEditForm = ({
   member,
   canEdit,
+  canEditManaged,
   trainingHistory,
   academicHistory,
   careerHistory,
@@ -114,6 +116,7 @@ export const ProfileInlineEditForm = ({
         careerHistory,
         organizationHistory,
         canEdit,
+        canEditManaged,
         isEditing,
         isPending,
         fieldErrors: state.errors
