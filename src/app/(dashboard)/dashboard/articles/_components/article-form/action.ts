@@ -4,6 +4,7 @@ import { revalidatePath, updateTag } from 'next/cache'
 import { readActiveSession } from '~/lib/auth/cookies'
 import { articleQuery, isArticleOrgInScope } from '~/db/query/article'
 import { articleCategoryQuery } from '~/db/query/article-category'
+import { isTerbit } from '~/lib/publikasi/tanggal-terbit'
 import { articlePermalinkHistoryQuery } from '~/db/query/article-permalink-history'
 import {
   wasPermalinkBeritaLive,
@@ -69,6 +70,24 @@ const recordPermalinkHistoryIfNeeded = async (
   existing: ArticlePermalinkState & { id: string; organizationId: string },
   newValues: { slug: string; publishedAt: Date | null }
 ): Promise<void> => {
+  if (existing.type === 'event') {
+    if (
+      existing.slug !== newValues.slug &&
+      existing.publishedAt &&
+      (existing.status === 'archived' ||
+        (existing.status === 'published' && isTerbit(existing.publishedAt)))
+    ) {
+      const old = deriveTahunBulanTerbit(existing.publishedAt)
+      await articlePermalinkHistoryQuery.record({
+        organizationId: existing.organizationId,
+        articleId: existing.id,
+        oldSlug: existing.slug,
+        oldTahun: old.tahun,
+        oldBulan: old.bulan
+      })
+    }
+    return
+  }
   if (!existing.publishedAt || !newValues.publishedAt) return
   if (
     !wasPermalinkBeritaLive({
@@ -130,6 +149,22 @@ export const createArticleAction = async (
 
     const created = await articleQuery.create({
       ...validated.data,
+      eventStartsAt:
+        validated.data.type === 'event' && validated.data.eventStartsAt
+          ? new Date(validated.data.eventStartsAt)
+          : null,
+      eventEndsAt:
+        validated.data.type === 'event' && validated.data.eventEndsAt
+          ? new Date(validated.data.eventEndsAt)
+          : null,
+      eventTimezone:
+        validated.data.type === 'event' ? validated.data.eventTimezone : null,
+      eventLocation:
+        validated.data.type === 'event' ? validated.data.eventLocation : null,
+      eventUrl:
+        validated.data.type === 'event' ? validated.data.eventUrl : null,
+      eventCancelled:
+        validated.data.type === 'event' && validated.data.eventCancelled,
       publishedAt: validated.data.publishedAt
         ? new Date(validated.data.publishedAt)
         : null
@@ -180,9 +215,15 @@ export const updateArticleAction = async (
     const scopeError = assertCanManageOrg(user, existing.organizationId)
     if (scopeError) return { success: false, message: scopeError }
 
+    const targetScopeError = assertCanManageOrg(
+      user,
+      validated.data.organizationId
+    )
+    if (targetScopeError) return { success: false, message: targetScopeError }
+
     const categoryError = await assertCategoryInOrg(
       validated.data.categoryId,
-      existing.organizationId
+      validated.data.organizationId
     )
     if (categoryError)
       return {
@@ -205,6 +246,22 @@ export const updateArticleAction = async (
 
     const updated = await articleQuery.update(id, {
       ...validated.data,
+      eventStartsAt:
+        validated.data.type === 'event' && validated.data.eventStartsAt
+          ? new Date(validated.data.eventStartsAt)
+          : null,
+      eventEndsAt:
+        validated.data.type === 'event' && validated.data.eventEndsAt
+          ? new Date(validated.data.eventEndsAt)
+          : null,
+      eventTimezone:
+        validated.data.type === 'event' ? validated.data.eventTimezone : null,
+      eventLocation:
+        validated.data.type === 'event' ? validated.data.eventLocation : null,
+      eventUrl:
+        validated.data.type === 'event' ? validated.data.eventUrl : null,
+      eventCancelled:
+        validated.data.type === 'event' && validated.data.eventCancelled,
       publishedAt: newPublishedAt
     })
 

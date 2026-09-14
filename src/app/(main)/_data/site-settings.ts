@@ -1,3 +1,4 @@
+import { renameEventLink } from '~/lib/site-links'
 import { cacheLife, cacheTag } from 'next/cache'
 import {
   readSiteSettings,
@@ -145,7 +146,18 @@ const _cachedGetNavSettings = async (
 ): Promise<NavSettings> => {
   'use cache'
   if (!organizationId) return SETTINGS_DEFAULTS.nav
-  return _cachedReadSettings('nav', SETTINGS_DEFAULTS.nav, organizationId)
+  const nav = await _cachedReadSettings<NavSettings>(
+    'nav',
+    SETTINGS_DEFAULTS.nav,
+    organizationId
+  )
+  return {
+    ...nav,
+    navLinks: nav.navLinks.map((link) => ({
+      ...link,
+      href: renameEventLink(link.href)
+    }))
+  }
 }
 
 const _cachedGetFooterSettings = async (

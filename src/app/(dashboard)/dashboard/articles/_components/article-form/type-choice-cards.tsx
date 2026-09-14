@@ -6,6 +6,7 @@ import { cn } from '~/lib/shadcn/utils'
 import { ARTICLE_TYPE_LABELS, type ArticleType } from '../_constants'
 
 const CONSEQUENCE_COPY: Record<ArticleType, string> = {
+  event: 'Pengumuman kegiatan dengan jadwal dan lokasi — tampil di Events.',
   blog: 'Masuk arsip Berita dan bertanggal — tampil di daftar Berita serta Berita KAMMI se-Indonesia.',
   page: 'Berdiri sendiri di alamat akar Situs — tidak bertanggal dan tidak masuk arsip mana pun.'
 }

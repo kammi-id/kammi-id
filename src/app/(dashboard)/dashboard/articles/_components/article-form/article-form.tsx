@@ -6,6 +6,7 @@ import { toast } from 'sonner'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Loading03Icon } from '@hugeicons/core-free-icons'
 import { Input } from '~/components/shadcn/ui/input'
+import { Switch } from '~/components/shadcn/ui/switch'
 import { Textarea } from '~/components/shadcn/ui/textarea'
 import {
   Field,
@@ -18,6 +19,7 @@ import { Button } from '~/components/shadcn/ui/button'
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue
@@ -42,6 +44,12 @@ import {
   publishedAtToWibWallClock,
   wibWallClockToPublishedAt
 } from '~/lib/publikasi/tanggal-terbit'
+import {
+  EVENT_TIMEZONES,
+  eventInstantToWallClock,
+  eventWallClockToInstant,
+  type EventTimezone
+} from '~/lib/publikasi/event'
 
 export type ArticleFormCategory = CategoryComboboxOption
 
@@ -58,6 +66,12 @@ export type ArticleFormInitial = {
   tags: string[]
   categoryId?: string | null
   publishedAt?: string | null
+  eventStartsAt?: string | null
+  eventEndsAt?: string | null
+  eventTimezone?: EventTimezone | null
+  eventLocation?: string | null
+  eventUrl?: string | null
+  eventCancelled?: boolean
 }
 
 interface ArticleFormProps {
@@ -103,6 +117,32 @@ export const ArticleForm = ({
   const [slugManuallyUnlocked, setSlugManuallyUnlocked] = useState(false)
   const [publishedAt, setPublishedAt] = useState(
     toDatetimeLocal(initial?.publishedAt)
+  )
+  const [eventTimezone, setEventTimezone] = useState<EventTimezone>(
+    initial?.eventTimezone ?? 'Asia/Jakarta'
+  )
+  const [eventStartsAt, setEventStartsAt] = useState(() =>
+    initial?.eventStartsAt
+      ? eventInstantToWallClock(
+          initial.eventStartsAt,
+          initial.eventTimezone ?? 'Asia/Jakarta'
+        )
+      : ''
+  )
+  const [eventEndsAt, setEventEndsAt] = useState(() =>
+    initial?.eventEndsAt
+      ? eventInstantToWallClock(
+          initial.eventEndsAt,
+          initial.eventTimezone ?? 'Asia/Jakarta'
+        )
+      : ''
+  )
+  const [eventLocation, setEventLocation] = useState(
+    initial?.eventLocation ?? ''
+  )
+  const [eventUrl, setEventUrl] = useState(initial?.eventUrl ?? '')
+  const [eventCancelled, setEventCancelled] = useState(
+    initial?.eventCancelled ?? false
   )
   const [featuredImage, setFeaturedImage] = useState(
     initial?.featuredImage ?? ''
@@ -183,7 +223,19 @@ export const ArticleForm = ({
       status,
       tags,
       categoryId: categoryId ?? undefined,
-      publishedAt: type === 'blog' ? isoPublishedAt : undefined
+      publishedAt: type !== 'page' ? isoPublishedAt : undefined,
+      eventStartsAt:
+        type === 'event'
+          ? eventWallClockToInstant(eventStartsAt, eventTimezone)?.toISOString()
+          : undefined,
+      eventEndsAt:
+        type === 'event' && eventEndsAt
+          ? eventWallClockToInstant(eventEndsAt, eventTimezone)?.toISOString()
+          : undefined,
+      eventTimezone: type === 'event' ? eventTimezone : undefined,
+      eventLocation: type === 'event' ? eventLocation : undefined,
+      eventUrl: type === 'event' ? eventUrl : undefined,
+      eventCancelled: type === 'event' && eventCancelled
     }
 
     startTransition(async () => {
@@ -221,6 +273,7 @@ export const ArticleForm = ({
         </div>
 
         <ArticleBodyEditor value={body} onChange={setBody} className='flex-1' />
+        <FieldError errors={fieldErrors('body')} />
       </div>
 
       <FieldGroup className='lg:sticky lg:top-6'>
@@ -233,7 +286,7 @@ export const ArticleForm = ({
           />
         </Field>
 
-        {type === 'blog' && (
+        {type !== 'page' && (
           <Field
             data-invalid={Boolean(fieldErrors('publishedAt')) || undefined}
           >
@@ -248,7 +301,123 @@ export const ArticleForm = ({
               aria-invalid={Boolean(fieldErrors('publishedAt')) || undefined}
             />
             <FieldError errors={fieldErrors('publishedAt')} />
+            <FieldDescription>Jadwal publikasi dalam WIB.</FieldDescription>
           </Field>
+        )}
+
+        {type === 'event' && (
+          <FieldGroup>
+            <Field
+              data-invalid={Boolean(fieldErrors('eventTimezone')) || undefined}
+            >
+              <FieldLabel htmlFor='event-timezone'>Zona waktu Event</FieldLabel>
+              <Select
+                value={eventTimezone}
+                onValueChange={(value) => {
+                  const zone = EVENT_TIMEZONES.find(
+                    (item) => item.value === value
+                  )
+                  if (zone) setEventTimezone(zone.value)
+                }}
+                items={EVENT_TIMEZONES}
+              >
+                <SelectTrigger
+                  id='event-timezone'
+                  aria-invalid={
+                    Boolean(fieldErrors('eventTimezone')) || undefined
+                  }
+                >
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    {EVENT_TIMEZONES.map((zone) => (
+                      <SelectItem key={zone.value} value={zone.value}>
+                        {zone.label}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+              <FieldError errors={fieldErrors('eventTimezone')} />
+            </Field>
+            <Field
+              data-invalid={Boolean(fieldErrors('eventStartsAt')) || undefined}
+            >
+              <FieldLabel htmlFor='event-starts-at'>
+                Waktu mulai Event
+              </FieldLabel>
+              <Input
+                id='event-starts-at'
+                type='datetime-local'
+                value={eventStartsAt}
+                onChange={(e) => setEventStartsAt(e.target.value)}
+                aria-invalid={
+                  Boolean(fieldErrors('eventStartsAt')) || undefined
+                }
+              />
+              <FieldError errors={fieldErrors('eventStartsAt')} />
+            </Field>
+            <Field
+              data-invalid={Boolean(fieldErrors('eventEndsAt')) || undefined}
+            >
+              <FieldLabel htmlFor='event-ends-at'>
+                Waktu selesai Event (opsional)
+              </FieldLabel>
+              <Input
+                id='event-ends-at'
+                type='datetime-local'
+                min={eventStartsAt || undefined}
+                value={eventEndsAt}
+                onChange={(e) => setEventEndsAt(e.target.value)}
+                aria-invalid={Boolean(fieldErrors('eventEndsAt')) || undefined}
+              />
+              <FieldDescription>
+                Tanpa waktu selesai, Event tampil hingga akhir hari mulai pada
+                zona waktu pilihan.
+              </FieldDescription>
+              <FieldError errors={fieldErrors('eventEndsAt')} />
+            </Field>
+            <Field
+              data-invalid={Boolean(fieldErrors('eventLocation')) || undefined}
+            >
+              <FieldLabel htmlFor='event-location'>Lokasi Event</FieldLabel>
+              <Input
+                id='event-location'
+                value={eventLocation}
+                onChange={(e) => setEventLocation(e.target.value)}
+                placeholder='Alamat atau platform acara daring'
+                aria-invalid={
+                  Boolean(fieldErrors('eventLocation')) || undefined
+                }
+              />
+              <FieldError errors={fieldErrors('eventLocation')} />
+            </Field>
+            <Field data-invalid={Boolean(fieldErrors('eventUrl')) || undefined}>
+              <FieldLabel htmlFor='event-url'>
+                Tautan pendaftaran / informasi (opsional)
+              </FieldLabel>
+              <Input
+                id='event-url'
+                type='url'
+                value={eventUrl}
+                onChange={(e) => setEventUrl(e.target.value)}
+                placeholder='https://'
+                aria-invalid={Boolean(fieldErrors('eventUrl')) || undefined}
+              />
+              <FieldError errors={fieldErrors('eventUrl')} />
+            </Field>
+            <Field orientation='horizontal'>
+              <Switch
+                id='event-cancelled'
+                checked={eventCancelled}
+                onCheckedChange={setEventCancelled}
+              />
+              <FieldLabel htmlFor='event-cancelled'>
+                Event dibatalkan
+              </FieldLabel>
+            </Field>
+          </FieldGroup>
         )}
 
         {type === 'blog' && (
@@ -333,15 +502,17 @@ export const ArticleForm = ({
               <SelectValue placeholder='Pilih status' />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value='draft'>
-                {ARTICLE_STATUS_LABELS.draft}
-              </SelectItem>
-              <SelectItem value='published'>
-                {ARTICLE_STATUS_LABELS.published}
-              </SelectItem>
-              <SelectItem value='archived'>
-                {ARTICLE_STATUS_LABELS.archived}
-              </SelectItem>
+              <SelectGroup>
+                <SelectItem value='draft'>
+                  {ARTICLE_STATUS_LABELS.draft}
+                </SelectItem>
+                <SelectItem value='published'>
+                  {ARTICLE_STATUS_LABELS.published}
+                </SelectItem>
+                <SelectItem value='archived'>
+                  {ARTICLE_STATUS_LABELS.archived}
+                </SelectItem>
+              </SelectGroup>
             </SelectContent>
           </Select>
         </Field>
@@ -350,7 +521,7 @@ export const ArticleForm = ({
           data-invalid={Boolean(fieldErrors('featuredImage')) || undefined}
         >
           <FieldLabel>
-            Gambar{type === 'blog' ? ' — Utama wajib' : ' (opsional)'}
+            Gambar{type !== 'page' ? ' — Utama wajib' : ' (opsional)'}
           </FieldLabel>
           <GalleryUpload
             value={{ featuredImage, galleryImages }}

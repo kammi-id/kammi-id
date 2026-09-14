@@ -1,3 +1,4 @@
+import { PublicationRow } from '../publication-row'
 import Image from 'next/image'
 import Link from 'next/link'
 import { getBeritaPreview } from './data'
@@ -16,7 +17,7 @@ type BeritaPreviewSectionProps = {
 }
 
 /**
- * "Bagian Berita terbaru" — spec "Template Situs": 12 Berita milik Struktur
+ * "Bagian Berita terbaru" — spec "Template Situs": 8 Berita milik Struktur
  * itu, linking to `/berita`, shared by both templates (full: below Peta
  * Jaringan; lean: below pengurus). Hidden entirely when there is no Berita
  * Terbit yet, so an empty Struktur never shows a broken/empty section.
@@ -41,10 +42,10 @@ export const BeritaPreviewSection = async ({
 
   return (
     <section
-      className='bg-background relative w-full py-20 md:py-28'
+      className='bg-background relative w-full py-8 md:py-10'
       aria-labelledby='berita-preview-heading'
     >
-      <div className='mx-auto w-full max-w-7xl px-6 lg:px-8'>
+      <div className='mx-auto w-full max-w-(--breakpoint-lg) px-6 lg:px-8'>
         <div className='flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end'>
           <div>
             <h2
@@ -81,7 +82,7 @@ export const BeritaPreviewSection = async ({
           </Link>
         </div>
 
-        <div className='mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4'>
+        <PublicationRow label='Berita terbaru'>
           {resolved.map((item) => (
             <Link
               key={item.id}
@@ -94,7 +95,7 @@ export const BeritaPreviewSection = async ({
                     src={item.resolvedImageUrl}
                     alt={item.title}
                     fill
-                    sizes='(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw'
+                    sizes='(min-width: 1024px) 304px, (min-width: 768px) 45vw, 90vw'
                     className='object-cover transition-transform duration-300 group-hover:scale-[1.03]'
                     unoptimized={item.resolvedImageUrl.startsWith('http')}
                   />
@@ -117,7 +118,7 @@ export const BeritaPreviewSection = async ({
               </div>
             </Link>
           ))}
-        </div>
+        </PublicationRow>
       </div>
     </section>
   )

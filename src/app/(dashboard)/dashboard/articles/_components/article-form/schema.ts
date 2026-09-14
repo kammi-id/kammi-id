@@ -1,13 +1,28 @@
 import { z } from 'zod'
 import { isReservedStrukturPath } from '~/lib/struktur/reserved-paths'
 
+const hasDescriptionText = (node: unknown): boolean => {
+  if (!node || typeof node !== 'object') return false
+  if ('type' in node && node.type === 'text')
+    return (
+      'text' in node &&
+      typeof node.text === 'string' &&
+      Boolean(node.text.trim())
+    )
+  return (
+    'content' in node &&
+    Array.isArray(node.content) &&
+    node.content.some(hasDescriptionText)
+  )
+}
+
 export const ArticleInputSchema = z
   .object({
     // not .uuid(): scope is still enforced via isArticleOrgInScope comparing
     // against the session's real org id; DB column itself remains a strict
     // uuid type
     organizationId: z.string().min(1),
-    type: z.enum(['page', 'blog']),
+    type: z.enum(['page', 'blog', 'event']),
     title: z.string().min(1, 'Judul wajib diisi'),
     slug: z
       .string()
@@ -20,27 +35,50 @@ export const ArticleInputSchema = z
     featuredImage: z.string().optional(),
     // Galeri berdampingan dengan Gambar Utama, tidak menggantikannya — ADR
     // 0017. Tidak ada refinement "wajib non-kosong": Galeri selalu opsional
-    // untuk kedua tipe artikel, beda dari featuredImage yang wajib untuk Berita.
+    // untuk semua tipe artikel, beda dari featuredImage yang wajib untuk Berita dan Event.
     galleryImages: z.array(z.string()).default([]),
     penulis: z.string().optional(),
     status: z.enum(['draft', 'published', 'archived']),
     tags: z.array(z.string()).default([]),
     categoryId: z.string().uuid().optional(),
-    publishedAt: z.string().datetime().optional()
+    publishedAt: z.string().datetime().optional(),
+    eventStartsAt: z.string().datetime().optional(),
+    eventEndsAt: z.string().datetime().optional(),
+    eventTimezone: z
+      .enum(['Asia/Jakarta', 'Asia/Makassar', 'Asia/Jayapura'])
+      .default('Asia/Jakarta'),
+    eventLocation: z.string().trim().optional(),
+    eventUrl: z
+      .string()
+      .trim()
+      .refine((value) => {
+        if (!value) return true
+        try {
+          const url = new URL(value)
+          return url.protocol === 'https:' || url.protocol === 'http:'
+        } catch {
+          return false
+        }
+      }, 'Tautan harus berupa URL http:// atau https://')
+      .optional(),
+    eventCancelled: z.boolean().default(false)
   })
-  .refine((data) => data.type !== 'blog' || Boolean(data.publishedAt), {
-    message: 'Tanggal wajib diisi untuk artikel blog',
+  .refine((data) => data.type === 'page' || Boolean(data.publishedAt), {
+    message: 'Tanggal Terbit wajib diisi untuk Berita dan Event',
     path: ['publishedAt']
   })
-  // Gambar utama wajib untuk Berita (`type === 'blog'`) supaya daftar Berita
+  // Gambar utama wajib untuk Berita dan Event supaya daftar publik
   // tidak pernah tampil setengah bergambar — tetap opsional untuk Halaman.
   // Kolom DB `featuredImage` tetap nullable: kewajiban ini murni di level
   // Zod, berlaku saat SUBMIT form, bukan saat membaca baris lama tanpa
   // gambar utama (baca tidak lewat skema ini sama sekali).
-  .refine((data) => data.type !== 'blog' || Boolean(data.featuredImage), {
-    message: 'Gambar utama wajib diisi untuk artikel blog',
-    path: ['featuredImage']
-  })
+  .refine(
+    (data) => data.type === 'page' || Boolean(data.featuredImage?.trim()),
+    {
+      message: 'Gambar utama wajib diisi untuk Berita dan Event',
+      path: ['featuredImage']
+    }
+  )
   // Tiket 09 (Halaman beralamat akar): Permalink Halaman disajikan sebagai
   // `/<slug>` — segmen tunggal langsung di bawah Situs Struktur (lihat
   // `[strukturSlug]/[slug]/page.tsx`). Kalau slug itu bertabrakan dengan
@@ -52,6 +90,36 @@ export const ArticleInputSchema = z
   // hidup di bawah `/berita/<tahun>/<bulan>/<slug>` dan tidak pernah
   // bertabrakan dengan segmen akar ini.
   .superRefine((data, ctx) => {
+    if (data.type === 'event') {
+      if (!data.eventStartsAt)
+        ctx.addIssue({
+          code: 'custom',
+          path: ['eventStartsAt'],
+          message: 'Waktu mulai Event wajib diisi'
+        })
+      if (!data.eventLocation)
+        ctx.addIssue({
+          code: 'custom',
+          path: ['eventLocation'],
+          message: 'Lokasi Event wajib diisi'
+        })
+      if (!hasDescriptionText(data.body))
+        ctx.addIssue({
+          code: 'custom',
+          path: ['body'],
+          message: 'Deskripsi Event wajib diisi'
+        })
+      if (
+        data.eventStartsAt &&
+        data.eventEndsAt &&
+        new Date(data.eventEndsAt) < new Date(data.eventStartsAt)
+      )
+        ctx.addIssue({
+          code: 'custom',
+          path: ['eventEndsAt'],
+          message: 'Waktu selesai tidak boleh sebelum waktu mulai'
+        })
+    }
     if (data.type === 'page' && isReservedStrukturPath(data.slug)) {
       ctx.addIssue({
         code: 'custom',
@@ -61,4 +129,4 @@ export const ArticleInputSchema = z
     }
   })
 
-export type ArticleInput = z.infer<typeof ArticleInputSchema>
+export type ArticleInput = z.input<typeof ArticleInputSchema>

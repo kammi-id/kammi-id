@@ -1,3 +1,5 @@
+import { HugeiconsIcon } from '@hugeicons/react'
+import { siteIcon } from '~/lib/site-icons'
 import Image from 'next/image'
 import Link from 'next/link'
 import Logo from '~/assets/logo-header.png'
@@ -37,10 +39,15 @@ export const Navbar = async ({ organizationId }: NavbarProps) => {
             'hidden md:inline-flex'
           )}
         >
+          <HugeiconsIcon
+            icon={siteIcon(nav.ctaBergabungIcon ?? 'join')}
+            data-icon='inline-start'
+          />
           {nav.ctaBergabungLabel}
         </Link>
 
         <MobileNav
+          ctaBergabungIcon={nav.ctaBergabungIcon}
           links={nav.navLinks}
           ctaBergabungHref={nav.ctaBergabungHref}
           ctaBergabungLabel={nav.ctaBergabungLabel}

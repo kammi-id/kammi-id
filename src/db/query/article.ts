@@ -6,7 +6,7 @@ import { organizationNotDeleted } from '~/db/query/organization'
 import { terbitCutoffForQuery } from '~/lib/publikasi/tanggal-terbit'
 import { eq, and, ilike, desc, lte, isNull, sql } from 'drizzle-orm'
 
-export type ArticleType = 'page' | 'blog'
+export type ArticleType = 'page' | 'blog' | 'event'
 export type ArticleStatus = 'draft' | 'published' | 'archived'
 
 export type BeritaPreviewItem = {

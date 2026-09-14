@@ -2,7 +2,9 @@
 
 import { revalidatePath, updateTag } from 'next/cache'
 import { requireSiteSettingsAccess } from '~/lib/auth/site-settings'
-import { upsertSiteSettings } from '~/db/query/site-settings'
+import { footerContentSchema, siteLinkSchema } from '~/lib/site-links'
+import { listSitePages } from '~/db/query/site-pages'
+import { readSiteSettings, upsertSiteSettings } from '~/db/query/site-settings'
 import { z } from 'zod'
 
 export type SettingsActionState = {
@@ -264,7 +266,8 @@ export const saveActionsAction = async (
 const navSchema = z.object({
   navLinks: z.array(linkSchema).min(1),
   ctaBergabungLabel: z.string().min(1),
-  ctaBergabungHref: z.string().min(1)
+  ctaBergabungHref: siteLinkSchema,
+  ctaBergabungIcon: z.string().max(50).default('join')
 })
 
 export const saveNavAction = async (
@@ -310,16 +313,6 @@ export const saveNavAction = async (
 
 // ─── Footer ──────────────────────────────────────────────────────────────────
 
-const footerSchema = z.object({
-  socialIG: z.string(),
-  socialTwitter: z.string(),
-  socialYoutube: z.string(),
-  socialTelegram: z.string(),
-  footerKAMMI: z.array(linkSchema),
-  footerBeritaData: z.array(linkSchema),
-  footerIkutiKami: z.array(linkSchema)
-})
-
 export const saveFooterAction = async (
   _prev: SettingsActionState,
   formData: FormData
@@ -327,39 +320,37 @@ export const saveFooterAction = async (
   const access = await requireSiteSettingsAccess()
   if (!access) return { error: 'Akses ditolak.' }
   const { orgId } = access
-
-  const raw = Object.fromEntries(formData)
-  let footerKAMMI, footerBeritaData, footerIkutiKami
+  let input: unknown
   try {
-    footerKAMMI = JSON.parse(raw.footerKAMMI as string)
-    footerBeritaData = JSON.parse(raw.footerBeritaData as string)
-    footerIkutiKami = JSON.parse(raw.footerIkutiKami as string)
+    input = JSON.parse(String(formData.get('footer')))
   } catch {
     return { error: 'Data footer tidak valid.' }
   }
-
-  const result = footerSchema.safeParse({
-    ...raw,
-    footerKAMMI,
-    footerBeritaData,
-    footerIkutiKami
-  })
-  if (!result.success) {
+  const result = footerContentSchema.safeParse(input)
+  if (!result.success)
     return {
-      fieldErrors: result.error.flatten().fieldErrors as Record<
-        string,
-        string[]
-      >,
-      values: Object.fromEntries(
-        Object.entries(raw).filter(
-          ([, v]) => v != null && typeof v === 'string'
-        )
-      ) as Record<string, string>
+      error: result.error.issues.map((issue) => issue.message).join(' '),
+      fieldErrors: result.error.flatten().fieldErrors
     }
-  }
-
   try {
-    await upsertSiteSettings('footer', result.data, orgId)
+    const pages = await listSitePages(orgId)
+    const pageIds = new Set(pages.map((page) => page.id))
+    if (
+      result.data.menus.some((menu) =>
+        menu.links.some((link) => link.pageId && !pageIds.has(link.pageId))
+      )
+    ) {
+      return {
+        error:
+          'Halaman harus sudah Terbit dan milik Struktur ini. Pilih ulang halaman yang tidak tersedia.'
+      }
+    }
+    const previous = await readSiteSettings<Record<string, unknown>>(
+      'footer',
+      {},
+      orgId
+    )
+    await upsertSiteSettings('footer', { ...previous, ...result.data }, orgId)
     revalidatePath('/')
     updateTag(`site-settings-footer-${orgId}`)
     return { success: true }

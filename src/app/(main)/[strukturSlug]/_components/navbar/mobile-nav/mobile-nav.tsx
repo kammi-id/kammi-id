@@ -1,5 +1,7 @@
 'use client'
 
+import { HugeiconsIcon } from '@hugeicons/react'
+import { siteIcon } from '~/lib/site-icons'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -23,6 +25,7 @@ interface NavLink {
 interface MobileNavProps {
   links: NavLink[]
   ctaBergabungHref: string
+  ctaBergabungIcon?: string
   ctaBergabungLabel: string
 }
 
@@ -34,7 +37,8 @@ const TENTANG_CHILDREN = [
 export const MobileNav = ({
   links,
   ctaBergabungHref,
-  ctaBergabungLabel
+  ctaBergabungLabel,
+  ctaBergabungIcon
 }: MobileNavProps) => {
   const [open, setOpen] = useState(false)
   const pathname = usePathname()
@@ -116,6 +120,10 @@ export const MobileNav = ({
             href={ctaBergabungHref}
             className={cn(buttonVariants({ size: 'sm' }), 'w-full')}
           >
+            <HugeiconsIcon
+              icon={siteIcon(ctaBergabungIcon ?? 'join')}
+              data-icon='inline-start'
+            />
             {ctaBergabungLabel}
           </Link>
         </SheetFooter>

@@ -1,3 +1,4 @@
+import type { FooterContent } from '~/lib/site-links'
 import { db } from '../db'
 import { siteSettings } from '../schema/site-settings.sql'
 import { organizationNotDeleted } from './organization'
@@ -72,9 +73,10 @@ export type NavSettings = {
   navLinks: Array<{ label: string; href: string }>
   ctaBergabungLabel: string
   ctaBergabungHref: string
+  ctaBergabungIcon?: string
 }
 
-export type FooterSettings = {
+export type FooterSettings = Partial<FooterContent> & {
   socialIG: string
   socialTwitter: string
   socialYoutube: string
@@ -201,11 +203,12 @@ export const SETTINGS_DEFAULTS = {
     navLinks: [
       { label: 'Tentang', href: '/tentang' },
       { label: 'Berita', href: '/berita' },
-      { label: 'Event', href: '/event' },
+      { label: 'Event', href: '/events' },
       { label: 'Dashboard', href: '/dashboard' }
     ],
     ctaBergabungLabel: 'Bergabung di KAMMI',
-    ctaBergabungHref: '#bergabung'
+    ctaBergabungHref: '#bergabung',
+    ctaBergabungIcon: 'join'
   } satisfies NavSettings,
 
   footer: {

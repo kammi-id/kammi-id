@@ -1,3 +1,4 @@
+import { PublicationRow } from '../publication-row'
 import Image from 'next/image'
 import Link from 'next/link'
 import { getBeritaJaringanPreview } from './data'
@@ -5,7 +6,7 @@ import { beritaJaringanPermalinkUrl } from './utils'
 import { resolveSiteImage } from '~/lib/utils/site-image'
 
 /**
- * "Bagian Berita KAMMI se-Indonesia" — spec "Template Situs": 12 Berita
+ * "Bagian Berita KAMMI se-Indonesia" — spec "Template Situs": 8 Berita
  * terbaru dari seluruh Struktur, hanya di Beranda PP (page.tsx merender ini
  * di dalam cabang `lengkap`, jadi kondisinya sudah Jenjang, bukan route —
  * ADR 0012).
@@ -32,10 +33,10 @@ export const BeritaJaringanSection = async () => {
 
   return (
     <section
-      className='bg-background relative w-full py-20 md:py-28'
+      className='bg-background relative w-full py-8 md:py-10'
       aria-labelledby='berita-jaringan-heading'
     >
-      <div className='mx-auto w-full max-w-7xl px-6 lg:px-8'>
+      <div className='mx-auto w-full max-w-(--breakpoint-lg) px-6 lg:px-8'>
         <div className='flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end'>
           <div>
             <h2
@@ -70,7 +71,7 @@ export const BeritaJaringanSection = async () => {
           </Link>
         </div>
 
-        <div className='mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4'>
+        <PublicationRow label='Berita KAMMI se-Indonesia'>
           {resolved.map((item) => (
             <a
               key={item.id}
@@ -83,7 +84,7 @@ export const BeritaJaringanSection = async () => {
                     src={item.resolvedImageUrl}
                     alt={item.title}
                     fill
-                    sizes='(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw'
+                    sizes='(min-width: 1024px) 304px, (min-width: 768px) 45vw, 90vw'
                     className='object-cover transition-transform duration-300 group-hover:scale-[1.03]'
                     unoptimized={item.resolvedImageUrl.startsWith('http')}
                   />
@@ -109,7 +110,7 @@ export const BeritaJaringanSection = async () => {
               </div>
             </a>
           ))}
-        </div>
+        </PublicationRow>
       </div>
     </section>
   )

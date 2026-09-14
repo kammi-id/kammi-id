@@ -1,3 +1,5 @@
+import { Suspense } from 'react'
+import { listSitePages } from '~/db/query/site-pages'
 import { redirect } from 'next/navigation'
 import { readActiveSession } from '~/lib/auth/cookies'
 import { HugeiconsIcon } from '@hugeicons/react'
@@ -23,7 +25,7 @@ import {
   getCachedMetadataSettings
 } from './_data/settings'
 
-const HomeSettingsPage = async () => {
+const HomeSettingsPageContent = async () => {
   const session = await readActiveSession()
   if (!session) redirect('/login')
 
@@ -38,14 +40,15 @@ const HomeSettingsPage = async () => {
 
   const jenjang = connectedOrganization.type
 
-  const [heroSettings, extraSettings, about, nav, footer, metadata] =
+  const [heroSettings, extraSettings, about, nav, footer, metadata, pages] =
     await Promise.all([
       getCachedHomeHeroItemsSettings(orgId),
       getCachedHomeExtraItemsSettings(orgId),
       getCachedAboutSettings(orgId),
       getCachedNavSettings(orgId),
       getCachedFooterSettings(orgId),
-      getCachedMetadataSettings(orgId)
+      getCachedMetadataSettings(orgId),
+      listSitePages(orgId)
     ])
 
   // Every section the settings page can possibly show, each tagged with the
@@ -111,7 +114,7 @@ const HomeSettingsPage = async () => {
       index: '05',
       title: 'Footer',
       description: 'Tautan sosial media dan kolom footer situs.',
-      content: <FooterForm initialData={footer} />
+      content: <FooterForm initialData={footer} pages={pages} />
     },
     {
       id: 'metadata',
@@ -178,5 +181,15 @@ const HomeSettingsPage = async () => {
     </div>
   )
 }
+
+const HomeSettingsPage = () => (
+  <Suspense
+    fallback={
+      <p className='text-muted-foreground px-6 py-10'>Memuat pengaturan…</p>
+    }
+  >
+    <HomeSettingsPageContent />
+  </Suspense>
+)
 
 export default HomeSettingsPage

@@ -172,7 +172,7 @@ tetap hidup.
 
 Berhenti melayani menyangkut situsnya, bukan arsipnya. Beranda dan seluruh
 navigasi Situs Struktur itu hilang, sementara **Permalink** setiap **Berita**
-yang telanjur **Terbit** tetap terbuka, dan Berita itu tetap terbaca lewat
+dan **Event** yang telanjur **Terbit** tetap terbuka, dan Berita tetap terbaca lewat
 **Berita KAMMI se-Indonesia**. Sebuah kepengurusan yang berhenti tidak membatalkan apa
 yang pernah ia terbitkan.
 
@@ -312,8 +312,8 @@ Humas Struktur itu sendiri, bukan restu Struktur di atasnya.
 _Avoid_: Situs terbit, Go-live, Publish situs
 
 **Artikel**:
-Tulisan milik sebuah Struktur. Payung untuk dua jenis yang berbeda perlakuan:
-**Berita** dan **Halaman**.
+Tulisan milik sebuah Struktur. Payung untuk tiga jenis yang berbeda perlakuan:
+**Berita**, **Halaman**, dan **Event**.
 
 **Berita**:
 Artikel bertanggal yang masuk arsip kronologis sebuah Struktur. Tanggal
@@ -325,6 +325,15 @@ _Avoid_: Post, Blog, Kabar
 Artikel tak bertanggal yang berdiri sendiri di alamat akar sebuah Situs
 Struktur. Tidak masuk arsip, tidak muncul di **Berita KAMMI se-Indonesia**.
 _Avoid_: Halaman statik, Page
+
+**Event**:
+Artikel yang mengumumkan sebuah kegiatan beserta waktu dan tempatnya, dengan
+tautan eksternal bila diperlukan. Event bukan catatan **Daurah** dan tidak
+mengelola pendaftaran maupun Peserta.
+
+**Event Dibatalkan**:
+Event yang kegiatannya dibatalkan, tanpa menarik pengumumannya dari publik;
+pembaca tetap dapat melihat pengumuman beserta keterangan pembatalannya.
 
 **Terbit**:
 Keadaan sebuah Artikel yang sudah boleh dibaca publik. Terbit menuntut dua hal
@@ -338,7 +347,7 @@ tetap terbuka. Mengarsipkan bukan menyangkal bahwa tulisannya pernah ada.
 _Avoid_: Dihapus, Disembunyikan
 
 **Permalink**:
-Alamat tetap sebuah Berita. Satu Berita punya tepat satu Permalink yang sah
+Alamat tetap sebuah Berita atau Event. Masing-masing punya tepat satu Permalink yang sah
 pada satu waktu; alamat lain yang pernah menunjuk padanya tetap mengantar ke
 situ, tidak melayaninya sendiri.
 _Avoid_: URL (sebagai istilah domain), Link berita

@@ -14,7 +14,7 @@ export const slugify = (value: string): string =>
     .replace(/-+/g, '-')
 
 export type ArticlePernahTerbitInput = {
-  type: 'page' | 'blog'
+  type: 'page' | 'blog' | 'event'
   status: 'draft' | 'published' | 'archived'
   publishedAt: Date | null
 }

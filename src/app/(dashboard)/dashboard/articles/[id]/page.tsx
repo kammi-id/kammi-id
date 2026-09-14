@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import { notFound, redirect } from 'next/navigation'
 import { AccessGuard } from '~/components/access-guard'
 import { readActiveSession } from '~/lib/auth/cookies'
@@ -14,7 +15,7 @@ interface EditArticlePageProps {
   params: Promise<{ id: string }>
 }
 
-const EditArticlePage = async ({ params }: EditArticlePageProps) => {
+const EditArticlePageContent = async ({ params }: EditArticlePageProps) => {
   const session = await readActiveSession()
   const user = session?.user
   if (!user) redirect('/login')
@@ -60,6 +61,12 @@ const EditArticlePage = async ({ params }: EditArticlePageProps) => {
           tagSuggestions={tagSuggestions}
           initial={{
             id: existing.id,
+            eventStartsAt: existing.eventStartsAt?.toISOString(),
+            eventEndsAt: existing.eventEndsAt?.toISOString(),
+            eventTimezone: existing.eventTimezone,
+            eventLocation: existing.eventLocation,
+            eventUrl: existing.eventUrl,
+            eventCancelled: existing.eventCancelled,
             type: existing.type,
             title: existing.title,
             slug: existing.slug,
@@ -77,5 +84,15 @@ const EditArticlePage = async ({ params }: EditArticlePageProps) => {
     </AccessGuard>
   )
 }
+
+const EditArticlePage = (props: EditArticlePageProps) => (
+  <Suspense
+    fallback={
+      <p className='text-muted-foreground px-6 py-10'>Memuat pengaturan…</p>
+    }
+  >
+    <EditArticlePageContent {...props} />
+  </Suspense>
+)
 
 export default EditArticlePage
