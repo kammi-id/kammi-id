@@ -214,7 +214,8 @@ export const AppSidebar = ({
   const userData = {
     name: user?.displayName ?? 'User',
     email: user?.connectedOrganization?.name ?? 'No Organization',
-    avatar: user?.connectedMember?.photo ?? ''
+    avatar: user?.connectedMember?.photo ?? '',
+    role: user.role
   }
 
   return (

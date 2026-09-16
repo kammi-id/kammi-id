@@ -27,7 +27,8 @@ import {
   UserCircle02Icon,
   Notification03Icon,
   Logout01Icon,
-  Building03Icon
+  Building03Icon,
+  Key01Icon
 } from '@hugeicons/core-free-icons'
 import { openLogoutDialog } from '../logout/store'
 
@@ -53,10 +54,12 @@ export const NavUser = ({
     name: string
     email: string
     avatar: string
+    role: string
   }
   organizationName?: string | null
 }) => {
   const { isMobile } = useSidebar()
+  const isRoot = user.role === 'root'
 
   return (
     <SidebarMenu>
@@ -120,6 +123,16 @@ export const NavUser = ({
                   </Link>
                 )}
               />
+              {isRoot && (
+                <DropdownMenuItem
+                  render={(props) => (
+                    <Link href='/dashboard/verifikasi-kader' {...props}>
+                      <HugeiconsIcon icon={Key01Icon} strokeWidth={2} />
+                      API Key
+                    </Link>
+                  )}
+                />
+              )}
               <DropdownMenuItem
                 render={(props) => (
                   <Link href='/dashboard/user/notifications' {...props}>
