@@ -38,14 +38,24 @@ const main = async () => {
     password: ghcrPassword
   })
 
+  const statusBeforeDeploy = await getApplicationStatus(
+    credentials,
+    applicationId
+  )
   console.log('🚀 Memicu application.deploy...')
   await deployApplication(credentials, applicationId)
 
   console.log('⏳ Menunggu deploy selesai...')
   const deadline = Date.now() + TIMEOUT_MS
+  let hasObservedStatusTransition = false
   for (;;) {
     const status = await getApplicationStatus(credentials, applicationId)
-    const outcome = interpretApplicationStatus(status, Date.now() > deadline)
+    hasObservedStatusTransition ||= status !== statusBeforeDeploy
+    const outcome = interpretApplicationStatus(
+      status,
+      Date.now() > deadline,
+      hasObservedStatusTransition
+    )
 
     if (outcome === 'success') {
       console.log(`✅ Deploy sukses (applicationStatus: ${status})`)

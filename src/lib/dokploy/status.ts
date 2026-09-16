@@ -12,16 +12,22 @@ export type DeploymentOutcome = 'running' | 'success' | 'failure' | 'timeout'
 const NON_TERMINAL_STATUSES = new Set(['idle', 'running'])
 
 /**
- * Turns a raw `applicationStatus` string plus "has the deadline passed?"
- * into one of four outcomes. A status outside the known set is treated as a
- * failure rather than left to poll forever — the known set was read off a
- * live instance, not documented, so an unfamiliar value must fail loud.
+ * Turns a raw `applicationStatus`, the deadline, and whether this deploy has
+ * changed status into one of four outcomes. A pre-existing `done` cannot be
+ * mistaken for the result of the deploy just requested. A status outside the
+ * known set is treated as a failure rather than left to poll forever — the
+ * known set was read off a live instance, not documented, so an unfamiliar
+ * value must fail loud.
  */
 export const interpretApplicationStatus = (
   applicationStatus: string,
-  timedOut: boolean
+  timedOut: boolean,
+  hasObservedStatusTransition = true
 ): DeploymentOutcome => {
-  if (applicationStatus === 'done') return 'success'
+  if (applicationStatus === 'done') {
+    if (hasObservedStatusTransition) return 'success'
+    return timedOut ? 'timeout' : 'running'
+  }
   if (applicationStatus === 'error') return 'failure'
   if (!NON_TERMINAL_STATUSES.has(applicationStatus)) return 'failure'
   return timedOut ? 'timeout' : 'running'

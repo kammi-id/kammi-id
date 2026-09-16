@@ -29,4 +29,9 @@ describe('interpretApplicationStatus', () => {
   it('treats an unfamiliar status as failure even past the deadline', () => {
     expect(interpretApplicationStatus('building', true)).toBe('failure')
   })
+
+  it('does not accept the previous done status as a new deploy result', () => {
+    expect(interpretApplicationStatus('done', false, false)).toBe('running')
+    expect(interpretApplicationStatus('done', true, false)).toBe('timeout')
+  })
 })
