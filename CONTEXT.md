@@ -33,6 +33,19 @@ operasional Root, BPH, BPK, BPW, atau Humas. Berbeda dari Akun Kader yang
 terikat pada seorang Member.
 _Avoid_: Akun Struktur, Akun organisasi, Akun pengurus
 
+**Kunci Verifikasi**:
+Rahasia yang dibuat Root agar aplikasi atau orang di luar KAMMI.id dapat
+memverifikasi satu Kader melalui Nomor Induk Anggota. Kunci tidak mengenali
+pemegang maupun membatasi Cakupan; pemakaian dan verifikasi lanjut berada di
+luar KAMMI.id.
+_Avoid_: API key mitra, Akun mitra, Kredensial organisasi
+
+**Verifikasi Kader**:
+Pembuktian terbatas melalui Kunci Verifikasi bahwa sebuah Nomor Induk Anggota
+mengacu pada Kader Aktif atau Alumni, beserta identitas dan keadaan organisasi
+yang diizinkan. Ia bukan pembacaan profil Kader.
+_Avoid_: Lookup profil, Pencarian Kader, API data anggota
+
 **Perangkat**:
 Payung untuk Kader yang tersertifikasi menjalankan Daurah — yaitu Pemandu dan
 Instruktur. Bukan entitas tersendiri, melainkan cara memandang sekumpulan
