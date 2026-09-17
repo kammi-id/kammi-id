@@ -1,0 +1,246 @@
+openapi: 3.0.0
+info:
+  title: Api Data Universitas Indonesia
+  description: >-
+    Complete API collection for Indonesian universities data with comprehensive filtering capabilities.
+    Access to all universities in Indonesia with filtering by location (province, regency),
+    searching by name or short name, filtering by group and university type, with pagination support. **Note:** Pagination size is fixed at 100 items per page and cannot be configured.
+    Integrated with Api Regional Wilayah Indonesia for location data.
+  version: 1.0.0
+servers:
+  - url: https://use.api.co.id
+tags:
+  - name: Universities
+    description: Endpoints for accessing Indonesian universities data.
+paths:
+  /regional/indonesia/universities:
+    get:
+      tags:
+        - Universities
+      summary: List Universities
+      description: >-
+        Get all universities in Indonesia with comprehensive filtering options.
+        Supports filtering by location (province, regency), searching by name or short name,
+        filtering by group and university type, with pagination support. **Note:** Pagination size is fixed at 100 items per page and cannot be configured.
+      parameters:
+        - name: x-api-co-id
+          in: header
+          schema:
+            type: string
+          description: Your API key for authentication
+          example: '{{api_key}}'
+        - name: province_code
+          in: query
+          schema:
+            type: string
+          required: false
+          description: Filter by province code
+          example: '31'
+        - name: regency_code
+          in: query
+          schema:
+            type: string
+          required: false
+          description: Filter by regency/city code
+          example: '3171'
+        - name: name
+          in: query
+          schema:
+            type: string
+          required: false
+          description: Search by university name or short name (case-insensitive partial match)
+          example: 'UNIVERSITAS INDONESIA'
+        - name: group
+          in: query
+          schema:
+            type: string
+          required: false
+          description: Filter by group (case-insensitive partial match)
+          example: 'UNIVERSITAS'
+        - name: university_type
+          in: query
+          schema:
+            type: string
+          required: false
+          description: Filter by university type (case-insensitive partial match)
+          example: 'PERGURUAN TINGGI'
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          required: false
+          description: Page number
+          example: 1
+      responses:
+        '200':
+          description: Success - Universities Listed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  is_success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Success
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        group:
+                          type: string
+                          description: University group
+                          example: 'UNIVERSITAS'
+                        address:
+                          type: string
+                          description: Street address
+                          example: 'JLN. SALEMBA RAYA NO. 4'
+                        name:
+                          type: string
+                          description: University name
+                          example: 'UNIVERSITAS INDONESIA'
+                        short_name:
+                          type: string
+                          description: University short name
+                          example: 'UI'
+                        province:
+                          type: string
+                          description: Province name
+                          example: 'DKI JAKARTA'
+                        province_code:
+                          type: string
+                          description: Province code
+                          example: '31'
+                        regency:
+                          type: string
+                          description: Regency/city name
+                          example: 'KOTA ADM. JAKARTA PUSAT'
+                        regency_code:
+                          type: string
+                          description: Regency/city code
+                          example: '3171'
+                        long:
+                          type: number
+                          format: float
+                          description: Longitude
+                          example: 106.8301
+                        lat:
+                          type: number
+                          format: float
+                          description: Latitude
+                          example: -6.3619
+                        university_type:
+                          type: string
+                          description: University type
+                          example: 'PERGURUAN TINGGI'
+                  paging:
+                    type: object
+                    properties:
+                      page:
+                        type: integer
+                        example: 1
+                      size:
+                        type: integer
+                        example: 100
+                      total_item:
+                        type: integer
+                        example: 5000
+                      total_page:
+                        type: integer
+                        example: 50
+              examples:
+                success:
+                  summary: Success - Universities Listed
+                  value:
+                    is_success: true
+                    message: Success
+                    data:
+                      - group: 'UNIVERSITAS'
+                        address: 'JLN. SALEMBA RAYA NO. 4'
+                        name: 'UNIVERSITAS INDONESIA'
+                        short_name: 'UI'
+                        province: 'DKI JAKARTA'
+                        province_code: '31'
+                        regency: 'KOTA ADM. JAKARTA PUSAT'
+                        regency_code: '3171'
+                        long: 106.8301
+                        lat: -6.3619
+                        university_type: 'PERGURUAN TINGGI'
+                      - group: 'INSTITUT'
+                        address: 'JLN. GANESHA NO. 10'
+                        name: 'INSTITUT TEKNOLOGI BANDUNG'
+                        short_name: 'ITB'
+                        province: 'JAWA BARAT'
+                        province_code: '32'
+                        regency: 'KOTA BANDUNG'
+                        regency_code: '3273'
+                        long: 107.6106
+                        lat: -6.8915
+                        university_type: 'PERGURUAN TINGGI'
+                    paging:
+                      page: 1
+                      size: 100
+                      total_item: 5000
+                      total_page: 50
+                filtered:
+                  summary: Success - Filtered Universities
+                  value:
+                    is_success: true
+                    message: Success
+                    data:
+                      - group: 'UNIVERSITAS'
+                        address: 'JLN. SALEMBA RAYA NO. 4'
+                        name: 'UNIVERSITAS INDONESIA'
+                        short_name: 'UI'
+                        province: 'DKI JAKARTA'
+                        province_code: '31'
+                        regency: 'KOTA ADM. JAKARTA PUSAT'
+                        regency_code: '3171'
+                        long: 106.8301
+                        lat: -6.3619
+                        university_type: 'PERGURUAN TINGGI'
+                    paging:
+                      page: 1
+                      size: 100
+                      total_item: 1
+                      total_page: 1
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              examples:
+                Invalid Page:
+                  summary: Invalid Page Parameter
+                  value:
+                    is_success: false
+                    message: 'Invalid parameter: page must be greater than or equal to 1'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              examples:
+                Missing API Key:
+                  summary: Missing API Key
+                  value:
+                    is_success: false
+                    message: 'Missing API key in x-api-co-id header'
+                Invalid API Key:
+                  summary: Invalid API Key
+                  value:
+                    is_success: false
+                    message: 'Invalid API key'
+        '429':
+          description: Too Many Requests
+          content:
+            application/json:
+              examples:
+                Rate Limit Exceeded:
+                  summary: Rate Limit Exceeded
+                  value:
+                    is_success: false
+                    message: 'Rate limit exceeded. Please try again later'

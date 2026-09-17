@@ -1,0 +1,22 @@
+--
+-- Tiket 03: satu Daurah, satu Master of Training. Sebelum ini, aturannya
+-- cuma hidup di `addInstructorAction` — jalur yang lupa memeriksanya (atau
+-- dua permintaan yang bersamaan) bisa mencatat dua `master` untuk satu
+-- Daurah yang sama.
+--
+-- Partial unique index, bukan constraint biasa: PostgreSQL tidak punya
+-- bentuk constraint untuk keunikan bersyarat, dan aturannya memang hanya
+-- berlaku untuk baris ber-`role = 'master'` — peran lain tetap boleh diisi
+-- lebih dari satu orang.
+--
+-- SEBELUM MENJALANKAN DI PRODUCTION: hitung Daurah yang sudah terlanjur
+-- punya lebih dari satu `master` (mis. `SELECT training_id FROM
+-- training_instructors WHERE role = 'master' GROUP BY training_id HAVING
+-- count(*) > 1`). Migrasi ini akan gagal kalau ada satu pun — putuskan
+-- manual master mana yang bertahan sebelum menjalankannya.
+--
+-- Kegagalannya aman: runner Drizzle membungkus migrasi tertunda dalam satu
+-- transaksi, jadi rollback bersih kalau ada pelanggaran — nol baris
+-- berubah, nol indeks setengah jadi.
+--
+CREATE UNIQUE INDEX "training_instructors_master_unique" ON "training_instructors" ("training_id") WHERE "role" = 'master';
