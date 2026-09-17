@@ -37,7 +37,15 @@ export const verificationAccessLog = pgTable(
       .text({ enum: ['found', 'not_found', 'unauthorized', 'rate_limited'] })
       .notNull(),
     reason: t.text({
-      enum: ['invalid_key', 'not_found', 'not_verifiable', 'rate_limited']
+      enum: [
+        'invalid_key',
+        'not_found',
+        'not_verifiable',
+        'rate_limited',
+        'directory',
+        'directory_not_found',
+        'directory_rate_limited'
+      ]
     })
   })
 )

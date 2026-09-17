@@ -35,9 +35,9 @@ _Avoid_: Akun Struktur, Akun organisasi, Akun pengurus
 
 **Kunci Verifikasi**:
 Rahasia yang dibuat Root agar aplikasi atau orang di luar KAMMI.id dapat
-memverifikasi satu Kader melalui Nomor Induk Anggota. Kunci tidak mengenali
-pemegang maupun membatasi Cakupan; pemakaian dan verifikasi lanjut berada di
-luar KAMMI.id.
+membaca Verifikasi Kader dan Direktori Struktur. Kunci tidak mengenali pemegang
+maupun membatasi Cakupan; pemakaian dan keputusan lanjut berada di luar
+KAMMI.id.
 _Avoid_: API key mitra, Akun mitra, Kredensial organisasi
 
 **Verifikasi Kader**:

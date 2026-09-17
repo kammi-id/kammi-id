@@ -12,6 +12,7 @@ import {
   inArray,
   eq,
   and,
+  or,
   ilike,
   isNull,
   type SQL,
@@ -182,6 +183,131 @@ export type OrganizationFilters = {
     column: keyof Organization | 'childrenCount'
     direction: 'asc' | 'desc'
   }[]
+}
+
+export type StrukturDirectoryItem = Pick<
+  Organization,
+  'id' | 'name' | 'slug' | 'type'
+>
+
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+
+/** Resolves an external ancestor reference. UUIDs take precedence over slugs. */
+export const readOrganizationIdByReference = async (
+  reference: string
+): Promise<string | undefined> => {
+  if (UUID_RE.test(reference)) {
+    const [byId] = await db
+      .with(withOrganizationCTE)
+      .select({ id: withOrganizationCTE.id })
+      .from(withOrganizationCTE)
+      .where(eq(withOrganizationCTE.id, reference))
+      .limit(1)
+
+    if (byId) return byId.id
+  }
+
+  const [bySlug] = await db
+    .with(withOrganizationCTE)
+    .select({ id: withOrganizationCTE.id })
+    .from(withOrganizationCTE)
+    .where(eq(withOrganizationCTE.slug, reference))
+    .limit(1)
+
+  return bySlug?.id
+}
+
+/**
+ * Directory read for external integrations. `ancestorId` limits results to
+ * descendants, never the ancestor itself, while retaining Non-Aktif Struktur.
+ */
+export const readStrukturDirectory = async ({
+  types,
+  ancestorId,
+  search
+}: {
+  types: Organization['type'][]
+  ancestorId?: string
+  search?: string
+}): Promise<StrukturDirectoryItem[]> => {
+  const matchesSearch = search
+    ? or(
+        ilike(organization.name, `%${search}%`),
+        ilike(organization.slug, `%${search}%`),
+        ilike(organization.code, `%${search}%`)
+      )
+    : undefined
+
+  const selectDirectoryItem = {
+    id: organization.id,
+    name: organization.name,
+    slug: organization.slug,
+    type: organization.type
+  }
+
+  const orderBy = [
+    sql`CASE ${organization.type}
+      WHEN 'pw' THEN 1
+      WHEN 'pdln' THEN 2
+      WHEN 'pd' THEN 3
+      WHEN 'pk' THEN 4
+      ELSE 5
+    END`,
+    sql`(substring(${organization.code} from '[0-9]+'))::int`,
+    asc(organization.code)
+  ]
+
+  if (!ancestorId) {
+    return await db
+      .select(selectDirectoryItem)
+      .from(organization)
+      .where(
+        and(
+          isNull(organization.deletedAt),
+          inArray(organization.type, types),
+          matchesSearch
+        )
+      )
+      .orderBy(...orderBy)
+  }
+
+  const rows = await db.execute(sql`
+    WITH RECURSIVE org_tree AS (
+      SELECT id FROM ${organization}
+      WHERE id = ${ancestorId} AND deleted_at IS NULL
+      UNION ALL
+      SELECT child.id FROM ${organization} child
+      JOIN org_tree ON child.parent_id = org_tree.id
+      WHERE child.deleted_at IS NULL
+    )
+    SELECT o.id, o.name, o.slug, o.type
+    FROM ${organization} o
+    JOIN org_tree ON o.id = org_tree.id
+    WHERE o.id <> ${ancestorId}
+      AND o.type IN (${sql.join(
+        types.map((type) => sql`${type}`),
+        sql`, `
+      )})
+      ${
+        search
+          ? sql`AND (o.name ILIKE ${`%${search}%`} OR o.slug ILIKE ${`%${search}%`} OR o.code ILIKE ${`%${search}%`})`
+          : sql``
+      }
+    ORDER BY
+      CASE o.type
+        WHEN 'pw' THEN 1
+        WHEN 'pdln' THEN 2
+        WHEN 'pd' THEN 3
+        WHEN 'pk' THEN 4
+        ELSE 5
+      END,
+      (substring(o.code from '[0-9]+'))::int,
+      o.code
+  `)
+
+  const result = (rows as { rows?: StrukturDirectoryItem[] }).rows ?? rows
+  return result as StrukturDirectoryItem[]
 }
 
 export const createOrganization = async (

@@ -83,7 +83,14 @@ export const recordVerificationAccess = async ({
 }: {
   keyId: string | null
   outcome: 'found' | 'not_found' | 'unauthorized' | 'rate_limited'
-  reason?: 'invalid_key' | 'not_found' | 'not_verifiable' | 'rate_limited'
+  reason?:
+    | 'invalid_key'
+    | 'not_found'
+    | 'not_verifiable'
+    | 'rate_limited'
+    | 'directory'
+    | 'directory_not_found'
+    | 'directory_rate_limited'
 }): Promise<void> => {
   await db.insert(verificationAccessLog).values({ keyId, outcome, reason })
 
