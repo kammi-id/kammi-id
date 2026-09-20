@@ -109,12 +109,12 @@ export const MetadataForm = ({ initialData }: Props) => {
               name='ogImageUrl'
               value={ogImageUrl}
               onChange={(e) => setOgImageUrl(e.target.value)}
-              placeholder='/assets/logo.png atau https://...'
+              placeholder='https://... (kosongkan untuk kartu otomatis)'
             />
           </FieldContent>
           <FieldDescription>
             Gambar yang muncul saat halaman dibagikan di WhatsApp, Twitter, dll.
-            Ukuran ideal 1200x630px.
+            Ukuran ideal 1200x630px. Kosongkan untuk memakai kartu otomatis.
           </FieldDescription>
           <FieldError errors={fe.ogImageUrl?.map((m) => ({ message: m }))} />
         </Field>

@@ -373,7 +373,7 @@ export const saveFooterAction = async (
 const metadataSchema = z.object({
   pageTitle: z.string().min(1, 'Judul halaman wajib diisi.'),
   metaDescription: z.string().min(1, 'Deskripsi halaman wajib diisi.'),
-  ogImageUrl: z.string().min(1, 'URL gambar OG wajib diisi.')
+  ogImageUrl: z.string()
 })
 
 export const saveMetadataAction = async (

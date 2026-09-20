@@ -14,7 +14,7 @@ import {
 } from '../_data/struktur'
 import { resolveSitusTemplateVariant } from '~/lib/struktur/situs-template'
 import { jenjangLabel } from '~/lib/struktur/jenjang'
-import { resolveSiteImage } from '~/lib/utils/site-image'
+import { hasCustomOgImage, resolveSiteImage } from '~/lib/utils/site-image'
 import { HomeScene } from './_components/home-scene'
 import { ExtraSection } from './_components/extra-section'
 import { LeanHomeScene } from './_components/lean-home-scene'
@@ -34,6 +34,7 @@ export const generateMetadata = async ({
     getMetadataSettings(orgId),
     getStrukturIdentity(orgId)
   ])
+  const customOgImage = hasCustomOgImage(meta.ogImageUrl)
   return {
     title: { absolute: meta.pageTitle },
     description: meta.metaDescription,
@@ -41,21 +42,27 @@ export const generateMetadata = async ({
     openGraph: {
       title: meta.pageTitle,
       description: meta.metaDescription,
-      images: [
-        {
-          url: meta.ogImageUrl,
-          width: 1200,
-          height: 630,
-          // Dulu dikeraskan 'KAMMI.id' untuk setiap Struktur — pola bug yang
-          // sama dengan ticket 02. Sekarang nama Struktur sungguhan.
-          alt: identity?.name ?? 'KAMMI.id'
-        }
-      ]
+      // Tanpa gambar kustom, kunci `images` harus ABSEN (bukan `[]`/`undefined`)
+      // supaya kartu `opengraph-image.tsx` yang dipakai Next.
+      ...(customOgImage
+        ? {
+            images: [
+              {
+                url: meta.ogImageUrl,
+                width: 1200,
+                height: 630,
+                // Dulu dikeraskan 'KAMMI.id' untuk setiap Struktur — pola bug
+                // yang sama dengan ticket 02. Sekarang nama Struktur sungguhan.
+                alt: identity?.name ?? 'KAMMI.id'
+              }
+            ]
+          }
+        : {})
     },
     twitter: {
       title: meta.pageTitle,
       description: meta.metaDescription,
-      images: [meta.ogImageUrl]
+      ...(customOgImage ? { images: [meta.ogImageUrl] } : {})
     }
   }
 }

@@ -56,3 +56,19 @@ export const resolveAbsoluteSiteImage = async (
     ? resolved
     : `https://${resolveStrukturHost(org)}${resolved}`
 }
+
+/**
+ * Bawaan lama `ogImageUrl` yang menunjuk berkas yang tidak pernah ada di
+ * `public/` — rutenya jatuh ke halaman HTML, bukan gambar. Baris DB yang
+ * sempat menyimpannya (formulir Metadata dulu mengisinya otomatis) diperlakukan
+ * sama dengan kosong.
+ */
+const DEAD_DEFAULT_OG_IMAGE = '/assets/logo.png'
+
+/**
+ * Apakah Struktur sudah menetapkan gambar OG sendiri. Bila belum, halaman
+ * TIDAK boleh mengisi `openGraph.images` sama sekali: kunci yang ada (walau
+ * kosong) membuat Next berhenti memakai file convention `opengraph-image.tsx`.
+ */
+export const hasCustomOgImage = (url: string | null | undefined): boolean =>
+  !!url && url !== DEAD_DEFAULT_OG_IMAGE

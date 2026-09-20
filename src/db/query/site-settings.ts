@@ -237,7 +237,7 @@ export const SETTINGS_DEFAULTS = {
     pageTitle: 'KAMMI.id — Pelopor Kebaikan untuk Indonesia',
     metaDescription:
       'Kesatuan Aksi Mahasiswa Muslim Indonesia. Membangun peradaban dengan intelektualitas, integritas, dan amal nyata.',
-    ogImageUrl: '/assets/logo.png'
+    ogImageUrl: ''
   } satisfies MetadataSettings,
 
   tentang: {
