@@ -126,6 +126,35 @@ export async function proxy(request: NextRequest) {
   // diketahui dari `slug` yang barusan ditentukan, tanpa query tambahan pada
   // setiap permintaan situs publik.
   if (pathname === `/${slug}` || pathname.startsWith(`/${slug}/`)) {
+    // Pengecualian: rute gambar metadata (`opengraph-image`,
+    // `twitter-image`). Alamatnya DIKARANG oleh Next dari jalur rute
+    // internal — `metadataBase` + jalur segmen, jadi selalu memuat
+    // `/${slug}` — dan tidak ada API untuk mengupas segmen `[strukturSlug]`
+    // dari alamat yang dipasang Next di `<meta property="og:image">`.
+    // Tanpa pengecualian ini SETIAP kartu bagikan di situs publik menunjuk
+    // ke alamat yang persis diblokir di bawah: crawler menerima HTML
+    // halaman galat berstatus 200, bukan PNG, dan pratinjau tautan kosong
+    // di semua platform.
+    //
+    // Bukan duplicate content yang dicegah ADR 0012: yang dilayani di sini
+    // aset gambar (`image/png`), bukan halaman yang diindeks sebagai
+    // salinan kedua sebuah Berita.
+    //
+    // `return` kosong, BUKAN rewrite: jalur ini sudah berbentuk internal
+    // (`/${slug}/...`), jadi meneruskannya ke rewrite di bawah akan
+    // menggandakan segmen jadi `/${slug}/${slug}/...`. Bentuk publik tanpa
+    // awalan (`/berita/.../opengraph-image-<hash>`) tidak lewat cabang ini
+    // sama sekali — ia jatuh ke rewrite biasa dan tetap dilayani.
+    //
+    // Satu segmen opsional di belakang nama gambar ikut dicakup: itu bentuk
+    // `generateImageMetadata` (`opengraph-image-<hash>/<id>`). Tidak ada rute
+    // yang memakainya sekarang, tapi membiarkannya di pola ini yang membuat
+    // pemulihan `alt` per-Artikel nanti tidak diam-diam mematikan kembali
+    // seluruh kartu bagikan. Batas persisnya diuji di `proxy.test.ts`.
+    if (/\/(opengraph|twitter)-image(-[a-z0-9]+)?(\/[^/]+)?$/.test(pathname)) {
+      return
+    }
+
     const blocked = request.nextUrl.clone()
     blocked.pathname = '/__internal-path-blocked'
     return NextResponse.rewrite(blocked)

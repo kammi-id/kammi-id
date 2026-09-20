@@ -150,6 +150,78 @@ describe('proxy — tenant routing', () => {
     )
   })
 
+  it('serves an internal-path metadata image route instead of blocking it', async () => {
+    // Regression test: Next mengarang alamat `og:image` dari jalur rute
+    // internal, jadi setiap kartu bagikan menunjuk ke `/${slug}/...`. Selama
+    // guard ADR 0012 di atas ikut menelan alamat itu, crawler menerima HTML
+    // halaman galat, bukan PNG — pratinjau tautan kosong di semua platform.
+    const res = await proxy(
+      new NextRequest(
+        'https://pw-jabar.kammi.id/pw-jabar/berita/opengraph-image-6wao3q'
+      )
+    )
+
+    // Pass-through (undefined), BUKAN rewrite: jalurnya sudah internal, jadi
+    // merewrite-nya lagi akan menggandakan segmen jadi `/pw-jabar/pw-jabar/…`.
+    expect(res).toBeUndefined()
+  })
+
+  it('serves an internal-path metadata image route that carries a metadata id segment', async () => {
+    const res = await proxy(
+      new NextRequest(
+        'https://pw-jabar.kammi.id/pw-jabar/berita/2026/09/judul/opengraph-image-1c7rfe/default'
+      )
+    )
+
+    expect(res).toBeUndefined()
+  })
+
+  it('serves an internal-path twitter-image route too', async () => {
+    const res = await proxy(
+      new NextRequest(
+        'https://pw-jabar.kammi.id/pw-jabar/berita/twitter-image-6wao3q'
+      )
+    )
+
+    expect(res).toBeUndefined()
+  })
+
+  it('still rewrites the public form of a metadata image route', async () => {
+    // Bentuk tanpa awalan slug tidak lewat cabang pengecualian sama sekali —
+    // ia harus tetap jatuh ke rewrite biasa ke jalur internal.
+    const res = await proxy(
+      new NextRequest('https://pw-jabar.kammi.id/berita/opengraph-image-6wao3q')
+    )
+
+    expect(res?.headers.get('x-middleware-rewrite')).toBe(
+      'https://pw-jabar.kammi.id/pw-jabar/berita/opengraph-image-6wao3q'
+    )
+  })
+
+  it('still blocks an internal path that only buries opengraph-image mid-way', async () => {
+    // Batas pengecualian: nama gambar metadata harus jadi segmen terakhir,
+    // atau segmen kedua-dari-belakang (bentuk `generateImageMetadata`, yang
+    // menambah satu segmen id). Dua segmen atau lebih setelahnya bukan alamat
+    // yang pernah dikarang Next, jadi guard ADR 0012 tetap berlaku.
+    //
+    // Konsekuensi yang diterima sadar: sebuah Halaman dengan slug yang
+    // PERSIS berbentuk `opengraph-image-<alfanumerik>` dan punya tepat satu
+    // segmen anak akan ikut lolos. Tidak ada bentuk rute di aplikasi ini yang
+    // menghasilkan susunan itu (Permalink Berita `/berita/<tahun>/<bulan>/
+    // <slug>` menaruh slug di segmen terakhir, bukan kedua-dari-belakang),
+    // jadi harganya lebih murah daripada mengetatkan pola sampai bentuk id
+    // `generateImageMetadata` ikut terblokir.
+    const res = await proxy(
+      new NextRequest(
+        'https://pw-jabar.kammi.id/pw-jabar/opengraph-image-palsu/tentang/pengurus'
+      )
+    )
+
+    expect(res?.headers.get('x-middleware-rewrite')).toBe(
+      'https://pw-jabar.kammi.id/__internal-path-blocked'
+    )
+  })
+
   it('does not block a path that merely starts with the slug as a substring', async () => {
     // `/pw-jabar-lama` must not collide with the `/pw-jabar` guard.
     const res = await proxy(

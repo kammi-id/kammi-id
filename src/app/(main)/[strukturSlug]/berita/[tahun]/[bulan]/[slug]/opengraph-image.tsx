@@ -8,25 +8,29 @@ export const contentType = ogImageConfig.contentType
 
 type ImageProps = { params: BeritaDetailParams }
 
-// `alt` (og:image:alt, ticket 04 item 7) butuh judul Artikel yang dinamis
-// per Artikel — `export const alt = '...'` biasa dibaca statis oleh Next
-// (lihat `next-metadata-image-loader.js`), tidak pernah dipanggil dengan
-// `params`. `generateImageMetadata` adalah satu-satunya jalur resmi yang
-// menerima `params` dan bisa mengembalikan `alt` per-request.
-export const generateImageMetadata = async ({ params }: ImageProps) => {
-  const { articleRow, outcome } = await resolveOutcome(params)
-  const alt =
-    outcome?.kind === 'ok' && articleRow ? articleRow.title : 'KAMMI.id'
-
-  return [
-    {
-      id: 'default',
-      alt,
-      size: ogImageConfig.size,
-      contentType: ogImageConfig.contentType
-    }
-  ]
-}
+// `alt` STATIS, bukan `generateImageMetadata` (yang dipakai tiket 04 item 7
+// untuk memberi setiap Artikel `alt` berisi judulnya sendiri).
+//
+// Sebab: kehadiran `generateImageMetadata` memindahkan rute gambar ini dari
+// ƒ (Dynamic) ke ● (SSG) pada `next build` — Next memperlakukannya seperti
+// `generateStaticParams` untuk segmen `[__metadata_id__]`. Begitu rutenya
+// statis, SETIAP pembacaan IO tak-tercache di dalamnya (di sini: query DB
+// lewat `resolveOutcome`) melempar `DYNAMIC_SERVER_USAGE` saat diminta, dan
+// rutenya membalas `500 Internal Server Error` — kartu bagikan Artikel mati
+// total di production, bukan sekadar kehilangan `alt`.
+//
+// `connection()` TIDAK bisa menyelamatkan: di dalam `generateImageMetadata`
+// ia ditolak `next build` ("used `connection()` inside
+// `generateStaticParams`"), dan di dalam komponen `Image` ia tidak lagi
+// membuat rutenya dinamis begitu `generateImageMetadata` ada.
+//
+// Diverifikasi lewat rute repro minimal pada production build: dengan
+// `generateImageMetadata` → ● dan 500; tanpa → ƒ dan 200 image/png.
+//
+// Mengembalikan `alt` per-Artikel menuntut seluruh pembacaan rute ini pindah
+// ke `'use cache'` (+ `updateTag` saat Artikel disunting) supaya rutenya sah
+// tetap prerender — pekerjaan tersendiri, bukan bagian dari perbaikan ini.
+export const alt = 'KAMMI.id'
 
 const Image = async ({ params }: ImageProps) => {
   const { articleRow, org, outcome } = await resolveOutcome(params)
