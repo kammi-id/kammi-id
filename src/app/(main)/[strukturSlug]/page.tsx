@@ -60,6 +60,9 @@ export const generateMetadata = async ({
         : {})
     },
     twitter: {
+      // Objek `twitter` halaman menimpa milik layout, termasuk `card`.
+      card: 'summary_large_image',
+      site: '@KAMMIPusat',
       title: meta.pageTitle,
       description: meta.metaDescription,
       ...(customOgImage ? { images: [meta.ogImageUrl] } : {})
