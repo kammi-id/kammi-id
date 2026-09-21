@@ -14,7 +14,7 @@ export const article = pgTable(
       .uuid('organization_id')
       .notNull()
       .references(() => organization.id),
-    type: t.text({ enum: ['page', 'blog'] }).notNull(),
+    type: t.text({ enum: ['page', 'blog', 'event'] }).notNull(),
     title: t.text().notNull(),
     slug: t.text().notNull(),
     body: t.jsonb().notNull(),
@@ -32,6 +32,14 @@ export const article = pgTable(
     // Halaman (yang tidak wajib punya Penulis) tidak punya nilai di sini.
     penulis: t.text(),
     publishedAt: t.timestamp('published_at'),
+    eventStartsAt: t.timestamp('event_starts_at', { withTimezone: true }),
+    eventEndsAt: t.timestamp('event_ends_at', { withTimezone: true }),
+    eventTimezone: t.text('event_timezone', {
+      enum: ['Asia/Jakarta', 'Asia/Makassar', 'Asia/Jayapura']
+    }),
+    eventLocation: t.text('event_location'),
+    eventUrl: t.text('event_url'),
+    eventCancelled: t.boolean('event_cancelled').notNull().default(false),
     status: t
       .text({ enum: ['draft', 'published', 'archived'] })
       .notNull()
@@ -84,6 +92,9 @@ export const article = pgTable(
      */
     index('article_terbit_jaringan_idx')
       .on(table.publishedAt.desc(), table.id.desc())
-      .where(sql`${table.type} = 'blog' AND ${table.status} = 'published'`)
+      .where(sql`${table.type} = 'blog' AND ${table.status} = 'published'`),
+    index('article_event_upcoming_idx')
+      .on(table.organizationId, table.eventStartsAt, table.id)
+      .where(sql`${table.type} = 'event' AND ${table.status} = 'published'`)
   ]
 )

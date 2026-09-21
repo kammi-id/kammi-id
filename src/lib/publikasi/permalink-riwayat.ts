@@ -13,7 +13,7 @@ import { deriveTahunBulanTerbit, isTerbit } from './tanggal-terbit'
  */
 
 export type ArticlePermalinkState = {
-  type: 'page' | 'blog'
+  type: 'page' | 'blog' | 'event'
   status: 'draft' | 'published' | 'archived'
   slug: string
   publishedAt: Date | null

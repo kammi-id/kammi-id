@@ -26,7 +26,7 @@ export const getBeritaJaringanPreview = async (): Promise<
   cacheTag('berita-jaringan')
 
   try {
-    return await listLatestBeritaJaringan(12)
+    return await listLatestBeritaJaringan(8)
   } catch {
     return []
   }

@@ -31,6 +31,7 @@
 export const RESERVED_STRUKTUR_PATHS = [
   'berita',
   'event',
+  'events',
   'tentang',
   'dashboard',
   'login',

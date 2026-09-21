@@ -121,7 +121,7 @@ describe('sitemap', () => {
     expect(entries.map((entry) => entry.url)).toEqual([
       'https://pw-jabar.kammi.id',
       'https://pw-jabar.kammi.id/berita',
-      'https://pw-jabar.kammi.id/event',
+      'https://pw-jabar.kammi.id/events',
       'https://pw-jabar.kammi.id/tentang',
       'https://pw-jabar.kammi.id/tentang/pengurus',
       'https://pw-jabar.kammi.id/tentang-kami',
@@ -138,10 +138,10 @@ describe('sitemap', () => {
     }
   })
 
-  it('rute yang benar-benar statis (/berita, /event) tidak memasang lastModified yang dikarang', async () => {
+  it('rute yang benar-benar statis (/berita, /events) tidak memasang lastModified yang dikarang', async () => {
     const entries = await sitemap()
     const berita = entries.find((e) => e.url.endsWith('/berita'))
-    const event = entries.find((e) => e.url.endsWith('/event'))
+    const event = entries.find((e) => e.url.endsWith('/events'))
 
     expect(berita).not.toHaveProperty('lastModified')
     expect(event).not.toHaveProperty('lastModified')

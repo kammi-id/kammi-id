@@ -1,7 +1,7 @@
 export type ArticleListItem = {
   id: string
   title: string
-  type: 'page' | 'blog'
+  type: 'page' | 'blog' | 'event'
   status: 'draft' | 'published' | 'archived'
   slug: string
   categoryId: string | null

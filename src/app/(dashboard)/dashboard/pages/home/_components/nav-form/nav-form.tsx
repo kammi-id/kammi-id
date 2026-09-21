@@ -1,5 +1,6 @@
 'use client'
 
+import { IconPicker } from '~/components/ui/icon-picker'
 import { useActionState, useCallback, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { Button } from '~/components/shadcn/ui/button'
@@ -37,8 +38,13 @@ export const NavForm = ({ initialData }: Props) => {
     initialData.ctaBergabungHref
   )
 
+  const [ctaBergabungIcon, setCtaBergabungIcon] = useState(
+    initialData.ctaBergabungIcon ?? 'join'
+  )
+
   const { isDirty, markClean } = useUnsavedChanges({
     navLinks,
+    ctaBergabungIcon,
     ctaBergabungLabel,
     ctaBergabungHref
   })
@@ -69,9 +75,10 @@ export const NavForm = ({ initialData }: Props) => {
         'navLinks',
         JSON.stringify(navLinks.map(({ label, href }) => ({ label, href })))
       )
+      fd.set('ctaBergabungIcon', ctaBergabungIcon)
       formAction(fd)
     },
-    [navLinks, formAction]
+    [navLinks, ctaBergabungIcon, formAction]
   )
 
   return (
@@ -116,6 +123,14 @@ export const NavForm = ({ initialData }: Props) => {
               </FieldContent>
               <FieldError
                 errors={fe.ctaBergabungHref?.map((m) => ({ message: m }))}
+              />
+            </Field>
+            <Field>
+              <FieldLabel htmlFor='cta-icon'>Ikon Tombol</FieldLabel>
+              <IconPicker
+                id='cta-icon'
+                value={ctaBergabungIcon}
+                onChange={setCtaBergabungIcon}
               />
             </Field>
           </div>

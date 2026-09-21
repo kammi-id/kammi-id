@@ -28,17 +28,18 @@ export const articlePermalinkHistoryQuery = {
 
   /**
    * Dipanggil HANYA di jalur "tidak ditemukan" halaman publik Permalink
-   * Berita (`(main)/.../berita/[tahun]/[bulan]/[slug]/page.tsx`) — pembacaan
+   * Berita atau Event — pembacaan
    * normal (lookup langsung by slug berhasil) tidak pernah menyentuh fungsi
    * ini sama sekali.
    *
    * Mengembalikan baris `article` SEGAR (bukan snapshot beku dari saat
    * riwayat ditulis) milik pemetaan riwayat TERBARU (`ORDER BY created_at
-   * DESC LIMIT 1`) untuk `(organizationId, oldSlug)` — bukan baris riwayat
+   * DESC LIMIT 1`) untuk `(organizationId, oldSlug, type)` — bukan baris riwayat
    * pertama yang cocok. Itulah yang membuat sebuah alamat lama yang dipakai
    * ulang oleh Berita LAIN (yang kemudian pindah lagi sendiri) tetap
    * melayani Berita yang benar-benar aktif sekarang, bukan pemilik lama
-   * alamat itu (ticket 10).
+   * alamat itu (ticket 10). Tipe memisahkan ruang alamat Berita dan Event;
+   * artikel yang pindah organisasi tidak lagi menjadi tujuan di situs lama.
    *
    * Pemanggil WAJIB menyaring ulang keadaan Terbit/Diarsipkan baris yang
    * dikembalikan (lihat `canonicalPermalinkForHistoryTarget` di
@@ -47,7 +48,8 @@ export const articlePermalinkHistoryQuery = {
    */
   findCurrentArticleForOldPermalink: async (
     organizationId: string,
-    oldSlug: string
+    oldSlug: string,
+    type: 'blog' | 'event' = 'blog'
   ) => {
     const [row] = await db
       .select({ article })
@@ -57,6 +59,8 @@ export const articlePermalinkHistoryQuery = {
         and(
           eq(articlePermalinkHistory.organizationId, organizationId),
           eq(articlePermalinkHistory.oldSlug, oldSlug),
+          eq(article.organizationId, organizationId),
+          eq(article.type, type),
           organizationNotDeleted(article.organizationId)
         )
       )

@@ -10,6 +10,7 @@ describe('RESERVED_STRUKTUR_PATHS / isReservedStrukturPath', () => {
   it('menolak rute statis yang sudah ada langsung di bawah [strukturSlug]/', () => {
     expect(isReservedStrukturPath('berita')).toBe(true)
     expect(isReservedStrukturPath('event')).toBe(true)
+    expect(isReservedStrukturPath('events')).toBe(true)
     expect(isReservedStrukturPath('tentang')).toBe(true)
   })
 
@@ -33,6 +34,7 @@ describe('RESERVED_STRUKTUR_PATHS / isReservedStrukturPath', () => {
         'berita',
         'dashboard',
         'event',
+        'events',
         'login',
         'opengraph-image',
         'tentang'

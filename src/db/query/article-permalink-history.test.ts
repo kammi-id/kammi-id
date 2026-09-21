@@ -4,7 +4,7 @@ import { db } from '~/db/db'
 import { organization } from '~/db/schema/organization.sql'
 import { article } from '~/db/schema/article.sql'
 import { articlePermalinkHistory } from '~/db/schema/article-permalink-history.sql'
-import { inArray } from 'drizzle-orm'
+import { eq, inArray } from 'drizzle-orm'
 
 /**
  * Ticket 10 (Riwayat alamat Berita, ADR 0014). Tabel fisiknya BELUM ada di
@@ -21,12 +21,12 @@ describe('articlePermalinkHistoryQuery', () => {
 
   let orgId: string
 
-  const seedArticle = async (slug: string) => {
+  const seedArticle = async (slug: string, type: 'blog' | 'event' = 'blog') => {
     const [row] = await db
       .insert(article)
       .values({
         organizationId: orgId,
-        type: 'blog',
+        type,
         title: `Judul ${suffix}`,
         slug,
         body: { type: 'doc', content: [] },
@@ -178,5 +178,91 @@ describe('articlePermalinkHistoryQuery', () => {
         oldSlug
       )
     expect(found).toBeUndefined()
+  })
+
+  for (const firstType of ['blog', 'event'] as const) {
+    it(`memisahkan riwayat Berita dan Event ketika ${firstType} memakai slug lebih dahulu`, async () => {
+      const secondType = firstType === 'blog' ? 'event' : 'blog'
+      const oldSlug = `lintas-tipe-${firstType}-${suffix}`
+      const first = await seedArticle(
+        `pertama-${firstType}-${suffix}`,
+        firstType
+      )
+      const second = await seedArticle(
+        `kedua-${firstType}-${suffix}`,
+        secondType
+      )
+      for (const [index, target] of [first, second].entries()) {
+        const created = await articlePermalinkHistoryQuery.record({
+          organizationId: orgId,
+          articleId: target.id,
+          oldSlug,
+          oldTahun: 2025,
+          oldBulan: 12,
+          createdAt: new Date(`2026-01-0${index + 1}T00:00:00Z`)
+        })
+        historyIds.unshift(created.id)
+      }
+
+      const berita =
+        await articlePermalinkHistoryQuery.findCurrentArticleForOldPermalink(
+          orgId,
+          oldSlug
+        )
+      const event =
+        await articlePermalinkHistoryQuery.findCurrentArticleForOldPermalink(
+          orgId,
+          oldSlug,
+          'event'
+        )
+      expect(berita?.id).toBe(firstType === 'blog' ? first.id : second.id)
+      expect(event?.id).toBe(firstType === 'event' ? first.id : second.id)
+    })
+  }
+
+  it('tidak menampilkan artikel yang dipindahkan ke organisasi lain melalui riwayat lama', async () => {
+    const [otherOrg] = await db
+      .insert(organization)
+      .values({
+        name: `Organisasi Tujuan ${suffix}`,
+        slug: `riwayat-org-tujuan-${suffix}`,
+        code: `RPT-${suffix}`,
+        type: 'pk',
+        isNonActive: false
+      })
+      .returning({ id: organization.id })
+    orgIds.unshift(otherOrg.id)
+
+    for (const type of ['blog', 'event'] as const) {
+      const oldSlug = `sebelum-pindah-${type}-${suffix}`
+      const target = await seedArticle(`setelah-pindah-${type}-${suffix}`, type)
+      const created = await articlePermalinkHistoryQuery.record({
+        organizationId: orgId,
+        articleId: target.id,
+        oldSlug,
+        oldTahun: 2025,
+        oldBulan: 12
+      })
+      historyIds.unshift(created.id)
+      await db
+        .update(article)
+        .set({ organizationId: otherOrg.id })
+        .where(eq(article.id, target.id))
+
+      expect(
+        await articlePermalinkHistoryQuery.findCurrentArticleForOldPermalink(
+          orgId,
+          oldSlug,
+          type
+        )
+      ).toBeUndefined()
+      expect(
+        await articlePermalinkHistoryQuery.findCurrentArticleForOldPermalink(
+          otherOrg.id,
+          oldSlug,
+          type
+        )
+      ).toBeUndefined()
+    }
   })
 })

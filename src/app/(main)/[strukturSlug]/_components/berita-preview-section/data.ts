@@ -17,7 +17,7 @@ export const getBeritaPreview = async (
   cacheTag(`article-${organizationId}`)
 
   try {
-    return await listLatestBeritaForOrg(organizationId, 12)
+    return await listLatestBeritaForOrg(organizationId, 8)
   } catch {
     return []
   }

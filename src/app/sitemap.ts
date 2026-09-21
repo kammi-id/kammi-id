@@ -55,9 +55,9 @@ const publicRoutes = (
     url: origin,
     ...(lastModified.beranda ? { lastModified: lastModified.beranda } : {})
   },
-  // `/berita` (arsip) dan `/event` tidak dirender dari Pengaturan Situs:
-  // yang pertama daftar Berita dinamis tanpa satu tanggal ubah tunggal yang
-  // representatif, yang kedua benar-benar statis. Keduanya tanpa
+  // `/berita` (arsip) dan `/events` tidak dirender dari Pengaturan Situs:
+  // keduanya daftar publikasi dinamis tanpa satu tanggal ubah tunggal yang
+  // representatif. Keduanya tanpa
   // `lastModified` daripada mengarang — bukan bug, ADR-nya ada di ticket 05.
   { url: `${origin}/berita` },
   ...(isPP
@@ -70,7 +70,7 @@ const publicRoutes = (
         }
       ]
     : []),
-  { url: `${origin}/event` },
+  { url: `${origin}/events` },
   {
     url: `${origin}/tentang`,
     ...(lastModified.tentang ? { lastModified: lastModified.tentang } : {})

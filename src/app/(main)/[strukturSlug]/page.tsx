@@ -1,3 +1,5 @@
+import { Suspense } from 'react'
+import { EventsPreviewSection } from './_components/events-preview-section'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { getMetadataSettings } from '../_data/site-settings'
@@ -70,7 +72,7 @@ export const generateMetadata = async ({
   }
 }
 
-const Page = async ({ params }: PageProps) => {
+const HomeContent = async ({ params }: PageProps) => {
   const orgId = await resolveStrukturIdFromParams(params)
   if (!orgId) notFound()
   const identity = await getStrukturIdentity(orgId)
@@ -135,6 +137,7 @@ const Page = async ({ params }: PageProps) => {
             leaderBlocks: resolvedLeaderBlocks
           }}
         />
+        <EventsPreviewSection organizationId={orgId} />
         <BeritaPreviewSection
           organizationId={orgId}
           strukturName={identity.name}
@@ -205,6 +208,7 @@ const Page = async ({ params }: PageProps) => {
         networkStats={networkStats}
         pwOrgs={pwOrgs}
       />
+      <EventsPreviewSection organizationId={orgId} />
       <BeritaPreviewSection
         organizationId={orgId}
         strukturName={identity?.name ?? null}
@@ -215,5 +219,15 @@ const Page = async ({ params }: PageProps) => {
     </>
   )
 }
+
+const Page = (props: PageProps) => (
+  <Suspense
+    fallback={
+      <p className='text-muted-foreground px-6 py-10'>Memuat beranda…</p>
+    }
+  >
+    <HomeContent {...props} />
+  </Suspense>
+)
 
 export default Page
