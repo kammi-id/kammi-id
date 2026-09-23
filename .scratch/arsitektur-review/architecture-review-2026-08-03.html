@@ -1,0 +1,558 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Architecture review — kammi-id</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script type="module">
+      import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+      mermaid.initialize({ startOnLoad: true, theme: "neutral", securityLevel: "loose", flowchart: { curve: "basis" } });
+    </script>
+    <style>
+      .seam { stroke-dasharray: 5 4; }
+      .deep { background: linear-gradient(135deg, #0f172a, #1e293b); }
+      .hatch {
+        background-image: repeating-linear-gradient(45deg, #fecaca 0 6px, #fee2e2 6px 12px);
+      }
+      .modlabel { font-size: 0.625rem; letter-spacing: 0.12em; text-transform: uppercase; }
+      pre.mermaid { display: flex; justify-content: center; }
+    </style>
+  </head>
+  <body class="bg-stone-50 text-slate-900 font-sans antialiased">
+    <main class="max-w-5xl mx-auto px-6 py-14 space-y-14">
+
+      <!-- ══════════════════ HEADER ══════════════════ -->
+      <header class="space-y-6">
+        <div class="flex flex-wrap items-baseline justify-between gap-3">
+          <h1 class="font-serif text-4xl tracking-tight">Architecture review — <span class="text-emerald-700">kammi-id</span></h1>
+          <p class="font-mono text-xs text-slate-500">3 Agustus 2026 &middot; b7b978c</p>
+        </div>
+        <div class="flex flex-wrap gap-x-7 gap-y-2 rounded-lg border border-slate-200 bg-white px-5 py-3 text-xs text-slate-600">
+          <span class="flex items-center gap-2"><span class="inline-block h-3.5 w-6 rounded-sm border border-slate-400 bg-white"></span> module</span>
+          <span class="flex items-center gap-2"><svg width="26" height="8"><line x1="0" y1="4" x2="26" y2="4" stroke="#64748b" stroke-width="2" class="seam"/></svg> seam</span>
+          <span class="flex items-center gap-2"><svg width="26" height="8"><line x1="0" y1="4" x2="22" y2="4" stroke="#dc2626" stroke-width="2"/><path d="M22 1 L26 4 L22 7 Z" fill="#dc2626"/></svg> leakage</span>
+          <span class="flex items-center gap-2"><span class="deep inline-block h-3.5 w-6 rounded-sm"></span> deep module</span>
+        </div>
+
+        <p class="max-w-3xl text-sm leading-relaxed text-slate-600">
+          Scope taken from the hot spots in the last 60 commits: the <span class="font-mono text-xs">action.ts</span> files under
+          <span class="font-mono text-xs">trainings</span>, <span class="font-mono text-xs">articles</span>, <span class="font-mono text-xs">kader</span> and
+          <span class="font-mono text-xs">pages</span>, plus <span class="font-mono text-xs">src/db/query/</span>. Vocabulary for the domain is
+          <span class="font-mono text-xs">CONTEXT.md</span>; vocabulary for the architecture is the <span class="font-mono text-xs">/codebase-design</span> glossary.
+        </p>
+
+        <!-- Live defects callout -->
+        <section class="rounded-lg border-l-4 border-red-500 bg-red-50 px-5 py-4">
+          <h2 class="text-sm font-semibold text-red-900">Three live defects surfaced by the survey — these need tickets now, independent of any refactor</h2>
+          <ol class="mt-3 space-y-2.5 text-sm text-red-900/90">
+            <li>
+              <span class="font-mono text-xs bg-white/70 px-1.5 py-0.5 rounded">searchTrainingAttendantsAction</span> /
+              <span class="font-mono text-xs bg-white/70 px-1.5 py-0.5 rounded">searchTrainingInstructorsAction</span>
+              <span class="font-mono text-[11px] text-red-700">(training-detail-view/action.ts:457, :471)</span>
+              — no session read, no Cakupan check. Both enumerate Kader by name across every Struktur.
+            </li>
+            <li>
+              <span class="font-mono text-xs bg-white/70 px-1.5 py-0.5 rounded">members-page-content.tsx:135</span> builds its filters without a
+              <span class="font-mono text-xs">user</span> key, so the Cakupan branch in <span class="font-mono text-xs">readDescendantMembers</span>
+              <span class="font-mono text-[11px] text-red-700">(member.ts:435)</span> is skipped. <span class="font-mono text-xs">currentOrg</span> comes from the URL slug
+              <span class="font-mono text-[11px] text-red-700">(:73&ndash;76)</span>, and <span class="font-mono text-xs">AccessGuard</span> only checks Kewenangan, never which Struktur.
+              A BPK of one PK can list another PK's Kader. Same shape on <span class="font-mono text-xs">perangkat/[[...slug]]/page.tsx:46</span>.
+            </li>
+            <li>
+              <span class="font-mono text-xs bg-white/70 px-1.5 py-0.5 rounded">removeAttendantAction</span>
+              <span class="font-mono text-[11px] text-red-700">(:437)</span> guards with <span class="font-mono text-xs">assertCanManage</span>, not
+              <span class="font-mono text-xs">assertCanEditPassing</span> — Kelulusan can be erased outside Masa Penetapan by deleting the Peserta.
+            </li>
+          </ol>
+        </section>
+      </header>
+
+      <!-- ══════════════════ CANDIDATES ══════════════════ -->
+      <section id="candidates" class="space-y-14">
+        <h2 class="font-serif text-2xl tracking-tight border-b border-slate-300 pb-2">Deepening candidates</h2>
+
+        <!-- ─────────── C1 ─────────── -->
+        <article id="c1" class="space-y-5">
+          <div class="flex flex-wrap items-center gap-3">
+            <h3 class="font-serif text-2xl">1. Give Masa Penetapan Kelulusan a module</h3>
+            <span class="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800">Strong</span>
+            <span class="rounded-full bg-slate-100 px-3 py-1 text-xs text-slate-600">in-process</span>
+          </div>
+
+          <ul class="font-mono text-xs text-slate-600 space-y-0.5">
+            <li>src/app/(dashboard)/dashboard/trainings/_components/training-detail-view/action.ts:43&ndash;75, :437</li>
+            <li>src/app/(dashboard)/dashboard/trainings/[branch]/[id]/page.tsx:32&ndash;46</li>
+            <li>src/app/(dashboard)/dashboard/trainings/_components/training-detail-view/training-detail-view.tsx:87&ndash;95, :258&ndash;267, :534&ndash;541</li>
+          </ul>
+
+          <!-- Hand-built: four copies vs one deep module -->
+          <div class="grid gap-4 md:grid-cols-2">
+            <div class="rounded-lg border border-slate-200 bg-white p-4">
+              <p class="modlabel mb-3 text-slate-500">Before &mdash; no module, four copies</p>
+              <div class="space-y-2">
+                <div class="rounded border border-red-300 bg-red-50 px-3 py-2">
+                  <p class="modlabel text-red-800">action.ts:64</p>
+                  <p class="font-mono text-[11px] text-slate-700">daysSinceEnd &gt; 30 &rarr; error string</p>
+                </div>
+                <div class="rounded border border-red-300 bg-red-50 px-3 py-2">
+                  <p class="modlabel text-red-800">page.tsx:33&ndash;42</p>
+                  <p class="font-mono text-[11px] text-slate-700">daysSinceEnd &lt;= 30 &rarr; canEditPassing</p>
+                </div>
+                <div class="rounded border border-red-300 bg-red-50 px-3 py-2">
+                  <p class="modlabel text-red-800">page.tsx:44</p>
+                  <p class="font-mono text-[11px] text-slate-700">30 * 24 * 60 * 60 * 1000 &rarr; deadline</p>
+                </div>
+                <div class="rounded border border-red-300 bg-red-50 px-3 py-2">
+                  <p class="modlabel text-red-800">training-detail-view.tsx:87</p>
+                  <p class="font-mono text-[11px] text-slate-700">getTrainingStatus() &rarr; isCompleted</p>
+                </div>
+                <div class="hatch rounded border border-red-400 px-3 py-2">
+                  <p class="modlabel text-red-900">removeAttendantAction:437</p>
+                  <p class="font-mono text-[11px] text-red-900">&mdash; no copy at all &mdash;</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="rounded-lg border border-slate-200 bg-white p-4">
+              <p class="modlabel mb-3 text-slate-500">After &mdash; one deep module</p>
+              <div class="rounded border-2 border-slate-800 bg-white px-3 py-2">
+                <p class="modlabel text-slate-900">interface</p>
+                <p class="font-mono text-[11px] text-slate-800">masaPenetapanKelulusan(daurah, kewenangan)</p>
+                <p class="font-mono text-[11px] text-slate-500">&rarr; { terbuka, alasan, batasAkhir }</p>
+              </div>
+              <div class="deep mt-1 rounded px-3 py-6 text-slate-300">
+                <p class="modlabel mb-2 text-slate-400">implementation</p>
+                <p class="font-mono text-[11px] leading-relaxed">
+                  sisi buka: today &gt; endDate<br />
+                  sisi tutup: daysSinceEnd &lt;= 30<br />
+                  Root menembus keduanya<br />
+                  batasAkhir + copy untuk banner
+                </p>
+              </div>
+              <div class="mt-3 space-y-1">
+                <div class="rounded border border-slate-300 bg-slate-50 px-3 py-1.5"><p class="font-mono text-[11px] text-slate-600">action.ts &mdash; gate</p></div>
+                <div class="rounded border border-slate-300 bg-slate-50 px-3 py-1.5"><p class="font-mono text-[11px] text-slate-600">page.tsx &mdash; prop</p></div>
+                <div class="rounded border border-slate-300 bg-slate-50 px-3 py-1.5"><p class="font-mono text-[11px] text-slate-600">removeAttendantAction &mdash; gate</p></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid gap-5 md:grid-cols-2 text-sm">
+            <div><p class="modlabel text-slate-500 mb-1">Problem</p><p class="text-slate-700">The window is arithmetic copied four times and enforced in one; nothing owns it, so <span class="font-mono text-xs">removeAttendantAction</span> silently opts out.</p></div>
+            <div><p class="modlabel text-slate-500 mb-1">Solution</p><p class="text-slate-700">One module answering one question, read by the gate, the page, and the banner copy.</p></div>
+          </div>
+          <div>
+            <p class="modlabel text-slate-500 mb-2">Wins</p>
+            <ul class="grid gap-1.5 sm:grid-cols-2 text-sm text-slate-700">
+              <li>&bull; locality: one place to change 30</li>
+              <li>&bull; leverage: one interface, three call sites</li>
+              <li>&bull; interface is the test surface &mdash; eight existing cases move onto it</li>
+              <li>&bull; a new write path can't forget the gate</li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- ─────────── C2 ─────────── -->
+        <article id="c2" class="space-y-5 border-t border-slate-200 pt-12">
+          <div class="flex flex-wrap items-center gap-3">
+            <h3 class="font-serif text-2xl">2. Put Kewenangan behind privilege-named gates</h3>
+            <span class="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800">Strong</span>
+            <span class="rounded-full bg-slate-100 px-3 py-1 text-xs text-slate-600">in-process</span>
+          </div>
+
+          <ul class="font-mono text-xs text-slate-600 space-y-0.5">
+            <li>src/lib/access-control.ts &middot; src/lib/auth/site-settings.ts &middot; src/components/access-guard/</li>
+            <li>~40 role-literal comparisons across action.ts, page.tsx, sidebar, tables</li>
+            <li>14 page&harr;action pairs stating the same rule twice</li>
+          </ul>
+
+          <div class="rounded-lg border border-slate-200 bg-white p-4">
+            <p class="modlabel mb-3 text-slate-500">Before &mdash; five guard shapes, no seam</p>
+            <pre class="mermaid">
+flowchart LR
+  subgraph pages["page.tsx / components"]
+    AG["AccessGuard<br/>allowedRoles=[...]"]
+    P1["role === 'root' || role === 'bpk'"]
+    P2["isRoot / isHumas locals ×3"]
+    SB["app-sidebar<br/>4 role arrays"]
+  end
+  subgraph actions["action.ts"]
+    A1["assertCanManage<br/>→ string|null"]
+    A2["assertCanManageOrg<br/>→ string|null (×2 copies)"]
+    A3["canEdit<br/>→ boolean (×4 copies)"]
+    A4["mutationRoles=[...]<br/>inline (×6)"]
+    A5["requireSiteSettingsAccess<br/>→ {orgId}|null"]
+  end
+  AG -.same rule.-> A4
+  P1 -.same rule.-> A4
+  P2 -.same rule.-> A5
+  SB -.same rule.-> A1
+  classDef dup stroke:#dc2626,stroke-width:2px,fill:#fef2f2;
+  class P1,P2,SB,A1,A2,A3,A4 dup
+  classDef ok stroke:#059669,stroke-width:2px,fill:#ecfdf5;
+  class A5 ok
+            </pre>
+            <p class="mt-2 text-xs text-slate-500">Green: <span class="font-mono">requireSiteSettingsAccess</span> — the one guard that returns narrowed data instead of a verdict. AGENTS.md already names it the reference.</p>
+          </div>
+
+          <div class="rounded-lg border border-slate-200 bg-white p-4">
+            <p class="modlabel mb-3 text-slate-500">After &mdash; one seam, gates named for the privilege</p>
+            <pre class="mermaid">
+flowchart LR
+  PG["page.tsx"] --> G
+  AC["action.ts"] --> G
+  SB2["app-sidebar"] --> G
+  G["src/lib/auth/*<br/>requireKaderAccess()<br/>requireDaurahAccess()<br/>requireStrukturAccess()<br/>requireSiteSettingsAccess()"]
+  G --> R["→ { akun, cakupan } | null"]
+  classDef deep fill:#0f172a,color:#e2e8f0,stroke:#0f172a,stroke-width:2px;
+  class G deep
+            </pre>
+          </div>
+
+          <div class="grid gap-5 md:grid-cols-2 text-sm">
+            <div><p class="modlabel text-slate-500 mb-1">Problem</p><p class="text-slate-700">Kewenangan has no seam: the same rule is restated in the page and the action, and the two drift &mdash; <span class="font-mono text-xs">trainings/page.tsx:88</span> admits BPH, its action does not; the reset-password page omits Root, its action allows it.</p></div>
+            <div><p class="modlabel text-slate-500 mb-1">Solution</p><p class="text-slate-700">Gates named for the privilege they grant, returning the narrowed Akun the caller needs &mdash; the shape <span class="font-mono text-xs">requireSiteSettingsAccess</span> already uses. Page and action call the same one.</p></div>
+          </div>
+          <div>
+            <p class="modlabel text-slate-500 mb-2">Wins</p>
+            <ul class="grid gap-1.5 sm:grid-cols-2 text-sm text-slate-700">
+              <li>&bull; locality: a Kewenangan change edits one module</li>
+              <li>&bull; interface returns data, so it can't be ignored</li>
+              <li>&bull; the interface is the test surface &mdash; page guards become testable</li>
+              <li>&bull; deletes <span class="font-mono text-xs">isHumas</span> (dead) and 4 <span class="font-mono text-xs">canEdit</span> copies</li>
+            </ul>
+          </div>
+          <div class="rounded-lg border-l-4 border-amber-400 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+            AGENTS.md already mandates this: <em>"Name a shared gate for the privilege it grants, not for the act of checking."</em> Seven of the eight action-level gates predate the rule. Also note <span class="font-mono text-xs">UserRole</span> spells Akun Kader as <span class="font-mono text-xs">'member'</span> — the one name CONTEXT.md:107 says to avoid.
+          </div>
+        </article>
+
+        <!-- ─────────── C3 ─────────── -->
+        <article id="c3" class="space-y-5 border-t border-slate-200 pt-12">
+          <div class="flex flex-wrap items-center gap-3">
+            <h3 class="font-serif text-2xl">3. Make Cakupan non-optional at its interface</h3>
+            <span class="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800">Strong</span>
+            <span class="rounded-full bg-slate-100 px-3 py-1 text-xs text-slate-600">in-process</span>
+          </div>
+
+          <ul class="font-mono text-xs text-slate-600 space-y-0.5">
+            <li>src/db/query/organization.ts:22&ndash;71 (fetchAllowedOrgIds), :316&ndash;328 (isOrgInScope)</li>
+            <li>src/db/query/member.ts:434&ndash;446 &mdash; the <span class="text-red-600">optional</span> Cakupan branch</li>
+            <li>src/db/query/article.ts:5&ndash;16 &mdash; second independent copy of the Humas rule</li>
+            <li>src/app/(dashboard)/dashboard/kader/_components/add-form/utils.ts:51&ndash;62 &mdash; the tree walk, again, in the browser</li>
+          </ul>
+
+          <!-- Cross-section -->
+          <div class="grid gap-4 md:grid-cols-2">
+            <div class="rounded-lg border border-slate-200 bg-white p-4">
+              <p class="modlabel mb-3 text-slate-500">Before &mdash; the check is a parameter</p>
+              <div class="space-y-1.5 font-mono text-[11px]">
+                <div class="border-l-4 border-slate-400 bg-slate-50 px-3 py-2">caller passes <span class="text-slate-900">{ role, connectedOrganizationId }</span></div>
+                <div class="border-l-4 border-slate-400 bg-slate-50 px-3 py-2">caller passes <span class="text-slate-900">{ role, connectedOrganization }</span></div>
+                <div class="border-l-4 border-slate-400 bg-slate-50 px-3 py-2">caller passes <span class="text-slate-900">whole session.user</span></div>
+                <div class="border-l-4 border-red-500 hatch px-3 py-2 text-red-900">caller passes <span class="font-bold">nothing</span> &rarr; <span class="font-bold">if (user) skipped</span></div>
+                <div class="border-l-4 border-slate-800 bg-slate-100 px-3 py-2">fetchAllowedOrgIds &mdash; recursive CTE</div>
+                <div class="border-l-4 border-red-500 hatch px-3 py-2 text-red-900">catch &rarr; return [connectedOrgId] &nbsp;<span class="not-italic">(silently narrows)</span></div>
+              </div>
+            </div>
+            <div class="rounded-lg border border-slate-200 bg-white p-4">
+              <p class="modlabel mb-3 text-slate-500">After &mdash; the check is the interface</p>
+              <div class="rounded border-2 border-slate-800 bg-white px-3 py-2 font-mono text-[11px]">
+                cakupan(akun) &rarr; Cakupan
+              </div>
+              <div class="deep mt-1 rounded px-3 py-8 text-slate-300 font-mono text-[11px] leading-relaxed">
+                <p class="modlabel mb-2 text-slate-400">implementation</p>
+                recursive CTE atas pohon Struktur<br />
+                Root &rarr; tanpa batas<br />
+                Humas &rarr; berhenti di Strukturnya (ADR-0002)<br />
+                error &rarr; fail closed, tidak menyempit diam-diam
+              </div>
+              <div class="mt-3 rounded border border-slate-300 bg-slate-50 px-3 py-2 font-mono text-[11px] text-slate-600">
+                readDescendantMembers(cakupan, &hellip;)<br />
+                <span class="text-slate-400">&mdash; tidak ada jalan memanggil tanpa Cakupan</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid gap-5 md:grid-cols-2 text-sm">
+            <div><p class="modlabel text-slate-500 mb-1">Problem</p><p class="text-slate-700">Cakupan leaks across its seam: callers hand-build three different user shapes, one hands nothing and the enforcement branch is skipped, and <span class="font-mono text-xs">isOrgInScope</span> silently conflates Cakupan with "role must be BPK".</p></div>
+            <div><p class="modlabel text-slate-500 mb-1">Solution</p><p class="text-slate-700">A Cakupan module taking the Akun and returning a Cakupan value the read functions require. Omitting it becomes a type error, not a silent open door.</p></div>
+          </div>
+          <div>
+            <p class="modlabel text-slate-500 mb-2">Wins</p>
+            <ul class="grid gap-1.5 sm:grid-cols-2 text-sm text-slate-700">
+              <li>&bull; defect #2 above becomes unrepresentable</li>
+              <li>&bull; locality: ADR-0002 lives in exactly one place</li>
+              <li>&bull; leverage: 10 call sites stop hand-building user shapes</li>
+              <li>&bull; deletes the browser-side tree walk</li>
+            </ul>
+          </div>
+          <div class="rounded-lg border-l-4 border-amber-400 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+            Touches ADR-0002 &mdash; but does not contradict it. The Humas exception stays exactly as decided; this gives it <em>one</em> home instead of two (<span class="font-mono text-xs">organization.ts:50</span> and <span class="font-mono text-xs">article.ts:9&ndash;15</span> encode it independently today).
+          </div>
+        </article>
+
+        <!-- ─────────── C4 ─────────── -->
+        <article id="c4" class="space-y-5 border-t border-slate-200 pt-12">
+          <div class="flex flex-wrap items-center gap-3">
+            <h3 class="font-serif text-2xl">4. Give Keadaan Kader a module instead of three booleans</h3>
+            <span class="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800">Strong</span>
+            <span class="rounded-full bg-slate-100 px-3 py-1 text-xs text-slate-600">in-process</span>
+          </div>
+
+          <ul class="font-mono text-xs text-slate-600 space-y-0.5">
+            <li>src/db/schema/member.sql.ts:29&ndash;31 &middot; no CHECK constraint in any migration</li>
+            <li>profile-sidebar.tsx:107&ndash;121 &mdash; the only enforcement, in React state</li>
+            <li>kader/_components/add-form/status-section.tsx:90&ndash;143 &mdash; three independent Switches</li>
+            <li>derivation ladder copied at profile-sidebar:109, profile-info:60, profile-info:67 (+ a 4th, inconsistent, at profile-sidebar:291)</li>
+            <li>member.ts:159, :530, :594, :622, :692 &middot; training.ts:505, :578, :619 &mdash; SQL spellings</li>
+          </ul>
+
+          <div class="rounded-lg border border-slate-200 bg-white p-4">
+            <p class="modlabel mb-3 text-slate-500">Before &mdash; the rule lives in one client component; every other write path opts out</p>
+            <pre class="mermaid">
+flowchart TD
+  PF["profile-sidebar.tsx<br/>MembershipStatus state"] -->|enforces| DB[("member<br/>is_alumn / is_suspended / is_non_active")]
+  AF["add-form status-section<br/>3 independent Switches"] -->|no rule| DB
+  IT["individual-table<br/>inline edit"] -->|no rule| DB
+  BU["bulk-upload"] -->|hardcodes false| DB
+  DM["addDM1Attendant"] -->|hardcodes false| DB
+  SD["seed-members.ts"] -->|isAlumn only| DB
+  DB --> R1["profile-sidebar:109 ladder"]
+  DB --> R2["profile-info:60 ladder"]
+  DB --> R3["profile-info:67 ladder"]
+  DB --> R4["profile-sidebar:291 badges<br/>(inconsistent)"]
+  DB --> R5["8 raw SQL filter fragments"]
+  classDef bad stroke:#dc2626,stroke-width:2px,fill:#fef2f2;
+  class AF,IT,R4 bad
+            </pre>
+          </div>
+
+          <div class="rounded-lg border border-slate-200 bg-white p-4">
+            <p class="modlabel mb-3 text-slate-500">After &mdash; one module owns parse, derive, and serialize</p>
+            <pre class="mermaid">
+flowchart TD
+  W1["profile action"] --> M
+  W2["add-form action"] --> M
+  W3["bulk-upload"] --> M
+  W4["addDM1Attendant"] --> M
+  M["Keadaan module<br/>keadaanDari(row) → Keadaan<br/>kolomUntuk(Keadaan) → row<br/>filterKeadaan(Keadaan) → SQL"]
+  M --> DB[("member")]
+  M --> UI["badge, label, filter"]
+  classDef deep fill:#0f172a,color:#e2e8f0,stroke:#0f172a,stroke-width:2px;
+  class M deep
+            </pre>
+          </div>
+
+          <div class="grid gap-5 md:grid-cols-2 text-sm">
+            <div><p class="modlabel text-slate-500 mb-1">Problem</p><p class="text-slate-700">ADR-0001's rule is enforced only in the browser, and <span class="font-mono text-xs">add-form</span> already violates it with three uncoupled Switches. The derivation ladder is copied four times, one copy inconsistently.</p></div>
+            <div><p class="modlabel text-slate-500 mb-1">Solution</p><p class="text-slate-700">A Keadaan module: one type, one parse from the three columns, one serialize back, one SQL filter. Write paths take a Keadaan, not three booleans.</p></div>
+          </div>
+          <div>
+            <p class="modlabel text-slate-500 mb-2">Wins</p>
+            <ul class="grid gap-1.5 sm:grid-cols-2 text-sm text-slate-700">
+              <li>&bull; locality: ADR-0001 becomes enforceable, not advisory</li>
+              <li>&bull; the illegal combination stops being representable</li>
+              <li>&bull; leverage: 4 ladders and 8 SQL fragments collapse</li>
+              <li>&bull; interface is the test surface &mdash; currently untestable</li>
+            </ul>
+          </div>
+          <div class="rounded-lg border-l-4 border-amber-400 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+            This <em>is</em> ADR-0001's stated consequence, not a re-litigation: <em>"Siapa pun yang menambah jalur tulis baru ke Keadaan Kader wajib menegakkannya sendiri."</em> The module is how that stops depending on memory. The schema stays as-is &mdash; three booleans, no migration &mdash; so nothing about the production decision changes.
+          </div>
+        </article>
+
+        <!-- ─────────── C5 ─────────── -->
+        <article id="c5" class="space-y-5 border-t border-slate-200 pt-12">
+          <div class="flex flex-wrap items-center gap-3">
+            <h3 class="font-serif text-2xl">5. One module for Nomor Induk Anggota</h3>
+            <span class="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800">Worth exploring</span>
+            <span class="rounded-full bg-slate-100 px-3 py-1 text-xs text-slate-600">in-process</span>
+          </div>
+
+          <ul class="font-mono text-xs text-slate-600 space-y-0.5">
+            <li>src/lib/utils/member.ts:44&ndash;95 (generateRegisterNumber), :15&ndash;42 (resolveOrgCodes)</li>
+            <li>kader/_components/bulk-upload/action.ts:126&ndash;145 &mdash; tx-aware re-implementation</li>
+            <li>src/scripts/seed-members.ts:111&ndash;152 &mdash; third copy, divergent regexes</li>
+          </ul>
+
+          <!-- Mass diagram -->
+          <div class="grid gap-4 md:grid-cols-2">
+            <div class="rounded-lg border border-slate-200 bg-white p-4">
+              <p class="modlabel mb-3 text-slate-500">Before &mdash; shallow: interface as wide as implementation</p>
+              <div class="flex items-end gap-3" style="height: 240px;">
+                <div class="flex-1 text-center">
+                  <div class="rounded-t border border-slate-400 bg-slate-200" style="height:96px"></div>
+                  <div class="rounded-b border border-t-0 border-slate-400 bg-white" style="height:96px"></div>
+                  <p class="modlabel mt-2 text-slate-500">lib copy</p>
+                </div>
+                <div class="flex-1 text-center">
+                  <div class="rounded-t border border-red-400 bg-red-200" style="height:96px"></div>
+                  <div class="rounded-b border border-t-0 border-red-400 bg-red-50" style="height:80px"></div>
+                  <p class="modlabel mt-2 text-red-700">bulk copy</p>
+                </div>
+                <div class="flex-1 text-center">
+                  <div class="rounded-t border border-red-400 bg-red-200" style="height:96px"></div>
+                  <div class="rounded-b border border-t-0 border-red-400 bg-red-50" style="height:64px"></div>
+                  <p class="modlabel mt-2 text-red-700">seed copy</p>
+                </div>
+              </div>
+              <p class="mt-2 text-xs text-slate-500">Grey/red top = interface surface. Three modules, three interfaces, one concept.</p>
+            </div>
+            <div class="rounded-lg border border-slate-200 bg-white p-4">
+              <p class="modlabel mb-3 text-slate-500">After &mdash; deep: short interface, tall implementation</p>
+              <div class="flex items-end gap-3" style="height: 240px;">
+                <div class="flex-1 text-center">
+                  <div class="rounded-t border-2 border-slate-800 bg-white" style="height:32px">
+                    <p class="font-mono text-[10px] leading-8 text-slate-800">nomorInduk(tx, struktur, tahun)</p>
+                  </div>
+                  <div class="deep rounded-b" style="height:176px">
+                    <p class="font-mono text-[10px] text-slate-300 pt-4 leading-relaxed">
+                      resolveOrgCodes<br />PW-parent fallback<br />tx-aware sequence<br />zero-pad, overflow-safe
+                    </p>
+                  </div>
+                  <p class="modlabel mt-2 text-slate-500">one module</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid gap-5 md:grid-cols-2 text-sm">
+            <div><p class="modlabel text-slate-500 mb-1">Problem</p><p class="text-slate-700">Three implementations of one identity rule, none tested directly. The lib copy reads-max-then-increments outside its caller's transaction, and there is no UNIQUE constraint on <span class="font-mono text-xs">register_number</span> &mdash; a collision is stored silently.</p></div>
+            <div><p class="modlabel text-slate-500 mb-1">Solution</p><p class="text-slate-700">One module, transaction-aware by construction. The seed script and bulk upload call it rather than re-deriving it.</p></div>
+          </div>
+          <div>
+            <p class="modlabel text-slate-500 mb-2">Wins</p>
+            <ul class="grid gap-1.5 sm:grid-cols-2 text-sm text-slate-700">
+              <li>&bull; locality: the format lives in one module</li>
+              <li>&bull; interface is the test surface &mdash; currently untested</li>
+              <li>&bull; seed stops drifting from production</li>
+              <li>&bull; surfaces the missing UNIQUE constraint</li>
+            </ul>
+          </div>
+          <div class="rounded-lg border-l-4 border-amber-400 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+            Production data. Adding a UNIQUE constraint is a separate decision from the module and may fail on existing rows &mdash; check for duplicates first, and it needs a migration, which is your call.
+          </div>
+        </article>
+
+        <!-- ─────────── C6 ─────────── -->
+        <article id="c6" class="space-y-5 border-t border-slate-200 pt-12">
+          <div class="flex flex-wrap items-center gap-3">
+            <h3 class="font-serif text-2xl">6. Collapse the Server Action envelope</h3>
+            <span class="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800">Worth exploring</span>
+            <span class="rounded-full bg-slate-100 px-3 py-1 text-xs text-slate-600">in-process</span>
+          </div>
+
+          <ul class="font-mono text-xs text-slate-600 space-y-0.5">
+            <li>22 action.ts files &middot; 57 exported actions &middot; 17 distinct response types</li>
+            <li>43 try/catch bodies &middot; the <span class="text-slate-900">values</span> re-projection copied verbatim 11&times;</li>
+            <li>unique-violation detection by <span class="text-slate-900">message.includes('unique constraint')</span> &times;3</li>
+          </ul>
+
+          <!-- Cross-section -->
+          <div class="grid gap-4 md:grid-cols-2">
+            <div class="rounded-lg border border-slate-200 bg-white p-4">
+              <p class="modlabel mb-3 text-slate-500">Before &mdash; six thin bands, written 43 times</p>
+              <div class="space-y-1 font-mono text-[11px]">
+                <div class="h-9 border-l-4 border-slate-400 bg-slate-50 px-3 leading-9">try {</div>
+                <div class="h-9 border-l-4 border-slate-400 bg-slate-50 px-3 leading-9">readActiveSession + null check</div>
+                <div class="h-9 border-l-4 border-slate-400 bg-slate-50 px-3 leading-9">schema.safeParse + flatten</div>
+                <div class="h-9 border-l-4 border-slate-400 bg-slate-50 px-3 leading-9">guard &rarr; { success:false, message }</div>
+                <div class="h-9 border-l-4 border-slate-800 bg-slate-100 px-3 leading-9 font-bold">query call &larr; the actual work</div>
+                <div class="h-9 border-l-4 border-slate-400 bg-slate-50 px-3 leading-9">updateTag + revalidatePath</div>
+                <div class="h-9 border-l-4 border-red-500 hatch px-3 leading-9 text-red-900">catch &rarr; message.includes(&hellip;)</div>
+              </div>
+            </div>
+            <div class="rounded-lg border border-slate-200 bg-white p-4">
+              <p class="modlabel mb-3 text-slate-500">After &mdash; one band, the work stays visible</p>
+              <div class="space-y-1 font-mono text-[11px]">
+                <div class="rounded border-2 border-slate-800 bg-white px-3 py-2">aksi(schema, gate, fn)</div>
+                <div class="deep rounded px-3 py-6 text-slate-300">
+                  <p class="modlabel mb-2 text-slate-400">implementation</p>
+                  parse &rarr; gate &rarr; run &rarr; invalidate<br />
+                  pg error code &rarr; field error<br />
+                  log + redact
+                </div>
+                <div class="h-9 border-l-4 border-slate-800 bg-slate-100 px-3 leading-9 font-bold">query call &larr; all the caller writes</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid gap-5 md:grid-cols-2 text-sm">
+            <div><p class="modlabel text-slate-500 mb-1">Problem</p><p class="text-slate-700">The envelope is 90% of most action bodies and diverges: <span class="font-mono text-xs">message</span> vs <span class="font-mono text-xs">error</span>, <span class="font-mono text-xs">errors</span> vs <span class="font-mono text-xs">fieldErrors</span>, 14 actions with no catch at all, one file typed with <span class="font-mono text-xs">any</span>.</p></div>
+            <div><p class="modlabel text-slate-500 mb-1">Solution</p><p class="text-slate-700">One module owning parse, gate, invalidate and error translation. One <span class="font-mono text-xs">ActionResponse</span>, promoted out of <span class="font-mono text-xs">article-form/types.ts</span>.</p></div>
+          </div>
+          <div>
+            <p class="modlabel text-slate-500 mb-2">Wins</p>
+            <ul class="grid gap-1.5 sm:grid-cols-2 text-sm text-slate-700">
+              <li>&bull; locality: pg error handling in one module</li>
+              <li>&bull; leverage: one interface, 57 actions</li>
+              <li>&bull; the 4 missing <span class="font-mono text-xs">updateTag</span> calls become visible</li>
+              <li>&bull; forms stop each re-wiring field errors</li>
+            </ul>
+          </div>
+          <div class="rounded-lg border-l-4 border-slate-400 bg-slate-100 px-4 py-3 text-sm text-slate-700">
+            Weakest of the Strong-adjacent candidates and the riskiest to get wrong &mdash; a badly shaped envelope is a shallow module that every action must now learn. Worth a design-it-twice pass before committing.
+          </div>
+        </article>
+
+        <!-- ─────────── C7 ─────────── -->
+        <article id="c7" class="space-y-5 border-t border-slate-200 pt-12">
+          <div class="flex flex-wrap items-center gap-3">
+            <h3 class="font-serif text-2xl">7. Nothing owns what Kelulusan <em>does</em></h3>
+            <span class="rounded-full bg-slate-200 px-3 py-1 text-xs font-semibold text-slate-700">Speculative</span>
+            <span class="rounded-full bg-slate-100 px-3 py-1 text-xs text-slate-600">needs a decision first</span>
+          </div>
+
+          <ul class="font-mono text-xs text-slate-600 space-y-0.5">
+            <li>src/db/query/training.ts:411&ndash;427 (updateAttendantStatus) &middot; :513&ndash;531 (the DM ladder)</li>
+            <li>src/db/schema/member.sql.ts:32 (status) &middot; :34&ndash;38 (isCertifiedMentor / isCertifiedInstructor)</li>
+            <li>profile-sidebar.tsx:100&ndash;103 &mdash; Sertifikasi Tanpa Riwayat, unnamed and view-only</li>
+          </ul>
+
+          <div class="rounded-lg border border-slate-200 bg-white p-4">
+            <pre class="mermaid">
+flowchart LR
+  K["Kelulusan<br/>training_attendants.is_passing"] -->|writes| TA[("training_attendants")]
+  K -.->|"CONTEXT.md says this happens"| JK["Jenjang Kekaderan<br/>member.status"]
+  K -.->|"CONTEXT.md says this happens"| PR["Perangkat<br/>is_certified_mentor / _instructor"]
+  H1["profile-sidebar radio"] -->|actually writes| JK
+  H2["status-section Switch"] -->|actually writes| PR
+  H3["individual-table Select"] -->|actually writes| JK
+  classDef ghost stroke-dasharray:5 4,stroke:#dc2626,fill:#fef2f2;
+  class JK,PR ghost
+            </pre>
+            <p class="mt-2 text-xs text-slate-500">Dashed red: the edge CONTEXT.md:163&ndash;165 describes as the point of Kelulusan. It does not exist in code.</p>
+          </div>
+
+          <div class="grid gap-5 md:grid-cols-2 text-sm">
+            <div><p class="modlabel text-slate-500 mb-1">Problem</p><p class="text-slate-700">CONTEXT.md says Kelulusan is what raises Jenjang Kekaderan and grants Perangkat certification. In code it writes one boolean on a join row and nothing else &mdash; both are set by hand, in three UI surfaces each.</p></div>
+            <div><p class="modlabel text-slate-500 mb-1">Solution</p><p class="text-slate-700">Either a module that owns the consequence of Kelulusan, or an ADR recording that promotion is deliberately manual. Right now the glossary and the code disagree and neither is marked as authoritative.</p></div>
+          </div>
+          <div class="rounded-lg border-l-4 border-amber-400 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+            Not an architecture call &mdash; a product one, and it touches production data. Flagged because a future reader of CONTEXT.md will assume the edge exists. Related: <span class="font-mono text-xs">profile-header.tsx:60</span> and <span class="font-mono text-xs">profile-sidebar.tsx:100</span> both check Daurah attendance while ignoring <span class="font-mono text-xs">isPassing</span> &mdash; an attended-but-failed DPMK clears the Sertifikasi Tanpa Riwayat warning.
+          </div>
+        </article>
+      </section>
+
+      <!-- ══════════════════ TOP RECOMMENDATION ══════════════════ -->
+      <section id="top-recommendation" class="rounded-xl border-2 border-emerald-700 bg-white p-8 space-y-4">
+        <p class="modlabel text-emerald-700">Top recommendation</p>
+        <h2 class="font-serif text-3xl tracking-tight">
+          <a href="#c1" class="hover:underline">1. Give Masa Penetapan Kelulusan a module</a>
+        </h2>
+        <p class="max-w-3xl text-sm leading-relaxed text-slate-700">
+          It is the smallest complete instance of the shape candidates 2, 3 and 4 repeat at larger scale &mdash; a domain rule with a name in CONTEXT.md and no module to hold it.
+          It already has the best test coverage in the repo (eight cases), so the deepening happens under a net rather than beside one.
+          And it closes defect #3 by construction: <span class="font-mono text-xs">removeAttendantAction</span> cannot forget a gate it has to call to compile.
+          Do this one first to establish the pattern, then take candidate 3 &mdash; Cakupan &mdash; which is where the live exposure is.
+        </p>
+        <p class="max-w-3xl text-sm text-slate-500">
+          The three defects in the header are not refactors and should not wait for one.
+        </p>
+      </section>
+
+    </main>
+  </body>
+</html>
