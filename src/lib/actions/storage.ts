@@ -1,6 +1,8 @@
 'use server'
 
 import { storage } from '~/lib/api/storage'
+import { fetchRemoteImage } from '~/lib/api/remote-image'
+import { readActiveSession } from '~/lib/auth/cookies'
 import { MAX_UPLOAD_BYTES } from '~/lib/api/upload-constraints'
 import { getLogger } from '~/lib/logger'
 
@@ -34,6 +36,31 @@ export const uploadImageAction = async (formData: FormData) => {
     return await storage.updateFile(existingPath, file)
   }
 
+  return await storage.uploadFile(file, folder)
+}
+
+/**
+ * Menyalin gambar dari alamat publik ke penyimpanan sendiri, lalu
+ * mengembalikan kuncinya — bentuk yang sama dengan `uploadImageAction`.
+ *
+ * Dipakai saat menempel dari Google Docs/halaman web, yang membawa gambarnya
+ * sebagai URL milik orang lain. Tanpa ini gambarnya memang tampil, tapi kita
+ * cuma menumpang di server sumber: begitu tautannya mati atau aksesnya
+ * dicabut, Berita yang sudah terbit ikut kehilangan gambarnya.
+ *
+ * Satu-satunya Server Action di berkas ini yang MEMBUAT server menghubungi
+ * alamat pilihan pemanggil, jadi satu-satunya yang menuntut sesi aktif:
+ * tanpa itu ia jadi pemindai jaringan dalam yang terbuka untuk siapa saja.
+ * Pagar alamatnya sendiri ada di `~/lib/api/remote-image`.
+ */
+export const importImageFromUrlAction = async (
+  url: string,
+  folder: string = 'uploads'
+) => {
+  const session = await readActiveSession()
+  if (!session?.user) throw new Error('Tidak terautentikasi.')
+
+  const file = await fetchRemoteImage(url)
   return await storage.uploadFile(file, folder)
 }
 

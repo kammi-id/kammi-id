@@ -320,12 +320,14 @@ const BeritaDetailPage = async ({ params }: BeritaDetailPageProps) => {
       <ArticleShareButtons title={articleRow.title} />
 
       {imagePath && (
-        // eslint-disable-next-line @next/next/no-img-element -- gambar utama tidak berdimensi tetap yang diketahui sebelum render.
-        <img
-          src={imagePath}
-          alt={articleRow.title}
-          className='mt-8 aspect-video w-full rounded-2xl object-cover'
-        />
+        <div className='bg-muted mt-8 aspect-video w-full overflow-hidden rounded-2xl'>
+          {/* eslint-disable-next-line @next/next/no-img-element -- gambar utama tidak berdimensi tetap yang diketahui sebelum render. */}
+          <img
+            src={imagePath}
+            alt={articleRow.title}
+            className='h-full w-full object-contain'
+          />
+        </div>
       )}
 
       <div className='mt-8'>

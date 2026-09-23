@@ -163,6 +163,10 @@ export const ArticleForm = ({
   const [status, setStatus] = useState<ArticleStatus>(
     initial?.status ?? 'draft'
   )
+  // Menyimpan selagi gambar badan tulisan masih diunggah berarti menyimpan
+  // dokumen yang node gambarnya belum punya `src` — persis bentuk yang
+  // dibuang daftar-izin perender publik, jadi gambarnya hilang tanpa pesan.
+  const [isBodyUploading, setIsBodyUploading] = useState(false)
 
   // Sengaja dibaca dari `initial` (keadaan TERSIMPAN), bukan dari `type`
   // state yang sedang disunting — riwayat "pernah Terbit" milik baris di
@@ -272,7 +276,12 @@ export const ArticleForm = ({
           <FieldError errors={fieldErrors('title')} />
         </div>
 
-        <ArticleBodyEditor value={body} onChange={setBody} className='flex-1' />
+        <ArticleBodyEditor
+          value={body}
+          onChange={setBody}
+          onUploadingChange={setIsBodyUploading}
+          className='flex-1'
+        />
         <FieldError errors={fieldErrors('body')} />
       </div>
 
@@ -535,18 +544,20 @@ export const ArticleForm = ({
         </Field>
 
         <div className='flex gap-2 pt-2'>
-          <Button type='submit' disabled={isPending}>
-            {isPending && (
+          <Button type='submit' disabled={isPending || isBodyUploading}>
+            {(isPending || isBodyUploading) && (
               <HugeiconsIcon
                 icon={Loading03Icon}
                 className='size-4 animate-spin'
               />
             )}
-            {isPending
-              ? 'Menyimpan...'
-              : initial
-                ? 'Simpan Perubahan'
-                : 'Buat Artikel'}
+            {isBodyUploading
+              ? 'Mengunggah gambar...'
+              : isPending
+                ? 'Menyimpan...'
+                : initial
+                  ? 'Simpan Perubahan'
+                  : 'Buat Artikel'}
           </Button>
           <Button
             type='button'

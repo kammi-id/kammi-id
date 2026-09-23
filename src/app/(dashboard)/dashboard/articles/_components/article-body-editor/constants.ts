@@ -10,6 +10,17 @@ import StarterKit from '@tiptap/starter-kit'
 // constants.test.ts untuk kontrak yang diverifikasi.
 export const ARTICLE_BODY_EDITOR_EXTENSIONS: AnyExtension[] = [
   StarterKit.configure({
+    // Format bawaan StarterKit yang TIDAK ada di daftar-izin perender publik
+    // dimatikan di sini, bukan dibiarkan hidup diam-diam. Semuanya tanpa
+    // tombol di toolbar, tapi tetap terjangkau pintasan papan ketik (Ctrl+U,
+    // Ctrl+Shift+S) dan tempelan dari Word/Google Docs — dan begitu dipakai,
+    // formatnya hilang tanpa pesan saat terbit. Lebih baik editor menolak
+    // sejak awal daripada memperlihatkan format yang tidak akan pernah naik.
+    underline: false,
+    strike: false,
+    code: false,
+    codeBlock: false,
+    horizontalRule: false,
     link: {
       // Tautan tidak boleh dinavigasi saat sedang menyunting — hanya
       // ditandai lewat toolbar, dibuka via klik cuma di permukaan publik.

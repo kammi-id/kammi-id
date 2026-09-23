@@ -1,7 +1,6 @@
 'use client'
 
 import { useRef, useState } from 'react'
-import { toast } from 'sonner'
 import type { Editor } from '@tiptap/react'
 import {
   Heading02Icon,
@@ -24,27 +23,26 @@ import {
   PopoverTrigger
 } from '~/components/shadcn/ui/popover'
 import { Toggle } from '~/components/shadcn/ui/toggle'
-import { getSignedUrlAction, uploadImageAction } from '~/lib/actions/storage'
-import {
-  ACCEPTED_IMAGE_MIME_TYPES,
-  MAX_UPLOAD_BYTES
-} from '~/lib/api/upload-constraints'
+import { ACCEPTED_IMAGE_MIME_TYPES } from '~/lib/api/upload-constraints'
 
 interface ArticleBodyEditorToolbarProps {
   editor: Editor | null
+  isUploading?: boolean
+  onPickImages?: (files: File[]) => void
 }
 
 // Toolbar format badan tulisan Berita/Halaman. Setiap tombol memanggil
 // perintah bawaan Tiptap (StarterKit + Image, lihat constants.ts) — tidak
-// ada format baru yang direka di sini. Gambar disisipkan lewat
-// `uploadImageAction`/`getSignedUrlAction` di `~/lib/actions/storage`, jalur
-// unggah yang sama dipakai `src/components/image-upload`; tidak ada jalur
-// unggah baru.
+// ada format baru yang direka di sini. Unggahan gambar tidak dikerjakan di
+// sini: tombol ini cuma memilih berkas dan menyerahkannya ke
+// `ArticleBodyEditor`, satu tempat yang sama yang melayani tempelan papan
+// klip dan seret-lepas.
 export const ArticleBodyEditorToolbar = ({
-  editor
+  editor,
+  isUploading = false,
+  onPickImages
 }: ArticleBodyEditorToolbarProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const [isUploading, setIsUploading] = useState(false)
   const [linkValue, setLinkValue] = useState('')
   const [isLinkOpen, setIsLinkOpen] = useState(false)
 
@@ -72,35 +70,10 @@ export const ArticleBodyEditorToolbar = ({
     fileInputRef.current?.click()
   }
 
-  const handleImageFileChange = async (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const file = e.target.files?.[0]
+  const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = [...(e.target.files ?? [])]
     e.target.value = ''
-    if (!file) return
-
-    if (file.size > MAX_UPLOAD_BYTES) {
-      toast.error(
-        `Ukuran file ${(file.size / 1024 / 1024).toFixed(1)}MB melebihi batas 5MB.`
-      )
-      return
-    }
-
-    setIsUploading(true)
-    try {
-      const formData = new FormData()
-      formData.append('file', file)
-      formData.append('folder', 'articles')
-      const uploadedPath = await uploadImageAction(formData)
-      const src = await getSignedUrlAction(uploadedPath)
-      editor.chain().focus().setImage({ src, alt: file.name }).run()
-    } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : 'Gagal mengunggah gambar.'
-      )
-    } finally {
-      setIsUploading(false)
-    }
+    if (files.length > 0) onPickImages?.(files)
   }
 
   return (
@@ -208,6 +181,7 @@ export const ArticleBodyEditorToolbar = ({
       <input
         ref={fileInputRef}
         type='file'
+        multiple
         accept={ACCEPTED_IMAGE_MIME_TYPES}
         className='hidden'
         onChange={handleImageFileChange}
