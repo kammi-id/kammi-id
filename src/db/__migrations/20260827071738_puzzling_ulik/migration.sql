@@ -1,0 +1,1 @@
+CREATE INDEX "article_terbit_jaringan_idx" ON "article" ("published_at" DESC NULLS LAST,"id" DESC NULLS LAST) WHERE "type" = 'blog' AND "status" = 'published';

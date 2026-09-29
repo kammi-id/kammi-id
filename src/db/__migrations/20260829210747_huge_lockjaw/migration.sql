@@ -1,0 +1,1 @@
+ALTER TABLE "article" ADD COLUMN "gallery_images" text[] DEFAULT '{}'::text[] NOT NULL;
