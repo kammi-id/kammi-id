@@ -95,7 +95,19 @@ const toDatetimeLocal = (iso?: string | null): string => {
   return publishedAtToWibWallClock(date)
 }
 
-export const ArticleForm = ({
+// Dengan `cacheComponents`, Next menyembunyikan rute lewat `<Activity>`
+// alih-alih meng-unmount-nya — tanpa kunci ini, membuka "Tambah Artikel"
+// lagi setelah menyimpan memulihkan seluruh isian artikel sebelumnya.
+// `bfcacheId` berganti di tiap navigasi push/replace (form kembali kosong,
+// atau kembali ke data tersimpan di halaman ubah) tetapi tetap sama di
+// back/forward browser, jadi draf yang ditinggal lewat tombol Kembali tidak
+// hilang.
+export const ArticleForm = (props: ArticleFormProps) => {
+  const { bfcacheId } = useRouter()
+  return <ArticleFormFields key={bfcacheId} {...props} />
+}
+
+const ArticleFormFields = ({
   organizationId,
   categories: initialCategories,
   tagSuggestions,
