@@ -1,0 +1,1 @@
+-- Merge marker: the parent migrations contain the schema changes.

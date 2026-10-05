@@ -1,0 +1,61 @@
+- generic [active] [ref=e1]:
+    - generic [ref=e35]:
+        - generic [ref=e38]:
+            - list [ref=e40]:
+                - listitem [ref=e41]:
+                    - link "KAMMI.id KAMMI.id" [ref=e42] [cursor=pointer]:
+                        - /url: /dashboard
+                        - img "KAMMI.id" [ref=e43]
+                        - generic [ref=e44]: KAMMI.id
+            - generic [ref=e45]:
+                - list [ref=e48]:
+                    - listitem [ref=e49]:
+                        - link "Dashboard" [ref=e50] [cursor=pointer]:
+                            - /url: /dashboard
+                            - img [ref=e51]
+                            - generic [ref=e56]: Dashboard
+                - generic [ref=e57]:
+                    - generic [ref=e58]: Pembinaan Kader
+                    - list [ref=e60]:
+                        - listitem [ref=e61]:
+                            - link "Data Kader" [ref=e62] [cursor=pointer]:
+                                - /url: /dashboard/kader
+                                - img [ref=e63]
+                                - generic [ref=e66]: Data Kader
+                        - listitem [ref=e67]:
+                            - link "Dauroh" [ref=e68] [cursor=pointer]:
+                                - /url: /dashboard/trainings
+                                - img [ref=e69]
+                                - generic [ref=e73]: Dauroh
+                        - listitem [ref=e74]:
+                            - link "Perangkat Kaderisasi" [ref=e75] [cursor=pointer]:
+                                - /url: /dashboard/perangkat
+                                - img [ref=e76]
+                                - generic [ref=e80]: Perangkat Kaderisasi
+                        - listitem [ref=e81]:
+                            - link "Data Alumni" [ref=e82] [cursor=pointer]:
+                                - /url: /dashboard/alumni
+                                - img [ref=e83]
+                                - generic [ref=e87]: Data Alumni
+            - list [ref=e89]:
+                - listitem [ref=e90]:
+                    - button "BP BPK PP KAMMI PP KAMMI" [ref=e91]:
+                        - generic [ref=e93]: BP
+                        - generic [ref=e94]:
+                            - generic [ref=e95]: BPK PP KAMMI
+                            - generic [ref=e96]: PP KAMMI
+                        - img [ref=e97]
+        - main [ref=e101]:
+            - generic [ref=e103]:
+                - button "Toggle Sidebar" [ref=e104]:
+                    - img
+                    - generic [ref=e105]: Toggle Sidebar
+                - separator [ref=e106]
+                - generic [ref=e107]: Ringkasan
+                - button "Lihat credential tersimpan" [ref=e109]:
+                    - img
+            - paragraph [ref=e115]: Loading dashboard...
+    - region "Notifications alt+T"
+    - button "Open Next.js Dev Tools" [ref=e30] [cursor=pointer]:
+        - img [ref=e31]
+    - alert [ref=e34]

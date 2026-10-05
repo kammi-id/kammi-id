@@ -1,0 +1,274 @@
+import { afterAll, describe, expect, it, mock } from 'bun:test'
+import { NextRequest } from 'next/server'
+
+// Same file-scoped fake-then-restore shape as `struktur.test.ts` — `bun
+// test` runs every file in one process, and `mock.module` outlives this
+// file's own describe block, so the fake has to fall through to the real
+// implementation once this file is done.
+let useFakeReadOrganization = true
+const actualOrganizationQuery = await import('~/db/query/organization')
+const realReadOrganization = actualOrganizationQuery.readOrganization
+
+let readOrganizationImpl: typeof realReadOrganization = async () => []
+
+mock.module('~/db/query/organization', () => ({
+  ...actualOrganizationQuery,
+  readOrganization: (...args: Parameters<typeof realReadOrganization>) =>
+    useFakeReadOrganization
+      ? readOrganizationImpl(...args)
+      : realReadOrganization(...args)
+}))
+
+// `readActiveSession` reads `next/headers` cookies, which throws outside a
+// real request scope. None of these tests hit the `/dashboard` branch, but
+// the module is imported unconditionally by `proxy.ts`, so it still has to
+// resolve.
+mock.module('~/lib/auth/cookies', () => ({
+  readActiveSession: async () => undefined
+}))
+
+const { config, proxy } = await import('./proxy')
+
+afterAll(() => {
+  useFakeReadOrganization = false
+})
+
+describe('proxy — tenant routing', () => {
+  it('rewrites a Struktur subdomain straight to its slug segment, no DB lookup', async () => {
+    readOrganizationImpl = async () => {
+      throw new Error(
+        'a subdomain request should not need to query the database to route'
+      )
+    }
+
+    const res = await proxy(
+      new NextRequest('https://pw-jabar.kammi.id/tentang')
+    )
+
+    expect(res?.headers.get('x-middleware-rewrite')).toBe(
+      'https://pw-jabar.kammi.id/pw-jabar/tentang'
+    )
+  })
+
+  it('rewrites a Struktur subdomain root path to just the slug segment', async () => {
+    readOrganizationImpl = async () => []
+
+    const res = await proxy(new NextRequest('https://pw-jabar.kammi.id/'))
+
+    expect(res?.headers.get('x-middleware-rewrite')).toBe(
+      'https://pw-jabar.kammi.id/pw-jabar'
+    )
+  })
+
+  it("resolves PP's real slug on www.kammi.id (ADR 0018)", async () => {
+    readOrganizationImpl = async (filters) => {
+      expect(filters).toEqual({ type: ['pp'], limit: 1 })
+      return [{ slug: 'kammi' }] as Awaited<
+        ReturnType<typeof realReadOrganization>
+      >
+    }
+
+    const res = await proxy(new NextRequest('https://www.kammi.id/tentang'))
+
+    expect(res?.headers.get('x-middleware-rewrite')).toBe(
+      'https://www.kammi.id/kammi/tentang'
+    )
+  })
+
+  it('resolves PP on the staging deployment host too, not the slug "staging"', async () => {
+    readOrganizationImpl = async () =>
+      [{ slug: 'kammi' }] as Awaited<ReturnType<typeof realReadOrganization>>
+
+    const res = await proxy(new NextRequest('https://staging.kammi.id/'))
+
+    expect(res?.headers.get('x-middleware-rewrite')).toBe(
+      'https://staging.kammi.id/kammi'
+    )
+  })
+
+  it('resolves PP on the production candidate host, not the slug "candidate"', async () => {
+    readOrganizationImpl = async () =>
+      [{ slug: 'kammi' }] as Awaited<ReturnType<typeof realReadOrganization>>
+
+    const res = await proxy(
+      new NextRequest('https://candidate.production.kammi.id/')
+    )
+
+    expect(res?.headers.get('x-middleware-rewrite')).toBe(
+      'https://candidate.production.kammi.id/kammi'
+    )
+  })
+
+  it('lets a request fall through instead of 500ing when PP cannot be found', async () => {
+    readOrganizationImpl = async () => {
+      throw new Error('connection refused')
+    }
+
+    const res = await proxy(new NextRequest('https://www.kammi.id/'))
+
+    expect(res).toBeUndefined()
+  })
+
+  it('redirects the bare apex to www.kammi.id, path preserved', async () => {
+    const res = await proxy(new NextRequest('https://kammi.id/tentang'))
+
+    expect(res?.status).toBe(308)
+    expect(res?.headers.get('location')).toBe('https://www.kammi.id/tentang')
+  })
+
+  it('redirects the bare apex to www.kammi.id without leaking the internal container port', async () => {
+    // Regression test for the 2026-08-30 incident: behind Traefik, nextUrl
+    // can carry the app's own listening port (3000). Simulated here by
+    // constructing the request with that port already on the URL — the fix
+    // must clear it explicitly rather than inherit whatever nextUrl.clone()
+    // carries.
+    const res = await proxy(new NextRequest('https://kammi.id:3000/tentang'))
+
+    expect(res?.status).toBe(308)
+    expect(res?.headers.get('location')).toBe('https://www.kammi.id/tentang')
+  })
+
+  it('blocks a directly-typed internal path instead of serving it (ADR 0012)', async () => {
+    const res = await proxy(
+      new NextRequest('https://pw-jabar.kammi.id/pw-jabar/tentang')
+    )
+
+    // Rewritten to a path nothing matches, so it 404s through the app's own
+    // not-found page rather than a bare middleware response.
+    expect(res?.headers.get('x-middleware-rewrite')).toBe(
+      'https://pw-jabar.kammi.id/__internal-path-blocked'
+    )
+  })
+
+  it('blocks the bare internal slug path with no trailing segment too', async () => {
+    const res = await proxy(
+      new NextRequest('https://pw-jabar.kammi.id/pw-jabar')
+    )
+
+    expect(res?.headers.get('x-middleware-rewrite')).toBe(
+      'https://pw-jabar.kammi.id/__internal-path-blocked'
+    )
+  })
+
+  it('serves an internal-path metadata image route instead of blocking it', async () => {
+    // Regression test: Next mengarang alamat `og:image` dari jalur rute
+    // internal, jadi setiap kartu bagikan menunjuk ke `/${slug}/...`. Selama
+    // guard ADR 0012 di atas ikut menelan alamat itu, crawler menerima HTML
+    // halaman galat, bukan PNG — pratinjau tautan kosong di semua platform.
+    const res = await proxy(
+      new NextRequest(
+        'https://pw-jabar.kammi.id/pw-jabar/berita/opengraph-image-6wao3q'
+      )
+    )
+
+    // Pass-through (undefined), BUKAN rewrite: jalurnya sudah internal, jadi
+    // merewrite-nya lagi akan menggandakan segmen jadi `/pw-jabar/pw-jabar/…`.
+    expect(res).toBeUndefined()
+  })
+
+  it('serves an internal-path metadata image route that carries a metadata id segment', async () => {
+    const res = await proxy(
+      new NextRequest(
+        'https://pw-jabar.kammi.id/pw-jabar/berita/2026/09/judul/opengraph-image-1c7rfe/default'
+      )
+    )
+
+    expect(res).toBeUndefined()
+  })
+
+  it('serves an internal-path twitter-image route too', async () => {
+    const res = await proxy(
+      new NextRequest(
+        'https://pw-jabar.kammi.id/pw-jabar/berita/twitter-image-6wao3q'
+      )
+    )
+
+    expect(res).toBeUndefined()
+  })
+
+  it('still rewrites the public form of a metadata image route', async () => {
+    // Bentuk tanpa awalan slug tidak lewat cabang pengecualian sama sekali —
+    // ia harus tetap jatuh ke rewrite biasa ke jalur internal.
+    const res = await proxy(
+      new NextRequest('https://pw-jabar.kammi.id/berita/opengraph-image-6wao3q')
+    )
+
+    expect(res?.headers.get('x-middleware-rewrite')).toBe(
+      'https://pw-jabar.kammi.id/pw-jabar/berita/opengraph-image-6wao3q'
+    )
+  })
+
+  it('still blocks an internal path that only buries opengraph-image mid-way', async () => {
+    // Batas pengecualian: nama gambar metadata harus jadi segmen terakhir,
+    // atau segmen kedua-dari-belakang (bentuk `generateImageMetadata`, yang
+    // menambah satu segmen id). Dua segmen atau lebih setelahnya bukan alamat
+    // yang pernah dikarang Next, jadi guard ADR 0012 tetap berlaku.
+    //
+    // Konsekuensi yang diterima sadar: sebuah Halaman dengan slug yang
+    // PERSIS berbentuk `opengraph-image-<alfanumerik>` dan punya tepat satu
+    // segmen anak akan ikut lolos. Tidak ada bentuk rute di aplikasi ini yang
+    // menghasilkan susunan itu (Permalink Berita `/berita/<tahun>/<bulan>/
+    // <slug>` menaruh slug di segmen terakhir, bukan kedua-dari-belakang),
+    // jadi harganya lebih murah daripada mengetatkan pola sampai bentuk id
+    // `generateImageMetadata` ikut terblokir.
+    const res = await proxy(
+      new NextRequest(
+        'https://pw-jabar.kammi.id/pw-jabar/opengraph-image-palsu/tentang/pengurus'
+      )
+    )
+
+    expect(res?.headers.get('x-middleware-rewrite')).toBe(
+      'https://pw-jabar.kammi.id/__internal-path-blocked'
+    )
+  })
+
+  it('does not block a path that merely starts with the slug as a substring', async () => {
+    // `/pw-jabar-lama` must not collide with the `/pw-jabar` guard.
+    const res = await proxy(
+      new NextRequest('https://pw-jabar.kammi.id/pw-jabar-lama')
+    )
+
+    expect(res?.headers.get('x-middleware-rewrite')).toBe(
+      'https://pw-jabar.kammi.id/pw-jabar/pw-jabar-lama'
+    )
+  })
+
+  it('leaves /dashboard requests untouched by tenant routing', async () => {
+    const res = await proxy(
+      new NextRequest('https://pw-jabar.kammi.id/dashboard')
+    )
+
+    expect(res?.status).toBe(307)
+    expect(res?.headers.get('location')).toBe('https://pw-jabar.kammi.id/login')
+  })
+
+  it('leaves /opengraph-image untouched', async () => {
+    const res = await proxy(new NextRequest('https://kammi.id/opengraph-image'))
+
+    expect(res).toBeUndefined()
+  })
+
+  it('rewrites the RSS XML route despite its file extension', async () => {
+    expect(config.matcher).toContain('/berita/feed.xml')
+
+    const res = await proxy(
+      new NextRequest('https://pw-jabar.kammi.id/berita/feed.xml')
+    )
+
+    expect(res?.headers.get('x-middleware-rewrite')).toBe(
+      'https://pw-jabar.kammi.id/pw-jabar/berita/feed.xml'
+    )
+  })
+
+  it('rewrites the two-segment `/tentang/pengurus.md` Salinan Markdown address (tiket 08)', async () => {
+    expect(config.matcher).toContain('/tentang/:slug.md')
+
+    const res = await proxy(
+      new NextRequest('https://pw-jabar.kammi.id/tentang/pengurus.md')
+    )
+
+    expect(res?.headers.get('x-middleware-rewrite')).toBe(
+      'https://pw-jabar.kammi.id/salinan-markdown/pw-jabar/tentang/pengurus'
+    )
+  })
+})
