@@ -1,5 +1,4 @@
 import { Suspense } from 'react'
-import { listSitePages } from '~/db/query/site-pages'
 import { redirect } from 'next/navigation'
 import { readActiveSession } from '~/lib/auth/cookies'
 import { HugeiconsIcon } from '@hugeicons/react'
@@ -9,8 +8,6 @@ import { isSitusSectionVisible } from '~/lib/struktur/situs-template'
 import { HomeItemsList } from './_components/home-items-list'
 import { SiteActiveToggle } from './_components/site-active-toggle'
 import { AboutForm } from './_components/about-form'
-import { NavForm } from './_components/nav-form'
-import { FooterForm } from './_components/footer-form'
 import { MetadataForm } from './_components/metadata-form'
 import {
   saveHomeHeroItemsAction,
@@ -20,8 +17,6 @@ import {
   getCachedHomeHeroItemsSettings,
   getCachedHomeExtraItemsSettings,
   getCachedAboutSettings,
-  getCachedNavSettings,
-  getCachedFooterSettings,
   getCachedMetadataSettings
 } from './_data/settings'
 
@@ -40,16 +35,12 @@ const HomeSettingsPageContent = async () => {
 
   const jenjang = connectedOrganization.type
 
-  const [heroSettings, extraSettings, about, nav, footer, metadata, pages] =
-    await Promise.all([
-      getCachedHomeHeroItemsSettings(orgId),
-      getCachedHomeExtraItemsSettings(orgId),
-      getCachedAboutSettings(orgId),
-      getCachedNavSettings(orgId),
-      getCachedFooterSettings(orgId),
-      getCachedMetadataSettings(orgId),
-      listSitePages(orgId)
-    ])
+  const [heroSettings, extraSettings, about, metadata] = await Promise.all([
+    getCachedHomeHeroItemsSettings(orgId),
+    getCachedHomeExtraItemsSettings(orgId),
+    getCachedAboutSettings(orgId),
+    getCachedMetadataSettings(orgId)
+  ])
 
   // Every section the settings page can possibly show, each tagged with the
   // `SitusSectionKey` that decides whether *this* Struktur's template
@@ -101,25 +92,9 @@ const HomeSettingsPageContent = async () => {
       )
     },
     {
-      id: 'nav',
-      key: 'nav' as const,
-      index: '04',
-      title: 'Navigasi',
-      description: 'Menu dan tombol CTA pada navbar situs.',
-      content: <NavForm initialData={nav} />
-    },
-    {
-      id: 'footer',
-      key: 'footer' as const,
-      index: '05',
-      title: 'Footer',
-      description: 'Tautan sosial media dan kolom footer situs.',
-      content: <FooterForm initialData={footer} pages={pages} />
-    },
-    {
       id: 'metadata',
       key: 'metadata' as const,
-      index: '06',
+      index: '04',
       title: 'Metadata Halaman',
       description: 'Judul, deskripsi, dan gambar OG untuk mesin pencari.',
       content: <MetadataForm initialData={metadata} />

@@ -28,7 +28,9 @@ import {
   InformationCircleIcon,
   Delete02Icon,
   IdIcon,
-  Settings02Icon
+  Settings02Icon,
+  Menu01Icon,
+  LayoutBottomIcon
 } from '@hugeicons/core-free-icons'
 import Image from 'next/image'
 import logo from '~/assets/logo.png'
@@ -259,6 +261,16 @@ export const AppSidebar = ({
                 title: 'Halaman Utama',
                 url: '/dashboard/pages/home',
                 icon: <HugeiconsIcon icon={Home01Icon} strokeWidth={2} />
+              },
+              {
+                title: 'Navigasi',
+                url: '/dashboard/pages/navigasi',
+                icon: <HugeiconsIcon icon={Menu01Icon} strokeWidth={2} />
+              },
+              {
+                title: 'Footer',
+                url: '/dashboard/pages/footer',
+                icon: <HugeiconsIcon icon={LayoutBottomIcon} strokeWidth={2} />
               },
               {
                 title: 'Pengurus Pusat',

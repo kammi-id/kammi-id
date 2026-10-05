@@ -14,7 +14,9 @@ const routeLabels: Record<string, string> = {
   '/dashboard/perangkat': 'Perangkat',
   '/dashboard/user/account': 'Akun Saya',
   '/dashboard/user/notifications': 'Notifikasi',
-  '/dashboard/pages/home': 'Pengaturan Halaman Utama'
+  '/dashboard/pages/home': 'Pengaturan Halaman Utama',
+  '/dashboard/pages/navigasi': 'Pengaturan Navigasi',
+  '/dashboard/pages/footer': 'Pengaturan Footer'
 }
 
 const getLabel = (pathname: string) => {

@@ -9,36 +9,52 @@ import {
   Field,
   FieldGroup,
   FieldLabel,
-  FieldDescription
+  FieldDescription,
+  FieldLegend,
+  FieldSet
 } from '~/components/shadcn/ui/field'
-import {
-  Combobox,
-  ComboboxInput,
-  ComboboxContent,
-  ComboboxList,
-  ComboboxItem,
-  ComboboxEmpty
-} from '~/components/shadcn/ui/combobox'
 import { IconPicker } from '~/components/ui/icon-picker'
-import { saveFooterAction, type SettingsActionState } from '../action'
+import type { SettingsActionState } from '~/app/(dashboard)/dashboard/pages/home/_components/action'
 import type { FooterSettings } from '~/db/query/site-settings'
-import { normalizeFooter, type FooterLink } from '~/lib/site-links'
+import { normalizeFooter } from '~/lib/site-links'
+import { saveFooterAction } from './action'
+import {
+  FooterLinkList,
+  type SitePage,
+  type SortableFooterLink
+} from './footer-link-list'
 import { SITE_ICONS } from '~/lib/site-icons'
 import { useUnsavedChanges } from '~/hooks/use-unsaved-changes'
 import { UnsavedChangesBanner } from '~/components/unsaved-changes-banner'
 
-type SitePage = { id: string; title: string; slug: string }
 type Props = { initialData: FooterSettings; pages: SitePage[] }
+
+// Initial keys are positional, not random, so server and client render the
+// same `id`/`htmlFor` and hydration matches; links added later get a UUID.
+const withSortableIds = (initialData: FooterSettings) => {
+  const footer = normalizeFooter(initialData)
+  return {
+    ...footer,
+    menus: footer.menus.map((menu, menuIndex) => ({
+      ...menu,
+      links: menu.links.map(
+        (link, index): SortableFooterLink => ({
+          ...link,
+          id: `${menuIndex}-${index}`
+        })
+      )
+    }))
+  }
+}
 
 export const FooterForm = ({ initialData, pages }: Props) => {
   const [state, formAction, isPending] = useActionState<
     SettingsActionState,
     FormData
   >(saveFooterAction, {})
-  const [footer, setFooter] = useState(() => normalizeFooter(initialData))
+  const [footer, setFooter] = useState(() => withSortableIds(initialData))
   const [preset, setPreset] = useState('instagram')
   const { isDirty, markClean } = useUnsavedChanges(footer)
-  const pageOptions = [{ id: '', title: 'URL sendiri', slug: '' }, ...pages]
   useEffect(() => {
     if (state.success) {
       toast.success('Pengaturan footer berhasil disimpan.')
@@ -57,24 +73,6 @@ export const FooterForm = ({ initialData, pages }: Props) => {
         i === index ? { ...menu, ...patch } : menu
       )
     }))
-  const setLink = (
-    menuIndex: number,
-    index: number,
-    patch: Partial<FooterLink>
-  ) =>
-    setMenu(menuIndex, {
-      links: footer.menus[menuIndex].links.map((link, i) =>
-        i === index ? { ...link, ...patch } : link
-      )
-    })
-  const moveLink = (menuIndex: number, index: number, offset: number) => {
-    const links = [...footer.menus[menuIndex].links]
-    ;[links[index], links[index + offset]] = [
-      links[index + offset],
-      links[index]
-    ]
-    setMenu(menuIndex, { links })
-  }
   return (
     <form
       action={(fd) => {
@@ -116,132 +114,25 @@ export const FooterForm = ({ initialData, pages }: Props) => {
         </Field>
       </FieldGroup>
       {footer.menus.map((menu, menuIndex) => (
-        <FieldGroup key={menuIndex}>
+        <FieldSet key={menuIndex}>
+          <FieldLegend>Menu {menuIndex + 1}</FieldLegend>
           <Field>
             <FieldLabel htmlFor={`footer-menu-${menuIndex}`}>
-              Judul Menu {menuIndex + 1}
+              Judul Menu
             </FieldLabel>
             <Input
               id={`footer-menu-${menuIndex}`}
               value={menu.title}
               onChange={(e) => setMenu(menuIndex, { title: e.target.value })}
             />
-            <FieldDescription>
-              Menu tanpa tautan disembunyikan.
-            </FieldDescription>
           </Field>
-          {menu.links.map((link, index) => (
-            <FieldGroup key={index} className='gap-3'>
-              <Field>
-                <FieldLabel htmlFor={`link-title-${menuIndex}-${index}`}>
-                  Judul Tautan {index + 1}
-                </FieldLabel>
-                <Input
-                  id={`link-title-${menuIndex}-${index}`}
-                  value={link.label}
-                  onChange={(e) =>
-                    setLink(menuIndex, index, { label: e.target.value })
-                  }
-                />
-              </Field>
-              <Field>
-                <FieldLabel htmlFor={`link-page-${menuIndex}-${index}`}>
-                  Tujuan
-                </FieldLabel>
-                <Combobox
-                  items={pageOptions}
-                  itemToStringLabel={(page) => page.title}
-                  value={
-                    pageOptions.find(
-                      (page) => page.id === (link.pageId ?? '')
-                    ) ?? null
-                  }
-                  onValueChange={(page) =>
-                    page &&
-                    setLink(menuIndex, index, {
-                      pageId: page.id || undefined,
-                      href: page.id ? `/${page.slug}` : link.href
-                    })
-                  }
-                >
-                  <ComboboxInput
-                    id={`link-page-${menuIndex}-${index}`}
-                    placeholder='Cari Halaman atau pilih URL sendiri…'
-                  />
-                  <ComboboxContent>
-                    <ComboboxEmpty>Halaman tidak ditemukan.</ComboboxEmpty>
-                    <ComboboxList>
-                      {(page: SitePage) => (
-                        <ComboboxItem key={page.id} value={page}>
-                          {page.title}
-                        </ComboboxItem>
-                      )}
-                    </ComboboxList>
-                  </ComboboxContent>
-                </Combobox>
-              </Field>
-              {!link.pageId && (
-                <Field>
-                  <FieldLabel htmlFor={`link-url-${menuIndex}-${index}`}>
-                    URL
-                  </FieldLabel>
-                  <Input
-                    id={`link-url-${menuIndex}-${index}`}
-                    value={link.href}
-                    onChange={(e) =>
-                      setLink(menuIndex, index, { href: e.target.value })
-                    }
-                    placeholder='https://… atau /tentang'
-                  />
-                </Field>
-              )}
-              <div className='flex flex-wrap gap-2'>
-                <Button
-                  type='button'
-                  variant='outline'
-                  size='sm'
-                  disabled={index === 0}
-                  onClick={() => moveLink(menuIndex, index, -1)}
-                >
-                  Naik<span className='sr-only'>: {link.label}</span>
-                </Button>
-                <Button
-                  type='button'
-                  variant='outline'
-                  size='sm'
-                  disabled={index === menu.links.length - 1}
-                  onClick={() => moveLink(menuIndex, index, 1)}
-                >
-                  Turun<span className='sr-only'>: {link.label}</span>
-                </Button>
-                <Button
-                  type='button'
-                  variant='ghost'
-                  size='sm'
-                  onClick={() =>
-                    setMenu(menuIndex, {
-                      links: menu.links.filter((_, i) => i !== index)
-                    })
-                  }
-                >
-                  Hapus Tautan<span className='sr-only'>: {link.label}</span>
-                </Button>
-              </div>
-            </FieldGroup>
-          ))}
-          <Button
-            type='button'
-            variant='outline'
-            className='w-fit'
-            onClick={() =>
-              setMenu(menuIndex, {
-                links: [...menu.links, { label: '', href: '' }]
-              })
-            }
-          >
-            Tambah Tautan Menu {menuIndex + 1}
-          </Button>
-        </FieldGroup>
+          <FooterLinkList
+            menuTitle={menu.title || `Menu ${menuIndex + 1}`}
+            links={menu.links}
+            pages={pages}
+            onChange={(links) => setMenu(menuIndex, { links })}
+          />
+        </FieldSet>
       ))}
       <FieldGroup>
         <h3 className='text-lg font-semibold'>Media Sosial</h3>

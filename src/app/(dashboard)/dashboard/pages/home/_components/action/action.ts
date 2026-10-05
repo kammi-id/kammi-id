@@ -2,9 +2,7 @@
 
 import { revalidatePath, updateTag } from 'next/cache'
 import { requireSiteSettingsAccess } from '~/lib/auth/site-settings'
-import { footerContentSchema, siteLinkSchema } from '~/lib/site-links'
-import { listSitePages } from '~/db/query/site-pages'
-import { readSiteSettings, upsertSiteSettings } from '~/db/query/site-settings'
+import { upsertSiteSettings } from '~/db/query/site-settings'
 import { z } from 'zod'
 
 export type SettingsActionState = {
@@ -95,11 +93,6 @@ export const saveHomeExtraItemsAction = async (
     return { error: 'Gagal menyimpan extra sections.' }
   }
 }
-
-const linkSchema = z.object({
-  label: z.string().min(1),
-  href: z.string().min(1)
-})
 
 // ─── Hero ────────────────────────────────────────────────────────────────────
 
@@ -258,104 +251,6 @@ export const saveActionsAction = async (
     return { success: true }
   } catch {
     return { error: 'Gagal menyimpan pengaturan aksi.' }
-  }
-}
-
-// ─── Nav ─────────────────────────────────────────────────────────────────────
-
-const navSchema = z.object({
-  navLinks: z.array(linkSchema).min(1),
-  ctaBergabungLabel: z.string().min(1),
-  ctaBergabungHref: siteLinkSchema,
-  ctaBergabungIcon: z.string().max(50).default('join')
-})
-
-export const saveNavAction = async (
-  _prev: SettingsActionState,
-  formData: FormData
-): Promise<SettingsActionState> => {
-  const access = await requireSiteSettingsAccess()
-  if (!access) return { error: 'Akses ditolak.' }
-  const { orgId } = access
-
-  const raw = Object.fromEntries(formData)
-  let navLinks
-  try {
-    navLinks = JSON.parse(raw.navLinks as string)
-  } catch {
-    return { error: 'Data navigasi tidak valid.' }
-  }
-
-  const result = navSchema.safeParse({ ...raw, navLinks })
-  if (!result.success) {
-    return {
-      fieldErrors: result.error.flatten().fieldErrors as Record<
-        string,
-        string[]
-      >,
-      values: Object.fromEntries(
-        Object.entries(raw).filter(
-          ([, v]) => v != null && typeof v === 'string'
-        )
-      ) as Record<string, string>
-    }
-  }
-
-  try {
-    await upsertSiteSettings('nav', result.data, orgId)
-    revalidatePath('/')
-    updateTag(`site-settings-nav-${orgId}`)
-    return { success: true }
-  } catch {
-    return { error: 'Gagal menyimpan pengaturan navigasi.' }
-  }
-}
-
-// ─── Footer ──────────────────────────────────────────────────────────────────
-
-export const saveFooterAction = async (
-  _prev: SettingsActionState,
-  formData: FormData
-): Promise<SettingsActionState> => {
-  const access = await requireSiteSettingsAccess()
-  if (!access) return { error: 'Akses ditolak.' }
-  const { orgId } = access
-  let input: unknown
-  try {
-    input = JSON.parse(String(formData.get('footer')))
-  } catch {
-    return { error: 'Data footer tidak valid.' }
-  }
-  const result = footerContentSchema.safeParse(input)
-  if (!result.success)
-    return {
-      error: result.error.issues.map((issue) => issue.message).join(' '),
-      fieldErrors: result.error.flatten().fieldErrors
-    }
-  try {
-    const pages = await listSitePages(orgId)
-    const pageIds = new Set(pages.map((page) => page.id))
-    if (
-      result.data.menus.some((menu) =>
-        menu.links.some((link) => link.pageId && !pageIds.has(link.pageId))
-      )
-    ) {
-      return {
-        error:
-          'Halaman harus sudah Terbit dan milik Struktur ini. Pilih ulang halaman yang tidak tersedia.'
-      }
-    }
-    const previous = await readSiteSettings<Record<string, unknown>>(
-      'footer',
-      {},
-      orgId
-    )
-    await upsertSiteSettings('footer', { ...previous, ...result.data }, orgId)
-    revalidatePath('/')
-    updateTag(`site-settings-footer-${orgId}`)
-    return { success: true }
-  } catch {
-    return { error: 'Gagal menyimpan pengaturan footer.' }
   }
 }
 

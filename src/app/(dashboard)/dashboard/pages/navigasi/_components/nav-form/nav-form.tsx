@@ -12,7 +12,8 @@ import {
   FieldGroup,
   FieldLabel
 } from '~/components/shadcn/ui/field'
-import { saveNavAction, type SettingsActionState } from '../action'
+import type { SettingsActionState } from '~/app/(dashboard)/dashboard/pages/home/_components/action'
+import { saveNavAction } from './action'
 import type { NavSettings } from '~/db/query/site-settings'
 import { useUnsavedChanges } from '~/hooks/use-unsaved-changes'
 import { UnsavedChangesBanner } from '~/components/unsaved-changes-banner'

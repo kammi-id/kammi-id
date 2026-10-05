@@ -5,8 +5,6 @@ import {
   type HomeHeroItemsSettings,
   type HomeExtraItemsSettings,
   type AboutSettings,
-  type NavSettings,
-  type FooterSettings,
   type MetadataSettings
 } from '~/db/query/site-settings'
 
@@ -45,32 +43,6 @@ export const getCachedAboutSettings = async (
   return readSiteSettings<AboutSettings>(
     'about',
     SETTINGS_DEFAULTS.about,
-    organizationId
-  )
-}
-
-export const getCachedNavSettings = async (
-  organizationId: string
-): Promise<NavSettings> => {
-  'use cache'
-  cacheLife('days')
-  cacheTag('site-settings', `site-settings-nav-${organizationId}`)
-  return readSiteSettings<NavSettings>(
-    'nav',
-    SETTINGS_DEFAULTS.nav,
-    organizationId
-  )
-}
-
-export const getCachedFooterSettings = async (
-  organizationId: string
-): Promise<FooterSettings> => {
-  'use cache'
-  cacheLife('days')
-  cacheTag('site-settings', `site-settings-footer-${organizationId}`)
-  return readSiteSettings<FooterSettings>(
-    'footer',
-    SETTINGS_DEFAULTS.footer,
     organizationId
   )
 }
