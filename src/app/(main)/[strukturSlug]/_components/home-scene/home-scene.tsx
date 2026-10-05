@@ -1001,7 +1001,7 @@ export const HomeScene = ({
           {/* Stat cards at bottom */}
           <div
             ref={netCardsRef}
-            className='pointer-events-auto shrink-0 px-4 pb-8 sm:px-6 md:pb-12 lg:px-12'
+            className='pointer-events-auto shrink-0 px-4 pb-6 sm:px-6 md:pb-8 lg:px-12'
           >
             <div className='grid grid-cols-3 gap-3 lg:gap-4'>
               {statCards.map((card) => (

@@ -42,7 +42,7 @@ export const BeritaPreviewSection = async ({
 
   return (
     <section
-      className='bg-background relative w-full py-8 md:py-10'
+      className='bg-background relative w-full py-5 md:py-6'
       aria-labelledby='berita-preview-heading'
     >
       <div className='mx-auto w-full max-w-(--breakpoint-lg) px-6 lg:px-8'>

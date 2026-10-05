@@ -14,7 +14,7 @@ export const EventsPreviewSection = async ({
   return (
     <section
       aria-labelledby='events-heading'
-      className='bg-background py-8 md:py-10'
+      className='bg-background py-5 md:py-6'
     >
       <div className='mx-auto max-w-(--breakpoint-lg) px-6 lg:px-8'>
         <div className='flex flex-wrap items-end justify-between gap-4'>
