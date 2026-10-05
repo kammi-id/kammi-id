@@ -42,9 +42,7 @@ const FooterSettingsPageContent = async () => {
         </div>
       </div>
 
-      <div className='border-border rounded-3xl border bg-white px-6 py-6 shadow-xs'>
-        <FooterForm initialData={footer} pages={pages} />
-      </div>
+      <FooterForm initialData={footer} pages={pages} />
     </div>
   )
 }

@@ -9,15 +9,14 @@ import {
   Field,
   FieldGroup,
   FieldLabel,
-  FieldDescription,
-  FieldLegend,
-  FieldSet
+  FieldDescription
 } from '~/components/shadcn/ui/field'
 import { IconPicker } from '~/components/ui/icon-picker'
 import type { SettingsActionState } from '~/app/(dashboard)/dashboard/pages/home/_components/action'
 import type { FooterSettings } from '~/db/query/site-settings'
 import { normalizeFooter } from '~/lib/site-links'
 import { saveFooterAction } from './action'
+import { FooterFormSection } from './footer-form-section'
 import {
   FooterLinkList,
   type SitePage,
@@ -79,165 +78,190 @@ export const FooterForm = ({ initialData, pages }: Props) => {
         fd.set('footer', JSON.stringify(footer))
         formAction(fd)
       }}
-      className='flex flex-col gap-8'
+      className='flex flex-col gap-6'
     >
-      <FieldGroup>
-        <Field>
-          <FieldLabel htmlFor='footer-address'>Alamat Publik</FieldLabel>
-          <Textarea
-            id='footer-address'
-            value={footer.address}
-            onChange={(e) => setFooter({ ...footer, address: e.target.value })}
-          />
-          <FieldDescription>
-            Logo mengikuti logo Struktur. Kontak ini tampil di footer situs.
-          </FieldDescription>
-        </Field>
-        <Field>
-          <FieldLabel htmlFor='footer-phone'>Telepon</FieldLabel>
-          <Input
-            id='footer-phone'
-            type='tel'
-            value={footer.phone}
-            onChange={(e) => setFooter({ ...footer, phone: e.target.value })}
-            placeholder='+62…'
-          />
-        </Field>
-        <Field>
-          <FieldLabel htmlFor='footer-email'>Email</FieldLabel>
-          <Input
-            id='footer-email'
-            type='email'
-            value={footer.email}
-            onChange={(e) => setFooter({ ...footer, email: e.target.value })}
-          />
-        </Field>
-      </FieldGroup>
-      {footer.menus.map((menu, menuIndex) => (
-        <FieldSet key={menuIndex}>
-          <FieldLegend>Menu {menuIndex + 1}</FieldLegend>
+      <FooterFormSection
+        index='01'
+        title='Kontak'
+        description='Alamat publik, telepon, dan email yang tampil di footer situs.'
+      >
+        <FieldGroup>
           <Field>
-            <FieldLabel htmlFor={`footer-menu-${menuIndex}`}>
-              Judul Menu
-            </FieldLabel>
+            <FieldLabel htmlFor='footer-address'>Alamat Publik</FieldLabel>
+            <Textarea
+              id='footer-address'
+              value={footer.address}
+              onChange={(e) =>
+                setFooter({ ...footer, address: e.target.value })
+              }
+            />
+            <FieldDescription>
+              Logo mengikuti logo Struktur. Kontak ini tampil di footer situs.
+            </FieldDescription>
+          </Field>
+          <Field>
+            <FieldLabel htmlFor='footer-phone'>Telepon</FieldLabel>
             <Input
-              id={`footer-menu-${menuIndex}`}
-              value={menu.title}
-              onChange={(e) => setMenu(menuIndex, { title: e.target.value })}
+              id='footer-phone'
+              type='tel'
+              value={footer.phone}
+              onChange={(e) => setFooter({ ...footer, phone: e.target.value })}
+              placeholder='+62…'
             />
           </Field>
-          <FooterLinkList
-            menuTitle={menu.title || `Menu ${menuIndex + 1}`}
-            links={menu.links}
-            pages={pages}
-            onChange={(links) => setMenu(menuIndex, { links })}
-          />
-        </FieldSet>
-      ))}
-      <FieldGroup>
-        <h3 className='text-lg font-semibold'>Media Sosial</h3>
-        {footer.socials.map((link, index) => (
-          <FieldGroup key={index} className='gap-3'>
-            <Field>
-              <FieldLabel htmlFor={`social-label-${index}`}>Judul</FieldLabel>
-              <Input
-                id={`social-label-${index}`}
-                value={link.label}
-                onChange={(e) =>
-                  setFooter({
-                    ...footer,
-                    socials: footer.socials.map((item, i) =>
-                      i === index ? { ...item, label: e.target.value } : item
-                    )
-                  })
-                }
-              />
-            </Field>
-            <Field>
-              <FieldLabel htmlFor={`social-icon-${index}`}>Ikon</FieldLabel>
-              <IconPicker
-                id={`social-icon-${index}`}
-                value={link.icon}
-                onChange={(icon) =>
-                  setFooter({
-                    ...footer,
-                    socials: footer.socials.map((item, i) =>
-                      i === index ? { ...item, icon } : item
-                    )
-                  })
-                }
-              />
-            </Field>
-            <Field>
-              <FieldLabel htmlFor={`social-url-${index}`}>URL</FieldLabel>
-              <Input
-                id={`social-url-${index}`}
-                value={link.href}
-                onChange={(e) =>
-                  setFooter({
-                    ...footer,
-                    socials: footer.socials.map((item, i) =>
-                      i === index ? { ...item, href: e.target.value } : item
-                    )
-                  })
-                }
-                placeholder='https://…'
-              />
-            </Field>
-            <Button
-              type='button'
-              variant='ghost'
-              className='w-fit'
-              onClick={() =>
-                setFooter({
-                  ...footer,
-                  socials: footer.socials.filter((_, i) => i !== index)
-                })
-              }
-            >
-              Hapus {link.label}
-            </Button>
-          </FieldGroup>
-        ))}
-        <Field>
-          <FieldLabel htmlFor='social-preset'>
-            Pilih Ikon / Jejaring Sosial
-          </FieldLabel>
-          <IconPicker id='social-preset' value={preset} onChange={setPreset} />
-          <FieldDescription>
-            Pilih jejaring populer atau ikon tautan untuk menambahkan URL
-            kustom.
-          </FieldDescription>
-        </Field>
-        <Button
-          type='button'
-          variant='outline'
-          className='w-fit'
-          onClick={() =>
-            setFooter({
-              ...footer,
-              socials: [
-                ...footer.socials,
-                {
-                  label:
-                    SITE_ICONS.find((icon) => icon.value === preset)?.label ??
-                    'Tautan',
-                  icon: preset,
-                  href: ''
-                }
-              ]
-            })
-          }
+          <Field>
+            <FieldLabel htmlFor='footer-email'>Email</FieldLabel>
+            <Input
+              id='footer-email'
+              type='email'
+              value={footer.email}
+              onChange={(e) => setFooter({ ...footer, email: e.target.value })}
+            />
+          </Field>
+        </FieldGroup>
+      </FooterFormSection>
+      {footer.menus.map((menu, menuIndex) => (
+        <FooterFormSection
+          key={menuIndex}
+          index={String(menuIndex + 2).padStart(2, '0')}
+          title={`Menu ${menuIndex + 1}`}
+          description='Kolom tautan di footer. Geser untuk mengubah urutan; menu tanpa tautan disembunyikan.'
         >
-          Tambah Media Sosial / Tautan
-        </Button>
-      </FieldGroup>
+          <FieldGroup>
+            <Field>
+              <FieldLabel htmlFor={`footer-menu-${menuIndex}`}>
+                Judul Menu
+              </FieldLabel>
+              <Input
+                id={`footer-menu-${menuIndex}`}
+                value={menu.title}
+                onChange={(e) => setMenu(menuIndex, { title: e.target.value })}
+              />
+            </Field>
+            <FooterLinkList
+              menuTitle={menu.title || `Menu ${menuIndex + 1}`}
+              links={menu.links}
+              pages={pages}
+              onChange={(links) => setMenu(menuIndex, { links })}
+            />
+          </FieldGroup>
+        </FooterFormSection>
+      ))}
+      <FooterFormSection
+        index='04'
+        title='Media Sosial'
+        description='Ikon tautan media sosial di footer situs.'
+      >
+        <FieldGroup>
+          {footer.socials.map((link, index) => (
+            <FieldGroup key={index} className='gap-3'>
+              <Field>
+                <FieldLabel htmlFor={`social-label-${index}`}>Judul</FieldLabel>
+                <Input
+                  id={`social-label-${index}`}
+                  value={link.label}
+                  onChange={(e) =>
+                    setFooter({
+                      ...footer,
+                      socials: footer.socials.map((item, i) =>
+                        i === index ? { ...item, label: e.target.value } : item
+                      )
+                    })
+                  }
+                />
+              </Field>
+              <Field>
+                <FieldLabel htmlFor={`social-icon-${index}`}>Ikon</FieldLabel>
+                <IconPicker
+                  id={`social-icon-${index}`}
+                  value={link.icon}
+                  onChange={(icon) =>
+                    setFooter({
+                      ...footer,
+                      socials: footer.socials.map((item, i) =>
+                        i === index ? { ...item, icon } : item
+                      )
+                    })
+                  }
+                />
+              </Field>
+              <Field>
+                <FieldLabel htmlFor={`social-url-${index}`}>URL</FieldLabel>
+                <Input
+                  id={`social-url-${index}`}
+                  value={link.href}
+                  onChange={(e) =>
+                    setFooter({
+                      ...footer,
+                      socials: footer.socials.map((item, i) =>
+                        i === index ? { ...item, href: e.target.value } : item
+                      )
+                    })
+                  }
+                  placeholder='https://…'
+                />
+              </Field>
+              <Button
+                type='button'
+                variant='ghost'
+                className='w-fit'
+                onClick={() =>
+                  setFooter({
+                    ...footer,
+                    socials: footer.socials.filter((_, i) => i !== index)
+                  })
+                }
+              >
+                Hapus {link.label}
+              </Button>
+            </FieldGroup>
+          ))}
+          <Field>
+            <FieldLabel htmlFor='social-preset'>
+              Pilih Ikon / Jejaring Sosial
+            </FieldLabel>
+            <IconPicker
+              id='social-preset'
+              value={preset}
+              onChange={setPreset}
+            />
+            <FieldDescription>
+              Pilih jejaring populer atau ikon tautan untuk menambahkan URL
+              kustom.
+            </FieldDescription>
+          </Field>
+          <Button
+            type='button'
+            variant='outline'
+            className='w-fit'
+            onClick={() =>
+              setFooter({
+                ...footer,
+                socials: [
+                  ...footer.socials,
+                  {
+                    label:
+                      SITE_ICONS.find((icon) => icon.value === preset)?.label ??
+                      'Tautan',
+                    icon: preset,
+                    href: ''
+                  }
+                ]
+              })
+            }
+          >
+            Tambah Media Sosial / Tautan
+          </Button>
+        </FieldGroup>
+      </FooterFormSection>
       {state.error && (
         <p role='alert' className='text-destructive text-sm'>
           {state.error}
         </p>
       )}
-      <div className='flex flex-wrap items-center justify-end gap-3'>
+      {/* One action saves the whole footer, so the button stays in reach of
+          every section above it. */}
+      <div className='bg-background/90 sticky bottom-0 z-10 -mx-1 flex flex-wrap items-center justify-end gap-3 rounded-2xl border px-4 py-3 shadow-xs backdrop-blur'>
         <UnsavedChangesBanner isDirty={isDirty} />
         <Button type='submit' disabled={isPending}>
           {isPending ? 'Menyimpan…' : 'Simpan Pengaturan Footer'}
