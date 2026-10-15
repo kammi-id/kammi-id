@@ -17,7 +17,7 @@ import { resolveStrukturHost } from '~/lib/struktur/tenant-host'
 // Struktur: judul, tanggal, ringkasan (via `deriveSummary`, tiket 03), dan
 // tautan `.md` tiap butir. Dipakai `listBeritaFeedForOrg` yang sama dengan
 // `berita/feed.xml/route.ts` — sudah menyaring Terbit lewat
-// `terbitCutoffForQuery`, tidak dihitung ulang di sini.
+// instan sekarang, tidak dihitung ulang di sini.
 
 export const GET = async (
   _request: Request,

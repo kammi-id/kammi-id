@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useState, useSyncExternalStore, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { HugeiconsIcon } from '@hugeicons/react'
@@ -41,9 +41,12 @@ import { TypeChoiceCards } from './type-choice-cards'
 import { articlePernahTerbit, slugify } from './utils'
 import { createArticleAction, updateArticleAction } from './action'
 import {
-  publishedAtToWibWallClock,
-  wibWallClockToPublishedAt
-} from '~/lib/publikasi/tanggal-terbit'
+  INDONESIAN_TIMEZONES,
+  detectPublicationTimezone,
+  instantToWallClock,
+  wallClockToInstant,
+  type IndonesianTimezone
+} from '~/lib/publikasi/timezone'
 import {
   EVENT_TIMEZONES,
   eventInstantToWallClock,
@@ -81,19 +84,13 @@ interface ArticleFormProps {
   initial?: ArticleFormInitial
 }
 
-// Convert a stored `publishedAt` ISO string into the value shape a
-// datetime-local input expects ("YYYY-MM-DDTHH:mm") — as Asia/Jakarta wall
-// clock, via the ADR 0014 centralized helper. NOT the browser's local
-// timezone: this form is filled by a Humas who means "jam 6 pagi WIB" no
-// matter what timezone their OS happens to be set to, and `getFullYear()`/
-// `getHours()` (local getters) would silently reinterpret the stored WIB
-// digits through whatever timezone the browser runs in.
-const toDatetimeLocal = (iso?: string | null): string => {
-  if (!iso) return ''
-  const date = new Date(iso)
-  if (Number.isNaN(date.getTime())) return ''
-  return publishedAtToWibWallClock(date)
-}
+// Stable SSR snapshot; hydration then uses the browser zone without a mismatch.
+const subscribeTimezone = () => () => undefined
+const serverTimezone = (): IndonesianTimezone => 'Asia/Jakarta'
+const PUBLICATION_TIMEZONES = INDONESIAN_TIMEZONES.map((zone) => ({
+  value: zone.value,
+  label: `${zone.label} (UTC+${zone.offset})`
+}))
 
 // Dengan `cacheComponents`, Next menyembunyikan rute lewat `<Activity>`
 // alih-alih meng-unmount-nya — tanpa kunci ini, membuka "Tambah Artikel"
@@ -127,9 +124,16 @@ const ArticleFormFields = ({
   // ketukan pertama.
   const [slugTouched, setSlugTouched] = useState(Boolean(initial))
   const [slugManuallyUnlocked, setSlugManuallyUnlocked] = useState(false)
-  const [publishedAt, setPublishedAt] = useState(
-    toDatetimeLocal(initial?.publishedAt)
+  const [publishedAt, setPublishedAt] = useState(initial?.publishedAt ?? '')
+  const [publishNow, setPublishNow] = useState(false)
+  const detectedTimezone = useSyncExternalStore(
+    subscribeTimezone,
+    detectPublicationTimezone,
+    serverTimezone
   )
+  const [chosenTimezone, setChosenTimezone] =
+    useState<IndonesianTimezone | null>(null)
+  const publicationTimezone = chosenTimezone ?? detectedTimezone
   const [eventTimezone, setEventTimezone] = useState<EventTimezone>(
     initial?.eventTimezone ?? 'Asia/Jakarta'
   )
@@ -215,18 +219,6 @@ const ArticleFormFields = ({
     e.preventDefault()
     setErrors({})
 
-    // `publishedAt` di sini adalah nilai mentah `<input type="datetime-local">`
-    // — jam dinding WIB tanpa info zona sama sekali, BUKAN waktu lokal
-    // browser. `wibWallClockToPublishedAt` menaruh digitnya langsung ke slot
-    // UTC (bukan mengonversi lewat zona waktu proses), meniru cara driver
-    // basis data membaca `published_at` (ADR 0014, `tanggal-terbit.ts`) —
-    // itulah bug yang persis diperingatkan ADR itu: `new Date(publishedAt)`
-    // lama membaca string tanpa-zona sebagai waktu lokal, menggeser jam
-    // terbit sebesar offset WIB.
-    const isoPublishedAt = publishedAt
-      ? (wibWallClockToPublishedAt(publishedAt)?.toISOString() ?? undefined)
-      : undefined
-
     const payload = {
       organizationId,
       type,
@@ -236,10 +228,12 @@ const ArticleFormFields = ({
       featuredImage: featuredImage || undefined,
       galleryImages,
       penulis: penulis || undefined,
-      status,
+      status: publishNow && type !== 'page' ? ('published' as const) : status,
       tags,
       categoryId: categoryId ?? undefined,
-      publishedAt: type !== 'page' ? isoPublishedAt : undefined,
+      publishedAt:
+        type !== 'page' && !publishNow ? publishedAt || undefined : undefined,
+      publishNow: type !== 'page' && publishNow,
       eventStartsAt:
         type === 'event'
           ? eventWallClockToInstant(eventStartsAt, eventTimezone)?.toISOString()
@@ -308,22 +302,96 @@ const ArticleFormFields = ({
         </Field>
 
         {type !== 'page' && (
-          <Field
-            data-invalid={Boolean(fieldErrors('publishedAt')) || undefined}
-          >
-            <FieldLabel htmlFor='article-published-at'>
-              Tanggal Terbit
-            </FieldLabel>
-            <Input
-              id='article-published-at'
-              type='datetime-local'
-              value={publishedAt}
-              onChange={(e) => setPublishedAt(e.target.value)}
-              aria-invalid={Boolean(fieldErrors('publishedAt')) || undefined}
-            />
-            <FieldError errors={fieldErrors('publishedAt')} />
-            <FieldDescription>Jadwal publikasi dalam WIB.</FieldDescription>
-          </Field>
+          <FieldGroup>
+            <Field orientation='horizontal'>
+              <Switch
+                id='article-publish-now'
+                checked={publishNow}
+                onCheckedChange={setPublishNow}
+                disabled={isPending}
+              />
+              <div>
+                <FieldLabel htmlFor='article-publish-now'>
+                  Terbitkan sekarang
+                </FieldLabel>
+                <FieldDescription>
+                  Saat disimpan, artikel langsung berstatus Terbit. Tanggal
+                  Terbit diisi otomatis.
+                </FieldDescription>
+              </div>
+              <FieldError errors={fieldErrors('publishNow')} />
+            </Field>
+            {!publishNow && (
+              <>
+                <Field>
+                  <FieldLabel htmlFor='article-publication-timezone'>
+                    Zona waktu publikasi
+                  </FieldLabel>
+                  <Select
+                    value={publicationTimezone}
+                    items={PUBLICATION_TIMEZONES}
+                    onValueChange={(value) => {
+                      const zone = INDONESIAN_TIMEZONES.find(
+                        (item) => item.value === value
+                      )
+                      if (zone) setChosenTimezone(zone.value)
+                    }}
+                  >
+                    <SelectTrigger
+                      id='article-publication-timezone'
+                      className='w-full'
+                    >
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        {PUBLICATION_TIMEZONES.map((zone) => (
+                          <SelectItem key={zone.value} value={zone.value}>
+                            {zone.label}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                  <FieldDescription>
+                    Otomatis mengikuti zona perangkat bila sesuai WIB, WITA,
+                    atau WIT. Dapat diubah.
+                  </FieldDescription>
+                </Field>
+                <Field
+                  data-invalid={
+                    Boolean(fieldErrors('publishedAt')) || undefined
+                  }
+                >
+                  <FieldLabel htmlFor='article-published-at'>
+                    Tanggal Terbit
+                  </FieldLabel>
+                  <Input
+                    id='article-published-at'
+                    type='datetime-local'
+                    value={instantToWallClock(publishedAt, publicationTimezone)}
+                    onChange={(event) =>
+                      setPublishedAt(
+                        wallClockToInstant(
+                          event.target.value,
+                          publicationTimezone
+                        )?.toISOString() ?? ''
+                      )
+                    }
+                    aria-invalid={
+                      Boolean(fieldErrors('publishedAt')) || undefined
+                    }
+                  />
+                  <FieldError errors={fieldErrors('publishedAt')} />
+                  <FieldDescription>
+                    Jadwal mengikuti zona waktu pilihan. Mengganti zona
+                    menampilkan waktu setara; tanggal publik dan alamat berita
+                    tetap memakai WIB.
+                  </FieldDescription>
+                </Field>
+              </>
+            )}
+          </FieldGroup>
         )}
 
         {type === 'event' && (
@@ -514,7 +582,8 @@ const ArticleFormFields = ({
         <Field>
           <FieldLabel htmlFor='article-status'>Status</FieldLabel>
           <Select
-            value={status}
+            value={publishNow && type !== 'page' ? 'published' : status}
+            disabled={publishNow && type !== 'page'}
             onValueChange={(val) =>
               setStatus((val as ArticleStatus) ?? 'draft')
             }

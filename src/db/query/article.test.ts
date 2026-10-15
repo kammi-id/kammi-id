@@ -4,6 +4,7 @@ import {
   articleQuery,
   hasPublishedArticle,
   listLatestBeritaForOrg,
+  listBeritaFeedForOrg,
   listBeritaArsipForOrg,
   BERITA_ARSIP_PAGE_SIZE,
   listLatestBeritaJaringan,
@@ -319,71 +320,60 @@ describe('hasPublishedArticle', () => {
 })
 
 describe('listLatestBeritaForOrg', () => {
-  test('returns only Terbit blog articles for the org, newest first', async () => {
-    const orgId = process.env.TEST_ORGANIZATION_ID
-    if (!orgId) return // skip gracefully when no test DB is wired up
-
-    const terbitOld = await articleQuery.create({
-      organizationId: orgId,
-      type: 'blog',
-      title: 'Berita Lama',
-      slug: `berita-lama-${Date.now()}`,
-      body: { type: 'doc', content: [] },
-      status: 'published',
-      publishedAt: new Date('2020-01-01T00:00:00.000Z')
-    })
-    const terbitNew = await articleQuery.create({
-      organizationId: orgId,
-      type: 'blog',
-      title: 'Berita Baru',
-      slug: `berita-baru-${Date.now()}`,
-      body: { type: 'doc', content: [] },
-      status: 'published',
-      publishedAt: new Date('2020-06-01T00:00:00.000Z')
-    })
-    await articleQuery.create({
-      organizationId: orgId,
-      type: 'blog',
-      title: 'Berita Draf',
-      slug: `berita-draf-${Date.now()}`,
-      body: { type: 'doc', content: [] },
-      status: 'draft',
-      publishedAt: new Date('2020-01-01T00:00:00.000Z')
-    })
-    await articleQuery.create({
-      organizationId: orgId,
-      type: 'blog',
-      title: 'Berita Terjadwal',
-      slug: `berita-terjadwal-${Date.now()}`,
-      body: { type: 'doc', content: [] },
-      status: 'published',
-      publishedAt: new Date('2999-01-01T00:00:00.000Z')
-    })
-    await articleQuery.create({
-      organizationId: orgId,
-      type: 'page',
-      title: 'Halaman, Bukan Berita',
-      slug: `halaman-${Date.now()}`,
-      body: { type: 'doc', content: [] },
-      status: 'published',
-      publishedAt: new Date('2020-01-01T00:00:00.000Z')
-    })
-
-    const list = await listLatestBeritaForOrg(orgId, 12)
-    const ids = list.map((a) => a.id)
-
-    expect(ids).toContain(terbitOld.id)
-    expect(ids).toContain(terbitNew.id)
-    expect(ids.indexOf(terbitNew.id)).toBeLessThan(ids.indexOf(terbitOld.id))
+  test('real instants agree across preview, archive, feed and activation, excluding an hour-ahead article', async () => {
+    const suffix = Date.now().toString(36)
+    const [org] = await db
+      .insert(organization)
+      .values({
+        name: 'Publication instant fixture',
+        slug: `instant-${suffix}`,
+        code: `INST-${suffix}`,
+        type: 'pk',
+        isSiteActive: true
+      })
+      .returning()
+    try {
+      const now = Date.now()
+      const scheduled = await articleQuery.create({
+        organizationId: org.id,
+        type: 'blog',
+        title: 'An hour ahead',
+        slug: 'scheduled',
+        body: { type: 'doc', content: [] },
+        status: 'published',
+        publishedAt: new Date(now + 3_600_000)
+      })
+      expect(await hasPublishedArticle(org.id)).toBe(false)
+      const published = await articleQuery.create({
+        organizationId: org.id,
+        type: 'blog',
+        title: 'Published instant',
+        slug: 'published',
+        body: { type: 'doc', content: [] },
+        status: 'published',
+        publishedAt: new Date(now - 60_000)
+      })
+      expect(await hasPublishedArticle(org.id)).toBe(true)
+      const lists = [
+        await listLatestBeritaForOrg(org.id),
+        (await listBeritaArsipForOrg(org.id, 1)).items,
+        await listBeritaFeedForOrg(org.id)
+      ]
+      for (const list of lists) {
+        expect(list.map((item) => item.id)).toContain(published.id)
+        expect(list.map((item) => item.id)).not.toContain(scheduled.id)
+      }
+    } finally {
+      await db.delete(article).where(eq(article.organizationId, org.id))
+      await db.delete(organization).where(eq(organization.id, org.id))
+    }
   })
 })
 
 /**
  * Ticket 07 (arsip Berita per Situs Struktur). Fixture bersufiks dan
  * dibereskan sendiri tanpa TRUNCATE — mengikuti preseden `hasPublishedArticle`
- * di atas, bukan `listLatestBeritaForOrg` yang menumpang `TEST_ORGANIZATION_ID`
- * bersama tanpa pembersihan (berkas ini butuh isolasi ketat untuk menghitung
- * totalCount/totalPages dengan tepat).
+ * di atas. Isolasi diperlukan untuk menghitung totalCount/totalPages dengan tepat.
  */
 describe('listBeritaArsipForOrg', () => {
   const suffix = Date.now().toString(36)
@@ -806,21 +796,22 @@ describe('listBeritaJaringan & listLatestBeritaJaringan', () => {
   })
 
   test('listLatestBeritaJaringan returns the same cross-Struktur filter, newest first, limited', async () => {
+    // Keep fixtures strictly in the past: host and database clocks may drift.
+    await db
+      .update(article)
+      .set({ publishedAt: new Date('2000-01-01T00:00:00Z') })
+      .where(inArray(article.id, articleIds))
     const excluded = await seedArticle(
       {
         organizationId: deletedOrgId,
-        publishedAt: new Date(Date.now() - 500)
+        publishedAt: new Date('2021-01-01T00:00:00Z')
       },
       20
     )
-    // +60s, still well inside the Terbit cutoff (now + 7h) but guaranteed
-    // newer than every `Date.now() - X` fixture seeded by earlier tests in
-    // this block — a `- X` offset close to the process clock can otherwise
-    // race with a later test's own `Date.now()` within the same run.
     const included = await seedArticle(
       {
         organizationId: activeOrgId,
-        publishedAt: new Date(Date.now() + 60_000)
+        publishedAt: new Date('2020-01-01T00:00:00Z')
       },
       21
     )

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'bun:test'
 import { beritaPermalinkPath } from './utils'
 
 describe('beritaPermalinkPath', () => {
-  it('derives tahun/bulan from the UTC fields of publishedAt (Jakarta wall-clock digits)', () => {
+  it('derives tahun/bulan from the instant in Asia/Jakarta', () => {
     expect(
       beritaPermalinkPath({
         slug: 'contoh-berita',
@@ -21,15 +21,11 @@ describe('beritaPermalinkPath', () => {
   })
 
   it('does not shift a late-year publishedAt into the next year — the ADR 0014 regression case', () => {
-    // A naive derivation that applies the *process's own local timezone*
-    // (`getFullYear`/`getMonth`) instead of reading `publishedAt`'s raw
-    // digits (`getUTCFullYear`/`getUTCMonth`) would, on a server not running
-    // in UTC, shift this into a different month or year. Asserting against
-    // the literal stored digits (2025-12-31) is exactly what guards that.
+    // 23:00 WIB is 16:00 UTC; migration must preserve this calendar date.
     expect(
       beritaPermalinkPath({
         slug: 'akhir-tahun',
-        publishedAt: new Date('2025-12-31T23:00:00.000Z')
+        publishedAt: new Date('2025-12-31T16:00:00.000Z')
       })
     ).toBe('/berita/2025/12/akhir-tahun')
   })

@@ -31,7 +31,7 @@ export const article = pgTable(
     // penulis Berita sering bukan pemegang Akun. Nullable: artikel lama dan
     // Halaman (yang tidak wajib punya Penulis) tidak punya nilai di sini.
     penulis: t.text(),
-    publishedAt: t.timestamp('published_at'),
+    publishedAt: t.timestamp('published_at', { withTimezone: true }),
     eventStartsAt: t.timestamp('event_starts_at', { withTimezone: true }),
     eventEndsAt: t.timestamp('event_ends_at', { withTimezone: true }),
     eventTimezone: t.text('event_timezone', {

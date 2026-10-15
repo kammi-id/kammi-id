@@ -41,7 +41,8 @@ export const ArticleInputSchema = z
     status: z.enum(['draft', 'published', 'archived']),
     tags: z.array(z.string()).default([]),
     categoryId: z.string().uuid().optional(),
-    publishedAt: z.string().datetime().optional(),
+    publishedAt: z.string().datetime({ offset: true }).optional(),
+    publishNow: z.boolean().default(false),
     eventStartsAt: z.string().datetime().optional(),
     eventEndsAt: z.string().datetime().optional(),
     eventTimezone: z
@@ -63,10 +64,23 @@ export const ArticleInputSchema = z
       .optional(),
     eventCancelled: z.boolean().default(false)
   })
-  .refine((data) => data.type === 'page' || Boolean(data.publishedAt), {
-    message: 'Tanggal Terbit wajib diisi untuk Berita dan Event',
-    path: ['publishedAt']
-  })
+  .refine(
+    (data) =>
+      data.type === 'page' || data.publishNow || Boolean(data.publishedAt),
+    {
+      message: 'Tanggal Terbit wajib diisi untuk Berita dan Event',
+      path: ['publishedAt']
+    }
+  )
+  .refine(
+    (data) =>
+      !data.publishNow || (data.type !== 'page' && data.status === 'published'),
+    {
+      message:
+        'Terbitkan sekarang hanya berlaku untuk Berita dan Event berstatus Terbit',
+      path: ['publishNow']
+    }
+  )
   // Gambar utama wajib untuk Berita dan Event supaya daftar publik
   // tidak pernah tampil setengah bergambar — tetap opsional untuk Halaman.
   // Kolom DB `featuredImage` tetap nullable: kewajiban ini murni di level

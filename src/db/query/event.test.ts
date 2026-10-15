@@ -69,7 +69,7 @@ describe('Event publication and ownership', () => {
     })
     await seed('cancelled', { eventCancelled: true })
     await seed('draft', { status: 'draft' })
-    await seed('scheduled', { publishedAt: new Date(now + day * 10) })
+    await seed('scheduled', { publishedAt: new Date(now + 3_600_000) })
     await seed('archived', { status: 'archived' })
     await seed('foreign', { organizationId: otherId })
     await seed('page', { type: 'page' })

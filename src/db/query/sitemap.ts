@@ -1,8 +1,7 @@
-import { and, eq, lte } from 'drizzle-orm'
+import { and, eq, lte, sql } from 'drizzle-orm'
 import { db } from '~/db/db'
 import { article } from '~/db/schema/article.sql'
 import { organizationNotDeleted } from '~/db/query/organization'
-import { terbitCutoffForQuery } from '~/lib/publikasi/tanggal-terbit'
 
 export type SitemapArticlesForOrg = {
   halaman: Array<{ slug: string; updatedAt: Date }>
@@ -41,7 +40,7 @@ export const listSitemapArticlesForOrg = async (
           eq(article.organizationId, organizationId),
           eq(article.type, 'blog'),
           eq(article.status, 'published'),
-          lte(article.publishedAt, terbitCutoffForQuery()),
+          lte(article.publishedAt, sql`now()`),
           organizationNotDeleted(article.organizationId)
         )
       )

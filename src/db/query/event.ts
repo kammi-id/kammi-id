@@ -13,7 +13,6 @@ import { db } from '~/db/db'
 import { article } from '~/db/schema/article.sql'
 import { organization } from '~/db/schema/organization.sql'
 import { organizationNotDeleted } from './organization'
-import { terbitCutoffForQuery } from '~/lib/publikasi/tanggal-terbit'
 
 export type EventListKind = 'upcoming' | 'past' | 'cancelled'
 export const EVENT_PAGE_SIZE = 24
@@ -45,7 +44,7 @@ export const listEventsForOrg = async (
         eq(article.organizationId, organizationId),
         eq(article.type, 'event'),
         eq(article.status, 'published'),
-        lte(article.publishedAt, terbitCutoffForQuery()),
+        lte(article.publishedAt, sql`now()`),
         isNotNull(article.eventStartsAt),
         isNotNull(article.eventTimezone),
         isNull(organization.deletedAt),

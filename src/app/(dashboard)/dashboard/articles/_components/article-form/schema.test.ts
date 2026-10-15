@@ -61,3 +61,37 @@ describe('Event fields', () => {
     ).toBe(true)
   })
 })
+
+describe('Publication instants', () => {
+  test('accepts explicit offsets, rejects ambiguous local datetimes', () => {
+    expect(
+      ArticleInputSchema.safeParse({
+        ...input,
+        publishedAt: '2026-10-15T14:53:00+08:00'
+      }).success
+    ).toBe(true)
+    expect(
+      ArticleInputSchema.safeParse({
+        ...input,
+        publishedAt: '2026-10-15T14:53:00'
+      }).success
+    ).toBe(false)
+  })
+  test('publish now requires published status and can omit a manual date', () => {
+    expect(
+      ArticleInputSchema.safeParse({
+        ...input,
+        publishNow: true,
+        publishedAt: undefined
+      }).success
+    ).toBe(true)
+    expect(
+      ArticleInputSchema.safeParse({
+        ...input,
+        publishNow: true,
+        status: 'draft',
+        publishedAt: undefined
+      }).success
+    ).toBe(false)
+  })
+})

@@ -34,7 +34,7 @@ mock.module('next/cache', () => ({
   updateTag: () => undefined
 }))
 
-const { updateArticleAction } = await import('./action')
+const { createArticleAction, updateArticleAction } = await import('./action')
 
 describe('updateArticleAction — riwayat alamat Berita', () => {
   const suffix = Date.now().toString(36)
@@ -96,6 +96,40 @@ describe('updateArticleAction — riwayat alamat Berita', () => {
       await db.delete(article).where(inArray(article.id, articleIds))
     }
     await db.delete(organization).where(inArray(organization.id, orgIds))
+  })
+
+  it('publish now uses server time for create and update, ignoring a future client date', async () => {
+    const started = Date.now()
+    const result = await createArticleAction(
+      baseInput({
+        slug: `publish-now-${suffix}`,
+        publishNow: true,
+        publishedAt: '2099-01-01T00:00:00Z'
+      })
+    )
+    expect(result.success).toBe(true)
+    const [created] = await db
+      .select()
+      .from(article)
+      .where(eq(article.slug, `publish-now-${suffix}`))
+    articleIds.unshift(created.id)
+    expect(created.publishedAt!.getTime()).toBeGreaterThanOrEqual(started)
+    expect(created.publishedAt!.getTime()).toBeLessThanOrEqual(Date.now())
+    const updateStarted = Date.now()
+    const updated = await updateArticleAction(
+      created.id,
+      baseInput({
+        slug: created.slug,
+        publishNow: true
+      })
+    )
+    expect(updated.success).toBe(true)
+    const [saved] = await db
+      .select()
+      .from(article)
+      .where(eq(article.id, created.id))
+    expect(saved.publishedAt!.getTime()).toBeGreaterThanOrEqual(updateStarted)
+    expect(saved.publishedAt!.getTime()).toBeLessThanOrEqual(Date.now())
   })
 
   it('menyimpan riwayat saat slug Berita Terbit diubah', async () => {

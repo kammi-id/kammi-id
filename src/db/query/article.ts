@@ -3,7 +3,6 @@ import { article } from '~/db/schema/article.sql'
 import { organization } from '~/db/schema/organization.sql'
 import { articleCategory } from '~/db/schema/article-category.sql'
 import { organizationNotDeleted } from '~/db/query/organization'
-import { terbitCutoffForQuery } from '~/lib/publikasi/tanggal-terbit'
 import { eq, and, ilike, desc, lte, isNull, sql } from 'drizzle-orm'
 
 export type ArticleType = 'page' | 'blog' | 'event'
@@ -24,13 +23,7 @@ export type BeritaPreviewItem = {
  * combined-count pagination, cross-Struktur Berita Jaringan, and the stable
  * sort/index work spec "Pembacaan data" calls for — is a later ticket's job.
  *
- * The Terbit comparison happens in SQL via `now() AT TIME ZONE 'Asia/Jakarta'`
- * — converting Postgres' own `now()` (a `timestamptz`, a real instant) into
- * the Jakarta *wall-clock* reading of that instant, the same representation
- * `published_at` itself is stored in (`timestamp` with no zone — ADR 0014).
- * Comparing two real UTC instants instead, or applying the process's own
- * local timezone via JS `Date` methods, is exactly the "06.00 WIB terlempar
- * ke Desember tahun sebelumnya" bug that ADR warns about.
+ * Publication is a real instant; compare it directly with Postgres now().
  */
 export const listLatestBeritaForOrg = async (
   organizationId: string,
@@ -50,7 +43,7 @@ export const listLatestBeritaForOrg = async (
         eq(article.organizationId, organizationId),
         eq(article.type, 'blog'),
         eq(article.status, 'published'),
-        sql`${article.publishedAt} <= (now() AT TIME ZONE 'Asia/Jakarta')`,
+        lte(article.publishedAt, sql`now()`),
         organizationNotDeleted(article.organizationId),
         sql`EXISTS (
           SELECT 1 FROM ${organization} live_org
@@ -156,7 +149,7 @@ export const listBeritaArsipForOrg = async (
         eq(article.organizationId, organizationId),
         eq(article.type, 'blog'),
         eq(article.status, 'published'),
-        lte(article.publishedAt, terbitCutoffForQuery()),
+        lte(article.publishedAt, sql`now()`),
         isNull(organization.deletedAt),
         eq(organization.isNonActive, false)
       )
@@ -230,7 +223,7 @@ export const listBeritaFeedForOrg = async (
         eq(article.organizationId, organizationId),
         eq(article.type, 'blog'),
         eq(article.status, 'published'),
-        lte(article.publishedAt, terbitCutoffForQuery()),
+        lte(article.publishedAt, sql`now()`),
         organizationNotDeleted(article.organizationId)
       )
     )
@@ -304,7 +297,7 @@ export const listLatestBeritaJaringan = async (
       and(
         eq(article.type, 'blog'),
         eq(article.status, 'published'),
-        lte(article.publishedAt, terbitCutoffForQuery()),
+        lte(article.publishedAt, sql`now()`),
         isNull(organization.deletedAt),
         eq(organization.isSiteActive, true)
       )
@@ -364,7 +357,7 @@ export const listBeritaJaringan = async (
       and(
         eq(article.type, 'blog'),
         eq(article.status, 'published'),
-        lte(article.publishedAt, terbitCutoffForQuery()),
+        lte(article.publishedAt, sql`now()`),
         isNull(organization.deletedAt),
         eq(organization.isSiteActive, true)
       )
@@ -540,10 +533,7 @@ export const articleQuery = {
 // doesn't count: CONTEXT.md calls it "tak bertanggal" and outside Berita's
 // archive, so it can't be what "Berita Terbit" means.
 //
-// `publishedAt` is compared against `terbitCutoffForQuery()`
-// (`~/lib/publikasi/tanggal-terbit`), not a raw `new Date()` — the column
-// stores Asia/Jakarta wall-clock digits directly (ADR 0014), so comparing it
-// straight against a true UTC instant is off by the WIB offset.
+// ADR 0032: published_at is a real instant, compared directly with now().
 export const hasPublishedArticle = async (
   organizationId: string
 ): Promise<boolean> => {
@@ -555,7 +545,7 @@ export const hasPublishedArticle = async (
         eq(article.organizationId, organizationId),
         eq(article.type, 'blog'),
         eq(article.status, 'published'),
-        lte(article.publishedAt, terbitCutoffForQuery()),
+        lte(article.publishedAt, sql`now()`),
         organizationNotDeleted(article.organizationId)
       )
     )

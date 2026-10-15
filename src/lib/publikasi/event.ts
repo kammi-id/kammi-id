@@ -1,44 +1,21 @@
-export const EVENT_TIMEZONES = [
-  { value: 'Asia/Jakarta', label: 'WIB' },
-  { value: 'Asia/Makassar', label: 'WITA' },
-  { value: 'Asia/Jayapura', label: 'WIT' }
-] as const
+import {
+  INDONESIAN_TIMEZONES,
+  instantToWallClock,
+  wallClockToInstant,
+  type IndonesianTimezone
+} from './timezone'
 
-export type EventTimezone = (typeof EVENT_TIMEZONES)[number]['value']
+export const EVENT_TIMEZONES = INDONESIAN_TIMEZONES
+export type EventTimezone = IndonesianTimezone
+export const eventInstantToWallClock = instantToWallClock
+export const eventWallClockToInstant = wallClockToInstant
 
 const TIMEZONE_OFFSETS: Record<EventTimezone, number> = {
   'Asia/Jakarta': 7,
   'Asia/Makassar': 8,
   'Asia/Jayapura': 9
 }
-
-const HOUR_MS = 60 * 60 * 1000
-
-export const eventInstantToWallClock = (
-  date: Date | string,
-  timezone: EventTimezone
-): string => {
-  const instant = date instanceof Date ? date : new Date(date)
-  if (!Number.isFinite(instant.getTime())) return ''
-
-  return new Date(instant.getTime() + TIMEZONE_OFFSETS[timezone] * HOUR_MS)
-    .toISOString()
-    .slice(0, 16)
-}
-
-export const eventWallClockToInstant = (
-  value: string,
-  timezone: EventTimezone
-): Date | null => {
-  if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(value)) return null
-
-  const offset = String(TIMEZONE_OFFSETS[timezone]).padStart(2, '0')
-  const instant = new Date(`${value}:00+${offset}:00`)
-  // Parsing alone accepts impossible dates such as February 30 by rolling over.
-  if (eventInstantToWallClock(instant, timezone) !== value) return null
-
-  return instant
-}
+const HOUR_MS = 3_600_000
 
 export const eventEffectiveEnd = (
   startsAt: Date,

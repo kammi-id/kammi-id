@@ -147,8 +147,9 @@ export const createArticleAction = async (
         errors: { categoryId: [categoryError] }
       }
 
+    const { publishNow, ...articleData } = validated.data
     const created = await articleQuery.create({
-      ...validated.data,
+      ...articleData,
       eventStartsAt:
         validated.data.type === 'event' && validated.data.eventStartsAt
           ? new Date(validated.data.eventStartsAt)
@@ -165,9 +166,11 @@ export const createArticleAction = async (
         validated.data.type === 'event' ? validated.data.eventUrl : null,
       eventCancelled:
         validated.data.type === 'event' && validated.data.eventCancelled,
-      publishedAt: validated.data.publishedAt
-        ? new Date(validated.data.publishedAt)
-        : null
+      publishedAt: publishNow
+        ? new Date()
+        : validated.data.publishedAt
+          ? new Date(validated.data.publishedAt)
+          : null
     })
 
     revalidatePath('/dashboard/articles')
@@ -232,9 +235,12 @@ export const updateArticleAction = async (
         errors: { categoryId: [categoryError] }
       }
 
-    const newPublishedAt = validated.data.publishedAt
-      ? new Date(validated.data.publishedAt)
-      : null
+    const { publishNow, ...articleData } = validated.data
+    const newPublishedAt = publishNow
+      ? new Date()
+      : validated.data.publishedAt
+        ? new Date(validated.data.publishedAt)
+        : null
 
     // WAJIB sebelum `articleQuery.update` di bawah — begitu update jalan,
     // `existing.slug`/`existing.publishedAt` tidak lagi mewakili alamat lama
@@ -245,7 +251,7 @@ export const updateArticleAction = async (
     })
 
     const updated = await articleQuery.update(id, {
-      ...validated.data,
+      ...articleData,
       eventStartsAt:
         validated.data.type === 'event' && validated.data.eventStartsAt
           ? new Date(validated.data.eventStartsAt)

@@ -75,7 +75,7 @@ describe('GET /tentang.md (Salinan Markdown Tentang)', () => {
     })
 
     const text = await res.text()
-    expect(text).toContain('date: "2026-08-03T00:00:00+07:00"')
+    expect(text).toContain('date: "2026-08-03T07:00:00+07:00"')
   })
 
   it('menjawab 404 ketika Situs tidak dapat dinavigasi', async () => {

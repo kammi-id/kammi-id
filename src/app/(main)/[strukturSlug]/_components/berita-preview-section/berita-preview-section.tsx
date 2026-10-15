@@ -1,3 +1,4 @@
+import { formatTanggalTerbit } from '~/lib/publikasi/tanggal-terbit'
 import { PublicationRow } from '../publication-row'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -105,12 +106,7 @@ export const BeritaPreviewSection = async ({
               </div>
               <div className='p-4'>
                 <p className='text-muted-foreground font-sans text-xs font-medium'>
-                  {new Date(item.publishedAt).toLocaleDateString('id-ID', {
-                    day: 'numeric',
-                    month: 'long',
-                    year: 'numeric',
-                    timeZone: 'UTC'
-                  })}
+                  {formatTanggalTerbit(item.publishedAt)}
                 </p>
                 <h3 className='font-heading text-foreground mt-1.5 line-clamp-2 text-base leading-snug font-bold'>
                   {item.title}
