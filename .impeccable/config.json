@@ -1,0 +1,71 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "design-system-color",
+        "value": "#1b3f6e",
+        "files": [
+          "src/components/og-image/og-image.tsx"
+        ],
+        "createdAt": "2026-09-03T03:27:02.439Z",
+        "reason": "pre-existing OG-image navy gradient, carried over unchanged from before ticket 04; OG cards are a satori-rendered one-off, not part of the app UI design system DESIGN.md covers"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#0c2340",
+        "files": [
+          "src/components/og-image/og-image.tsx"
+        ],
+        "createdAt": "2026-09-03T03:27:02.477Z",
+        "reason": "pre-existing OG-image navy gradient, carried over unchanged from before ticket 04; OG cards are a satori-rendered one-off, not part of the app UI design system DESIGN.md covers"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "rgba(0,0,0,0.75)",
+        "files": [
+          "src/components/og-image/og-image.tsx"
+        ],
+        "createdAt": "2026-09-03T03:27:02.512Z",
+        "reason": "ticket 04 scrim gradient, deliberately fixed opacity (not adaptive) per ticket spec; OG card styling, outside app UI design system scope"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "public sans",
+        "files": [
+          "src/components/og-image/og-image.tsx"
+        ],
+        "createdAt": "2026-09-03T03:27:02.548Z",
+        "reason": "pre-existing OG-image font (CDN-fetched Public Sans 700), carried over unchanged from before ticket 04; satori render target, not app UI"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "rgba(0,0,0,0.35)",
+        "files": [
+          "src/components/og-image/og-image.tsx"
+        ],
+        "createdAt": "2026-09-03T03:27:27.614Z",
+        "reason": "ticket 04 scrim gradient, deliberately fixed opacity (not adaptive) per ticket spec; OG card styling, outside app UI design system scope"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#111827",
+        "createdAt": "2026-09-03T12:12:50.139Z",
+        "reason": "satori/ImageResponse in og-image can't read CSS custom properties (ticket 10) — plakat/chip dark text is necessarily a hex literal, not a DESIGN.md token"
+      },
+      {
+        "rule": "design-system-radius",
+        "value": "20px",
+        "createdAt": "2026-09-03T12:12:50.180Z",
+        "reason": "og-image plakat radius, satori-rendered, no CSS variable support (ticket 10)"
+      },
+      {
+        "rule": "design-system-radius",
+        "value": "999px",
+        "createdAt": "2026-09-03T12:12:50.243Z",
+        "reason": "og-image pill radius, satori-rendered, no CSS variable support (ticket 10)"
+      }
+    ]
+  }
+}

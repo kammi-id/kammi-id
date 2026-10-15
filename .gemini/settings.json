@@ -1,0 +1,35 @@
+{
+  "mcpServers": {
+    "next-devtools": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "next-devtools-mcp@latest"
+      ]
+    },
+    "chrome-devtools": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "chrome-devtools-mcp@latest"
+      ]
+    },
+    "shadcn": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "shadcn@latest",
+        "mcp"
+      ]
+    }
+  },
+  "experimental": {
+    "gemmaModelRouter": {
+      "enabled": true,
+      "classifier": {
+        "host": "http://localhost:9379",
+        "model": "gemma3-1b-gpu-custom"
+      }
+    }
+  }
+}

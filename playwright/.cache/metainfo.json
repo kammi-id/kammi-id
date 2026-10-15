@@ -1,0 +1,23 @@
+{
+  "version": "1.59.1",
+  "viteVersion": "6.4.2",
+  "registerSourceHash": "ea233d95b980072c81eb49458aee55f5d33fdb02",
+  "components": [
+    {
+      "id": "_Users_radenpioneer_projects_kammi_id__worktree_dev_20260104_src_components_shadcn_ui_button_button_Button",
+      "filename": "/Users/radenpioneer/projects/kammi-id/.worktree/dev-20260104/src/components/shadcn/ui/button/button.spec.tsx",
+      "importSource": "./button",
+      "remoteName": "Button"
+    }
+  ],
+  "sources": {
+    "/Users/radenpioneer/projects/kammi-id/.worktree/dev-20260104/playwright/index.html": {
+      "timestamp": 1776778189038.1602
+    }
+  },
+  "deps": {
+    "/Users/radenpioneer/projects/kammi-id/.worktree/dev-20260104/src/components/shadcn/ui/button/button.tsx": [
+      "/Users/radenpioneer/projects/kammi-id/.worktree/dev-20260104/src/components/shadcn/ui/button/button.tsx"
+    ]
+  }
+}
