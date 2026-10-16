@@ -1,0 +1,8 @@
+<svg width="1200" height="750" viewBox="0 0 1200 750" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="750" fill="#F4E8E9"/>
+  <rect x="72" y="72" width="1056" height="606" rx="28" fill="#C8103D"/>
+  <circle cx="600" cy="300" r="112" fill="#F8DDE3"/>
+  <path d="M507 296C507 244 549 202 601 202C653 202 695 244 695 296V316H507V296Z" fill="#C8103D"/>
+  <path d="M472 504C472 416 529 345 600 345C671 345 728 416 728 504V524H472V504Z" fill="#C8103D"/>
+  <text x="600" y="590" text-anchor="middle" fill="#FFF8F9" font-family="Arial, sans-serif" font-size="48" font-weight="700">KAMMI NEWS</text>
+</svg>
